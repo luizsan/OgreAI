@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+    <head>
+        <title>OgreAI</title>
+
+        
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/layout.css">
+        <link rel="stylesheet" href="css/components.css">
+        <link rel="stylesheet" href="css/colors/dark.css">
+        <link rel="stylesheet" href="css/const.css">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+        <meta charset=utf-8>
+        <meta name="author" content="Luizsan">
+        <meta name="keywords" content="AI, chatbot, PygmalionAI">
+        <meta name="description" content="A client for PygmalionAI chatbot">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+        
+        <script defer src="js/dom.js"></script>
+        <script defer src="js/renderer.js"></script>
+    </head>
+    
+    <body>
+        <div id="chat" class="hidden">
+            <!-- NORMAL -->
+            <div id="messages"></div>
+            <div id="input">
+                <button id="options-button" class="side normal deselect svg-menu" title="More options"></button>
+
+                <div id="options" class="auto-close hidden">
+                    <button id="chat-share" class="options-item normal deselect svg-share" disabled>Share</button>
+                    <hr>
+                    <button id="chat-new" class="options-item normal deselect svg-new">New Chat</button> <!-- <span class="shortcut">Ctrl+Insert</span> -->
+                    <button id="chat-history" class="options-item normal deselect svg-history">Chat History</button>
+                    <hr>
+                    <button id="chat-regenerate" class="options-item normal deselect svg-reload">Regenerate<span class="shortcut">Ctrl+Space</span></button>
+                    <button id="chat-delete" class="options-item normal deselect danger svg-delete">Delete Messages<span class="shortcut">Ctrl+Delete</span></button>
+                </div>
+
+                <textarea id="input-field" placeholder="Type a message..."></textarea>
+
+                <button id="input-send" class="side normal deselect svg-send" title="Send message"></button>
+                <button id="input-loading" class="side hidden disabled deselect svg-loading"></button>
+            </div>
+
+            <!-- DELETE MODE -->
+            <div id="delete" class="section horizontal hidden">
+                <button id="delete-cancel" class="deselect component">Cancel</button>
+                <button id="delete-confirm" class="deselect component danger">Delete</button>
+            </div>
+
+            <div id="history" class="hidden">
+                
+            </div>
+        </div>
+
+        <div id="loading">
+
+        </div>
+
+        <div id="sidebar-left" class="sidebar left">
+            <div id="characters">
+                <button id="add" title="Add character" class="character deselect svg-add"></button>
+                <button id="import" title="Import character" class="character deselect svg-import hidden"></button>
+                <div id="list"></div>
+            </div>
+
+            <div id="editing" class="section vertical hidden fade-in">
+
+                <!-- MAIN SETTINGS -->
+                <div class="section setting">
+                    <button id="edit-close" class="close normal svg-close"></button>
+                    <img id="edit-avatar" class="avatar main-picture deselect">
+                    <p class="title">Avatar</p>
+                    <p class="explanation">The character's display image.</p>
+                    <input type="file" id="edit-avatar-upload" class="component" accept="image/png, image/jpeg">
+                </div>
+
+                <div class="section setting">
+                    <p class="title required">Character Name</p>
+                    <p class="explanation">The name of the character displayed in chat.</p>
+                    <input type="text" id="edit-name" class="component single" rows="1" placeholder="New character">
+                </div>
+
+                <div class="section setting">
+                    <p class="title">Description</p>
+                    <p class="explanation">Description of personality and other characteristics.</p>
+                    <textarea id="edit-description" class="component resizable" rows="8"></textarea>
+                </div>
+                
+                <div class="section setting">
+                    <p class="title">Greeting</p>
+                    <p class="explanation">The character will start a chat with this message.</p>
+                    <textarea id="edit-greeting" class="component resizable" rows="8" placeholder="Hey, {{user}}! How is it going?"></textarea>
+                </div>
+
+                <!-- ADDITIONAL SETTINGS -->
+                <div class="section">
+                    <button id="detailed-collapsible" class="deselect component collapsible ">Detailed Info</button>
+                    <div id="detailed-info" class="collapsible-content">
+                        <div class="collapsible-container">
+                            <div class="section setting">
+                                <p class="title">Personality</p>
+                                <p class="explanation">A brief description of the personality.</p>
+                                <input type="text" id="edit-personality" class="component single"/>
+                            </div>
+
+                            <div class="section setting">
+                                <p class="title">Scenario</p>
+                                <p class="explanation">Circumstances and context of the dialogue.</p>
+                                <textarea type="text" id="edit-scenario" class="component resizable" rows="4"></textarea>
+                            </div>
+
+                            <div class="section setting">
+                                <p class="title">Dialogue Examples</p>
+                                <p class="explanation">Forms a personality more clearly.</p>
+                                <textarea id="edit-dialogue" class="component resizable" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADVANCED SETTINGS -->
+                <!-- <div class="section">
+                    <button id="advanced-collapsible" class="deselect component collapsible" disabled>Advanced Settings</button>
+                    <div id="advanced-info" class="collapsible-content">
+                        <div class="collapsible-container">
+                            <p><span>Only change these values if you know what you're doing!</span></p>
+
+                            <div class="section">
+                                <input type="checkbox" id="char-overrides">Override generation settings</input>
+                            </div>
+
+                            <div class="section">
+                                <p>Temperature</p>
+                                <input type="range" class="component">
+                            </div>
+                    
+                            <div class="section">
+                                <p>Repetition Penalty</p>
+                                <input type="range" class="component">
+                            </div>
+                    
+                            <div class="section">
+                                <p>Repetition Penalty Range</p>
+                                <input type="range" class="component">
+                            </div>
+
+                            <div class="section">
+                                <p>top_p</p>
+                                <input type="range" class="component">
+                            </div>
+            
+                            <div class="section">
+                                <p>top_k</p>
+                                <input type="range" class="component">
+                            </div>
+            
+                            <div class="section">
+                                <p>typical_p</p>
+                                <input type="range" class="component">
+                            </div>
+
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="section">
+                    <p class="title">Token count</p>
+                    <p class="explanation">Tokens used by the character's info in a prompt.</p>
+                    <p id="edit-tokens" class="explanation disabled">0 Tokens</p>
+                </div>
+
+                <div class="section horizontal">
+                    <button id="edit-create" class="deselect component">Create</button>
+                    <button id="edit-export" class="deselect component">Export</button>
+                    <button id="edit-delete" class="deselect component danger">Delete</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="sidebar-right" class="sidebar right">
+            <div class="tab-group">
+                <button id="target-customize" class="deselect component tab" disabled>Customize</button>
+                <button id="target-profile" class="deselect component tab">Profile</button>
+                <button id="target-settings" class="deselect component tab selected">Settings</button>
+            </div>
+
+            <div id="settings" class="section vertical tab-container fade-in">
+                <div class="section vertical">
+                    <div class="section">
+                        <p class="title">API URL</p>
+                        <p id="setting-status" class="explanation danger disabled">Not connected</p>
+                        <input type="text" id="field-api_url" class="component single" placeholder="http://127.0.0.1:5000/api" rows="1"></input>
+                    </div>
+                    <div class="section horizontal">
+                        <button id="setting-api_connect" class="deselect component">Connect</button>
+                        <button id="setting-api_disconnect" class="deselect component danger">Disconnect</button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="section vertical">
+
+                    <!-- <p class="title">Global Settings</p> -->
+                    <!-- <p>Can be overriden by character settings</p> -->
+
+
+                    <div setting="setting-context_size" class="setting">
+                        <p class="title">Context size</p>
+                        <p class="explanation">Number of context tokens to submit to the AI for sampling. Make sure this is higher than Output Length. Higher values increase VRAM/RAM usage. (Default: 1024)</p>
+                        <div>
+                            <input type="text" id="field-context_size" class="component single" value="1024"/>
+                            <input type="range" id="range-context_size" class="component" min="512" max="2048" step="8" value="1024"/>
+                        </div>  
+                    </div> 
+                    
+                    <div id="setting-temperature" class="setting">
+                        <p class="title">Temperature</p>
+                        <p class="explanation">Randomness of sampling. Higher values can increase creativity, but make the output less meaningful. Lower values will make the output more predictable, but it may become more repetitive. (Default: 0.5)</p>
+                        <div>
+                            <input type="text" id="field-temperature" class="component single" value="0.5"/>
+                            <input type="range" id="range-temperature" class="component" min="0" max="2" step="0.01" value="0.5"/>
+                        </div>
+                    </div>
+
+                    <div setting="setting-max_length" class="setting">
+                        <p class="title">Max Response Size</p>
+                        <p class="explanation">Number of tokens to generate in a reply. A higher amount of tokens takes longer to generate and doesn't necessarily increase reply length, but prevents replies from being cut in the middle. (Default: 64)</p>
+                        <div>
+                            <input type="text" id="field-max_length" class="component single" value="1024"/>
+                            <input type="range" id="range-max_length" class="component" min="16" max="128" step="8" value="128"/>
+                        </div>  
+                    </div> 
+
+                    
+                    <div id="setting-repetition_penalty" class="setting">
+                        <p class="title">Repetition Penalty</p>
+                        <p class="explanation">Used to penalize words that were already generated or belong to the context. (Default: 1.05)</p>
+                        <div>
+                            <input type="text" id="field-repetition_penalty" class="component single" value="1.05"/>
+                            <input type="range" id="range-repetition_penalty" class="component" min="1" max="1.5" step="0.01" value="1.05"/>
+                        </div>         
+                    </div>
+                    
+                    <div id="setting-penalty_range" class="setting">
+                        <p class="title">Repetition Penalty Range</p>
+                        <p class="explanation">If set higher than 0, only applies repetition penalty to the last few tokens of the prompt rather than applying it to the entire prompt. The slider controls the amount of tokens at the end of your prompt to apply to. (Default: 1024)</p>
+                        <div>
+                            <input type="text" id="field-penalty_range" class="component single" value="1024"/>
+                            <input type="range" id="range-penalty_range" class="component" min="0" max="2048" step="8" value="1024"/>
+                        </div>
+                    </div>
+                    
+
+                    <div class="section">
+                        <button id="detailed-collapsible" class="deselect component collapsible">Advanced Settings</button>
+                        <div id="advanced-settings" class="collapsible-content">
+                            <div class="collapsible-container">
+
+                                <div id="setting-rep_pen_slope" class="setting">
+                                    <p class="title">Repetition Penalty Slope</p>
+                                    <p class="explanation">Repetition penalty slope. If both this setting and Repetition Penalty Range are set higher than 0, will use sigmoid interpolation to apply repetition penalty more strongly on tokens that are closer to the end of the story. Higher values will result in the repetition penalty difference between the start and end of your prompt being more apparent. (Setting this to 1 uses linear interpolation; setting this to 0 disables interpolation) (Default: 1)</p>
+                                    <div>
+                                        <input type="text" id="field-rep_pen_slope" class="component single" value="1"/>
+                                        <input type="range" id="range-rep_pen_slope" class="component" min="0" max="10" step="0.1" value="1"/>
+                                    </div>
+                                </div>
+
+                                <div id="setting-top_p" class="setting">
+                                    <p class="title">top_p</p>
+                                    <p class="explanation">Used to discard unlikely text in the sampling process. Lower values will make the output more predictable, but also repetitive. Put this value on 1 to disable its effect. (Default: 0.9)</p>
+                                    <div>
+                                        <input type="text" id="field-top_p" class="component single" value="0.9"/>
+                                        <input type="range" id="range-top_p" class="component" min="0" max="1" step="0.01" value="0.9"/>
+                                    </div>
+                                </div>
+                                
+                                <div id="setting-top_k" class="setting">
+                                    <p class="title">top_k</p>
+                                    <p class="explanation">Alternative sampling method. Can be combined with top_p. Put this value on 0 to disable its effect. (Default: 40)</p>
+                                    <div>
+                                        <input type="text" id="field-top_k" class="component single" value="40"/>
+                                        <input type="range" id="range-top_k" class="component" min="0" max="100" step="1" value="40"/>
+                                    </div>
+                                </div>
+                                
+                                <div id="setting-typical_p" class="setting">
+                                    <p class="title">typical_p</p>
+                                    <p class="explanation">Alternative sampling method. Described in the paper "Typical Decoding for Natural Language Generation" (10.48550/ARXIV.2202.00666). The paper indicates 0.2 as a suggested value for this setting. Put this value on 1 to disable its effect. (Default: 1)</p>
+                                    <div>
+                                        <input type="text" id="field-typical_p" class="component single" value="1"/>
+                                        <input type="range" id="range-typical_p" class="component" min="0" max="1" step="0.01" value="1"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <button id="setting-reset" class="deselect component danger">Reset Settings</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="profile" class="section vertical hidden tab-container fade-in">
+
+                <div class="section">
+                    <div id="profile-name" class="setting">
+                        <p class="title">User Name</p>
+                        <p class="explanation">Your name displayed in chat.</p>
+                        <input type="text" class="component single" placeholder="You" rows="1" id="field-profile-name"></input>
+                    </div>
+                </div>
+                
+                
+                <div class="section">
+                    <div id="profile-avatar" class="setting">
+                        <img class="avatar main-picture deselect" id="image-profile-avatar">
+                        <p class="title">Your Avatar</p>
+                        <p class="explanation">Your display image.</p>
+                        <input type="file" class="component" id="profile-avatar-upload" accept="image/png, image/jpeg">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- <div id="customize" class="section hidden tab-container">
+                <h2>Color scheme</h2>
+                <input type="checkbox">
+
+                <h2>Background</h2>
+                <img class="avatar main-picture deselect">
+                <input type="file" class="component">
+            </div> -->
+
+        </div>
+
+        <div id="header">
+            <div>
+                <button id="header-characters-button" class="normal deselect svg-menu" title="Characters"></button>
+            </div>
+            
+            <div id="app-title" class="deselect">(it's) OgreAI</div>
+
+            <div>
+                <button id="header-settings-button" class="normal deselect svg-settings" title="Settings"></button>
+            </div>
+        </div>
+    </body>
+
+</html>

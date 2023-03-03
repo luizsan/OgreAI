@@ -1,0 +1,22 @@
+:root{
+    --header-size: 40px;
+    --header-bg: #A0A0A0;
+    --avatar-size: 48px;
+    --main-width: 800px;
+
+    --sub-color: #363636;
+    --bg-color: #242425;
+    --accent-color: rgb(30, 150, 172);
+    
+    --input-color: #404040;
+    --input-text: #F0F0F0;
+
+    --msg-color: #2A2A2D;
+    --user-color: lightgreen;
+    --bot-color: skyblue;
+
+    --default-font-size: 15px;
+    --author-text-color: #e5e0d8;
+    --normal-text-color: #c5dfe2;
+    --action-text-color: #6a8795;
+}

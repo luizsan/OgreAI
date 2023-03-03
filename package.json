@@ -1,0 +1,34 @@
+{
+  "name": "ogreai",
+  "version": "0.1.0",
+  "description": "A client for PygmalionAI chatbot",
+  "main": "js/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pygmalion",
+    "pygmalionai",
+    "chatbot",
+    "chat",
+    "ai",
+    "client"
+  ],
+  "author": "luizsan",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^23.1.0"
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "gpt-3-encoder": "^1.1.4",
+    "marked": "^4.2.12",
+    "png-chunk-text": "^1.0.0",
+    "png-chunks-encode": "^1.0.0",
+    "png-chunks-extract": "^1.0.0",
+    "sharp": "^0.31.3"
+  }
+}
