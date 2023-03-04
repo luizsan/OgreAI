@@ -441,7 +441,7 @@ window.addEventListener('click', function (e) {
 // SETUP
 // ============================================================================
 
-SetAvatarCSS( "bot", "user/characters/satania.png" )
+SetAvatarCSS( "bot", "img/bot_default.png" )
 SetAvatarCSS( "user", "img/user_default.png" )
 
 DOM_HEADER_CHARACTERS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_LEFT, "active"));
