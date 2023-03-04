@@ -203,9 +203,7 @@ function BuildChat(chat){
             let msg = chat.messages[i]
             let is_bot = msg.participant > -1;
             let author = is_bot ? chat.participants[ msg.participant ] : CURRENT_PROFILE.name;
-            let swipe = msg.candidates[ msg.index ]
-            let content = ParseNames( swipe.text, CURRENT_PROFILE.name, chat.participants[ msg.participant ] )
-            chat.messages[i].dom = CreateMessage(null, author, swipe.timestamp, marked.parse(content), is_bot )
+            chat.messages[i].dom = CreateMessage(null, author, msg )
         }
 
         SetClass(DOM_CHAT, "hidden", false)
@@ -218,6 +216,7 @@ function BuildChat(chat){
 
 function SendMessage(){
     if(busy) return;
+
     ReceiveMessage({ "participant": -1, "candidate":{ "timestamp": Date.now(), "text": DOM_INPUT_FIELD.value.trim() }}, false)
     ClearTextArea();
     ResizeInputField();
@@ -235,17 +234,18 @@ function ReceiveMessage(msg, swipe = false){
             let is_bot = msg.participant > -1;
             let bot_name = CURRENT_CHAT.participants[ msg.participant ]
             let author = is_bot ? bot_name : CURRENT_PROFILE.name;
-            let content = ParseNames( msg.candidate.text, CURRENT_PROFILE.name, bot_name )
 
             if( swipe ){
-                //
+                let lastMessage = CURRENT_CHAT.messages.at(-1)
+                lastMessage.candidates.push( msg.candidate )
+                SwipeMessage( -1, lastMessage.candidates.length-1 )
             }else{
                 let entry = {
                     participant: msg.participant,
                     index: 0,
                     candidates: [ msg.candidate ],
                 }
-                entry.dom = CreateMessage(null, author, msg.candidate.timestamp, marked.parse(content), is_bot )
+                entry.dom = CreateMessage(null, author, entry )
                 CURRENT_CHAT.messages.push(entry)
             }
 
@@ -291,12 +291,15 @@ function ToggleChatHistory(state){
     SetClass(DOM_MESSAGES, "hidden", state)
     SetClass(DOM_INPUT, "hidden", state)
     SetClass(DOM_HISTORY, "hidden", !state)
+
+    if( state ){
+        RemoveAllChildren( DOM_HISTORY )
+    }
 }
 
 function DeleteCandidate( index, swipe = -1 ){
     if( !CURRENT_CHAT ) return;
     if( !CURRENT_CHAT.messages || CURRENT_CHAT.messages.length < 2 ) return;
-
 
     if( swipe < 0 ){
         swipe = CURRENT_CHAT.messages[index].index;
@@ -312,16 +315,55 @@ function DeleteCandidate( index, swipe = -1 ){
         CURRENT_CHAT.messages[ index ] = null;
         CURRENT_CHAT.messages = CURRENT_CHAT.messages.filter((item) => { return item });
         console.debug(`Deleted message at message index ${index}`)
+    }else{
+        ClampMessageIndex( CURRENT_CHAT.messages[ index ] )
+        SwipeMessage( index, CURRENT_CHAT.messages[ index ].index )
     }
 
     CURRENT_CHAT.Save( CURRENT_CHARACTER )
 }
 
-function SwipeMessage( direction, count ){
+function ClampMessageIndex( msg ){
+    if( msg.index < 0)
+        msg.index = 0;
+
+    if( msg.index > msg.candidates.length-1 )
+        msg.index = msg.candidates.length-1
+}
+
+function SwipeMessage( message_at, new_index ){
+    if( !CURRENT_CHAT ) return;
+    if( !CURRENT_CHAT.messages || CURRENT_CHAT.messages < 2 ) return;
+
     // for now, always swipe the last message
-    let message = CURRENT_CHAT.messages.at(-1)
+    let msg = CURRENT_CHAT.messages.at( message_at )
+    if( msg.participant < 0 ) return;
 
+    if( new_index < 0 )
+        new_index = 0;
 
+    if( new_index > msg.candidates.length-1 ){
+        new_index = msg.candidates.length-1;
+        if( busy ) return;
+        ToggleSendButton(false);
+        let prompt = MakePrompt( CURRENT_CHARACTER, CURRENT_CHAT.messages, CURRENT_SETTINGS, 1 );
+        Generate(prompt, CURRENT_SETTINGS, true)
+        return;
+    }
+        
+    msg.index = new_index
+
+    let content = msg.dom.getElementsByClassName("content")[0]
+    let swipes = msg.dom.getElementsByClassName("count")[0]
+    let text = msg.candidates[ msg.index ].text;
+
+    text = marked.parse( text )
+    text = ParseNames( text, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+
+    content.innerHTML = text;
+    swipes.innerHTML = `${ msg.index + 1} / ${ msg.candidates.length }`
+    DOM_MESSAGES.scrollTo( 0, DOM_MESSAGES.scrollHeight );
+    
 }
 
 function DeleteMessages(){
@@ -386,14 +428,26 @@ function CopyMessageContent(index){
     clipboard.writeText( CURRENT_CHAT.messages[index].candidates[swipe].text )
 }
 
-function CreateMessage(id, author, timestamp, text, is_bot){
+function GetMessageIndexFromDOM(dom){
+    if( !CURRENT_CHAT ) return -1;
+    if( !CURRENT_CHAT.messages ) return -1;
+
+    for( let i = 0; i < CURRENT_CHAT.messages.length; i++ ){
+        if( CURRENT_CHAT.messages[i].dom === dom){
+            return i;
+        }
+    }
+    return -1;
+}
+
+function CreateMessage(id, author, msg){
     let _div = document.createElement("div");
     if( id ){
         _div.id = id
-        _div.name = id
     }
 
     _div.classList.add("msg");
+    let is_bot = msg.participant > -1;
 
     if(is_bot){
         _div.classList.add("bot");
@@ -408,14 +462,26 @@ function CreateMessage(id, author, timestamp, text, is_bot){
     _text.classList.add("text");
 
     let _author = document.createElement("div");
-    let _date = new Date(timestamp)
     _author.classList.add("author");
+    
+    ClampMessageIndex( msg )
 
-    _author.innerHTML = `${author} <span class="timestamp">${_date.toLocaleString("ja-JP", date_options)}</span>`;
+    let _date = new Date( msg.candidates[ msg.index ].timestamp )
+    let _timestamp = document.createElement("span")
+    _timestamp.classList.add("timestamp")
+    _timestamp.innerHTML = `${ _date.toLocaleString("ja-JP", date_options) }`
+
+    _author.innerHTML = author;
+    _author.appendChild(_timestamp)
     
     let _content = document.createElement("div");
     _content.classList.add("content");
-    _content.innerHTML = text;
+
+
+    let _message = msg.candidates[ msg.index ].text;
+    _message = marked.parse( _message )
+    _message = ParseNames( _message, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    _content.innerHTML = marked.parse( _message );
 
     let _footer = document.createElement("div");
     _footer.classList.add("footer");
@@ -427,8 +493,8 @@ function CreateMessage(id, author, timestamp, text, is_bot){
     CreatePostActions(_div, _footer);
 
     if(is_bot){
-        CreatePostSwipes(_div, _footer);
-        CreatePostRatings(_div, _footer);
+        CreatePostSwipes( msg, _footer);
+        CreatePostRatings( msg, _footer);
     }
 
     _div.appendChild(_img);
@@ -476,7 +542,7 @@ function CreatePostSwipes(msg, parent){
 
     let _count = document.createElement("div");
     _count.classList.add("count");
-    _count.innerHTML = "1 / 1"
+    _count.innerHTML = `${msg.index+1} / ${msg.candidates.length}`
 
     let _next = document.createElement("button");
     _next.title = "Next candidate";
@@ -485,11 +551,11 @@ function CreatePostSwipes(msg, parent){
     _next.style.transform = "scaleX(-100%)";
 
     _prev.addEventListener("click", () => {
-        SwipeMessage( -1, _count )
+        SwipeMessage( -1, msg.index - 1 )
     })
     
     _next.addEventListener("click", () => {
-        SwipeMessage( 1, _count )
+        SwipeMessage( -1, msg.index + 1 )
     })
     // let index = GetElementIndex( DOM_MESSAGES, msg );
     // let swipe = CURRENT_CHAT.messages[index].index;
@@ -515,7 +581,7 @@ function CreatePostActions(msg, parent){
     _copy.title = "Copy message";
     _copy.classList.add("info")
     _copy.innerHTML = SVG.copy;
-
+    
     let _edit = document.createElement("button");
     _edit.title = "Edit message";
     _edit.classList.add("confirm")
@@ -562,47 +628,66 @@ function CreatePostActions(msg, parent){
     parent.appendChild(_actions);
 }
 
-function CreateEditMode(msg){
-    let index = GetElementIndex( DOM_MESSAGES, msg );
-    let swipe = CURRENT_CHAT.messages[index].index;
-    let content = msg.getElementsByClassName("content")[0]
+function CreateEditMode(dom){
+    let index = GetMessageIndexFromDOM( dom );
+    let msg = CURRENT_CHAT.messages[index];
+    let content = dom.getElementsByClassName("content")[0]
     RemoveAllChildren(content)
 
-    let _old = CURRENT_CHAT.messages[index].candidates[swipe].text;
+    let _old = msg.candidates[ msg.index ].text;
     let _area = document.createElement("textarea");
-    
-    _area.innerHTML = _old;
+    let _controls = document.createElement("div");
 
-    _area.oninput = function(e){
-        ResizeTextArea(e.target);
-    }
+    _area.innerHTML = _old;
+    _area.oninput = (e) => ResizeTextArea(e.target);
 
     _area.onkeydown = function(e){
         if(e.key == "Escape"){
-            msg.classList.remove("edit")
-            content.innerHTML = marked.parse( _old );
-            console.debug(`Cancelled editing message at index ${index}, swipe ${swipe}`)
+            CancelEdit(index, content, _old)
         }
-        
+
         if(e.ctrlKey && e.key == "Enter"){
-            msg.classList.remove("edit")
-            let _new = _area.value;
-            CURRENT_CHAT.messages[index].candidates[swipe].text = _new;
-            content.innerHTML = marked.parse( _new );
-            console.debug(`Successfully edited message at index ${index}, swipe ${swipe}`)
-            if( CURRENT_CHAT.messages.length > 1 ){
-                CURRENT_CHAT.Save( CURRENT_CHARACTER )
-            }
-            debounce = true;
+            ConfirmEdit(index, content, _area.value)
         }
     }
     
+    _controls.classList.add("controls")
+    _controls.style.textAlign = "right"
+    _controls.innerHTML = `Esc to <i class="info clickable" onclick=CancelEdit()>Cancel</i>, `
+    _controls.innerHTML += `Ctrl+Enter to <i class="info clickable" onclick=ConfirmEdit()>Save changes</i>`;
+
+    _controls.children[0].onclick = () => CancelEdit(index, content, _old)
+    _controls.children[1].onclick = () => ConfirmEdit(index, content, _area.value)
+    
     content.appendChild(_area);
+    content.appendChild(_controls);
+
     ResizeTextArea(_area);
 
     _area.autofocus = true;
     _area.focus();
     _area.setSelectionRange( _area.value.length, _area.value.length );
+}
+
+function CancelEdit(index, content, old_value){
+    let msg = CURRENT_CHAT.messages[index]
+    msg.dom.classList.remove("edit")
+    old_value = ParseNames( old_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    content.innerHTML = marked.parse( old_value );
+    console.debug(`Cancelled editing message at index ${index}, swipe ${msg.index}`)
+}
+
+function ConfirmEdit(index, content, new_value){
+    let msg = CURRENT_CHAT.messages[index]
+    msg.dom.classList.remove("edit")
+    msg.candidates[ msg.index ].text = new_value;
+    new_value = ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    content.innerHTML = marked.parse( new_value );
+    if( CURRENT_CHAT.messages.length > 1 ){
+        CURRENT_CHAT.Save( CURRENT_CHARACTER )
+    }
+    debounce = true;
+    console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
 }
 
 function CreateDeleteCheckbox(parent){
@@ -709,9 +794,9 @@ function SelectCharacter(character){
     
     if(character){
         creating = false;
+        CURRENT_CHARACTER = character;
         GetChat(character);
         ApplyCharacter(character);
-        CURRENT_CHARACTER = character;
         
         let avatar = default_avatar_bot;
         if( CURRENT_CHARACTER.metadata.filepath ){
@@ -881,7 +966,7 @@ function Generate(prompt, settings, swipe = false){
 
                 if(incoming_json.results){
                     let text_content = incoming_json.results[0].text;
-                    console.debug("Raw generated message:\n" + text_content)
+                    console.debug(`Raw generated ${swipe ? "swipe" : "message"}:\n${text_content}`)
 
                     let cut = text_content.search(message_cutoff)
                     if( cut > -1 ){

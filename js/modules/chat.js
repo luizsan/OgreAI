@@ -8,6 +8,7 @@ class Chat{
         this.participants = []
         this.created = timestamp
         this.last_interaction = timestamp
+        this.messages = []
 
         if( character ){
             this.participants.push( character.name )
@@ -59,42 +60,64 @@ class Chat{
         }
     }
 
+    static GetAllChats(character){
+        let chats = []
+        let target = path.join(Chat.path, character.name, "/" )
+        if(fs.existsSync(target)){
+
+            let files = fs.readdirSync(target)
+            for(let i = 0; i < files.length; i++){
+                if(!files[i].toLowerCase().endsWith('.json')){
+                    continue;
+                }
+                
+                try{
+                    let filepath = path.join( target, files[i] )
+                    let content = fs.readFileSync( filepath, "utf-8")
+                    let parsed = JSON.parse( content )
+                    if(parsed.messages < 1){
+                        continue;
+                    }
+                    
+                    let new_chat = new Chat()
+                    new_chat.SetFrom( parsed )
+                    chats.push( new_chat )
+
+                }catch(error){
+                    console.warn(error)
+                }
+            }
+        }
+
+        return chats;
+    }
+
     static GetLatestChat(character){
         if( !character ){
             return null;
         }
 
         let result = new Chat( character )
-        let target = path.join(Chat.path, character.name, "/" )
-        if(fs.existsSync(target)){
-            try{
-                let files = fs.readdirSync(target)
-                let latest_time = 0;
-                let latest_chat = null;
-                
-                for(let i = 0; i < files.length; i++){
-                    if(!files[i].toLowerCase().endsWith('.json')){
-                        continue;
-                    }
-                    
-                    let filepath = path.join(target, files[i])
-                    let chat = fs.readFileSync( filepath, "utf-8")
-                    let parsed = JSON.parse( chat )
-                    if( parsed.last_interaction > latest_time && parsed.messages.length > 0 ){
-                        latest_time = parsed.last_interaction;
-                        latest_chat = parsed;
-                    }
+        let latest_time = 0;
+        let latest_chat = null;
+        let chats = Chat.GetAllChats( character )
+        
+        try{
+            for(let i = 0; i < chats.length; i++){
+                let chat = chats[i]
+                if( chat.last_interaction > latest_time && chat.messages.length > 0 ){
+                    latest_time = chat.last_interaction;
+                    latest_chat = chat;
                 }
-    
-                if( latest_chat ){
-                    result.SetFrom( latest_chat )
-                    console.debug(`Loaded latest chat for character ${character.name}`)
-                    return result
-                }
-    
-            }catch(error){
-                console.warn(error)
             }
+
+            if( latest_chat ){
+                result.SetFrom( latest_chat )
+                console.debug(`Loaded latest chat for character ${character.name}`)
+                return result
+            }
+        }catch(error){
+            console.warn(error)
         }
 
         console.debug(`Started new chat for character ${character.name}`)

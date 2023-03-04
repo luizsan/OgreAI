@@ -227,6 +227,17 @@
     resize: none;
 }
 
+.msg .controls{
+    text-align: right;
+    font-size: 85%;
+    color: var( --explanation-text-color );
+}
+
+.msg .controls i{
+    font-style: unset;
+    font-size: unset;
+}
+
 .msg .footer{
     width: 100%;
     position: relative;
@@ -411,7 +422,8 @@
 }
 
 .msg.edit .footer-item{
-    visibility: hidden !important;
+    display: none;
+    /* visibility: hidden !important; */
 }
 
 #history{
