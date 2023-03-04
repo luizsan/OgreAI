@@ -101,15 +101,6 @@ DOM_EDIT_CREATE.addEventListener("click", () => {
 
 DOM_SECTION_EDITING.addEventListener("change", () => {
     if( !creating ){
-        if( !CURRENT_CHARACTER.name ){
-            ipcRenderer.send("show_error", { 
-                title: "Error creating character!", 
-                message: "Name is empty or invalid. Please input a valid name and try again.",
-                type: "error", 
-            })
-            return;
-        }
-
         GetCharacter( CURRENT_CHARACTER )
         UpdateCharacterEditingTokens( CURRENT_CHARACTER );
         let new_avatar = CURRENT_CHARACTER.metadata.filepath
@@ -129,7 +120,6 @@ DOM_SECTION_EDITING.addEventListener("change", () => {
         GetCharacter( CURRENT_CREATE )
         UpdateCharacterEditingTokens( CURRENT_CREATE );
     }
-
 })
 
 DOM_SECTION_PROFILE.addEventListener("change", () => {
@@ -645,6 +635,7 @@ function AddCharacterItem(json){
 }
 
 function Connect(){
+    if(!CURRENT_SETTINGS.api_url) return;
     SetServerStatus(null);
     GetStatus(CURRENT_SETTINGS.api_url);
 }
@@ -749,10 +740,6 @@ function GetCharacter(obj){
 
     if( DOM_EDIT_NAME.value.trim().length > 0 ){
         obj.name = DOM_EDIT_NAME.value.trim()
-    }else{
-        if( obj.name && obj.name.length > 0 ){
-            DOM_EDIT_NAME.value = obj.name
-        }
     }
     
     obj.description = DOM_EDIT_DESCRIPTION.value.trim()
@@ -995,12 +982,3 @@ BuildCharactersList( CURRENT_LIST )
 ApplyProfile( CURRENT_PROFILE );
 ApplySettings( CURRENT_SETTINGS );
 Connect();
-
-// test message
-ipcRenderer.send("show_message", {
-    title: "OgreAI", 
-    message: `test message`, 
-    detail: `details 0123`, 
-    buttons: [ "Cancel", "Delete Character", ],
-    icon: null,
-})
