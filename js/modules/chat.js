@@ -16,7 +16,10 @@ class Chat{
                     "participant": 0,
                     "index": 0,
                     "candidates": [ 
-                        { "timestamp": Date.now(), "text": character.greeting },
+                        { 
+                            "timestamp": Date.now(), 
+                            "text": character.greeting ? character.greeting : "Hello, {{user}}!"
+                        },
                     ],
                 },
             ]
