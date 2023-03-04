@@ -47,6 +47,10 @@ class Character{
     static LoadFromDirectory( directory_path ){
         var list = [];
         let target = path.join( directory_path )
+        if( !fs.existsSync(target) ){
+            fs.mkdirSync(target, { recursive: true })
+        }
+
         let files = fs.readdirSync(target)
     
         for(let i = 0; i < files.length; i++){

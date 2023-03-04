@@ -12,6 +12,11 @@ function SaveData(file_path, content){
 }
 
 function LoadData(file_path, defaults){
+    let dir = path.dirname(file_path)
+    if( !fs.existsSync(dir)){
+        fs.mkdirSync(dir, { recursive: true })
+    }
+
     let target = path.join(file_path)
     try {
         let content = fs.readFileSync(target, "utf-8")
@@ -24,6 +29,7 @@ function LoadData(file_path, defaults){
     
     try{
         fs.writeFileSync(target, JSON.stringify( defaults ))
+        return defaults;
     }catch(error){
         console.error(`Unable to write defaults at ${target}`)
     }
