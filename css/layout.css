@@ -347,6 +347,15 @@
     display: none;
 }
 
+.msg:first-child .swipes{
+    display: none;
+}
+
+.msg.edit .footer-item{
+    display: none;
+    /* visibility: hidden !important; */
+}
+
 #input{
     position: relative;
     min-height: 36px;
@@ -419,11 +428,6 @@
 
 .delete-mode .msg:hover .footer-item{
     visibility: hidden;
-}
-
-.msg.edit .footer-item{
-    display: none;
-    /* visibility: hidden !important; */
 }
 
 #history{

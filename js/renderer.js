@@ -345,6 +345,10 @@ function SwipeMessage( message_at, new_index ){
     if( new_index > msg.candidates.length-1 ){
         new_index = msg.candidates.length-1;
         if( busy ) return;
+        
+        // prevent swiping greetings
+        if( msg === CURRENT_CHAT.messages[0] ) return;
+
         ToggleSendButton(false);
         let prompt = MakePrompt( CURRENT_CHARACTER, CURRENT_CHAT.messages, CURRENT_SETTINGS, 1 );
         Generate(prompt, CURRENT_SETTINGS, true)
