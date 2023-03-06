@@ -1,31 +1,6 @@
 "use strict";
 
 // ============================================================================
-// DEFAULTS
-// ============================================================================
-
-const default_avatar_user = "img/user_default.png";
-const default_avatar_bot = "img/bot_default.png";
-
-const default_profile = {
-    "name": "You",
-    "avatar": "",
-}
-
-const default_settings = {
-    "api_url": "",
-    "max_length": 128,
-    "context_size": 1024,
-    "temperature": 0.5,
-    "repetition_penalty": 1.05,
-    "repetition_slope": 1,
-    "penalty_range": 1024,
-    "top_p": 0.9,
-    "top_k": 40,
-    "typical_p": 1,
-}
-
-// ============================================================================
 // CONST
 // ============================================================================
 
@@ -210,12 +185,12 @@ function OpenCharacterEditing(json){
 
 function ApplyProfile(json){
     DOM_PROFILE_NAME.value = json.name;
-    DOM_PROFILE_AVATAR.setAttribute("src", json.avatar ? json.avatar : "img/user_default.png");
-    SetAvatarCSS("user", json.avatar ? json.avatar : "img/user_default.png" )
+    DOM_PROFILE_AVATAR.setAttribute("src", json.avatar ? json.avatar : default_avatar_user);
+    SetAvatarCSS("user", json.avatar ? json.avatar : default_avatar_user )
 }
 
 function ApplyCharacter(json){
-    DOM_EDIT_AVATAR.setAttribute( "src", json.metadata.filepath ? json.metadata.filepath : "img/bot_default.png" );
+    DOM_EDIT_AVATAR.setAttribute( "src", json.metadata.filepath ? json.metadata.filepath : default_avatar_bot );
     DOM_EDIT_NAME.value = json.name;
     DOM_EDIT_DESCRIPTION.value = json.description;
     DOM_EDIT_GREETING.value = json.greeting;
@@ -389,6 +364,7 @@ function MarkDelete(target, e){
 
 
 function SetAvatarCSS(rule, url){
+    url = url.replaceAll("\\", "/")
     let prefix = `.msg.${rule} .avatar`;
     let style = `{ background-image: url("${url}"); }`;
 
@@ -459,9 +435,6 @@ window.addEventListener('click', function (e) {
 // ============================================================================
 // SETUP
 // ============================================================================
-
-SetAvatarCSS( "bot", "img/bot_default.png" )
-SetAvatarCSS( "user", "img/user_default.png" )
 
 DOM_HEADER_CHARACTERS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_LEFT, "active"));
 DOM_HEADER_SETTINGS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_RIGHT, "active"));

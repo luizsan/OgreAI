@@ -65,6 +65,13 @@ var CURRENT_CHAT = null;
 var CURRENT_LIST = [];
 
 // ============================================================================
+// DEFAULTS
+// ============================================================================
+
+const default_avatar_user = path.join( __dirname, "/img/user_default.png" );
+const default_avatar_bot = path.join( __dirname, "/img/bot_default.png" );
+
+// ============================================================================
 // EVENTS
 // ============================================================================
 
@@ -236,7 +243,7 @@ async function TryCreateCharacter(){
         CURRENT_CREATE.metadata.avatar = default_avatar_bot;
     }
     
-    let file_path = path.join( __dirname, Character.path, CURRENT_CREATE.name + ".png")
+    let file_path = path.join( Character.path, CURRENT_CREATE.name + ".png")
     SetClass(DOM_SECTION_EDITING, "hidden", true)
     
     await CURRENT_CREATE.WriteToFile( CURRENT_CREATE.metadata.avatar, file_path )
@@ -1248,6 +1255,10 @@ CURRENT_SETTINGS = LoadData( Settings.path, new Settings());
 CURRENT_LIST = Character.LoadFromDirectory( Character.path );
 BuildCharactersList( CURRENT_LIST )
 
+SetAvatarCSS( "bot", default_avatar_bot )
+SetAvatarCSS( "user", default_avatar_user )
+
 ApplyProfile( CURRENT_PROFILE );
 ApplySettings( CURRENT_SETTINGS );
+
 Connect();
