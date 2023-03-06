@@ -137,7 +137,7 @@ class Chat{
     
         try{
             if(!fs.existsSync(folder)){
-                fs.mkdirSync(folder);
+                fs.mkdirSync(folder, { recursive: true });
             }
     
             let json = JSON.stringify(this, function(key, value){ 
