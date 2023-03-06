@@ -1,7 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+let window = null;
 
 const createWindow = () => {
-    const window = new BrowserWindow({
+    window = new BrowserWindow({
         width: 1280,
         height: 720,
         fullscreen: false,
@@ -36,16 +37,17 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on("show_message", (_event, arg) => {
-    dialog.showMessageBox(arg);
+    let result = dialog.showMessageBox(arg);
+    if( arg.event ){
+        window.webContents.send( arg.event, result )
+    }
 })
 
 ipcMain.on("show_error", (_event, arg) => {
     dialog.showErrorBox(arg.title, arg.message);
 })
 
-ipcMain.on("import_character", (_event, _arg) => {
-    console.log( dialog.showOpenDialogSync({ 
-        filters: [{ name: '', extensions: ['json', 'png'] }],
-        properties: ['openFile', 'dontAddToRecent', ] 
-    }))
+ipcMain.on("open_file", (_event, arg) => {
+    let result = dialog.showOpenDialogSync(arg.options)
+    window.webContents.send( arg.event, result )
 });

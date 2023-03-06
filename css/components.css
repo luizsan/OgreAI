@@ -213,7 +213,7 @@ button.component.tab:hover{
 }
 
 .character:hover{
-    outline: 4px solid var(--accent-color-light);
+    outline: 4px solid var(--accent-color-normal);
 }
 
 .character img{

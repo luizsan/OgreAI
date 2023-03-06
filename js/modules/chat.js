@@ -1,6 +1,9 @@
 const fs = require("fs")
 const path = require("path")
 
+const CAI = require("../parsers/cai.js")
+const Tavern = require("../parsers/tavern.js")
+
 class Chat{
     constructor( character ){
         let timestamp = Date.now()
@@ -147,6 +150,54 @@ class Chat{
             console.warn(`Could not save chat at ${target}\n${error}`)
         }
     }
+
+    static ImportTavern( character, files ){
+        if( !character ) return;
+
+        for(let i = 0; i < files.length; i++){
+            try{
+                let file = files[i]
+                let content = fs.readFileSync( file, "utf-8")
+                let parsed = Tavern.ParseChat( content )
+                if( parsed ){
+                    let new_chat = new Chat( character );
+                    new_chat.SetFrom( parsed )
+                    new_chat.Save( character )
+                }
+            }catch(error){
+                console.warn("Error trying to import TavernAI chat:\n" + error.message)
+            }
+        }
+    }
+
+    static ImportCAI( character, file ){
+        if( !character ) return;
+        
+        try{
+            let content = fs.readFileSync( file, "utf-8")
+            let json = JSON.parse( content )
+            let chats = CAI.ParseChat( json )
+
+            for(let i = 0; i < chats.length; i++){
+                let new_chat = new Chat( character )
+                new_chat.SetFrom( chats[i] )
+                new_chat.Save( character )
+            } 
+        }catch(error){
+            console.warn("Error trying to import Character.AI chat:\n" + error.message)
+        }
+
+    }
+
+    static Delete( character, created ){
+        try{
+            let target = path.join(Chat.path, character.name, created + ".json" )
+            fs.unlinkSync(target)
+        }catch(error){
+            console.warn("Error trying to delete chat:\n" + error.message)
+        }
+    }
+
 }
 
 exports.Chat = Chat

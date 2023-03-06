@@ -1,11 +1,11 @@
-export function ParseCAIChat( json ){
+function ParseChat( json ){
     let chats = []
 
     if( !json ){ return chats; }
     if( !json.info || !json.info.character ){ return chats; }
     if( !json.histories || !json.histories.histories ){ return chats; }
 
-    for( let c = 0; json.histories.histories.length; c++ ){
+    for( let c = 0; c < json.histories.histories.length; c++ ){
         try{
             let cai_chat = json.histories.histories[c];
             let new_chat = {
@@ -28,16 +28,19 @@ export function ParseCAIChat( json ){
                         }
                     ]
                 }
+                new_chat.messages.push( new_msg )
             }
 
-            chats.push( new_chat )
+            if( new_chat.messages.length > 1 ){
+                chats.push( new_chat )
+            }
 
         }catch(error){
-            console.warn("Error reading character.ai chat\n" + error)
+            console.warn("Error reading Character.AI chat\n" + error)
         }
     }
 
     return chats;
 }
 
-exports.ParseCAIChat = ParseCAIChat
+exports.ParseChat = ParseChat

@@ -1,12 +1,12 @@
-export function ParseTavernChat( jsonl ){
+function ParseChat( jsonl ){
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
         return null;
     }
 
-    let info = JSON.parse( line[0] )
+    let info = JSON.parse( lines[0] )
     let chat = {
-        title: info.create_date.tosString(),
+        title: info.create_date.toString(),
         participants: [ info.character_name ],
         created: info.create_date,
         last_interaction: info.create_date,
@@ -32,4 +32,4 @@ export function ParseTavernChat( jsonl ){
     return chat;
 }
 
-exports.ParseTavernChat = ParseTavernChat
+exports.ParseChat = ParseChat

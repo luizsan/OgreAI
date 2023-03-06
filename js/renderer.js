@@ -30,8 +30,22 @@ const { Profile } = require("./js/modules/profile.js")
 const { Settings } = require("./js/modules/settings.js")
 const { SaveData, LoadData } = require("./js/modules/data.js")
 
+const marked_renderer = new marked.Renderer();
+marked_renderer.del = function(text) {
+    return "~" + text + "~";
+};
+
+marked_renderer.pre = function(text) {
+    return text;
+}
+
+marked_renderer.code = function(text) {
+    return text;
+}
+
 marked.setOptions({
     breaks: true,
+    renderer: marked_renderer,
 })
 
 // ============================================================================
@@ -80,11 +94,34 @@ DOM_INPUT_SEND.addEventListener("click", () => SendMessage());
 DOM_DELETE_CONFIRM.addEventListener("click", () => DeleteMessages());
 DOM_SETTINGS_CONNECT.addEventListener("click", () => Connect());
 DOM_SETTINGS_DISCONNECT.addEventListener("click", () => Disconnect());
-DOM_CHAT_OPTIONS_NEW.addEventListener("click", () => NewChat( CURRENT_CHARACTER ));
+DOM_CHAT_OPTIONS_NEW.addEventListener("click", () => {
+    NewChat( CURRENT_CHARACTER );
+    ToggleChatActive();
+});
 DOM_CHAT_OPTIONS_REGENERATE.addEventListener("click", () => RegenerateLastMessage( CURRENT_CHARACTER, CURRENT_CHAT, CURRENT_SETTINGS));
 DOM_CHAT_OPTIONS_HISTORY.addEventListener("click", () => ToggleChatHistory(true));
 DOM_CHAT_OPTIONS_DELETE.addEventListener("click", () => ToggleDeleteMode(true));
 DOM_DELETE_CANCEL.addEventListener("click", () => ToggleDeleteMode(false));
+DOM_HISTORY_BACK.addEventListener("click", () => ToggleChatActive())
+
+DOM_HISTORY_IMPORT_CAI.addEventListener("click", () => {
+    ipcRenderer.send("open_file", { 
+        event: "import_cai",
+        options: {
+            filters: [{ name: 'Character.AI chat dumps', extensions: ['json'] }],
+        }
+    })
+})
+
+DOM_HISTORY_IMPORT_TAVERN.addEventListener("click", () => {
+    ipcRenderer.send("open_file", { 
+        event: "import_tavern", 
+        options: { 
+            properties: [ "multiSelections" ],
+            filters: [{ name: 'TavernAI chat files', extensions: ['jsonl'] }],
+        }
+    })
+})
 
 DOM_CHARACTER_ADD.addEventListener("click", () => {
     SelectCharacter(null);
@@ -141,6 +178,22 @@ DOM_PROFILE_UPLOAD.addEventListener("change", (event) => {
 })
 
 // ============================================================================
+// CALLBACKS
+// ============================================================================
+
+ipcRenderer.on("import_tavern", (_event, args) => {
+    if( !args ) return;
+    Chat.ImportTavern( CURRENT_CHARACTER, args )
+    ToggleChatHistory(true)
+})
+
+ipcRenderer.on("import_cai", (_event, args) => {
+    if( !args ) return;
+    Chat.ImportCAI( CURRENT_CHARACTER, args[0] )
+    ToggleChatHistory(true)
+})
+
+// ============================================================================
 // METHODS
 // ============================================================================
 
@@ -182,7 +235,7 @@ function NewChat( character ){
     if( !character ) return;
 
     CURRENT_CHAT = new Chat( character )
-    BuildChat( CURRENT_CHAT)
+    BuildChat( CURRENT_CHAT )
 }
 
 function GetChat( character ){
@@ -205,10 +258,6 @@ function BuildChat(chat){
             let author = is_bot ? chat.participants[ msg.participant ] : CURRENT_PROFILE.name;
             chat.messages[i].dom = CreateMessage(null, author, msg )
         }
-
-        SetClass(DOM_CHAT, "hidden", false)
-        ResizeInputField();
-        DOM_MESSAGES.scrollTo( 0, DOM_MESSAGES.scrollHeight )
     }catch(error){
         console.warn(error)
     }
@@ -287,14 +336,99 @@ function ToggleDeleteMode(state){
 
 function ToggleChatHistory(state){
     if( busy && state ) return;
+    if( !CURRENT_CHARACTER ) return;
 
     SetClass(DOM_MESSAGES, "hidden", state)
     SetClass(DOM_INPUT, "hidden", state)
     SetClass(DOM_HISTORY, "hidden", !state)
+    SetClass(DOM_HISTORY_OPTIONS, "hidden", !state)
 
     if( state ){
         RemoveAllChildren( DOM_HISTORY )
+        let chats = Chat.GetAllChats( CURRENT_CHARACTER )
+
+        for( let i = 0; i < chats.length; i++ ){
+            let chat = chats[i]
+            let history = CreateChatHistoryItem( chat )
+            history.addEventListener("click", () => {
+                CURRENT_CHAT = chat;
+                BuildChat( CURRENT_CHAT )
+                ToggleChatActive();
+            })
+
+            DOM_HISTORY.appendChild( history )
+        }
+
+        DOM_CHAT.style.gridTemplateRows = "auto 72px";
+        console.debug(`Loaded ${chats.length} in chat history for character ${CURRENT_CHARACTER.name}`)
     }
+}
+
+function CreateChatHistoryItem( chat ){
+    let btn = document.createElement("button")
+    btn.classList.add("history")
+
+    let _left = document.createElement("div")
+    _left.classList.add("history-info")
+
+    let _right = document.createElement("div")
+    _right.classList.add("history-chat")
+
+    let _title = document.createElement("div")
+    _title.classList.add("title")
+    _title.innerHTML = "<p>" + (chat.title ? chat.title : chat.created) + "</p>";
+    _title.style.gridColumnStart = "1"
+    _title.style.gridColumnEnd = "3"
+
+    let _num = document.createElement("p")
+    _num.classList.add("explanation", "info", "disabled")
+    _num.innerHTML = `${chat.messages.length} ${(chat.messages.length > 1 ? "messages" : "message")}`;
+
+    let _last = document.createElement("p")
+    let _dateLast = new Date( chat.last_interaction )
+    _last.classList.add("explanation")
+    _last.innerHTML = `Last message: ${ _dateLast.toLocaleString("ja-JP", date_options) }`
+
+    let _created = document.createElement("p")
+    let _dateCreated = new Date( chat.created )
+    _created.classList.add("explanation")
+    _created.innerHTML = `Created: ${ _dateCreated.toLocaleString("ja-JP", date_options) }`
+
+    let msg = chat.messages.at(-1)
+    let _text = msg.candidates[ msg.index ].text
+    let _author = msg.participant > -1 ? chat.participants[ msg.participant ] : CURRENT_PROFILE.name
+    _text = marked.parse( _text )
+    _text = ParseNames( _text, CURRENT_PROFILE.name, chat.participants[ msg.participant ] )
+
+    _right.innerHTML = `<strong>${_author}:</strong> ${_text}`;
+
+    let _delete = document.createElement("button");
+    _delete.title = "Delete chat history";
+    _delete.classList.add("delete")
+    _delete.classList.add("danger")
+    _delete.innerHTML = SVG.delete;
+
+    _delete.children[0].style.marginTop = "5px";
+
+    _left.appendChild(_title)
+    _left.appendChild(_num)
+    _left.appendChild(_last)
+    _left.appendChild(_created)
+    _left.appendChild(_delete)
+    
+    _delete.addEventListener("click", () => {
+        Chat.Delete( CURRENT_CHARACTER, chat.created )
+        if( CURRENT_CHAT.created == chat.created ){
+            NewChat( CURRENT_CHARACTER )
+        }
+        btn.disabled = true;
+        btn.remove();
+    })
+
+    btn.appendChild(_left)
+    btn.appendChild(_right)
+
+    return btn;
 }
 
 function DeleteCandidate( index, swipe = -1 ){
@@ -419,12 +553,15 @@ function RegenerateLastMessage(character, chat, settings){
     SetClass(DOM_INPUT_OPTIONS_WINDOW, "hidden", true);
 
     if( chat.messages.at(-1).participant > -1 ){
-        RemoveLastMessage(chat);
+        // RemoveLastMessage(chat);
+        DeleteCandidate( chat.messages.length-1 );
     }
     
     ToggleSendButton(false);
-    let prompt = MakePrompt( character, chat.messages, settings );
-    Generate(prompt, settings)
+    let last_message = chat.messages.at(-1)
+    let swipe = last_message.participant > -1;
+    let prompt = MakePrompt( character, chat.messages, settings, swipe ? 1 : 0 );
+    Generate(prompt, settings, swipe)
 }
 
 function CopyMessageContent(index){
@@ -687,11 +824,11 @@ function ConfirmEdit(index, content, new_value){
     msg.candidates[ msg.index ].text = new_value;
     new_value = ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     content.innerHTML = marked.parse( new_value );
+    debounce = true;
+    console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
     if( CURRENT_CHAT.messages.length > 1 ){
         CURRENT_CHAT.Save( CURRENT_CHARACTER )
     }
-    debounce = true;
-    console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
 }
 
 function CreateDeleteCheckbox(parent){
@@ -799,8 +936,9 @@ function SelectCharacter(character){
     if(character){
         creating = false;
         CURRENT_CHARACTER = character;
-        GetChat(character);
         ApplyCharacter(character);
+        GetChat(character);
+        ToggleChatActive();
         
         let avatar = default_avatar_bot;
         if( CURRENT_CHARACTER.metadata.filepath ){
@@ -857,6 +995,7 @@ function GetSettings(obj){
 
 function ParseNames(text, user, bot){
     if(!text) return text;
+    text = text.replaceAll("[NAME_IN_MESSAGE_REDACTED]", user)
     text = text.replaceAll("{{user}}", user)
     text = text.replaceAll("<USER>", user)
     text = text.replaceAll("{{char}}", bot)

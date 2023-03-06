@@ -86,6 +86,10 @@ const DOM_DELETE_CANCEL = document.getElementById("delete-cancel")
 const DOM_DELETE_CONFIRM = document.getElementById("delete-confirm")
 
 const DOM_HISTORY = document.getElementById("history")
+const DOM_HISTORY_OPTIONS = document.getElementById("history-options")
+const DOM_HISTORY_IMPORT_CAI = document.getElementById("history-import-cai")
+const DOM_HISTORY_IMPORT_TAVERN = document.getElementById("history-import-tavern")
+const DOM_HISTORY_BACK = document.getElementById("history-back")
 
 const DOM_CHARACTER_ADD = document.getElementById("add")
 const DOM_CHARACTER_IMPORT = document.getElementById("import")
@@ -169,6 +173,17 @@ function ToggleSendButton(b){
     DOM_INPUT_SEND.disabled = !b;
     SetClass(DOM_INPUT_SEND, "hidden", !b)
     SetClass(DOM_INPUT_LOADING, "hidden", b)
+}
+
+function ToggleChatActive(){
+    SetClass( DOM_CHAT, "hidden", false )
+    SetClass( DOM_MESSAGES, "hidden", false )
+    SetClass( DOM_INPUT, "hidden", false )
+    SetClass( DOM_DELETE, "hidden", true )
+    SetClass( DOM_HISTORY, "hidden", true )
+    SetClass( DOM_HISTORY_OPTIONS, "hidden", true )
+    ResizeInputField();
+    DOM_MESSAGES.scrollTo( 0, DOM_MESSAGES.scrollHeight )
 }
 
 function OpenCharacterEditing(json){
