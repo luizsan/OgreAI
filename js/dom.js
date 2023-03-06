@@ -231,6 +231,7 @@ function ApplySettings(json){
     DOM_SETTINGS_TEMPERATURE.value = json.temperature;
     DOM_SETTINGS_REPETITION_PENALTY.value = json.repetition_penalty;
     DOM_SETTINGS_PENALTY_RANGE.value = json.penalty_range;
+    DOM_SETTINGS_PENALTY_SLOPE.value = json.repetition_slope;
     DOM_SETTINGS_TOP_P.value = json.top_p;
     DOM_SETTINGS_TOP_K.value = json.top_k;
     DOM_SETTINGS_TYPICAL_P.value = json.typical_p;
