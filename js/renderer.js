@@ -384,6 +384,7 @@ function ToggleChatHistory(state){
     if( state ){
         RemoveAllChildren( DOM_HISTORY )
         let chats = Chat.GetAllChats( CURRENT_CHARACTER )
+        chats.sort((a,b) => { return b.last_interaction - a.last_interaction });
 
         for( let i = 0; i < chats.length; i++ ){
             let chat = chats[i]
