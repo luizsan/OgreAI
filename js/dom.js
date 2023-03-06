@@ -175,15 +175,18 @@ function ToggleSendButton(b){
     SetClass(DOM_INPUT_LOADING, "hidden", b)
 }
 
-function ToggleChatActive(){
-    SetClass( DOM_CHAT, "hidden", false )
-    SetClass( DOM_MESSAGES, "hidden", false )
-    SetClass( DOM_INPUT, "hidden", false )
+function ToggleChat(state = true){
+    SetClass( DOM_CHAT, "hidden", !state )
+    SetClass( DOM_MESSAGES, "hidden", !state )
+    SetClass( DOM_INPUT, "hidden", !state )
     SetClass( DOM_DELETE, "hidden", true )
     SetClass( DOM_HISTORY, "hidden", true )
     SetClass( DOM_HISTORY_OPTIONS, "hidden", true )
-    ResizeInputField();
-    DOM_MESSAGES.scrollTo( 0, DOM_MESSAGES.scrollHeight )
+    
+    if( state ){
+        ResizeInputField();
+        DOM_MESSAGES.scrollTo( 0, DOM_MESSAGES.scrollHeight )
+    }
 }
 
 function OpenCharacterEditing(json){

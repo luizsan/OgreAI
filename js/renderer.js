@@ -96,13 +96,13 @@ DOM_SETTINGS_CONNECT.addEventListener("click", () => Connect());
 DOM_SETTINGS_DISCONNECT.addEventListener("click", () => Disconnect());
 DOM_CHAT_OPTIONS_NEW.addEventListener("click", () => {
     NewChat( CURRENT_CHARACTER );
-    ToggleChatActive();
+    ToggleChat( true );
 });
 DOM_CHAT_OPTIONS_REGENERATE.addEventListener("click", () => RegenerateLastMessage( CURRENT_CHARACTER, CURRENT_CHAT, CURRENT_SETTINGS));
 DOM_CHAT_OPTIONS_HISTORY.addEventListener("click", () => ToggleChatHistory(true));
 DOM_CHAT_OPTIONS_DELETE.addEventListener("click", () => ToggleDeleteMode(true));
 DOM_DELETE_CANCEL.addEventListener("click", () => ToggleDeleteMode(false));
-DOM_HISTORY_BACK.addEventListener("click", () => ToggleChatActive())
+DOM_HISTORY_BACK.addEventListener("click", () => ToggleChat( true ))
 
 DOM_HISTORY_IMPORT_CAI.addEventListener("click", () => {
     ipcRenderer.send("open_file", { 
@@ -134,6 +134,22 @@ DOM_CHARACTER_IMPORT.addEventListener("click", () => {
 
 DOM_EDIT_CREATE.addEventListener("click", () => {
     TryCreateCharacter();
+});
+
+DOM_EDIT_DELETE.addEventListener("click", () => {
+    if(!CURRENT_CHARACTER) return;
+
+    ipcRenderer.send("show_message", { 
+        event: "delete_character", 
+        options: {
+            type: "warning",
+            title: "OgreAI", 
+            message: `Delete character confirmation`, 
+            noLink: true,
+            detail: `Are you sure you want to delete character "${CURRENT_CHARACTER.name}"\nThis is irreversible and the character will be lost forever!`,
+            buttons: [ "Cancel", "Confirm" ]
+        }
+    })
 });
 
 DOM_SECTION_EDITING.addEventListener("change", () => {
@@ -193,6 +209,13 @@ ipcRenderer.on("import_cai", (_event, args) => {
     ToggleChatHistory(true)
 })
 
+ipcRenderer.on("delete_character", (_event, args) => {
+    if( args >= 1 ){
+        DeleteCharacter( CURRENT_CHARACTER )
+    }
+})
+
+
 // ============================================================================
 // METHODS
 // ============================================================================
@@ -222,12 +245,27 @@ async function TryCreateCharacter(){
     CURRENT_LIST = Character.LoadFromDirectory( Character.path );
     BuildCharactersList( CURRENT_LIST )
     
-    ipcRenderer.send("show_message", { 
-        title: "OgreAI", 
-        message: `Character created successfully!`, 
-        detail: `${CURRENT_CREATE.name} was created at ${file_path}`,
-        icon: `${CURRENT_CREATE.metadata.avatar}`, 
+    ipcRenderer.send("show_message", {
+        options: {
+            title: "OgreAI", 
+            type: "info",
+            message: `Character created successfully!`, 
+            detail: `${CURRENT_CREATE.name} was created at\n${file_path}`,
+            // icon: `${CURRENT_CREATE.metadata.avatar}`, 
+        }
     })
+}
+
+function DeleteCharacter( character ){
+    if( !character ) return;
+    character.metadata.menu_item.remove()
+    fs.unlinkSync( character.metadata.filepath )
+    if( character == CURRENT_CHARACTER ){
+        CURRENT_CHARACTER = null;
+        ToggleChat( false )
+        SetClass(DOM_SECTION_EDITING, "hidden", true);
+    }
+    console.debug(`Deleted character ${character.name}`)
 }
 
 function NewChat( character ){
@@ -353,7 +391,7 @@ function ToggleChatHistory(state){
             history.addEventListener("click", () => {
                 CURRENT_CHAT = chat;
                 BuildChat( CURRENT_CHAT )
-                ToggleChatActive();
+                ToggleChat( true );
             })
 
             DOM_HISTORY.appendChild( history )
@@ -403,7 +441,7 @@ function CreateChatHistoryItem( chat ){
     _right.innerHTML = `<strong>${_author}:</strong> ${_text}`;
 
     let _delete = document.createElement("button");
-    _delete.title = "Delete chat history";
+    _delete.title = "Delete chat";
     _delete.classList.add("delete")
     _delete.classList.add("danger")
     _delete.innerHTML = SVG.delete;
@@ -938,7 +976,7 @@ function SelectCharacter(character){
         CURRENT_CHARACTER = character;
         ApplyCharacter(character);
         GetChat(character);
-        ToggleChatActive();
+        ToggleChat( true );
         
         let avatar = default_avatar_bot;
         if( CURRENT_CHARACTER.metadata.filepath ){
@@ -967,6 +1005,8 @@ function GetCharacter(obj){
 
     if( DOM_EDIT_NAME.value.trim().length > 0 ){
         obj.name = DOM_EDIT_NAME.value.trim()
+    }else{
+        DOM_EDIT_NAME.value = obj.name;
     }
     
     obj.description = DOM_EDIT_DESCRIPTION.value.trim()

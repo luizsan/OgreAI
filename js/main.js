@@ -19,7 +19,7 @@ const createWindow = () => {
     
     window.loadFile('index.html')
     window.once('ready-to-show', () => { /**/ })
-    window.webContents.openDevTools()
+    // window.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
@@ -37,7 +37,7 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on("show_message", (_event, arg) => {
-    let result = dialog.showMessageBox(arg);
+    let result = dialog.showMessageBoxSync(arg.options);
     if( arg.event ){
         window.webContents.send( arg.event, result )
     }
