@@ -146,9 +146,12 @@ class Chat{
     
             fs.writeFileSync(target, json);
             console.debug(`Saved chat at ${target}`)
+            return true
         }catch(error){
             console.warn(`Could not save chat at ${target}\n${error}`)
         }
+        
+        return false
     }
 
     static ImportTavern( character, files ){

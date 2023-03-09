@@ -458,19 +458,35 @@ function CreateChatHistoryItem( chat ){
 
     _right.innerHTML = `<strong>${_author}:</strong> ${_text}`;
 
+    let _div = document.createElement("div");
+    _div.classList.add("section")
+    _div.style.display = "flex";
+    _div.style.gap = "4px";
+    
     let _delete = document.createElement("button");
     _delete.title = "Delete chat";
     _delete.classList.add("delete")
     _delete.classList.add("danger")
     _delete.innerHTML = SVG.delete;
 
+    let _copy = document.createElement("button");
+    _copy.title = "Duplicate chat";
+    _copy.classList.add("delete")
+    _copy.classList.add("info")
+    _copy.innerHTML = SVG.copy;
+
     _delete.children[0].style.marginTop = "5px";
+    _copy.children[0].style.marginTop = "5px";
 
     _left.appendChild(_title)
     _left.appendChild(_num)
     _left.appendChild(_last)
     _left.appendChild(_created)
-    _left.appendChild(_delete)
+
+    _div.appendChild(_delete)
+    _div.appendChild(_copy)
+
+    _left.appendChild(_div)
     
     _delete.addEventListener("click", () => {
         Chat.Delete( CURRENT_CHARACTER, chat.created )
@@ -479,6 +495,31 @@ function CreateChatHistoryItem( chat ){
         }
         btn.disabled = true;
         btn.remove();
+    })
+
+    _copy.addEventListener("click", () => {
+        let new_chat = new Chat( CURRENT_CHARACTER )
+        new_chat.SetFrom( chat )
+        new_chat.created = Date.now()
+        new_chat.last_interaction = Date.now()
+        new_chat.title = Date.now().toString()
+
+        btn.disabled = true;
+        let _success = new_chat.Save( CURRENT_CHARACTER )
+
+        if( _success ){
+            ToggleChatHistory( true )
+            ipcRenderer.send("show_message", { 
+                options: {
+                    type: "info",
+                    title: "OgreAI", 
+                    message: `Chat copied successfully!`, 
+                    noLink: true,
+                    detail: `Copied chat with ${new_chat.messages.length} message(s) to "${new_chat.title}.json"`,
+                }
+            })
+        }
+
     })
 
     btn.appendChild(_left)
