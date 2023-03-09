@@ -144,7 +144,7 @@ function ResizeInputField(){
 }
 
 function ToggleSendButton(b){
-    busy = !b;
+    __busy = !b;
     DOM_INPUT_SEND.disabled = !b;
     SetClass(DOM_INPUT_SEND, "hidden", !b)
     SetClass(DOM_INPUT_LOADING, "hidden", b)
@@ -180,40 +180,6 @@ function OpenCharacterEditing(json){
         SetClass(DOM_EDIT_CREATE, "hidden", false);
         SetClass(DOM_EDIT_EXPORT, "hidden", true);
         SetClass(DOM_EDIT_DELETE, "hidden", true);
-    }
-}
-
-function ApplyProfile(json){
-    DOM_PROFILE_NAME.value = json.name;
-    DOM_PROFILE_AVATAR.setAttribute("src", json.avatar ? json.avatar : default_avatar_user);
-    SetAvatarCSS("user", json.avatar ? json.avatar : default_avatar_user )
-}
-
-function ApplyCharacter(json){
-    DOM_EDIT_AVATAR.setAttribute( "src", json.metadata.filepath ? json.metadata.filepath : default_avatar_bot );
-    DOM_EDIT_NAME.value = json.name;
-    DOM_EDIT_DESCRIPTION.value = json.description;
-    DOM_EDIT_GREETING.value = json.greeting;
-    DOM_EDIT_PERSONALITY.value = json.personality;
-    DOM_EDIT_SCENARIO.value = json.scenario;
-    DOM_EDIT_DIALOGUE.value = json.dialogue;
-}
-
-function ApplySettings(json){
-    DOM_SETTINGS_API_URL.value = json.api_url;
-    DOM_SETTINGS_MAX_LENGTH.value = json.max_length;
-    DOM_SETTINGS_CONTEXT_SIZE.value = json.context_size;
-    DOM_SETTINGS_TEMPERATURE.value = json.temperature;
-    DOM_SETTINGS_REPETITION_PENALTY.value = json.repetition_penalty;
-    DOM_SETTINGS_PENALTY_RANGE.value = json.penalty_range;
-    DOM_SETTINGS_PENALTY_SLOPE.value = json.repetition_slope;
-    DOM_SETTINGS_TOP_P.value = json.top_p;
-    DOM_SETTINGS_TOP_K.value = json.top_k;
-    DOM_SETTINGS_TYPICAL_P.value = json.typical_p;
-
-    let elem = document.querySelectorAll(`#settings input[type="text"]`);
-    for( let i = 0; i < elem.length; i++ ){
-        elem[i].dispatchEvent(new Event("change"))
     }
 }
 

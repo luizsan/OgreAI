@@ -1,17 +1,62 @@
 "use strict";
 
+// ============================================================================
+// MODULES
+// ============================================================================
+
 const { clipboard, ipcRenderer } = require('electron');
 const { marked } = require('marked');
+
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
 const { encode } = require('gpt-3-encoder');
 
-var status_check = null;
+const { Chat } = require("./js/modules/chat.js")
+const { Character } = require("./js/modules/character.js")
+const { Profile } = require("./js/modules/profile.js")
+const { Settings } = require("./js/modules/settings.js")
+const { SaveData, LoadData } = require("./js/modules/data.js")
+
+const marked_renderer = new marked.Renderer();
+marked_renderer.del = function(text){ return "~" + text + "~"; };
+marked_renderer.pre = function(text){ return text; };
+marked_renderer.code = function(text){ return text; };
+marked.setOptions({
+    breaks: true,
+    renderer: marked_renderer,
+})
+
+// ============================================================================
+// VARIABLES
+// ============================================================================
+
+var __busy = false;
+var __creating = false;
+var __debounce = false;
+var __message_chunk = ""
+var __status_check = null;
+
+var CURRENT_SETTINGS = {};
+var CURRENT_PROFILE = {};
+var CURRENT_CHARACTER = null;
+var CURRENT_CREATE = null;
+var CURRENT_CHAT = null;
+var CURRENT_LIST = [];
+
+var PATH_DATA = {}
+
+// ============================================================================
+// CONST
+// ============================================================================
+
 const heartbeat_timer = 3000;
 const message_cutoff = /\n.*\:/i
 const editing_token_threshold = 2048 - 512;
+
+const default_avatar_user = "./img/user_default.png";
+const default_avatar_bot = "./img/bot_default.png";
 
 const error_message = {
     "service_unavailable": {
@@ -24,59 +69,12 @@ const error_message = {
     }
 }
 
-const { Chat } = require("./js/modules/chat.js")
-const { Character } = require("./js/modules/character.js")
-const { Profile } = require("./js/modules/profile.js")
-const { Settings } = require("./js/modules/settings.js")
-const { SaveData, LoadData } = require("./js/modules/data.js")
-
-const marked_renderer = new marked.Renderer();
-marked_renderer.del = function(text) {
-    return "~" + text + "~";
-};
-
-marked_renderer.pre = function(text) {
-    return text;
-}
-
-marked_renderer.code = function(text) {
-    return text;
-}
-
-marked.setOptions({
-    breaks: true,
-    renderer: marked_renderer,
-})
-
-// ============================================================================
-// VARIABLES
-// ============================================================================
-
-var busy = false;
-var creating = false;
-var message_chunk = ""
-var debounce = false;
-
-var CURRENT_SETTINGS = {};
-var CURRENT_PROFILE = {};
-var CURRENT_CHARACTER = null;
-var CURRENT_CREATE = null;
-var CURRENT_CHAT = null;
-var CURRENT_LIST = [];
-
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
-const default_avatar_user = path.join( __dirname, "/img/user_default.png" );
-const default_avatar_bot = path.join( __dirname, "/img/bot_default.png" );
-
 // ============================================================================
 // EVENTS
 // ============================================================================
 
 document.addEventListener("keydown", (e) => {
-    if( !debounce ){
+    if( !__debounce ){
         if( e.ctrlKey && e.key == 'Enter' ){
             console.debug("Pressed SEND shortcut (Ctrl+Enter)")
             DOM_INPUT_SEND.click()
@@ -94,7 +92,7 @@ document.addEventListener("keydown", (e) => {
         DOM_CHAT_OPTIONS_DELETE.click()
     }
 
-    debounce = false;
+    __debounce = false;
 });
 
 DOM_INPUT_SEND.addEventListener("click", () => SendMessage());
@@ -160,13 +158,13 @@ DOM_EDIT_DELETE.addEventListener("click", () => {
 });
 
 DOM_SECTION_EDITING.addEventListener("change", () => {
-    if( !creating ){
+    if( !__creating ){
         GetCharacter( CURRENT_CHARACTER )
         UpdateCharacterEditingTokens( CURRENT_CHARACTER );
         let new_avatar = CURRENT_CHARACTER.metadata.filepath
         
         if( CURRENT_CHARACTER.metadata.avatar ){
-            new_avatar = CURRENT_CHARACTER.metadata.avatar.replaceAll("\\", "/")
+            new_avatar = CURRENT_CHARACTER.metadata.avatar;
             if( CURRENT_CHARACTER.metadata.menu_item ){
                 let img = CURRENT_CHARACTER.metadata.menu_item.children[0]
                 img.setAttribute("src", new_avatar)
@@ -222,10 +220,22 @@ ipcRenderer.on("delete_character", (_event, args) => {
     }
 })
 
+ipcRenderer.on("path_data", (_event, args) => {
+    PATH_DATA = args;
+    console.log( PATH_DATA )
+})
 
 // ============================================================================
 // METHODS
 // ============================================================================
+
+function GetRootPath(){
+    if( PATH_DATA.is_packaged ){
+        return path.dirname( PATH_DATA.exe_path )
+    }else{
+        return __dirname
+    }
+}
 
 async function TryCreateCharacter(){
     GetCharacter( CURRENT_CREATE )
@@ -240,13 +250,13 @@ async function TryCreateCharacter(){
     }
 
     if( !CURRENT_CREATE.metadata.avatar ){
-        CURRENT_CREATE.metadata.avatar = default_avatar_bot;
+        CURRENT_CREATE.metadata.avatar = path.join( __dirname, default_avatar_bot );
     }
     
-    let file_path = path.join( Character.path, CURRENT_CREATE.name + ".png")
+    let target_path = path.join( Character.path, CURRENT_CREATE.name + ".png")
     SetClass(DOM_SECTION_EDITING, "hidden", true)
     
-    await CURRENT_CREATE.WriteToFile( CURRENT_CREATE.metadata.avatar, file_path )
+    await CURRENT_CREATE.WriteToFile( CURRENT_CREATE.metadata.avatar, target_path )
     
     CURRENT_LIST = []
     CURRENT_LIST = Character.LoadFromDirectory( Character.path );
@@ -257,7 +267,7 @@ async function TryCreateCharacter(){
             title: "OgreAI", 
             type: "info",
             message: `Character created successfully!`, 
-            detail: `${CURRENT_CREATE.name} was created at\n${file_path}`,
+            detail: `${CURRENT_CREATE.name} was created at\n${target_path}`,
             // icon: `${CURRENT_CREATE.metadata.avatar}`, 
         }
     })
@@ -276,7 +286,7 @@ function DeleteCharacter( character ){
 }
 
 function NewChat( character ){
-    if( busy ) return;
+    if( __busy ) return;
     if( !character ) return;
 
     CURRENT_CHAT = new Chat( character )
@@ -284,7 +294,7 @@ function NewChat( character ){
 }
 
 function GetChat( character ){
-    if( busy ) return;
+    if( __busy ) return;
     if( !character ) return;
 
     let new_chat = Chat.GetLatestChat( character )
@@ -309,7 +319,7 @@ function BuildChat(chat){
 }
 
 function SendMessage(){
-    if(busy) return;
+    if(__busy) return;
 
     ReceiveMessage({ "participant": -1, "candidate":{ "timestamp": Date.now(), "text": DOM_INPUT_FIELD.value.trim() }}, false)
     ClearTextArea();
@@ -353,7 +363,7 @@ function ReceiveMessage(msg, swipe = false){
 }
 
 function ToggleDeleteMode(state){
-    if( busy && state ) return;
+    if( __busy && state ) return;
     SetClass(DOM_INPUT_OPTIONS_WINDOW, "hidden", true);
 
     let elem = document.getElementsByClassName("msg");
@@ -380,7 +390,7 @@ function ToggleDeleteMode(state){
 }
 
 function ToggleChatHistory(state){
-    if( busy && state ) return;
+    if( __busy && state ) return;
     if( !CURRENT_CHARACTER ) return;
 
     SetClass(DOM_MESSAGES, "hidden", state)
@@ -524,7 +534,7 @@ function SwipeMessage( message_at, new_index ){
 
     if( new_index > msg.candidates.length-1 ){
         new_index = msg.candidates.length-1;
-        if( busy ) return;
+        if( __busy ) return;
         
         // prevent swiping greetings
         if( msg === CURRENT_CHAT.messages[0] ) return;
@@ -551,7 +561,7 @@ function SwipeMessage( message_at, new_index ){
 }
 
 function DeleteMessages(){
-    if( busy ) return;
+    if( __busy ) return;
     let candidates = document.getElementsByClassName("delete")
     if( !candidates || candidates.length < 1 ){
         ToggleDeleteMode(false);
@@ -582,7 +592,7 @@ function DeleteMessages(){
 }
 
 function RemoveLastMessage(chat){
-    if( busy ) return;
+    if( __busy ) return;
     if( !chat || !chat.messages || chat.messages.length < 2 ) return
     let last = chat.messages.pop()
     if( last.dom ){
@@ -593,7 +603,7 @@ function RemoveLastMessage(chat){
 }
 
 function RegenerateLastMessage(character, chat, settings){
-    if( busy ) return;
+    if( __busy ) return;
     if( !chat || !chat.messages || chat.messages.length < 2 ) return
 
     SetClass(DOM_INPUT_OPTIONS_WINDOW, "hidden", true);
@@ -870,7 +880,7 @@ function ConfirmEdit(index, content, new_value){
     msg.candidates[ msg.index ].text = new_value;
     new_value = ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     content.innerHTML = marked.parse( new_value );
-    debounce = true;
+    __debounce = true;
     console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
     if( CURRENT_CHAT.messages.length > 1 ){
         CURRENT_CHAT.Save( CURRENT_CHARACTER )
@@ -899,7 +909,7 @@ function AddCharacterItem(json){
     button.title = json.name;
 
     let image = document.createElement("img");
-    image.setAttribute("src", json.metadata.filepath);
+    image.setAttribute("src", path.join( GetRootPath(), json.metadata.filepath ));
     image.classList.add("avatar");
 
     button.appendChild(image);
@@ -913,7 +923,7 @@ function Connect(){
 }
 
 function Disconnect(){
-    clearInterval(status_check)
+    clearInterval(__status_check)
     SetServerStatus(-1);
 }
 
@@ -928,7 +938,7 @@ function GetStatus(url){
         protocol.get(url + "/v1/model", (response) => {
             SetServerStatus(response.statusCode)
             if(response.statusCode == 200){
-                status_check = setTimeout( () => GetStatus(url), heartbeat_timer )
+                __status_check = setTimeout( () => GetStatus(url), heartbeat_timer )
             }
         }).on("error", (error) => {
             console.warn("Network error!\n" + error.message);
@@ -948,14 +958,14 @@ function UpdateUserAvatar(file){
 
     let filepath = default_avatar_user;
     if(file){
-        filepath = file.path.replaceAll("\\", "/")
+        filepath = file.path;
         CURRENT_PROFILE.avatar = filepath;
     }else{
         CURRENT_PROFILE.avatar = "";
     }
 
     DOM_PROFILE_AVATAR.setAttribute("src", filepath);
-    SetAvatarCSS("user", filepath);
+    SetAvatarCSS("user", filepath );
 }
 
 function UpdateCharacterAvatar(file){
@@ -967,7 +977,7 @@ function UpdateCharacterAvatar(file){
     }
 
     DOM_EDIT_AVATAR.setAttribute("src", file.path)
-    if(creating){
+    if(__creating){
         CURRENT_CREATE.metadata.avatar = file.path;
     }else{
         CURRENT_CHARACTER.metadata.avatar = file.path;
@@ -975,12 +985,12 @@ function UpdateCharacterAvatar(file){
 }
 
 function SelectCharacter(character){
-    if( busy ) return;
+    if( __busy ) return;
 
     DOM_EDIT_AVATAR_UPLOAD.value = "";
     
     if(character){
-        creating = false;
+        __creating = false;
         CURRENT_CHARACTER = character;
         ApplyCharacter(character);
         GetChat(character);
@@ -988,13 +998,14 @@ function SelectCharacter(character){
         
         let avatar = default_avatar_bot;
         if( CURRENT_CHARACTER.metadata.filepath ){
-            avatar = CURRENT_CHARACTER.metadata.filepath.replaceAll("\\", "/");
+            avatar = CURRENT_CHARACTER.metadata.filepath;
+            avatar = path.join( GetRootPath(), avatar )
         }
     
         SetAvatarCSS( "bot", avatar )
         UpdateCharacterEditingTokens( CURRENT_CHARACTER );
     }else{
-        creating = true;
+        __creating = true;
         CURRENT_CREATE = new Character();
         CURRENT_CREATE.author = CURRENT_PROFILE.name;
         ApplyCharacter( CURRENT_CREATE );
@@ -1039,6 +1050,42 @@ function GetSettings(obj){
     obj.top_p = parseFloat(DOM_SETTINGS_TOP_P.value)
     obj.top_k = parseFloat(DOM_SETTINGS_TOP_K.value)
     obj.typical_p = parseFloat(DOM_SETTINGS_TYPICAL_P.value)
+}
+
+function ApplyProfile(json){
+    DOM_PROFILE_NAME.value = json.name;
+    let _avatar = json.avatar ? json.avatar : default_avatar_user
+    DOM_PROFILE_AVATAR.setAttribute("src", _avatar);
+    SetAvatarCSS("user", _avatar)
+}
+
+function ApplyCharacter(json){
+    let _avatar = json.metadata.filepath ? path.join( GetRootPath(), json.metadata.filepath ) : default_avatar_bot
+    DOM_EDIT_AVATAR.setAttribute( "src", _avatar );
+    DOM_EDIT_NAME.value = json.name;
+    DOM_EDIT_DESCRIPTION.value = json.description;
+    DOM_EDIT_GREETING.value = json.greeting;
+    DOM_EDIT_PERSONALITY.value = json.personality;
+    DOM_EDIT_SCENARIO.value = json.scenario;
+    DOM_EDIT_DIALOGUE.value = json.dialogue;
+}
+
+function ApplySettings(json){
+    DOM_SETTINGS_API_URL.value = json.api_url;
+    DOM_SETTINGS_MAX_LENGTH.value = json.max_length;
+    DOM_SETTINGS_CONTEXT_SIZE.value = json.context_size;
+    DOM_SETTINGS_TEMPERATURE.value = json.temperature;
+    DOM_SETTINGS_REPETITION_PENALTY.value = json.repetition_penalty;
+    DOM_SETTINGS_PENALTY_RANGE.value = json.penalty_range;
+    DOM_SETTINGS_PENALTY_SLOPE.value = json.repetition_slope;
+    DOM_SETTINGS_TOP_P.value = json.top_p;
+    DOM_SETTINGS_TOP_K.value = json.top_k;
+    DOM_SETTINGS_TYPICAL_P.value = json.typical_p;
+
+    let elem = document.querySelectorAll(`#settings input[type="text"]`);
+    for( let i = 0; i < elem.length; i++ ){
+        elem[i].dispatchEvent(new Event("change"))
+    }
 }
 
 function ParseNames(text, user, bot){
@@ -1162,21 +1209,21 @@ function Generate(prompt, settings, swipe = false){
                     let cut = text_content.search(message_cutoff)
                     if( cut > -1 ){
                         text_content = text_content.slice(0, cut)
-                        if(message_chunk.length < 1){
+                        if(__message_chunk.length < 1){
                             text_content = text_content.trim()
                         }
-                        message_chunk += text_content;
+                        __message_chunk += text_content;
                         ReceiveMessage({ 
                             "participant": 0, 
                             "candidate":{ 
                                 "timestamp": Date.now(), 
-                                "text": message_chunk 
+                                "text": __message_chunk 
                             }
                         }, swipe);
-                        message_chunk = "";
+                        __message_chunk = "";
                     }else{
-                        message_chunk += text_content;
-                        outgoing_data.prompt += message_chunk;
+                        __message_chunk += text_content;
+                        outgoing_data.prompt += __message_chunk;
                         Generate(outgoing_data.prompt, settings, swipe)
                     }
 
@@ -1214,7 +1261,7 @@ function Generate(prompt, settings, swipe = false){
 }
 
 function BuildCharactersList(list){
-    if( busy ) return;
+    if( __busy ) return;
     RemoveAllChildren( DOM_CHARACTER_LIST );
 
     if(!list) return;
@@ -1228,6 +1275,7 @@ function BuildCharactersList(list){
                 let char = Character.ReadFromFile( file )
                 let open = CURRENT_CHARACTER != null && CURRENT_CHARACTER.metadata.filepath === char.metadata.filepath;
                 
+                console.log(char.metadata)
                 char.metadata.menu_item = item;
                 SelectCharacter( char )
 
@@ -1250,15 +1298,24 @@ function BuildCharactersList(list){
 // SETUP
 // ============================================================================
 
-CURRENT_PROFILE = LoadData( Profile.path, new Profile());
-CURRENT_SETTINGS = LoadData( Settings.path, new Settings());
-CURRENT_LIST = Character.LoadFromDirectory( Character.path );
-BuildCharactersList( CURRENT_LIST )
+ipcRenderer.invoke('get_paths').then((resolve) => {
 
-SetAvatarCSS( "bot", default_avatar_bot )
-SetAvatarCSS( "user", default_avatar_user )
+    PATH_DATA = resolve;
 
-ApplyProfile( CURRENT_PROFILE );
-ApplySettings( CURRENT_SETTINGS );
+    console.log("ogey")
+    console.log( PATH_DATA )
 
-Connect();
+    CURRENT_PROFILE = LoadData( Profile.path, new Profile());
+    CURRENT_SETTINGS = LoadData( Settings.path, new Settings());
+    CURRENT_LIST = Character.LoadFromDirectory( Character.path );
+    BuildCharactersList( CURRENT_LIST )
+
+    SetAvatarCSS( "bot", default_avatar_bot )
+    SetAvatarCSS( "user", default_avatar_user )
+
+    ApplyProfile( CURRENT_PROFILE );
+    ApplySettings( CURRENT_SETTINGS );
+
+    Connect();
+
+})

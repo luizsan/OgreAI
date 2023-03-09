@@ -6,7 +6,8 @@
   "main": "js/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "keywords": [
     "pygmalion",
@@ -19,10 +20,8 @@
   "author": "luizsan",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^23.1.0"
-  },
-  "directories": {
-    "doc": "docs"
+    "electron": "^23.1.0",
+    "electron-builder": "^24.0.0"
   },
   "dependencies": {
     "gpt-3-encoder": "^1.1.4",

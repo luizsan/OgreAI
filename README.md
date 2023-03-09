@@ -12,6 +12,7 @@ A chatbot client for Pygmalion AI
 
 ## To-do
  - Importing characters
+ - Duplicate chats
  - Sort modes and search for characters list
  - Search chat
  - Customize chat colors and background

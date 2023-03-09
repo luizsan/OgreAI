@@ -1,4 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const path = require("path")
+
 let window = null;
 
 const createWindow = () => {
@@ -13,13 +15,20 @@ const createWindow = () => {
             spellcheck: false,
             nodeIntegration: true,
             contextIsolation: false,
-            // preload: path.join(__dirname, 'preload.js')
+        }
+    })
+
+    ipcMain.handle('get_paths', () => {
+        return {
+            is_packaged: app.isPackaged,
+            app_path: app.getAppPath(),
+            exe_path: app.getPath("exe")
         }
     })
     
     window.loadFile('index.html')
-    window.once('ready-to-show', () => { /**/ })
-    // window.webContents.openDevTools()
+    window.once('ready-to-show', () => {})
+    window.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)

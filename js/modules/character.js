@@ -100,7 +100,8 @@ class Character{
     async WriteToFile( image, filepath ){
         try {
             sharp.cache(false);
-            let _image = await sharp(image).toFormat('png').toBuffer();
+            let _buffer = fs.readFileSync(image)
+            let _image = await sharp(_buffer).toFormat('png').toBuffer();
             let _chunks = extract(_image);
             let _tEXtChunks = _chunks.filter(c => c.name === 'tEXt');
             for (let c of _tEXtChunks) {
