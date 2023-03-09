@@ -151,7 +151,7 @@ DOM_EDIT_DELETE.addEventListener("click", () => {
             title: "OgreAI", 
             message: `Delete character confirmation`, 
             noLink: true,
-            detail: `Are you sure you want to delete character "${CURRENT_CHARACTER.name}"\nThis is irreversible and the character will be lost forever!`,
+            detail: `Are you sure you want to delete character "${CURRENT_CHARACTER.name}"?\nThis is irreversible and the character will be lost forever!`,
             buttons: [ "Cancel", "Confirm" ]
         }
     })
