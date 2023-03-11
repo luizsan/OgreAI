@@ -7,6 +7,7 @@ const createWindow = () => {
     window = new BrowserWindow({
         width: 1280,
         height: 720,
+        center: true,
         fullscreen: false,
         autoHideMenuBar: true,
         backgroundColor: "#000000",
