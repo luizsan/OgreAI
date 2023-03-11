@@ -12,7 +12,7 @@
     --accent-color-normal: rgb(48, 128, 192);
     --accent-color-light: rgb(96, 192, 220);
 
-    --msg-bg-color: rgb(46, 47, 48);
+    --msg-bg-color: rgb(250, 250, 255, 0.05);
     --msg-user-color: rgb(240, 240, 144);
     --msg-bot-color: rgb(135, 206, 235);
     --msg-invalid-color: rgb(64, 64, 64);
