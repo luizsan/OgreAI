@@ -34,7 +34,6 @@ marked.setOptions({
 
 var __busy = false;
 var __creating = false;
-var __debounce = false;
 var __message_chunk = ""
 var __status_check = null;
 
@@ -74,25 +73,26 @@ const error_message = {
 // ============================================================================
 
 document.addEventListener("keydown", (e) => {
-    if( !__debounce ){
-        if( e.ctrlKey && e.key == 'Enter' ){
-            console.debug("Pressed SEND shortcut (Ctrl+Enter)")
-            DOM_INPUT_SEND.click()
-        }
-    }
-
+    // document-wide shortcuts
+    if( document.activeElement === DOM_INPUT_FIELD) return;
+    
     if( e.ctrlKey && e.key == ' ' ){
         console.debug("Pressed REGENERATE shortcut (Ctrl+Space)")
         DOM_CHAT_OPTIONS_REGENERATE.click()
     }
     
     if( e.ctrlKey && e.key == 'Delete' ){
-        if( DOM_INPUT_FIELD.value.length > 0) return;
         console.debug("Pressed DELETE shortcut (Ctrl+Delete)")
         DOM_CHAT_OPTIONS_DELETE.click()
     }
+});
 
-    __debounce = false;
+DOM_INPUT_FIELD.addEventListener("keydown", (e) => {
+    if( !e.shiftKey && e.key == 'Enter' ){
+        console.debug("Pressed SEND shortcut (Enter)")
+        DOM_INPUT_SEND.click()
+        e.preventDefault()
+    }
 });
 
 DOM_INPUT_SEND.addEventListener("click", () => SendMessage());
@@ -884,7 +884,7 @@ function CreateEditMode(dom){
             CancelEdit(index, content, _old)
         }
 
-        if(e.ctrlKey && e.key == "Enter"){
+        if(!e.shiftKey && e.key == "Enter"){
             ConfirmEdit(index, content, _area.value)
         }
     }
@@ -892,7 +892,7 @@ function CreateEditMode(dom){
     _controls.classList.add("controls")
     _controls.style.textAlign = "right"
     _controls.innerHTML = `Esc to <i class="info clickable" onclick=CancelEdit()>Cancel</i>, `
-    _controls.innerHTML += `Ctrl+Enter to <i class="info clickable" onclick=ConfirmEdit()>Save changes</i>`;
+    _controls.innerHTML += `Enter to <i class="info clickable" onclick=ConfirmEdit()>Save changes</i>`;
 
     _controls.children[0].onclick = () => CancelEdit(index, content, _old)
     _controls.children[1].onclick = () => ConfirmEdit(index, content, _area.value)
@@ -921,7 +921,6 @@ function ConfirmEdit(index, content, new_value){
     msg.candidates[ msg.index ].text = new_value;
     new_value = ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     content.innerHTML = marked.parse( new_value );
-    __debounce = true;
     console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
     if( CURRENT_CHAT.messages.length > 1 ){
         CURRENT_CHAT.Save( CURRENT_CHARACTER )
@@ -1340,11 +1339,7 @@ function BuildCharactersList(list){
 // ============================================================================
 
 ipcRenderer.invoke('get_paths').then((resolve) => {
-
     PATH_DATA = resolve;
-
-    console.log("ogey")
-    console.log( PATH_DATA )
 
     CURRENT_PROFILE = LoadData( Profile.path, new Profile());
     CURRENT_SETTINGS = LoadData( Settings.path, new Settings());
@@ -1358,5 +1353,4 @@ ipcRenderer.invoke('get_paths').then((resolve) => {
     ApplySettings( CURRENT_SETTINGS );
 
     Connect();
-
 })
