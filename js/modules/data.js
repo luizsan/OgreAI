@@ -28,12 +28,12 @@ function LoadData(file_path, defaults){
     }
     
     try{
-        fs.writeFileSync(target, JSON.stringify( defaults ))
+        fs.writeFileSync(target, JSON.stringify( defaults, null, 2))
         return defaults;
     }catch(error){
         console.error(`Unable to write defaults at ${target}`)
     }
 }
 
-module.exports.SaveData = SaveData
-module.exports.LoadData = LoadData
+exports.SaveData = SaveData
+exports.LoadData = LoadData
