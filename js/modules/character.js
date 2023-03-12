@@ -40,7 +40,7 @@ class Character{
         this.metadata = {
             filepath: null,
             avatar: null,
-            menuItem: null,
+            menu_item: null,
         }
     }
 
