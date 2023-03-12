@@ -7,7 +7,7 @@ class Profile{
 
     SetFrom(json){
         if( json.name ) this.name = json.name
-        if( json.avatar ) this.name = json.avatar
+        if( json.avatar ) this.avatar = json.avatar
     }
 
     Reset(){
