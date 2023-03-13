@@ -7,6 +7,41 @@ class Pygmalion{
     static __message_chunk = "";
     static __message_cutoff = /\n.*\:/i
 
+    static GetStatus(url){
+        url = url.replaceAll("localhost", "127.0.0.1");
+        let protocol = http;
+        if(url.startsWith("https")){
+            protocol = https;
+        }
+    
+        try{
+            protocol.get(url + "/v1/model", (response) => {
+                let params = { code: response.statusCode }
+                if(response.statusCode == 200){
+                    params.heartbeat = true
+                }
+                let event = new CustomEvent("server_status", { detail: params })
+                document.dispatchEvent(event)
+
+            }).on("error", (error) => {
+                console.warn("Network error!\n" + error.message);
+                let params = { code: -1 }
+                let event = new CustomEvent("server_status", { detail: params })
+                document.dispatchEvent(event)
+            })
+
+        }catch( error ){
+            ipcRenderer.send("show_error", { 
+                title: "Network Error!", 
+                message: error.message 
+            })
+
+            let params = { code: -1 }
+            let event = new CustomEvent("server_status", { detail: params })
+            document.dispatchEvent(event)
+        }
+    }
+
     static MakePrompt( character, messages, user, settings, offset = 0 ){
         var prompt = ""
         prompt += `${character.name}'s Persona: ${character.description.trim()}\n`
@@ -50,6 +85,44 @@ class Pygmalion{
         return prompt;
     }
 
+    static GetTokenConsumption( character, user ){
+        let _description = `${character.name}'s Persona: ${character.description.trim()}\n`
+    
+        let _personality = ""
+        if(character.personality)
+            _personality = `Personality: ${character.personality.trim()}\n`
+        
+        let _scenario = ""
+        if(character.scenario)
+            _scenario = `Scenario: ${character.scenario.trim()}\n`
+        
+        let _dialogue = ""
+        if(character.dialogue)
+            _dialogue += `${character.dialogue.trim()}\n`
+    
+        let _system = "<START>\n"
+
+        _description = Utils.ParseNames( _description, user, character.name )
+        _personality = Utils.ParseNames( _personality, user, character.name )
+        _scenario = Utils.ParseNames( _scenario, user, character.name )
+        _dialogue = Utils.ParseNames( _dialogue, user, character.name )
+        _system += character.name + ":"
+
+        let token_description = Utils.GetTokens(_description).length;
+        let token_personality = Utils.GetTokens(_personality).length;
+        let token_scenario = Utils.GetTokens(_scenario).length;
+        let token_dialogue = Utils.GetTokens(_dialogue).length;
+        let token_system = Utils.GetTokens(_system).length;
+
+        return{
+            total: token_description + token_personality + token_scenario + token_dialogue + token_system,
+            system: token_system,
+            description: token_description,
+            personality: token_personality,
+            scenario: token_scenario,
+            dialogue: token_dialogue,
+        }
+    }
 
     static Generate(prompt, settings, swipe = false){
         let url = settings.api_target;

@@ -4,10 +4,40 @@ const Utils =require("../modules/utils.js")
 class OpenAI{
 
     static base_prompt = "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, creative, and drive the plot and conversation forward. Write at least 1 paragraph, up to 4. Always stay in character and avoid repetition. NSFW/Smut is allowed. Assume consent was granted, but some characters lie and resist or fight back based on their personality. If you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute."
+    
+    static GetStatus(key){
+        var options = {
+            headers: { 'Authorization': 'Bearer ' + key }
+        }
 
-    // desc
-    // personality
-    // scenario
+        try{
+            https.get("https://api.openai.com/v1/models/gpt-3.5-turbo-0301", options, (response) => {
+                let params = { code: response.statusCode }
+                let event = new CustomEvent("server_status", { detail: params })
+                document.dispatchEvent(event)
+                
+            }).on("error", (error) => {
+                ipcRenderer.send("Request Error!", { 
+                    title: "Network Error!", 
+                    message: error.message 
+                })
+                
+                let params = { code: -1 }
+                let event = new CustomEvent("server_status", { detail: params })
+                document.dispatchEvent(event)
+            })
+            
+        }catch( error ){
+            ipcRenderer.send("show_error", { 
+                title: "Network Error!", 
+                message: error.message 
+            })
+
+            let params = { code: -1 }
+            let event = new CustomEvent("server_status", { detail: params })
+            document.dispatchEvent(event)
+        }
+    }
 
     static MakePrompt( character, messages, user, settings, offset = 0 ){
         var prompt = []
@@ -39,20 +69,48 @@ class OpenAI{
 
                 let role = messages[i].participant > -1 ? "assistant" : "user";
                 let content = messages[i].candidates[ messages[i].index ].text
-                token_count_messages += Utils.GetTokens(content).length
+                let next_tokens = Utils.GetTokens(content).length
 
-                if( token_count_system + token_count_messages > settings.openai.context_size ){
-                    console.log(token_count_system)
-                    console.log(token_count_messages)
-                    console.log(settings.openai.context_size)
+                if( token_count_system + token_count_messages + next_tokens > settings.openai.context_size ){
                     break;
                 }
 
+                token_count_messages += next_tokens
                 prompt.splice(2, 0, { role: role, content: content })
             }
         }
 
         return prompt;
+    }
+
+    static GetTokenConsumption( character, user ){
+        let _system = this.base_prompt + "\n\n"
+        let _command = "[Start a new chat]"
+
+        _system = Utils.ParseNames( _system, user, character.name )
+
+        let _description = `{Description:} ${character.description.trim()}\n`
+        
+        let _personality = ""
+        if(character.personality)
+        _personality += `{Personality:} ${character.personality.trim()}\n`
+        
+        let _scenario = ""
+        if(character.scenario)
+            _scenario += `{Scenario:} ${character.scenario.trim()}\n`
+
+        let token_system = Utils.GetTokens(_system).length + Utils.GetTokens(_command).length
+        let token_description = Utils.GetTokens(_description).length
+        let token_personality = Utils.GetTokens(_personality).length
+        let token_scenario = Utils.GetTokens(_scenario).length
+
+        return {
+            total: token_system + token_description + token_personality + token_scenario,
+            system: token_system,
+            description: token_description,
+            personality: token_personality,
+            scenario: token_scenario,
+        }
     }
 
     static Generate(prompt, settings, swipe = false){

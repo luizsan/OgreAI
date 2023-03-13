@@ -88,6 +88,17 @@ document.addEventListener("message", (data) => {
     ToggleSendButton(true)
 })
 
+document.addEventListener("server_status", (data) => {
+    if(data && data.detail){
+        SetServerStatus(data.detail.code)
+        if( data.detail.heartbeat){
+            __status_check = setTimeout(() => { 
+                GetAPI().GetStatus( CURRENT_SETTINGS.api_target) 
+            }, heartbeat_timer )
+        }
+    }
+})
+
 DOM_INPUT_FIELD.addEventListener("keydown", (e) => {
     if( !e.shiftKey && e.key == 'Enter' ){
         console.debug("Pressed SEND shortcut (Enter)")
@@ -1091,7 +1102,7 @@ function AddCharacterItem(json){
 function Connect(){
     if(!CURRENT_SETTINGS.api_target) return;
     SetServerStatus(null);
-    GetStatus(CURRENT_SETTINGS.api_target);
+    GetAPI().GetStatus(CURRENT_SETTINGS.api_target);
 }
 
 function Disconnect(){
@@ -1099,29 +1110,19 @@ function Disconnect(){
     SetServerStatus(-1);
 }
 
-function GetStatus(url){
-    url = url.replaceAll("localhost", "127.0.0.1");
-    let protocol = http;
-    if(url.startsWith("https")){
-        protocol = https;
-    }
-
-    try{
-        protocol.get(url + "/v1/model", (response) => {
-            SetServerStatus(response.statusCode)
-            if(response.statusCode == 200){
-                __status_check = setTimeout( () => GetStatus(url), heartbeat_timer )
-            }
-        }).on("error", (error) => {
-            console.warn("Network error!\n" + error.message);
-            SetServerStatus(-1)
-        })
-    }catch( error ){
-        ipcRenderer.send("show_error", { 
-            title: "Network Error!", 
-            message: error.message 
-        })
-        SetServerStatus(-1)
+function SetServerStatus(code){
+    if(code == null){
+        DOM_SETTINGS_STATUS.innerHTML = "Connecting...";
+        DOM_SETTINGS_STATUS.classList.remove("confirm");
+        DOM_SETTINGS_STATUS.classList.remove("danger");
+    }else if(code == 200){
+        DOM_SETTINGS_STATUS.innerHTML = "Connected";
+        DOM_SETTINGS_STATUS.classList.add("confirm")
+        DOM_SETTINGS_STATUS.classList.remove("danger")
+    }else{
+        DOM_SETTINGS_STATUS.innerHTML = "Not connected";
+        DOM_SETTINGS_STATUS.classList.add("danger")
+        DOM_SETTINGS_STATUS.classList.remove("confirm")
     }
 }
 
@@ -1267,19 +1268,13 @@ function ApplySettings(json){
     console.debug("Read settings from object to DOM")
 }
 
-function GetCharacterTokens( character ){
-    return []
-    if( !character ){ return [] }
-    let prompt = GetAPI().MakePrompt( character, null, CURRENT_PROFILE.name, CURRENT_SETTINGS )
-    let tokens = Utils.GetTokens(prompt)
-    return tokens
-}
-
 function UpdateCharacterEditingTokens( character ){
-    let tokens = GetCharacterTokens( character )
-    DOM_EDIT_TOKENS.innerHTML = `${tokens.length} of ${editing_token_threshold} Tokens`
-    SetClass( DOM_EDIT_TOKENS, "confirm", tokens.length <= editing_token_threshold )
-    SetClass( DOM_EDIT_TOKENS, "danger", tokens.length > editing_token_threshold )
+    if( !character ) return;
+    let tokens = GetAPI().GetTokenConsumption( character, CURRENT_PROFILE.name )
+
+    DOM_EDIT_TOKENS.innerHTML = `${tokens.total} of ${editing_token_threshold} Tokens`
+    SetClass( DOM_EDIT_TOKENS, "confirm", tokens.total <= editing_token_threshold )
+    SetClass( DOM_EDIT_TOKENS, "danger", tokens.total > editing_token_threshold )
 }
 
 function BuildCharactersList(list){

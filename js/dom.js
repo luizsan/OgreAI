@@ -341,22 +341,6 @@ function SetAvatarCSS(rule, url){
     document.head.appendChild(tag);
 }
 
-function SetServerStatus(code){
-    if(code == null){
-        DOM_SETTINGS_STATUS.innerHTML = "Connecting...";
-        DOM_SETTINGS_STATUS.classList.remove("confirm");
-        DOM_SETTINGS_STATUS.classList.remove("danger");
-    }else if(code == 200){
-        DOM_SETTINGS_STATUS.innerHTML = "Connected";
-        DOM_SETTINGS_STATUS.classList.add("confirm")
-        DOM_SETTINGS_STATUS.classList.remove("danger")
-    }else{
-        DOM_SETTINGS_STATUS.innerHTML = "Not connected";
-        DOM_SETTINGS_STATUS.classList.add("danger")
-        DOM_SETTINGS_STATUS.classList.remove("confirm")
-    }
-}
-
 function SetClass(element, css, state){
     if(element != null){
         if(state){
