@@ -91,7 +91,7 @@ class Character{
             if (error instanceof SyntaxError) {
                 console.warn( `${filepath} is not valid JSON!` );
             }else{
-                console.warn( `An error occurred while reading character at ${filepath}\n`, error );
+                console.warn( `Could not read character at ${filepath}` );
             }
             return null;
         }
