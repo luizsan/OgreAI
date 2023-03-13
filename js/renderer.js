@@ -11,13 +11,18 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
-const { encode } = require('gpt-3-encoder');
+
+const Utils = require("./js/modules/utils.js")
 
 const { Chat } = require("./js/modules/chat.js")
 const { Character } = require("./js/modules/character.js")
 const { Profile } = require("./js/modules/profile.js")
 const { Settings } = require("./js/modules/settings.js")
 const { SaveData, LoadData } = require("./js/modules/data.js")
+
+const { Pygmalion } = require("./js/api/pygmalion.js")
+const { OpenAI } = require("./js/api/openai.js")
+
 
 const marked_renderer = new marked.Renderer();
 marked_renderer.del = function(text){ return "~" + text + "~"; };
@@ -34,7 +39,6 @@ marked.setOptions({
 
 var __busy = false;
 var __creating = false;
-var __message_chunk = ""
 var __status_check = null;
 
 var CURRENT_SETTINGS = new Settings()
@@ -51,22 +55,11 @@ var PATH_DATA = {}
 // ============================================================================
 
 const heartbeat_timer = 3000;
-const message_cutoff = /\n.*\:/i
 const editing_token_threshold = 2048 - 512;
 
 const default_avatar_user = "./img/user_default.png";
 const default_avatar_bot = "./img/bot_default.png";
 
-const error_message = {
-    "service_unavailable": {
-        title: "Service unavailable!",
-        message: "Server is busy, please try again later.",
-    },
-    "request_error":{
-        title: "Could not complete the request!", 
-        message: "Something went wrong while sending your message. Check your API connectivity and try again.", 
-    }
-}
 
 // ============================================================================
 // EVENTS
@@ -87,6 +80,13 @@ document.addEventListener("keydown", (e) => {
         DOM_CHAT_OPTIONS_DELETE.click()
     }
 });
+
+document.addEventListener("message", (data) => {
+    if(data && data.detail && data.detail.message){
+        ReceiveMessage(data.detail.message, data.detail.swipe)
+    }
+    ToggleSendButton(true)
+})
 
 DOM_INPUT_FIELD.addEventListener("keydown", (e) => {
     if( !e.shiftKey && e.key == 'Enter' ){
@@ -255,6 +255,20 @@ function CreateSettings( mode ){
     let keys = Object.keys( Settings.subsets[mode] )
     RemoveAllChildren( DOM_SETTINGS_SUBSET )
 
+    let advanced_section = false;
+
+    let advanced_div = document.createElement("div");
+    let advanced_button = document.createElement("button")
+    let advanced_content = document.createElement("div")
+    let advanced_container = document.createElement("div")
+
+    advanced_div.classList.add("section")
+    advanced_button.classList.add("deselect", "component", "collapsible")
+    advanced_content.classList.add("collapsible-content")
+    advanced_container.classList.add("collapsible-container")
+
+    advanced_button.innerHTML = "Advanced Settings"
+
     for( let i = 0; i < keys.length; i++ ){
         let key = keys[i]
         let upper = key.toUpperCase()
@@ -262,13 +276,30 @@ function CreateSettings( mode ){
         let dom = CreateSettingField( key, def )
         let field = dom.children[2].children[0]
 
-        DOM_SETTINGS_SUBSET.appendChild( dom )
+        if( def.advanced ){
+            advanced_section = true;
+            advanced_container.appendChild( dom )
+        }else{
+            DOM_SETTINGS_SUBSET.appendChild( dom )
+        }
+
         DOM_SETTINGS_SECTION[ upper ] = dom
         DOM_SETTINGS_FIELD[ upper ] = field
     }
 
+    advanced_div.appendChild( advanced_button )
+    advanced_div.appendChild( advanced_content )
+    advanced_content.appendChild( advanced_container )
+    
+    SetClass( advanced_div, "hidden", !advanced_section )
+    DOM_SETTINGS_SUBSET.appendChild( advanced_div )
+
     // create reset button
     console.debug(`Created ${keys.length} settings fields`)
+
+    DOM_SETTINGS_API_TARGET.setAttribute("placeholder", Settings.placeholders[mode] )
+
+    BuildCollapsible( advanced_button )
     BuildSettings();
 }
 
@@ -304,7 +335,7 @@ function CreateSettingField( key, def ){
     _inputs.appendChild(_slider)
 
     _title.innerHTML = def.title
-    _explanation.innerHTML = def.description
+    _explanation.innerHTML = `${def.description} Default: ${def.default}`
 
     _div.appendChild(_title)
     _div.appendChild(_explanation)
@@ -394,15 +425,37 @@ function BuildChat(chat){
     }
 }
 
+function GetAPI(){
+    switch( CURRENT_SETTINGS.api_mode ){
+        case "pygmalion": return Pygmalion;
+        case "openai": return OpenAI;
+        default: return Pygmalion;
+    }
+}
+
 function SendMessage(){
     if(__busy) return;
 
-    ReceiveMessage({ "participant": -1, "candidate":{ "timestamp": Date.now(), "text": DOM_INPUT_FIELD.value.trim() }}, false)
+    ReceiveMessage({ 
+        "participant": -1, 
+        "candidate":{ 
+            "timestamp": Date.now(), 
+            "text": DOM_INPUT_FIELD.value.trim() 
+        }
+    }, false)
+
     ClearTextArea();
     ResizeInputField();
     ToggleSendButton(false);
-    let prompt = MakePrompt( CURRENT_CHARACTER, CURRENT_CHAT.messages, CURRENT_SETTINGS );
-    Generate(prompt, CURRENT_SETTINGS)
+
+    let prompt = GetAPI().MakePrompt( 
+        CURRENT_CHARACTER, 
+        CURRENT_CHAT.messages, 
+        CURRENT_PROFILE.name, 
+        CURRENT_SETTINGS 
+    );
+
+    GetAPI().Generate(prompt, CURRENT_SETTINGS)
 }
 
 function ReceiveMessage(msg, swipe = false){
@@ -530,7 +583,7 @@ function CreateChatHistoryItem( chat ){
     let _text = msg.candidates[ msg.index ].text
     let _author = msg.participant > -1 ? chat.participants[ msg.participant ] : CURRENT_PROFILE.name
     _text = marked.parse( _text )
-    _text = ParseNames( _text, CURRENT_PROFILE.name, chat.participants[ msg.participant ] )
+    _text = Utils.ParseNames( _text, CURRENT_PROFILE.name, chat.participants[ msg.participant ] )
 
     _right.innerHTML = `<strong>${_author}:</strong> ${_text}`;
 
@@ -657,8 +710,11 @@ function SwipeMessage( message_at, new_index ){
         if( msg === CURRENT_CHAT.messages[0] ) return;
 
         ToggleSendButton(false);
-        let prompt = MakePrompt( CURRENT_CHARACTER, CURRENT_CHAT.messages, CURRENT_SETTINGS, 1 );
-        Generate(prompt, CURRENT_SETTINGS, true)
+        let prompt = GetAPI().MakePrompt( 
+            CURRENT_CHARACTER, CURRENT_CHAT.messages, 
+            CURRENT_PROFILE.name, CURRENT_SETTINGS, 1);
+            
+        GetAPI().Generate(prompt, CURRENT_SETTINGS, true)
         return;
     }
         
@@ -669,7 +725,7 @@ function SwipeMessage( message_at, new_index ){
     let text = msg.candidates[ msg.index ].text;
 
     text = marked.parse( text )
-    text = ParseNames( text, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    text = Utils.ParseNames( text, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
 
     content.innerHTML = text;
     swipes.innerHTML = `${ msg.index + 1} / ${ msg.candidates.length }`
@@ -733,8 +789,8 @@ function RegenerateLastMessage(character, chat, settings){
     ToggleSendButton(false);
     let last_message = chat.messages.at(-1)
     let swipe = last_message.participant > -1;
-    let prompt = MakePrompt( character, chat.messages, settings, swipe ? 1 : 0 );
-    Generate(prompt, settings, swipe)
+    let prompt = GetAPI().MakePrompt( character, chat.messages, CURRENT_PROFILE.name, settings, swipe ? 1 : 0 );
+    GetAPI().Generate(prompt, settings, swipe)
 }
 
 function CopyMessageContent(index){
@@ -794,7 +850,7 @@ function CreateMessage(id, author, msg){
 
     let _message = msg.candidates[ msg.index ].text;
     _message = marked.parse( _message )
-    _message = ParseNames( _message, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    _message = Utils.ParseNames( _message, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     _content.innerHTML = marked.parse( _message );
 
     let _footer = document.createElement("div");
@@ -986,7 +1042,7 @@ function CreateEditMode(dom){
 function CancelEdit(index, content, old_value){
     let msg = CURRENT_CHAT.messages[index]
     msg.dom.classList.remove("edit")
-    old_value = ParseNames( old_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    old_value = Utils.ParseNames( old_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     content.innerHTML = marked.parse( old_value );
     console.debug(`Cancelled editing message at index ${index}, swipe ${msg.index}`)
 }
@@ -995,7 +1051,7 @@ function ConfirmEdit(index, content, new_value){
     let msg = CURRENT_CHAT.messages[index]
     msg.dom.classList.remove("edit")
     msg.candidates[ msg.index ].text = new_value;
-    new_value = ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
+    new_value = Utils.ParseNames( new_value, CURRENT_PROFILE.name, CURRENT_CHARACTER.name )
     content.innerHTML = marked.parse( new_value );
     console.debug(`Successfully edited message at index ${index}, swipe ${msg.index}`)
     if( CURRENT_CHAT.messages.length > 1 ){
@@ -1033,9 +1089,9 @@ function AddCharacterItem(json){
 }
 
 function Connect(){
-    if(!CURRENT_SETTINGS.api_url) return;
+    if(!CURRENT_SETTINGS.api_target) return;
     SetServerStatus(null);
-    GetStatus(CURRENT_SETTINGS.api_url);
+    GetStatus(CURRENT_SETTINGS.api_target);
 }
 
 function Disconnect(){
@@ -1156,7 +1212,7 @@ function GetCharacter(obj){
 
 function GetSettings(obj){
     if(!obj) return;
-    obj.api_url = DOM_SETTINGS_API_URL.value.trim()
+    obj.api_target = DOM_SETTINGS_API_TARGET.value.trim()
     obj.api_mode = DOM_SETTINGS_API_MODE.value
 
     let keys = Object.keys( Settings.subsets[ obj.api_mode ] );
@@ -1190,7 +1246,7 @@ function ApplyCharacter(json){
 }
 
 function ApplySettings(json){
-    DOM_SETTINGS_API_URL.value = json.api_url
+    DOM_SETTINGS_API_TARGET.value = json.api_target
     DOM_SETTINGS_API_MODE.value = json.api_mode
 
     let mode = json.api_mode 
@@ -1211,20 +1267,11 @@ function ApplySettings(json){
     console.debug("Read settings from object to DOM")
 }
 
-function ParseNames(text, user, bot){
-    if(!text) return text;
-    text = text.replaceAll("[NAME_IN_MESSAGE_REDACTED]", user)
-    text = text.replaceAll("{{user}}", user)
-    text = text.replaceAll("<USER>", user)
-    text = text.replaceAll("{{char}}", bot)
-    text = text.replaceAll("<BOT>", bot)
-    return text
-}
-
 function GetCharacterTokens( character ){
+    return []
     if( !character ){ return [] }
-    let prompt = MakePrompt( character, null, CURRENT_SETTINGS )
-    let tokens = encode(prompt)
+    let prompt = GetAPI().MakePrompt( character, null, CURRENT_PROFILE.name, CURRENT_SETTINGS )
+    let tokens = Utils.GetTokens(prompt)
     return tokens
 }
 
@@ -1233,154 +1280,6 @@ function UpdateCharacterEditingTokens( character ){
     DOM_EDIT_TOKENS.innerHTML = `${tokens.length} of ${editing_token_threshold} Tokens`
     SetClass( DOM_EDIT_TOKENS, "confirm", tokens.length <= editing_token_threshold )
     SetClass( DOM_EDIT_TOKENS, "danger", tokens.length > editing_token_threshold )
-}
-
-function MakePrompt( character, messages, settings, offset = 0 ){
-    var prompt = ""
-    prompt += `${character.name}'s Persona: ${character.description.trim()}\n`
-
-    if(character.personality)
-        prompt += `Personality: ${character.personality.trim()}\n`
-    
-    if(character.scenario)
-        prompt += `Scenario: ${character.scenario.trim()}\n`
-    
-    if(character.dialogue)
-        prompt += `${character.dialogue.trim()}\n`
-
-    prompt += "<START>\n"
-    prompt = ParseNames( prompt, CURRENT_PROFILE.name, character.name )
-
-    let ending = character.name + ":"
-    let token_count_prompt = encode(prompt).length;
-    let token_count_ending = encode(ending).length;
-
-    if( messages ){
-        let msg_section = "";
-
-        for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i -= 1 ){
-            let prefix = messages[i].participant > -1 ? character.name : "You";
-            let candidate = messages[i].candidates[ messages[i].index ].text
-            
-            let msg = `${prefix}: ${candidate}\n`
-            let token_count_messages = encode(msg_section).length
-            let token_count_line = encode(msg).length
-            if( token_count_prompt + token_count_messages + token_count_line + token_count_ending > settings.context_size ){
-                break;
-            }
-            msg_section = msg + msg_section
-        }
-        prompt += msg_section
-    }
-
-    prompt += ending;
-    return prompt;
-}
-
-function Generate(prompt, settings, swipe = false){
-    let url = settings.api_url;
-    url = url.replaceAll("localhost", "127.0.0.1");
-
-    let protocol = http;
-    if(url.startsWith("https")){
-        protocol = https;
-    }
-
-    let final_token_count = encode(prompt).length;
-    if( final_token_count > settings.context_size ){
-        console.warn(`Attempting to make a prompt with ${final_token_count} tokens, which is ${final_token_count - settings.context_size} more than the ${settings.context_size} allowed!`)
-    }
-
-    let outgoing_data = {
-        prompt: prompt,
-        max_context_length: settings.context_size,
-        max_length: settings.max_length,
-        rep_pen: settings.repetition_penalty,
-        rep_pen_range: settings.penalty_range,
-        rep_pen_slope: settings.repetition_slope,
-        temperature: settings.temperature,
-        tfs: 0.9,
-        top_a: 0,
-        top_k: settings.top_k,
-        top_p: settings.top_p,
-        typical: settings.typical_p,
-        sampler_order: [ 6, 0, 1, 2, 3, 4, 5 ]
-    };
-
-    let json_data = JSON.stringify(outgoing_data)
-    let buffer_length = Buffer.byteLength( json_data );
-
-    let options = {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': buffer_length,
-        },
-    }
-
-    try{
-        console.debug("Sending prompt %o", outgoing_data)
-        const req = protocol.request(url + "/v1/generate", options, (response) => {
-            response.setEncoding("utf8")
-            response.on("data", (incoming) => {
-                console.debug(`Raw generated ${swipe ? "swipe" : "message"}:\n${incoming}`)
-                let incoming_json = JSON.parse(incoming);
-
-                if(incoming_json.results){
-                    let text_content = incoming_json.results[0].text;
-
-                    let cut = text_content.search(message_cutoff)
-                    if( cut > -1 ){
-                        text_content = text_content.slice(0, cut)
-                        if(__message_chunk.length < 1){
-                            text_content = text_content.trim()
-                        }
-                        __message_chunk += text_content;
-                        ReceiveMessage({ 
-                            "participant": 0, 
-                            "candidate":{ 
-                                "timestamp": Date.now(), 
-                                "text": __message_chunk 
-                            }
-                        }, swipe);
-                        __message_chunk = "";
-                    }else{
-                        __message_chunk += text_content;
-                        outgoing_data.prompt += __message_chunk;
-                        Generate(outgoing_data.prompt, settings, swipe)
-                    }
-
-                }else if(incoming_json.detail){
-                    if( error_message[incoming_json.detail] ){
-                        ipcRenderer.send("show_error", error_message[incoming_json.detail] )
-                    }else{
-                        ipcRenderer.send("show_error", { 
-                            title: incoming_json.detail.type, 
-                            message: incoming_json.detail.msg
-                        })
-                    }
-                    ToggleSendButton(true);
-                }
-            });
-        });
-
-        req.on("error", (error) => {
-            ipcRenderer.send("show_error", error_message["request_error"]);
-            ToggleSendButton(true);
-        });
-
-        req.write( json_data );
-        req.end();
-
-    }catch( error ){
-        ipcRenderer.send("show_error", { 
-            title: "Network Error!", 
-            message: error.message 
-        });
-
-        ReceiveMessage(null);
-        ToggleSendButton(true);
-    }
 }
 
 function BuildCharactersList(list){
@@ -1439,7 +1338,7 @@ ipcRenderer.invoke('get_paths').then((resolve) => {
     ApplySVG();
     ClearTextArea();
     ResizeInputField();
-    BuildCollapsibles();
+    BuildCollapsible( DOM_EDIT_ADVANCED );
     BuildTabs();
 
     SetClass(DOM_CHAT, "hidden", true)

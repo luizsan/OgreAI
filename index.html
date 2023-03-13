@@ -104,8 +104,8 @@
 
                 <!-- ADDITIONAL SETTINGS -->
                 <div class="section">
-                    <button id="detailed-collapsible" class="deselect component collapsible ">Detailed Info</button>
-                    <div id="detailed-info" class="collapsible-content">
+                    <button id="edit-advanced" class="deselect component collapsible ">Detailed Info</button>
+                    <div class="collapsible-content">
                         <div class="collapsible-container">
                             <div class="section setting">
                                 <p class="title">Personality</p>
@@ -116,7 +116,7 @@
                             <div class="section setting">
                                 <p class="title">Scenario</p>
                                 <p class="explanation">Circumstances and context of the dialogue.</p>
-                                <textarea type="text" id="edit-scenario" class="component resizable" rows="4"></textarea>
+                                <textarea id="edit-scenario" class="component resizable" rows="4"></textarea>
                             </div>
 
                             <div class="section setting">
@@ -204,7 +204,7 @@
                         <p class="explanation"></p>
 
                         <select id="setting-api_mode" class="component">
-                            <option value="kobold">Kobold</option>
+                            <option value="pygmalion">Pygmalion</option>
                             <option value="openai">OpenAI</option>
                         </select>
 
@@ -213,7 +213,7 @@
                     <div class="section">
                         <p class="title">API Target</p>
                         <p id="setting-status" class="explanation danger disabled">Not connected</p>
-                        <input type="text" id="field-api_url" class="component single" placeholder="http://127.0.0.1:5000/api" rows="1"></input>
+                        <input type="text" id="field-api_target" class="component single" placeholder="http://127.0.0.1:5000/api" rows="1"></input>
                     </div>
 
                     <div class="section horizontal">

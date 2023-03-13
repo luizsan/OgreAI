@@ -80,6 +80,7 @@ const DOM_EDIT_NAME = document.getElementById("edit-name")
 const DOM_EDIT_DESCRIPTION = document.getElementById("edit-description")
 const DOM_EDIT_GREETING = document.getElementById("edit-greeting")
 const DOM_EDIT_PERSONALITY = document.getElementById("edit-personality")
+const DOM_EDIT_ADVANCED = document.getElementById("edit-advanced")
 const DOM_EDIT_SCENARIO = document.getElementById("edit-scenario")
 const DOM_EDIT_DIALOGUE = document.getElementById("edit-dialogue")
 const DOM_EDIT_TOKENS = document.getElementById("edit-tokens")
@@ -99,19 +100,11 @@ const DOM_SETTINGS_RESET = document.getElementById("setting-reset")
 const DOM_SETTINGS_SUBSET = document.getElementById("setting-subset")
 
 const DOM_SETTINGS_API_MODE = document.getElementById("setting-api_mode")
-const DOM_SETTINGS_API_URL = document.getElementById("field-api_url")
+const DOM_SETTINGS_API_TARGET = document.getElementById("field-api_target")
 const DOM_SETTINGS_MAX_LENGTH = document.getElementById("field-max_length")
 const DOM_SETTINGS_SECTION = {}
 const DOM_SETTINGS_FIELD = {}
-
-const DOM_SETTINGS_CONTEXT_SIZE = document.getElementById("field-context_size")
-const DOM_SETTINGS_TEMPERATURE = document.getElementById("field-temperature")
-const DOM_SETTINGS_REPETITION_PENALTY = document.getElementById("field-repetition_penalty")
-const DOM_SETTINGS_PENALTY_RANGE = document.getElementById("field-penalty_range")
-const DOM_SETTINGS_PENALTY_SLOPE = document.getElementById("field-rep_pen_slope")
-const DOM_SETTINGS_TOP_P = document.getElementById("field-top_p")
-const DOM_SETTINGS_TOP_K = document.getElementById("field-top_k")
-const DOM_SETTINGS_TYPICAL_P = document.getElementById("field-typical_p")
+const DOM_SETTINGS_ADVANCED = null;
 
 const DOM_SECTION_EDITING = document.getElementById("editing")
 const DOM_SECTION_PROFILE = document.getElementById("profile")
@@ -201,24 +194,20 @@ function ApplySVG(){
     console.debug(`Applied inline SVG to ${total} element(s)`)
 }
 
-function BuildCollapsibles(){
-    var elem = document.getElementsByClassName("collapsible");
-
-    for (let i = 0; i < elem.length; i++) {
-        elem[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            content.scrollIntoView(true);
-            if (content.style.maxHeight){
-                content.style.maxHeight = null;
-            } else {
-                // content.style.maxHeight = content.scrollHeight + "px";
-                content.style.maxHeight = "fit-content"
-            } 
-        });
-    }
-
-    console.debug(`Applied functionality to ${elem.length} collapsible section(s)`)
+function BuildCollapsible(elem){
+    elem.addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        content.scrollIntoView(true);
+        if (content.style.maxHeight){
+            content.style.maxHeight = null;
+        } else {
+            // content.style.maxHeight = content.scrollHeight + "px";
+            content.style.maxHeight = "fit-content"
+        } 
+    });
+    
+    console.debug(`Applied functionality to "${elem}" collapsible section`)
 }
 
 function BuildSettings(){
@@ -303,7 +292,7 @@ function GetElementIndex(parent, dom){
 function ResetSettings(){
     let inputs = DOM_SECTION_SETTINGS.getElementsByTagName("input");
     for( let i = 0; i < inputs.length; i++ ){
-        if( inputs[i].id == "field-api_url" ) continue;
+        if( inputs[i].id == "field-api_target" ) continue;
         inputs[i].value = inputs[i].defaultValue;
     }
     DOM_SECTION_SETTINGS.dispatchEvent(new Event("change"))
