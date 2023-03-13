@@ -96,9 +96,14 @@ const DOM_SETTINGS_STATUS = document.getElementById("setting-status")
 const DOM_SETTINGS_CONNECT = document.getElementById("setting-api_connect")
 const DOM_SETTINGS_DISCONNECT = document.getElementById("setting-api_disconnect")
 const DOM_SETTINGS_RESET = document.getElementById("setting-reset")
+const DOM_SETTINGS_SUBSET = document.getElementById("setting-subset")
 
+const DOM_SETTINGS_API_MODE = document.getElementById("setting-api_mode")
 const DOM_SETTINGS_API_URL = document.getElementById("field-api_url")
 const DOM_SETTINGS_MAX_LENGTH = document.getElementById("field-max_length")
+const DOM_SETTINGS_SECTION = {}
+const DOM_SETTINGS_FIELD = {}
+
 const DOM_SETTINGS_CONTEXT_SIZE = document.getElementById("field-context_size")
 const DOM_SETTINGS_TEMPERATURE = document.getElementById("field-temperature")
 const DOM_SETTINGS_REPETITION_PENALTY = document.getElementById("field-repetition_penalty")
@@ -397,22 +402,3 @@ window.addEventListener('click', function (e) {
         }
     }
 });
-
-// ============================================================================
-// SETUP
-// ============================================================================
-
-DOM_HEADER_CHARACTERS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_LEFT, "active"));
-DOM_HEADER_SETTINGS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_RIGHT, "active"));
-DOM_INPUT_OPTIONS_BUTTON.addEventListener("click", () => ToggleClass(DOM_INPUT_OPTIONS_WINDOW, "hidden"));
-DOM_INPUT_FIELD.addEventListener("input", () => ResizeInputField());
-DOM_EDIT_CLOSE.addEventListener("click", () => SetClass(DOM_SECTION_EDITING, "hidden", true));
-DOM_SETTINGS_RESET.addEventListener("click", () => ResetSettings());
-
-ApplySVG();
-ClearTextArea();
-ResizeInputField();
-BuildCollapsibles();
-BuildSettings();
-BuildTabs();
-SetClass(DOM_CHAT, "hidden", true)

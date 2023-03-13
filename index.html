@@ -196,123 +196,36 @@
             </div>
 
             <div id="settings" class="section vertical tab-container fade-in">
+
                 <div class="section vertical">
+
                     <div class="section">
-                        <p class="title">API URL</p>
+                        <p class="title">API Mode</p>
+                        <p class="explanation"></p>
+
+                        <select id="setting-api_mode" class="component">
+                            <option value="kobold">Kobold</option>
+                            <option value="openai">OpenAI</option>
+                        </select>
+
+                    </div>
+
+                    <div class="section">
+                        <p class="title">API Target</p>
                         <p id="setting-status" class="explanation danger disabled">Not connected</p>
                         <input type="text" id="field-api_url" class="component single" placeholder="http://127.0.0.1:5000/api" rows="1"></input>
                     </div>
+
                     <div class="section horizontal">
                         <button id="setting-api_connect" class="deselect component">Connect</button>
                         <button id="setting-api_disconnect" class="deselect component danger">Disconnect</button>
                     </div>
+
                 </div>
 
                 <hr>
 
-                <div class="section vertical">
-
-                    <!-- <p class="title">Global Settings</p> -->
-                    <!-- <p>Can be overriden by character settings</p> -->
-
-
-                    <div setting="setting-context_size" class="setting">
-                        <p class="title">Context size</p>
-                        <p class="explanation">Number of context tokens to submit to the AI for sampling. Make sure this is higher than Output Length. Higher values increase VRAM/RAM usage. (Default: 1024)</p>
-                        <div>
-                            <input type="text" id="field-context_size" class="component single" value="1024"/>
-                            <input type="range" id="range-context_size" class="component" min="512" max="2048" step="8" value="1024"/>
-                        </div>  
-                    </div> 
-                    
-                    <div id="setting-temperature" class="setting">
-                        <p class="title">Temperature</p>
-                        <p class="explanation">Randomness of sampling. Higher values can increase creativity, but make the output less meaningful. Lower values will make the output more predictable, but it may become more repetitive. (Default: 0.5)</p>
-                        <div>
-                            <input type="text" id="field-temperature" class="component single" value="0.5"/>
-                            <input type="range" id="range-temperature" class="component" min="0" max="2" step="0.01" value="0.5"/>
-                        </div>
-                    </div>
-
-                    <div setting="setting-max_length" class="setting">
-                        <p class="title">Max Response Size</p>
-                        <p class="explanation">Number of tokens to generate in a reply. A higher amount of tokens takes longer to generate and doesn't necessarily increase reply length, but prevents replies from being cut in the middle. (Default: 64)</p>
-                        <div>
-                            <input type="text" id="field-max_length" class="component single" value="1024"/>
-                            <input type="range" id="range-max_length" class="component" min="16" max="128" step="8" value="128"/>
-                        </div>  
-                    </div> 
-
-                    
-                    <div id="setting-repetition_penalty" class="setting">
-                        <p class="title">Repetition Penalty</p>
-                        <p class="explanation">Used to penalize words that were already generated or belong to the context. (Default: 1.05)</p>
-                        <div>
-                            <input type="text" id="field-repetition_penalty" class="component single" value="1.05"/>
-                            <input type="range" id="range-repetition_penalty" class="component" min="1" max="1.5" step="0.01" value="1.05"/>
-                        </div>         
-                    </div>
-                    
-                    <div id="setting-penalty_range" class="setting">
-                        <p class="title">Repetition Penalty Range</p>
-                        <p class="explanation">If set higher than 0, only applies repetition penalty to the last few tokens of the prompt rather than applying it to the entire prompt. The slider controls the amount of tokens at the end of your prompt to apply to. (Default: 1024)</p>
-                        <div>
-                            <input type="text" id="field-penalty_range" class="component single" value="1024"/>
-                            <input type="range" id="range-penalty_range" class="component" min="0" max="2048" step="8" value="1024"/>
-                        </div>
-                    </div>
-                    
-
-                    <div class="section">
-                        <button id="detailed-collapsible" class="deselect component collapsible">Advanced Settings</button>
-                        <div id="advanced-settings" class="collapsible-content">
-                            <div class="collapsible-container">
-
-                                <div id="setting-rep_pen_slope" class="setting">
-                                    <p class="title">Repetition Penalty Slope</p>
-                                    <p class="explanation">Repetition penalty slope. If both this setting and Repetition Penalty Range are set higher than 0, will use sigmoid interpolation to apply repetition penalty more strongly on tokens that are closer to the end of the story. Higher values will result in the repetition penalty difference between the start and end of your prompt being more apparent. (Setting this to 1 uses linear interpolation; setting this to 0 disables interpolation) (Default: 1)</p>
-                                    <div>
-                                        <input type="text" id="field-rep_pen_slope" class="component single" value="1"/>
-                                        <input type="range" id="range-rep_pen_slope" class="component" min="0" max="10" step="0.1" value="1"/>
-                                    </div>
-                                </div>
-
-                                <div id="setting-top_p" class="setting">
-                                    <p class="title">top_p</p>
-                                    <p class="explanation">Used to discard unlikely text in the sampling process. Lower values will make the output more predictable, but also repetitive. Put this value on 1 to disable its effect. (Default: 0.9)</p>
-                                    <div>
-                                        <input type="text" id="field-top_p" class="component single" value="0.9"/>
-                                        <input type="range" id="range-top_p" class="component" min="0" max="1" step="0.01" value="0.9"/>
-                                    </div>
-                                </div>
-                                
-                                <div id="setting-top_k" class="setting">
-                                    <p class="title">top_k</p>
-                                    <p class="explanation">Alternative sampling method. Can be combined with top_p. Put this value on 0 to disable its effect. (Default: 40)</p>
-                                    <div>
-                                        <input type="text" id="field-top_k" class="component single" value="40"/>
-                                        <input type="range" id="range-top_k" class="component" min="0" max="100" step="1" value="40"/>
-                                    </div>
-                                </div>
-                                
-                                <div id="setting-typical_p" class="setting">
-                                    <p class="title">typical_p</p>
-                                    <p class="explanation">Alternative sampling method. Described in the paper "Typical Decoding for Natural Language Generation" (10.48550/ARXIV.2202.00666). The paper indicates 0.2 as a suggested value for this setting. Put this value on 1 to disable its effect. (Default: 1)</p>
-                                    <div>
-                                        <input type="text" id="field-typical_p" class="component single" value="1"/>
-                                        <input type="range" id="range-typical_p" class="component" min="0" max="1" step="0.01" value="1"/>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <button id="setting-reset" class="deselect component danger">Reset Settings</button>
-                    </div>
-
-                </div>
+                <div id="setting-subset" class="section vertical"></div>
             </div>
 
             <div id="profile" class="section vertical hidden tab-container fade-in">

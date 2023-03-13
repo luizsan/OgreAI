@@ -37,8 +37,8 @@ var __creating = false;
 var __message_chunk = ""
 var __status_check = null;
 
-var CURRENT_SETTINGS = {};
-var CURRENT_PROFILE = {};
+var CURRENT_SETTINGS = new Settings()
+var CURRENT_PROFILE = new Profile()
 var CURRENT_CHARACTER = null;
 var CURRENT_CREATE = null;
 var CURRENT_CHAT = null;
@@ -74,12 +74,13 @@ const error_message = {
 
 document.addEventListener("keydown", (e) => {
     // document-wide shortcuts
-    if( document.activeElement === DOM_INPUT_FIELD) return;
     
     if( e.ctrlKey && e.key == ' ' ){
         console.debug("Pressed REGENERATE shortcut (Ctrl+Space)")
         DOM_CHAT_OPTIONS_REGENERATE.click()
     }
+    
+    if( document.activeElement === DOM_INPUT_FIELD) return;
     
     if( e.ctrlKey && e.key == 'Delete' ){
         console.debug("Pressed DELETE shortcut (Ctrl+Delete)")
@@ -95,6 +96,13 @@ DOM_INPUT_FIELD.addEventListener("keydown", (e) => {
     }
 });
 
+DOM_HEADER_CHARACTERS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_LEFT, "active"));
+DOM_HEADER_SETTINGS_BUTTON.addEventListener("click", () => ToggleClass(DOM_SIDEBAR_RIGHT, "active"));
+DOM_INPUT_OPTIONS_BUTTON.addEventListener("click", () => ToggleClass(DOM_INPUT_OPTIONS_WINDOW, "hidden"));
+DOM_INPUT_FIELD.addEventListener("input", () => ResizeInputField());
+DOM_EDIT_CLOSE.addEventListener("click", () => SetClass(DOM_SECTION_EDITING, "hidden", true));
+// DOM_SETTINGS_RESET.addEventListener("click", () => ResetSettings());
+
 DOM_INPUT_SEND.addEventListener("click", () => SendMessage());
 DOM_DELETE_CONFIRM.addEventListener("click", () => DeleteMessages());
 DOM_SETTINGS_CONNECT.addEventListener("click", () => Connect());
@@ -103,6 +111,11 @@ DOM_CHAT_OPTIONS_NEW.addEventListener("click", () => {
     NewChat( CURRENT_CHARACTER );
     ToggleChat( true );
 });
+
+DOM_SETTINGS_API_MODE.addEventListener("change", () => {
+    Disconnect();
+})
+
 DOM_CHAT_OPTIONS_REGENERATE.addEventListener("click", () => RegenerateLastMessage( CURRENT_CHARACTER, CURRENT_CHAT, CURRENT_SETTINGS));
 DOM_CHAT_OPTIONS_HISTORY.addEventListener("click", () => ToggleChatHistory(true));
 DOM_CHAT_OPTIONS_DELETE.addEventListener("click", () => ToggleDeleteMode(true));
@@ -185,6 +198,12 @@ DOM_SECTION_PROFILE.addEventListener("change", () => {
     SaveData(Profile.path, CURRENT_PROFILE)
 });
 
+DOM_SETTINGS_API_MODE.addEventListener("change", (e) => {
+    CURRENT_SETTINGS.api_mode = DOM_SETTINGS_API_MODE.value
+    CreateSettings( CURRENT_SETTINGS.api_mode )
+    ApplySettings( CURRENT_SETTINGS )
+})
+
 DOM_SECTION_SETTINGS.addEventListener("change", () => {
     GetSettings( CURRENT_SETTINGS )
     SaveData(Settings.path, CURRENT_SETTINGS)
@@ -220,11 +239,6 @@ ipcRenderer.on("delete_character", (_event, args) => {
     }
 })
 
-ipcRenderer.on("path_data", (_event, args) => {
-    PATH_DATA = args;
-    console.log( PATH_DATA )
-})
-
 // ============================================================================
 // METHODS
 // ============================================================================
@@ -235,6 +249,68 @@ function GetRootPath(){
     }else{
         return __dirname
     }
+}
+
+function CreateSettings( mode ){
+    let keys = Object.keys( Settings.subsets[mode] )
+    RemoveAllChildren( DOM_SETTINGS_SUBSET )
+
+    for( let i = 0; i < keys.length; i++ ){
+        let key = keys[i]
+        let upper = key.toUpperCase()
+        let def = Settings.subsets[ mode ][ key ]
+        let dom = CreateSettingField( key, def )
+        let field = dom.children[2].children[0]
+
+        DOM_SETTINGS_SUBSET.appendChild( dom )
+        DOM_SETTINGS_SECTION[ upper ] = dom
+        DOM_SETTINGS_FIELD[ upper ] = field
+    }
+
+    // create reset button
+    console.debug(`Created ${keys.length} settings fields`)
+    BuildSettings();
+}
+
+function CreateSettingField( key, def ){
+    let _div = document.createElement("div")
+
+    _div.id = "setting_" + key;
+    _div.classList.add("setting")
+    
+    let _title = document.createElement("p")
+    _title.classList.add("title")
+
+    let _explanation = document.createElement("p")
+    _explanation.classList.add("explanation")
+
+    let _field = document.createElement("input")
+    _field.id = "field_" + key;
+    _field.setAttribute("type", "text" )
+    _field.classList.add( "component", "single" )
+    _field.defaultValue = def.default
+    
+    let _slider = document.createElement("input")
+    _slider.id = "slider_" + key;
+    _slider.setAttribute("type", "range" )
+    _slider.classList.add( "component" )
+    _slider.step = def.step
+    _slider.max = def.max
+    _slider.min = def.min
+    _slider.defaultValue = def.default
+    
+    let _inputs = document.createElement("div")
+    _inputs.appendChild(_field)
+    _inputs.appendChild(_slider)
+
+    _title.innerHTML = def.title
+    _explanation.innerHTML = def.description
+
+    _div.appendChild(_title)
+    _div.appendChild(_explanation)
+    _div.appendChild(_inputs)
+
+    return _div
 }
 
 async function TryCreateCharacter(){
@@ -1081,15 +1157,18 @@ function GetCharacter(obj){
 function GetSettings(obj){
     if(!obj) return;
     obj.api_url = DOM_SETTINGS_API_URL.value.trim()
-    obj.max_length = parseInt(DOM_SETTINGS_MAX_LENGTH.value)
-    obj.context_size = parseInt(DOM_SETTINGS_CONTEXT_SIZE.value)
-    obj.temperature = parseFloat(DOM_SETTINGS_TEMPERATURE.value)
-    obj.repetition_penalty = parseFloat(DOM_SETTINGS_REPETITION_PENALTY.value)
-    obj.repetition_slope = parseFloat(DOM_SETTINGS_PENALTY_SLOPE.value)
-    obj.penalty_range = parseInt(DOM_SETTINGS_PENALTY_RANGE.value)
-    obj.top_p = parseFloat(DOM_SETTINGS_TOP_P.value)
-    obj.top_k = parseFloat(DOM_SETTINGS_TOP_K.value)
-    obj.typical_p = parseFloat(DOM_SETTINGS_TYPICAL_P.value)
+    obj.api_mode = DOM_SETTINGS_API_MODE.value
+
+    let keys = Object.keys( Settings.subsets[ obj.api_mode ] );
+    for( let i = 0; i < keys.length; i++ ){
+        let key = keys[i]
+        let upper = key.toUpperCase()
+        if( DOM_SETTINGS_FIELD[ upper ] ){
+            obj[obj.api_mode][key] = parseFloat( DOM_SETTINGS_FIELD[ upper ].value )
+        }
+    }
+
+    console.debug("Wrote settings from DOM to object")
 }
 
 function ApplyProfile(json){
@@ -1111,21 +1190,25 @@ function ApplyCharacter(json){
 }
 
 function ApplySettings(json){
-    DOM_SETTINGS_API_URL.value = json.api_url;
-    DOM_SETTINGS_MAX_LENGTH.value = json.max_length;
-    DOM_SETTINGS_CONTEXT_SIZE.value = json.context_size;
-    DOM_SETTINGS_TEMPERATURE.value = json.temperature;
-    DOM_SETTINGS_REPETITION_PENALTY.value = json.repetition_penalty;
-    DOM_SETTINGS_PENALTY_RANGE.value = json.penalty_range;
-    DOM_SETTINGS_PENALTY_SLOPE.value = json.repetition_slope;
-    DOM_SETTINGS_TOP_P.value = json.top_p;
-    DOM_SETTINGS_TOP_K.value = json.top_k;
-    DOM_SETTINGS_TYPICAL_P.value = json.typical_p;
+    DOM_SETTINGS_API_URL.value = json.api_url
+    DOM_SETTINGS_API_MODE.value = json.api_mode
+
+    let mode = json.api_mode 
+    let keys = Object.keys( Settings.subsets[ mode ] );
+    for( let i = 0; i < keys.length; i++ ){
+        let key = keys[i]
+        let upper = key.toUpperCase()
+        if( DOM_SETTINGS_FIELD[ upper ] && json[ mode ][ key ] ){
+            DOM_SETTINGS_FIELD[ upper ].value = json[ mode ][ key ]
+        }
+    }
 
     let elem = document.querySelectorAll(`#settings input[type="text"]`);
     for( let i = 0; i < elem.length; i++ ){
         elem[i].dispatchEvent(new Event("change"))
     }
+
+    console.debug("Read settings from object to DOM")
 }
 
 function ParseNames(text, user, bot){
@@ -1240,11 +1323,11 @@ function Generate(prompt, settings, swipe = false){
         const req = protocol.request(url + "/v1/generate", options, (response) => {
             response.setEncoding("utf8")
             response.on("data", (incoming) => {
+                console.debug(`Raw generated ${swipe ? "swipe" : "message"}:\n${incoming}`)
                 let incoming_json = JSON.parse(incoming);
 
                 if(incoming_json.results){
                     let text_content = incoming_json.results[0].text;
-                    console.debug(`Raw generated ${swipe ? "swipe" : "message"}:\n${text_content}`)
 
                     let cut = text_content.search(message_cutoff)
                     if( cut > -1 ){
@@ -1314,8 +1397,6 @@ function BuildCharactersList(list){
             try{
                 let char = Character.ReadFromFile( file )
                 let open = CURRENT_CHARACTER != null && CURRENT_CHARACTER.metadata.filepath === char.metadata.filepath;
-                
-                console.log(char.metadata)
                 char.metadata.menu_item = item;
                 SelectCharacter( char )
 
@@ -1339,18 +1420,29 @@ function BuildCharactersList(list){
 // ============================================================================
 
 ipcRenderer.invoke('get_paths').then((resolve) => {
+    console.debug("Received path data from Main process")
     PATH_DATA = resolve;
 
-    CURRENT_PROFILE = LoadData( Profile.path, new Profile());
-    CURRENT_SETTINGS = LoadData( Settings.path, new Settings());
+    CURRENT_PROFILE.SetFrom( LoadData( Profile.path, new Profile()) );
+    CURRENT_SETTINGS.SetFrom( LoadData( Settings.path, new Settings()) );
+    CreateSettings( CURRENT_SETTINGS.api_mode )
+
     CURRENT_LIST = Character.LoadFromDirectory( Character.path );
     BuildCharactersList( CURRENT_LIST )
 
     SetAvatarCSS( "bot", default_avatar_bot )
     SetAvatarCSS( "user", default_avatar_user )
 
-    ApplyProfile( CURRENT_PROFILE );
     ApplySettings( CURRENT_SETTINGS );
+    ApplyProfile( CURRENT_PROFILE );
+
+    ApplySVG();
+    ClearTextArea();
+    ResizeInputField();
+    BuildCollapsibles();
+    BuildTabs();
+
+    SetClass(DOM_CHAT, "hidden", true)
 
     Connect();
 })

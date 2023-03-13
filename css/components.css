@@ -129,7 +129,8 @@ input[type="range"].component{
     cursor: pointer;
 }
 
-input[type="text"].component, 
+input[type="text"].component,
+select.component,
 textarea.component{
     width: 100%;
     padding: 8px 8px;
@@ -138,6 +139,8 @@ textarea.component{
 
 input[type="text"].component:active, 
 input[type="text"].component:focus, 
+select.component:active,
+select.component:focus,
 textarea.component:active, 
 textarea.component:focus{
     outline: 3px solid var( --accent-color-dark );

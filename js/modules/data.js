@@ -4,7 +4,7 @@ const path = require("path")
 function SaveData(file_path, content){
     try{
         let target = path.join(file_path)
-        fs.writeFileSync(target, JSON.stringify(content))
+        fs.writeFileSync(target, JSON.stringify(content, null, 2))
         console.debug(`Saved file at ${target}`)
     }catch(error){
         console.warn("Could not save data\n" + error)
