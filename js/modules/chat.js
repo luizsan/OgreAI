@@ -65,7 +65,8 @@ class Chat{
 
     static GetAllChats(character){
         let chats = []
-        let target = path.join(Chat.path, character.name, "/" )
+        let target = path.join(Chat.path, path.parse( character.metadata.filepath ).name, "/" )
+        console.debug("Reading chats from " + target)
         if(fs.existsSync(target)){
 
             let files = fs.readdirSync(target)
@@ -132,7 +133,7 @@ class Chat{
         if( !character.name || character.name.length < 1 ) return;
     
         let filename = this.created + ".json";
-        let folder =  path.join(Chat.path, character.name)
+        let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
         let target = path.join(folder, filename)
     
         try{
