@@ -129,7 +129,7 @@
 
 #messages{
     padding: 8px 0px;
-    margin: 0px calc( var(--main-padding) * 0.5 );
+    margin: 0px var(--main-padding);
     margin-top: var(--header-size);
     overflow-x: hidden;
     overflow-y: auto;
