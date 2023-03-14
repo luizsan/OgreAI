@@ -9,8 +9,6 @@ const { marked } = require('marked');
 
 const fs = require('fs');
 const path = require('path');
-const http = require('http');
-const https = require('https');
 
 const Utils = require("./js/modules/utils.js")
 
