@@ -2,7 +2,7 @@
   "name": "ogreai",
   "productName": "OgreAI",
   "version": "0.1.0",
-  "description": "A client for PygmalionAI chatbot",
+  "description": "A desktop chatbot client",
   "main": "js/main.js",
   "scripts": {
     "start": "electron .",
