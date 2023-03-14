@@ -15,7 +15,6 @@ A chatbot client for Pygmalion AI
 > ```npx electron-builder --dir```
 
 ## To-do
- - OpenAI API support
  - Importing characters
  - Sort modes and search for characters list
  - Search chat
