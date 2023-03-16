@@ -104,7 +104,7 @@ class Settings{
             
             frequency_penalty: {
                 title: "Frequency Penalty",
-                description: "ow much to penalize new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim.",
+                description: "How much to penalize new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim.",
                 type: "range",
                 default: 0, min: 0, max: 2, step: 0.01,
             },
