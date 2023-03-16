@@ -146,6 +146,34 @@ textarea.component:focus{
     outline: 3px solid var( --accent-color-dark );
 }
 
+textarea.component::-webkit-scrollbar{
+    width: 12px;
+    border-radius: 3px;
+}
+
+/* textarea.component::-webkit-scrollbar-corner{
+    background: none;
+}
+
+textarea.component::-webkit-resizer{
+    background: none;
+    border: none;
+} */
+
+textarea.component::-webkit-scrollbar-track{
+    margin: 0px 3px;
+    /* border-radius: 8px; */
+}
+
+textarea.component::-webkit-scrollbar-thumb{
+    border-radius: 4px;
+    margin: 4px;
+    padding: 4px;
+    border: 3px solid var( --component-bg );
+    border-width: 3px;
+    border-radius: 3px;
+}
+
 textarea.component.resizable{
     max-height: 560px;
     overflow-y: scroll;
@@ -177,7 +205,7 @@ button.component.tab:hover{
     background: var( --menu-secondary-bg-color );
 }
 
-.setting div{
+div.slider{
     display: grid;
     gap: 16px;
     grid-template-columns: 64px auto;
@@ -359,7 +387,6 @@ button.component.tab:hover{
 .confirm svg{ fill: rgb(64, 220, 128); }
 .confirm:hover svg{ fill: rgb(144, 255, 220); }
 .confirm:active svg{ fill: rgb(48, 128, 96); }
-
 
 .required::after{
     content: " *";

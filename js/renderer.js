@@ -292,7 +292,7 @@ function CreateSettings( mode ){
             DOM_SETTINGS_SUBSET.appendChild( dom )
         }
 
-        DOM_SETTINGS_SECTION[ upper ] = dom
+        // DOM_SETTINGS_SECTION[ upper ] = dom
         DOM_SETTINGS_FIELD[ upper ] = field
     }
 
@@ -316,41 +316,65 @@ function CreateSettingField( key, def ){
     let _div = document.createElement("div")
 
     _div.id = "setting_" + key;
-    _div.classList.add("setting")
+    _div.classList.add("setting", "section")
     
     let _title = document.createElement("p")
     _title.classList.add("title")
+    _title.innerHTML = def.title
 
     let _explanation = document.createElement("p")
     _explanation.classList.add("explanation")
-
-    let _field = document.createElement("input")
-    _field.id = "field_" + key;
-    _field.setAttribute("type", "text" )
-    _field.classList.add( "component", "single" )
-    _field.defaultValue = def.default
-    
-    let _slider = document.createElement("input")
-    _slider.id = "slider_" + key;
-    _slider.setAttribute("type", "range" )
-    _slider.classList.add( "component" )
-    _slider.step = def.step
-    _slider.max = def.max
-    _slider.min = def.min
-    _slider.defaultValue = def.default
     
     let _inputs = document.createElement("div")
-    _inputs.appendChild(_field)
-    _inputs.appendChild(_slider)
-
-    _title.innerHTML = def.title
-    _explanation.innerHTML = `${def.description} Default: ${def.default}`
+    _inputs.classList.add("section")
 
     _div.appendChild(_title)
     _div.appendChild(_explanation)
     _div.appendChild(_inputs)
 
-    return _div
+    switch(def.type){
+        case "range":
+            _inputs.classList.add("slider")
+
+            let _field = document.createElement("input")
+            _field.id = "field_" + key;
+            _field.setAttribute("type", "text" )
+            _field.classList.add( "component", "single" )
+            _field.defaultValue = def.default
+            
+            let _slider = document.createElement("input")
+            _slider.id = "slider_" + key;
+            _slider.setAttribute("type", "range" )
+            _slider.classList.add( "component" )
+            _slider.step = def.step
+            _slider.max = def.max
+            _slider.min = def.min
+            _slider.defaultValue = def.default
+
+            _inputs.appendChild(_field)
+            _inputs.appendChild(_slider)
+
+            _div.appendChild(_inputs)
+
+            _explanation.innerHTML = `${def.description} Default: ${def.default}`
+            break;
+
+        case "textarea":
+            let _area = document.createElement("textarea")
+            _area.id = "field_" + key;
+            _area.setAttribute("rows", "4")
+            _area.classList.add("component", "resizable")
+            
+            _inputs.appendChild(_area)
+
+            _explanation.innerHTML = `${def.description}`
+            break;
+
+        default: 
+            break;
+    }
+    
+    return _div;
 }
 
 async function TryCreateCharacter(){
@@ -1214,12 +1238,26 @@ function GetSettings(obj){
     obj.api_target = DOM_SETTINGS_API_TARGET.value.trim()
     obj.api_mode = DOM_SETTINGS_API_MODE.value
 
-    let keys = Object.keys( Settings.subsets[ obj.api_mode ] );
+    let subset = Settings.subsets[ obj.api_mode ]
+    let keys = Object.keys( subset );
     for( let i = 0; i < keys.length; i++ ){
         let key = keys[i]
         let upper = key.toUpperCase()
+        let def = subset[key]
+
         if( DOM_SETTINGS_FIELD[ upper ] ){
-            obj[obj.api_mode][key] = parseFloat( DOM_SETTINGS_FIELD[ upper ].value )
+            switch(def.type){
+                case "range":
+                    obj[obj.api_mode][key] = parseFloat( DOM_SETTINGS_FIELD[ upper ].value )
+                    break;
+                    
+                case "textarea":
+                    obj[obj.api_mode][key] = DOM_SETTINGS_FIELD[ upper ].value.toString()
+                    break;
+                
+                default:
+                    break;
+            }
         }
     }
 

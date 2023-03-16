@@ -101,10 +101,7 @@ const DOM_SETTINGS_SUBSET = document.getElementById("setting-subset")
 
 const DOM_SETTINGS_API_MODE = document.getElementById("setting-api_mode")
 const DOM_SETTINGS_API_TARGET = document.getElementById("field-api_target")
-const DOM_SETTINGS_MAX_LENGTH = document.getElementById("field-max_length")
-const DOM_SETTINGS_SECTION = {}
 const DOM_SETTINGS_FIELD = {}
-const DOM_SETTINGS_ADVANCED = null;
 
 const DOM_SECTION_EDITING = document.getElementById("editing")
 const DOM_SECTION_PROFILE = document.getElementById("profile")

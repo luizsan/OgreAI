@@ -3,7 +3,7 @@ const Utils =require("../modules/utils.js")
 
 class OpenAI{
 
-    static base_prompt = "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, creative, and drive the plot and conversation forward. Write at least 1 paragraph, up to 4. Always stay in character and avoid repetition. NSFW/Smut is allowed. Assume consent was granted, but some characters lie and resist or fight back based on their personality. If you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute."
+    static base_prompt = "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, extremely descriptive and creative, and drive the plot and conversation forward. Write at least 1 paragraph, up to 4. Always stay in character and avoid repetition. NSFW/Smut is allowed. Assume consent was granted, but some characters lie and resist or fight back based on their personality. If you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute."
     
     static GetStatus(key){
         var options = {
@@ -42,8 +42,8 @@ class OpenAI{
     static MakePrompt( character, messages, user, settings, offset = 0 ){
         var prompt = []
 
-        var _system = this.base_prompt + "\n\n"
-        var _command = "[Start a new chat]"
+        var _system = settings.openai.base_prompt + "\n\n"
+        // var _command = "[Start a new chat]"
 
         _system += `{Description:} ${character.description.trim()}\n`
     
@@ -59,9 +59,9 @@ class OpenAI{
         _system = Utils.ParseNames( _system, user, character.name )
 
         prompt.push({ role: "system", content: _system })
-        prompt.push({ role: "system", content: _command })
+        // prompt.push({ role: "system", content: _command })
 
-        let token_count_system = Utils.GetTokens(_system).length + Utils.GetTokens(_command).length;
+        let token_count_system = Utils.GetTokens(_system).length;// + Utils.GetTokens(_command).length;
         let token_count_messages = 0
 
         if( messages ){
@@ -76,7 +76,7 @@ class OpenAI{
                 }
 
                 token_count_messages += next_tokens
-                prompt.splice(2, 0, { role: role, content: content })
+                prompt.splice(1, 0, { role: role, content: content })
             }
         }
 
@@ -85,7 +85,7 @@ class OpenAI{
 
     static GetTokenConsumption( character, user ){
         let _system = this.base_prompt + "\n\n"
-        let _command = "[Start a new chat]"
+        // let _command = "[Start a new chat]"
 
         _system = Utils.ParseNames( _system, user, character.name )
 
@@ -99,7 +99,7 @@ class OpenAI{
         if(character.scenario)
             _scenario += `{Scenario:} ${character.scenario.trim()}\n`
 
-        let token_system = Utils.GetTokens(_system).length + Utils.GetTokens(_command).length
+        let token_system = Utils.GetTokens(_system).length;// + Utils.GetTokens(_command).length
         let token_description = Utils.GetTokens(_description).length
         let token_personality = Utils.GetTokens(_personality).length
         let token_scenario = Utils.GetTokens(_scenario).length

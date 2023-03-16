@@ -22,6 +22,7 @@ html, body{
 
 *::-webkit-scrollbar{
     width: 6px;
+    cursor: grab;
 }
 
 *::-webkit-scrollbar-track {
