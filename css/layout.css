@@ -3,8 +3,11 @@
     height: var(--header-size);
     background: var(--header-bg-color);
 
+    top: 0px;
+    left: 0px;
+    position: fixed;
+
     border-bottom: 1px solid var(--sub-color);
-    position: absolute;
     display: grid;
     grid-template-columns: min-content auto min-content;
     align-items: center;
@@ -24,6 +27,17 @@
 #header button svg{
     width: 24px;
     height: 24px;
+}
+
+#main{
+    height: 100%;   
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: hidden;
+
+    transition: margin ease 0.2s;
 }
 
 .sidebar{
@@ -120,8 +134,8 @@
     width: 100%;
     max-width: var( --main-width );
     height: 100%;
-    margin: 0px auto;
-    padding: 0px 0px;
+    align-self: center;
+    padding: 0px 8px;
     flex: 1;
     display: grid;
     grid-template-rows: auto 68px;

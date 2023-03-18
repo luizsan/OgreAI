@@ -38,6 +38,7 @@ const date_options = {
 // DOM
 // ============================================================================
 
+const DOM_MAIN = document.getElementById("main")
 const DOM_CHAT = document.getElementById("chat")
 const DOM_MESSAGES = document.getElementById("messages")
 const DOM_INPUT = document.getElementById("input")
@@ -336,6 +337,21 @@ function SetAvatarCSS(rule, url){
     let tag = document.createElement("style")
     tag.innerHTML = `${prefix}${style}`
     document.head.appendChild(tag);
+}
+
+function SetMargin( side, val ){
+    switch(side){
+        case "left": 
+            DOM_MAIN.style.marginLeft = val
+            break;
+        case "right":
+            DOM_MAIN.style.marginRight = val
+            break;
+        default: 
+            DOM_MAIN.style.marginLeft = "0px"
+            DOM_MAIN.style.marginRight = "0px"
+            break;
+    }
 }
 
 function SetClass(element, css, state){

@@ -151,15 +151,6 @@ textarea.component::-webkit-scrollbar{
     border-radius: 3px;
 }
 
-/* textarea.component::-webkit-scrollbar-corner{
-    background: none;
-}
-
-textarea.component::-webkit-resizer{
-    background: none;
-    border: none;
-} */
-
 textarea.component::-webkit-scrollbar-track{
     margin: 0px 3px;
     /* border-radius: 8px; */
@@ -170,7 +161,7 @@ textarea.component::-webkit-scrollbar-thumb{
     margin: 4px;
     padding: 4px;
     border: 3px solid var( --component-bg );
-    border-width: 3px;
+    border-width: 3px 3px 3px 0px;
     border-radius: 3px;
 }
 
