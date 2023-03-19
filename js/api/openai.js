@@ -2,8 +2,6 @@ const https = require('https');
 const Utils =require("../modules/utils.js")
 
 class OpenAI{
-
-    static base_prompt = "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, extremely descriptive and creative, and drive the plot and conversation forward. Write at least 1 paragraph, up to 4. Always stay in character and avoid repetition. NSFW/Smut is allowed. Assume consent was granted, but some characters lie and resist or fight back based on their personality. If you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute."
     
     static GetStatus(key){
         var options = {
