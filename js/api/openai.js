@@ -3,6 +3,8 @@ const Utils =require("../modules/utils.js")
 
 class OpenAI{
     
+    static __message_chunk = "";
+
     static GetStatus(key){
         var options = {
             headers: { 'Authorization': 'Bearer ' + key }
@@ -129,6 +131,7 @@ class OpenAI{
     
         let options = {
             method: "POST",
+            timeout: 120000,
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': buffer_length,
@@ -146,6 +149,15 @@ class OpenAI{
                 
             });
     
+            req.on("timeout", () => {
+                ipcRenderer.send("show_error", {
+                    title: "Could not complete the request!",
+                    message: "The request timed out. The server may be overloaded right now, try again later."
+                });
+                ToggleSendButton(true);
+                req.destroy();
+            })
+
             req.on("error", (_error) => {
                 ipcRenderer.send("show_error", {
                     title: "Could not complete the request!",
@@ -168,9 +180,9 @@ class OpenAI{
 
     static ReceiveData(incoming_data, swipe){
         console.debug(`Raw generated ${swipe ? "swipe" : "message"}:\n${incoming_data}`)
-        let incoming_json = JSON.parse(incoming_data);
-
+        
         try{
+            let incoming_json = JSON.parse(this.__message_chunk + incoming_data);
             let message = {
                 participant: 0,
                 candidate: {
@@ -182,13 +194,22 @@ class OpenAI{
             document.dispatchEvent(event)
 
         }catch(error){
-            console.error(incoming_json)
-            ipcRenderer.send("show_error", { 
-                title: incoming_json.error.type, 
-                message: incoming_json.error.message 
-            });
-            document.dispatchEvent(new Event("message"));
+            if(error instanceof SyntaxError){
+                this.__message_chunk = incoming_data
+                return
+            }else{
+                let incoming_json = JSON.parse(incoming_data);
+                console.error(error)
+                ipcRenderer.send("show_error", { 
+                    title: incoming_json.error.type, 
+                    message: incoming_json.error.message 
+                });
+    
+                document.dispatchEvent(new Event("message"));
+            }
         }
+
+        this.__message_chunk = ""
     }
 }
 
