@@ -730,6 +730,8 @@ function SwipeMessage( message_at, new_index ){
 
     // for now, always swipe the last message
     let msg = CURRENT_CHAT.messages.at( message_at )
+    let last = CURRENT_CHAT.messages.at( -1 )
+
     if( msg.participant < 0 ) return;
 
     if( new_index < 0 )
@@ -739,8 +741,12 @@ function SwipeMessage( message_at, new_index ){
         new_index = msg.candidates.length-1;
         if( __busy ) return;
         
+        // do not generate new if isn't swiping the last message
+        if( msg !== last ) return;
+
         // prevent swiping greetings
         if( msg === CURRENT_CHAT.messages[0] ) return;
+
 
         ToggleSendButton(false);
         let prompt = GetAPI().MakePrompt( 
@@ -954,11 +960,13 @@ function CreatePostSwipes(msg, parent){
     _next.style.transform = "scaleX(-100%)";
 
     _prev.addEventListener("click", () => {
-        SwipeMessage( -1, msg.index - 1 )
+        let _id = GetMessageIndexFromDOM( parent.parentNode.parentNode )
+        SwipeMessage( _id, msg.index - 1 )
     })
     
     _next.addEventListener("click", () => {
-        SwipeMessage( -1, msg.index + 1 )
+        let _id = GetMessageIndexFromDOM( parent.parentNode.parentNode )
+        SwipeMessage( _id, msg.index + 1 )
     })
     // let index = GetElementIndex( DOM_MESSAGES, msg );
     // let swipe = CURRENT_CHAT.messages[index].index;
