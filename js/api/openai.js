@@ -131,7 +131,7 @@ class OpenAI{
     
         let options = {
             method: "POST",
-            timeout: 120000,
+            timeout: 60000,
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': buffer_length,
@@ -195,7 +195,7 @@ class OpenAI{
 
         }catch(error){
             if(error instanceof SyntaxError){
-                this.__message_chunk = incoming_data
+                this.__message_chunk += incoming_data
                 return
             }else{
                 let incoming_json = JSON.parse(incoming_data);
