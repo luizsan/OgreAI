@@ -1,7 +1,19 @@
 <script lang="ts">
+    import { arrow, dots } from "./assets/svg"
+
     interface Candidate{
         text : string;
         timestamp : number;
+    }
+
+    const date_options : Intl.DateTimeFormatOptions = {
+        "hour12": false,
+        "hourCycle": "h23",
+        "year": "numeric",
+        "month": "2-digit",
+        "day": "2-digit",
+        "hour": "2-digit",
+        "minute": "2-digit",
     }
 
     export const id : number = -1
@@ -28,11 +40,15 @@
 
     function GetFormattedDate(){
         var date = new Date(candidates[index].timestamp)
-        return date.toLocaleString("ja-JP")
+        return date.toLocaleString("ja-JP", date_options)
     }
 
     function GetAuthorType(){
         return is_bot ? "bot" : "user"
+    }
+
+    function HandleClick(event){
+        console.log(event.target)
     }
 </script>
 
@@ -56,12 +72,15 @@
             </div>
 
             <div class="swipes">
-                <button class="left" on:click={() => SwipeMessage(-1)}>&lt;</button>
+                <button class="left" on:click={() => SwipeMessage(-1)}><div class="icon">{@html arrow}</div></button>
                 <div class="count">{index+1} / {candidates.length}</div>
-                <button class="right" on:click={() => SwipeMessage(1)}>&gt;</button>
+                <button class="right" on:click={() => SwipeMessage(1)}><div class="icon">{@html arrow}</div></button>
             </div>
 
-            <button class="more">...</button>
+            <button class="more" on:mousedown={HandleClick}>
+                <div class="icon">{@html dots}</div>
+            </button>
+
             <div class="actions">
                 <button class="copy">Copy</button>
                 <button class="edit">Edit</button>
@@ -86,7 +105,7 @@
         border-left: 4px solid transparent;
         display: grid;
         grid-template-columns: var( --avatar-size) auto;
-        column-gap: 16px;
+        column-gap: 12px;
         word-break: break-word;
     }
 
@@ -104,7 +123,6 @@
 
     .author .name{
         margin-bottom: 4px;
-        color: white;
         font-weight: 900;
     }
 
@@ -123,6 +141,7 @@
     }
 
     .footer{
+        height: 20px;
         width: 100%;
         position: relative;
         display: flex;
@@ -139,6 +158,34 @@
         display: grid;
         grid-template-columns: 32px auto 32px;
         visibility: hidden;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .swipes .right{
+        transform: scaleX(-1)
+    }
+
+    .swipes button{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .swipes .count{
+        font-size: 90%;
+        opacity: 0.25;
+    }
+
+    .swipes .icon{
+        width: 16px;
+        height: 16px;
+    }
+
+    .msg .swipes button{
+        padding: 0px;
     }
 
     .msg:hover .swipes{
@@ -151,6 +198,14 @@
         background: #00000020;
         border-radius: 4px;
         visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;      
+    }
+
+    .more .icon{
+        width: 20px;
+        height: 20px;
     }
 
     .msg:hover .more{

@@ -3,7 +3,7 @@
 </script>
 
 <div>
-    {#each {length: 10} as _, i}
+    {#each {length: 20} as _, i}
         <Character avatar="./img/bot_default.png" id={i}/>
     {/each}
 </div>
