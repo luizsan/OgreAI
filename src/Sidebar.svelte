@@ -33,7 +33,7 @@
         background: black;
         box-shadow: 3px 0px #00000020;
 
-        transition: translate 0.1s ease-in;
+        transition: translate 0.2s ease-in;
         translate: -100% 0 0;
     }
 

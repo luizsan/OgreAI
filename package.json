@@ -1,7 +1,7 @@
 {
-  "name": "ogre-ai",
+  "name": "ogreai",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,6 +20,12 @@
     "vite": "^4.2.0"
   },
   "dependencies": {
-    "marked": "^4.3.0"
+    "express": "^4.18.2",
+    "gpt-3-encoder": "^1.1.4",
+    "marked": "^4.3.0",
+    "png-chunk-text": "^1.0.0",
+    "png-chunks-encode": "^1.0.0",
+    "png-chunks-extract": "^1.0.0",
+    "sharp": "^0.32.0"
   }
 }

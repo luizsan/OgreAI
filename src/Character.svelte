@@ -2,12 +2,12 @@
     export let avatar : string = ""
     export let id : number = -1
 
-    function clicked(){
+    function Debug(){
         console.log(`clicked button ${id}\n${avatar}`)
     }
 </script>
 
-<button style="background-image: url({avatar})" on:click={clicked}></button>
+<button style="background-image: url({avatar})" on:click={Debug}></button>
 
 <style>
     button{

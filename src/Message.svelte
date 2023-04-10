@@ -2,6 +2,15 @@
     import { marked } from 'marked';
     import { arrow, dots, copy, trash, edit } from "./utils/SVGCollection.svelte"
 
+    const marked_renderer = new marked.Renderer();
+    marked_renderer.del = function(text : string){ return "~" + text + "~"; };
+    marked_renderer.pre = function(text : string){ return text; };
+    marked_renderer.code = function(text : string){ return text; };
+    marked.setOptions({
+        breaks: true,
+        renderer: marked_renderer,
+    })
+
     interface Candidate{
         text : string;
         timestamp : number;
@@ -57,7 +66,7 @@
         postActions = !postActions
     }
 
-    function SetPostActions(b){
+    function SetPostActions(b: boolean){
         postActions = b
     }
 

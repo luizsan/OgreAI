@@ -9,9 +9,9 @@
 
 
 <header>
-    <button on:click={ToggleSidebar}>{@html menu}</button>
+    <button class="normal" on:click={ToggleSidebar}>{@html menu}</button>
     <div>(it's) OgreAI</div>
-    <button>{@html settings}</button>
+    <button class="normal">{@html settings}</button>
 </header>
 
 
