@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { arrow, dots } from "./assets/svg"
+    import { marked } from 'marked';
+    import { arrow, dots, copy, trash, edit } from "./utils/SVGCollection.svelte"
 
     interface Candidate{
         text : string;
@@ -16,16 +17,21 @@
         "minute": "2-digit",
     }
 
-    export const id : number = -1
+    export let id : number = -1
     export let is_bot : boolean = false
     export let author : string = ""
     export let index : number = 0
     export let avatar : string = ""
     export let selected : boolean = false
     export let candidates : Candidate[] = [
-        { text: "Hello world!", timestamp: 0 },
-        { text: "foo bar!", timestamp: 0 },
+        { text: "**Hello** world!", timestamp: 0 },
+        { text: "foo **bar**!", timestamp: 0 },
     ]
+
+    let editing = false
+    let postActions = false;
+    let actionsButton : HTMLElement;
+    let actionsDiv : HTMLElement;
 
     function SwipeMessage(direction : number){
         index += direction;
@@ -47,49 +53,86 @@
         return is_bot ? "bot" : "user"
     }
 
-    function HandleClick(event){
-        console.log(event.target)
+    function TogglePostActions(){
+        postActions = !postActions
+    }
+
+    function SetPostActions(b){
+        postActions = b
+    }
+
+    function SetEditing(b : boolean){
+        SetPostActions(false)
+        editing = b
+    }
+
+    function CopyMessage(){
+        SetPostActions(false)
+        navigator.clipboard.writeText(candidates[index].text)
+    }
+
+    function DeleteMessage(){
+        SetPostActions(false)
+        if(window.confirm("Are you sure you want to delete this message?")){
+            console.log(`Deleted message ${id}`)
+        }
+    }
+
+    function HandleClick(e){
+        const checkButton = actionsButton != null && !actionsButton.contains(e.target)
+        const checkDiv = actionsDiv != null && !actionsDiv.contains(e.target)
+        if(checkButton && checkDiv){
+            postActions = false;
+        }
     }
 </script>
 
+<svelte:body on:click={HandleClick} />
 
-<div class="msg">
-    <div class="avatar"></div>
+<div class="msg {GetAuthorType()}">
+    <div class="avatar" style="background-image: url({avatar})"></div>
     <div class="content">
         <div class="author">
-            <span class="name {GetAuthorType()}" style="background-image: url({avatar})">{author}</span>
+            <span class="name {GetAuthorType()}">{author}</span>
             <span class="timestamp">{GetFormattedDate()}</span>
         </div>
         
-        <div class="text">
-            {candidates[index].text}
-        </div>
+        {#if editing}
+            <textarea class="editing">{candidates[index].text}</textarea>
+            <div class="instruction">Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, Ctrl+Enter to <span on:mousedown={() => SetEditing(false)}>Confirm</span></div>
+        {:else}
+            <div class="text">{@html marked.parse(candidates[index].text)}</div>
+        {/if}
 
-        <div class="footer">
-            <div class="ratings">
-                <button class="up">👍</button>
-                <button class="down">👎</button>
+
+        {#if !editing}
+            <div class="footer">
+                <button class="more normal" bind:this={actionsButton} on:click={TogglePostActions}>
+                    <div class="icon" title="More actions">{@html dots}</div>
+                </button>
+
+                <div class="actions {postActions ? "" : "hidden"}" bind:this={actionsDiv}>
+                    <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
+                    <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                    <button class="delete danger" title="Delete message" on:click={DeleteMessage}>{@html trash}</button>
+                </div>
+
+                {#if is_bot && id > 0}
+                    <div class="swipes">
+                        <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html arrow}</button>
+                        <div class="count">{index+1} / {candidates.length}</div>
+                        <button class="right normal" title="Next candidate" on:click={() => SwipeMessage(1)}>{@html arrow}</button>
+                    </div>
+
+                    <div class="ratings">
+                        <button class="up">👍</button>
+                        <button class="down">👎</button>
+                    </div>
+                {/if}
             </div>
+        {/if}
 
-            <div class="swipes">
-                <button class="left" on:click={() => SwipeMessage(-1)}><div class="icon">{@html arrow}</div></button>
-                <div class="count">{index+1} / {candidates.length}</div>
-                <button class="right" on:click={() => SwipeMessage(1)}><div class="icon">{@html arrow}</div></button>
-            </div>
-
-            <button class="more" on:mousedown={HandleClick}>
-                <div class="icon">{@html dots}</div>
-            </button>
-
-            <div class="actions">
-                <button class="copy">Copy</button>
-                <button class="edit">Edit</button>
-                <button class="delete">Delete</button>
-            </div>
-
-        </div>
-
-        <input class="toggle" type="checkbox" bind:checked={selected}>
+        <input class="toggle hidden" type="checkbox" bind:checked={selected}>
     </div>
 </div>
 
@@ -98,9 +141,9 @@
     .msg{
         position: relative; 
         min-width: 50%;
-        margin: 8px;
+        margin: 4px;
         margin-bottom: auto;
-        padding: 16px;
+        padding: 12px;
         border-radius: 8px;
         border-left: 4px solid transparent;
         display: grid;
@@ -110,14 +153,14 @@
     }
 
     .msg:hover{
-        background: rgb(250, 250, 255, 0.05);
+        background: rgb(128, 128, 128, 0.2);
     }
 
-    .msg:hover .user{
+    .msg:hover.user{
         border-color: rgb(240, 240, 144);
     }
 
-    .msg:hover .bot{
+    .msg:hover.bot{
         border-color: rgb(135, 206, 235);
     }
 
@@ -138,6 +181,31 @@
         height: var( --avatar-size );
         background: red;
         border-radius: 50%;
+        background-size: cover;
+    }
+
+    .text :global(*){
+        margin: 0px;
+    }
+
+    .editing{
+        width: calc( 100% - 20px );
+        resize: vertical;
+        padding: 8px;
+    }
+
+    .instruction{
+        color: gray;
+        font-size: 85%;
+    }
+
+    .instruction span{
+        color: var( --accent-color-normal );
+        cursor: pointer;
+    }
+
+    .instruction span:hover{
+        color: var( --accent-color-light )
     }
 
     .footer{
@@ -145,7 +213,7 @@
         width: 100%;
         position: relative;
         display: flex;
-        flex-direction: row;
+        flex-direction: row-reverse;
         justify-content: space-between;
     }
 
@@ -159,7 +227,7 @@
         grid-template-columns: 32px auto 32px;
         visibility: hidden;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
     }
 
     .swipes .right{
@@ -174,14 +242,16 @@
         justify-content: center;
     }
 
-    .swipes .count{
-        font-size: 90%;
-        opacity: 0.25;
+    .swipes :global(svg){
+        width: 16px;
+        width: 16px;
     }
 
-    .swipes .icon{
-        width: 16px;
-        height: 16px;
+    .swipes .count{
+        text-align: center;
+        overflow-x: visible;
+        font-size: 90%;
+        opacity: 0.25;
     }
 
     .msg .swipes button{
@@ -193,8 +263,8 @@
     }
 
     .more{
-        width: 40px;
-        height: 20px;
+        width: 30px;
+        height: 100%;
         background: #00000020;
         border-radius: 4px;
         visibility: hidden;
@@ -204,8 +274,8 @@
     }
 
     .more .icon{
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
     }
 
     .msg:hover .more{
@@ -216,16 +286,18 @@
         position: absolute;
         width: fit-content;
         height: fit-content;
-        background: var( --component-bg );
-        border: 1px solid #ffffff08;
+        background: black;
         border-radius: 4px;
-        box-shadow: 0px 3px 0px #00000040;
-        /* display: flex; */
-        display: none;
+        box-shadow: 0px 3px 0px #00000020;
+        display: flex;
         flex-direction: row-reverse;
-        translate: 0px -44px;
+        translate: 0px -40px;
         gap: 4px;
         right: 0px;
+    }
+
+    .more:focus .actions{
+        display: flex;
     }
 
     .actions button{
@@ -234,15 +306,19 @@
         border-radius: 2px;
     }
 
+    .actions button :global(svg){
+        width: 20px;
+        height: 20px;
+    }
+
     .actions button:hover {
         background: #00000040;
-        outline: 1px solid #80808040;
     }
 
     .toggle{
         position: absolute;
-        top: 16px;
-        right: 16px;
+        top: 12px;
+        right: 12px;
         width: 20px;
         height: 20px;
     }

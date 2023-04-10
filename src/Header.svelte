@@ -1,18 +1,17 @@
 <script>
-    import { menu, settings } from "./assets/svg"
+    import { sidebarCharacters } from "./State";
+    import { menu, settings } from "./utils/SVGCollection.svelte"
+
+    function ToggleSidebar(){
+        $sidebarCharacters = !$sidebarCharacters
+    }
 </script>
 
 
 <header>
-    <button>
-        <div class="icon">{@html menu}</div>
-    </button>
-    <div>
-        (it's) OgreAI
-    </div>
-    <button>
-        <div class="icon">{@html settings}</div>
-    </button>
+    <button on:click={ToggleSidebar}>{@html menu}</button>
+    <div>(it's) OgreAI</div>
+    <button>{@html settings}</button>
 </header>
 
 
@@ -39,8 +38,9 @@
         justify-content: center;
     }
 
-    .icon{
+    button :global(svg){
         width: 24px;
         height: 24px;
     }
+
 </style>

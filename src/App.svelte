@@ -4,8 +4,7 @@
   import Main from './Main.svelte'
 </script>
 
-<main>
-  <Main/>
-  <Sidebar/>
-  <Header/>
-</main>
+
+<Main/>
+<Sidebar/>
+<Header/>

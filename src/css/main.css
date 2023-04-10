@@ -46,11 +46,6 @@ button:active, button:disabled {
   color: hsl(0,0%,30%);
 }
 
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
 .hidden{
   display: none !important;
 }

@@ -1,0 +1,27 @@
+:root{
+    --accent-color-dark: rgb(32, 72, 96);
+    --accent-color-normal: rgb(48, 128, 192);
+    --accent-color-light: rgb(96, 192, 220);
+}
+
+.danger{  color: rgb(200, 64, 64); }
+.danger:hover{ color: rgb(255, 128, 128); }
+.danger:active{  color: rgb(128, 48, 48); }
+
+.info{ color: rgb(64, 128, 220); }
+.info:hover{ color: rgb(128, 192, 255); }
+.info:active{ color: rgb(48, 128, 192); }
+
+.confirm{ color: rgb(64, 220, 128); }
+.confirm:hover{ color: rgb(144, 255, 220); }
+.confirm:active{ color: rgb(48, 128, 96); }
+
+.normal{ color: hsl(0, 0%, 50% ) }
+.normal:hover{ color: hsl(0, 0%, 100% ) }
+.normal:active{ color: hsl(0, 0%, 75% ) }
+
+@media (prefers-color-scheme: light) {
+    .normal{ color: hsl(0, 0%, 33% ) }
+    .normal:hover{ color: hsl(0, 0%, 50% ) }
+    .normal:active{ color: hsl(0, 0%, 20% ) }
+}  
