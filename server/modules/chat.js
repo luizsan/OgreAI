@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlinkSync } from "fs"
-import { join, parse } from "path"
+import path from "path"
 
-import { ParseChat as ParseChatCAI } from "../parsers/cai.js"
-import { ParseChat as ParseChatTavern } from "../parsers/tavern.js"
+import { ParseChat as ParseChatCAI } from "../importers/cai.js"
+import { ParseChat as ParseChatTavern } from "../importers/tavern.js"
 
 class Chat{
     constructor( character ){
@@ -65,7 +65,7 @@ class Chat{
 
     static GetAllChats(character){
         let chats = []
-        let target = join(Chat.path, parse( character.metadata.filepath ).name, "/" )
+        let target = path.join(Chat.path, path.parse( character.metadata.filepath ).name, "/" )
         console.debug("Reading chats from " + target)
         if(existsSync(target)){
 
@@ -76,7 +76,7 @@ class Chat{
                 }
                 
                 try{
-                    let filepath = join( target, files[i] )
+                    let filepath = path.join( target, files[i] )
                     let content = readFileSync( filepath, "utf-8")
                     let parsed = JSON.parse( content )
                     if(parsed.messages < 1){
@@ -133,8 +133,8 @@ class Chat{
         if( !character.name || character.name.length < 1 ) return;
     
         let filename = this.created + ".json";
-        let folder =  join(Chat.path, parse( character.metadata.filepath ).name )
-        let target = join(folder, filename)
+        let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
+        let target = path.join(folder, filename)
     
         try{
             if(!existsSync(folder)){
@@ -195,7 +195,7 @@ class Chat{
 
     static Delete( character, created ){
         try{
-            let target = join(Chat.path, character.name, created + ".json" )
+            let target = path.join(Chat.path, character.name, created + ".json" )
             unlinkSync(target)
         }catch(error){
             console.warn("Error trying to delete chat:\n" + error.message)

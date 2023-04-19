@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import path from "path"
 import sharp from "sharp";
-import { PNGtext } from 'png-chunk-text';
-import { extract as PNGextract } from 'png-chunks-extract';
-import { encode as PNGencode } from 'png-chunks-encode';
+import PNGtext from 'png-chunk-text';
+import PNGextract from 'png-chunks-extract';
+import PNGencode from 'png-chunks-encode';
 
 class Character{
     constructor(){
@@ -14,7 +15,7 @@ class Character{
     SetFrom(json){
         // tavern backwards compatibility
         if( json.first_mes ) this.greeting = json.first_mes
-        if( json.mes_example ) this.dialogue = json.dialogue
+        if( json.mes_example ) this.dialogue = json.mes_example
 
         // common overrides
         if( json.name ) this.name = json.name;

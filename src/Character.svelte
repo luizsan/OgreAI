@@ -1,28 +1,67 @@
 <script lang="ts">
-    export let avatar : string = ""
-    export let id : number = -1
+    import { localServer, editing, currentCharacter, currentChat } from "./State";
 
-    function Debug(){
-        console.log(`clicked button ${id}\n${avatar}`)
+    export let id : number = -1
+    export let character = null
+    $: name = character.name
+    $: avatar = character.metadata.filepath
+
+    async function SelectCharacter(){
+        if( $currentCharacter == character ){
+            $editing = true;
+            return;
+        }
+
+        let options = { 
+            method: "POST", 
+            body: JSON.stringify(character),
+            headers: { 
+                "Content-Type": "application/json",
+                "Content-Length": name.length.toString(),
+            }, 
+        }
+        await fetch(localServer + "/get_latest_chat", options).then((response) => {
+            if(!response.ok){
+                return;
+            }
+
+            response.json().then((body) => {
+                $currentCharacter = character;
+                $currentChat = body;
+                $editing = false;
+                console.debug(`Received latest chat for ${name}`);
+            })
+        });
+        
+        console.debug(`Selected character ${name} (ID: ${id})`)
     }
 </script>
 
-<button style="background-image: url({avatar})" on:click={Debug}></button>
+<button 
+    style="background-image: url({encodeURIComponent(avatar)})" 
+    title={name} 
+    on:click={SelectCharacter}
+></button>
 
 <style>
     button{
-        min-width: var( --avatar-size );
-        min-height: var( --avatar-size );
-        border: 0px;
-        border-radius: 50%;
-        padding: 0px;
-        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
-        transition: all 0.1s ease-out;
-        outline: 0px solid white;
+        background-size: cover;
+        border-radius: 50%;
+        border: 0px;
+        box-shadow: 0px 0px 0px 0px transparent;
+        filter: brightness(0.75);
+        min-height: var( --avatar-size );
+        min-width: var( --avatar-size );
+        outline: 1px solid white;
+        padding: 0px;
+        transition: all 0.125s ease-out;
     }
-
+    
     button:hover{
-        outline-width: 3px;
+        box-shadow: 0px 0px 8px 2px #ffffff80;
+        filter: brightness(1);
+        outline: 2px solid white;
     }
 </style>

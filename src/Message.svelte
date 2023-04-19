@@ -1,6 +1,9 @@
 <script lang="ts">
     import { marked } from 'marked';
-    import { arrow, dots, copy, trash, edit } from "./utils/SVGCollection.svelte"
+    import { arrow, dots, copy, trashcan, edit } from "./utils/SVGCollection.svelte"
+    import { AutoResizeTextArea } from './utils/AutoResizeTextArea.svelte';
+    import { currentProfile, currentCharacter } from './State';
+    import { clickOutside } from './utils/ClickOutside.svelte';
 
     const marked_renderer = new marked.Renderer();
     marked_renderer.del = function(text : string){ return "~" + text + "~"; };
@@ -10,11 +13,6 @@
         breaks: true,
         renderer: marked_renderer,
     })
-
-    interface Candidate{
-        text : string;
-        timestamp : number;
-    }
 
     const date_options : Intl.DateTimeFormatOptions = {
         "hour12": false,
@@ -32,18 +30,19 @@
     export let index : number = 0
     export let avatar : string = ""
     export let selected : boolean = false
-    export let candidates : Candidate[] = [
+    export let candidates : ICandidate[] = [
         { text: "**Hello** world!", timestamp: 0 },
         { text: "foo **bar**!", timestamp: 0 },
     ]
 
+    $: authorType = is_bot ? "bot" : "user"
+    $: displayText = parseNames( marked.parse(candidates[index].text), $currentProfile.name, $currentCharacter.name)
+
     let editing = false
     let postActions = false;
-    let actionsButton : HTMLElement;
-    let actionsDiv : HTMLElement;
 
-    function SwipeMessage(direction : number){
-        index += direction;
+    function SwipeMessage(step : number){
+        index += step;
         if(index < 0){
             index = 0;
         }
@@ -53,20 +52,26 @@
         }
     }
 
+    function parseNames(text : string, user : string, bot : string){
+        if(!text) return text;
+        text = text.replaceAll("[NAME_IN_MESSAGE_REDACTED]", user)
+        text = text.replaceAll("{{user}}", user)
+        text = text.replaceAll("<USER>", user)
+        text = text.replaceAll("{{char}}", bot)
+        text = text.replaceAll("<BOT>", bot)
+        return text
+    }
+
     function GetFormattedDate(){
         var date = new Date(candidates[index].timestamp)
         return date.toLocaleString("ja-JP", date_options)
-    }
-
-    function GetAuthorType(){
-        return is_bot ? "bot" : "user"
     }
 
     function TogglePostActions(){
         postActions = !postActions
     }
 
-    function SetPostActions(b: boolean){
+    function SetPostActions(b : boolean){
         postActions = b
     }
 
@@ -86,45 +91,34 @@
             console.log(`Deleted message ${id}`)
         }
     }
-
-    function HandleClick(e){
-        const checkButton = actionsButton != null && !actionsButton.contains(e.target)
-        const checkDiv = actionsDiv != null && !actionsDiv.contains(e.target)
-        if(checkButton && checkDiv){
-            postActions = false;
-        }
-    }
 </script>
 
-<svelte:body on:click={HandleClick} />
-
-<div class="msg {GetAuthorType()}">
-    <div class="avatar" style="background-image: url({avatar})"></div>
+<div class="msg {authorType}">
+    <div class="avatar" style="background-image: url({encodeURIComponent(avatar)})"></div>
     <div class="content">
         <div class="author">
-            <span class="name {GetAuthorType()}">{author}</span>
+            <span class="name {authorType}">{author}</span>
             <span class="timestamp">{GetFormattedDate()}</span>
         </div>
         
         {#if editing}
-            <textarea class="editing">{candidates[index].text}</textarea>
+            <textarea class="editing" use:AutoResizeTextArea>{candidates[index].text}</textarea>
             <div class="instruction">Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, Ctrl+Enter to <span on:mousedown={() => SetEditing(false)}>Confirm</span></div>
         {:else}
-            <div class="text">{@html marked.parse(candidates[index].text)}</div>
+            <div class="text">{@html displayText}</div>
         {/if}
 
 
         {#if !editing}
             <div class="footer">
-                <button class="more normal" bind:this={actionsButton} on:click={TogglePostActions}>
+                <button class="more normal" use:clickOutside on:click={TogglePostActions} on:outclick={(e) => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html dots}</div>
+                    <div class="actions {postActions ? "" : "hidden"}">
+                        <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
+                        <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                        <button class="delete danger" title="Delete message" on:click={DeleteMessage}>{@html trashcan}</button>
+                    </div>
                 </button>
-
-                <div class="actions {postActions ? "" : "hidden"}" bind:this={actionsDiv}>
-                    <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                    <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
-                    <button class="delete danger" title="Delete message" on:click={DeleteMessage}>{@html trash}</button>
-                </div>
 
                 {#if is_bot && id > 0}
                     <div class="swipes">
@@ -151,14 +145,17 @@
         position: relative; 
         min-width: 50%;
         margin: 4px;
-        margin-bottom: auto;
-        padding: 12px;
+        padding: 16px;
         border-radius: 8px;
         border-left: 4px solid transparent;
         display: grid;
         grid-template-columns: var( --avatar-size) auto;
         column-gap: 12px;
         word-break: break-word;
+    }
+    
+    .msg:first-child{
+        margin-top: auto;
     }
 
     .msg:hover{
@@ -173,13 +170,19 @@
         border-color: rgb(135, 206, 235);
     }
 
+    .author{
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0px 8px;
+    }
+
     .author .name{
         margin-bottom: 4px;
-        font-weight: 900;
+        font-weight: 800;
     }
 
     .author .timestamp{
-        margin: 0px 4px;
         font-weight: 400;
         font-size: 80%;
         color: gray;
@@ -191,16 +194,31 @@
         background: red;
         border-radius: 50%;
         background-size: cover;
+        background-position: center;
     }
 
     .text :global(*){
-        margin: 0px;
+        margin: 0px 0px 1em 0px;
+    }
+
+    .text :global(em){
+        color: rgb(106, 135, 149);
     }
 
     .editing{
         width: calc( 100% - 20px );
-        resize: vertical;
+        resize: none;
         padding: 8px;
+    }
+
+    textarea.editing{
+        border: none;
+        outline: none;
+        color: #D0D0D0;
+        font-size: 80%;
+        background: #00000040;
+        border-radius: 4px;
+        margin: 8px 0px;
     }
 
     .instruction{
