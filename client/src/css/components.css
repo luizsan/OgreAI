@@ -1,0 +1,101 @@
+.component{
+    position: relative;
+    margin: 8px 0px 0px 0px;
+    font-family: var( --default-font-face );
+}
+
+.component::-webkit-resizer{
+    border: none;
+    background: none;
+}
+
+button {
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+input[type="text"].component, textarea.component, select.component{
+    background: var( --component-bg-normal );
+    border-style: solid;
+    outline: 1px solid var( --component-border-normal );
+    border-color: var( --component-border-normal );
+    border-width: 0px 0px 0px 4px;
+    border-radius: 3px;
+    box-shadow: 0px 4px 8px 0px #00000030;
+    box-sizing: border-box;
+    color: var( --component-color-normal );
+    font-family: monospace;
+    font-size: 85%;
+    padding: 8px;
+    transition-property: color;
+    transition-property: border-color;
+    transition-property: outline-color;
+    transition-duration: 0.125s; 
+    transition-timing-function: ease;
+}
+
+input[type="text"].component, textarea.component{
+    width: 100%;
+}
+
+textarea.component{
+    line-height: 1.333333;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    resize: vertical;
+    scrollbar-color: gray transparent;
+}
+
+input[type="text"].component:focus, textarea.component:focus, select.component:focus {
+    color: var( --component-color-hover );
+    background: var( --component-bg-hover );
+    border-color: var( --component-border-hover );
+    outline-color: var( --component-border-hover );
+}
+
+input[type="checkbox"].component{
+    width: 24px;
+    height: 24px;
+}
+
+button.component{
+    padding: 8px 24px;
+    background: var( --component-bg-normal );
+    outline: 1px solid var( --component-border-normal );
+    border-radius: 3px;
+    box-shadow: 0px 4px 8px 0px #00000020;
+    font-size: 90%;
+    transition: all 0.1s ease;
+}
+
+button.component:hover{
+    background: var( --component-bg-hover );
+    border-color: var( --component-border-hover);
+    outline-color: var( --component-border-hover );
+}
+
+button.component:active, button.component:disabled{
+    background: var( --component-bg-disabled );
+    border-color: var( --component-border-disabled );
+    outline-color: var( --component-border-disabled );
+}
+
+.fullscreen{
+    position: fixed;
+    inset: 0px;
+}
+
+.center{
+    display: flex;
+    place-content: center;
+    place-items: center;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.disabled{
+    pointer-events: none !important;
+}
