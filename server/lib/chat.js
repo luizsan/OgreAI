@@ -166,10 +166,14 @@ class Chat{
 
     static Delete( character, created ){
         try{
-            let target = path.join(Chat.path, character.name, created + ".json" )
+            let filename = created + ".json";
+            let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
+            let target = path.join(folder, filename)
             unlinkSync(target)
+            return true
         }catch(error){
             console.warn("Error trying to delete chat:\n" + error.message)
+            return false
         }
     }
 

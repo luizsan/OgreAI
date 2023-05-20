@@ -2,15 +2,14 @@ import { writable } from "svelte/store"
 
 export const localServer = "http://192.168.0.8:8000"
 
-// server state
-
-// local server connection
+// SERVER STATE
+// local server status
 export const connected = writable( false ) 
-// api status
+// target api status
 export const api = writable( false )
-// waiting for reply
+// waiting for api reply
 export const busy = writable( false ) 
-// waiting for fetch
+// waiting for server fetch
 export const fetching = writable( false )
 
 // client state
@@ -22,9 +21,9 @@ export const history = writable( false )
 // lists 
 export const characterList = writable( [] )
 export const chatList = writable( [] )
+export const deleteList = writable( [] )
 export const availableAPIModes = writable( [] )
 export const availableAPISettings = writable( [] )
-export const deleteList = writable( [] )
 
 // logic
 export const currentSettings = writable( null )

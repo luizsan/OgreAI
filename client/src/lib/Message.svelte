@@ -1,73 +1,57 @@
 <script lang="ts">
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
-    import { AutoResizeTextArea } from '../utils/AutoResizeTextArea.svelte';
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer } from '../State';
-    import { clickOutside } from '../utils/ClickOutside.svelte';
-    import { serverRequest } from './Server.svelte';
-
-    const marked_renderer = new marked.Renderer();
-    marked_renderer.del = function(text : string){ return "~" + text + "~"; };
-    marked_renderer.pre = function(text : string){ return text; };
-    marked_renderer.code = function(text : string){ return text; };
-    marked.setOptions({
-        breaks: true,
-        renderer: marked_renderer,
-    })
-
-    const date_options : Intl.DateTimeFormatOptions = {
-        "hour12": false,
-        "hourCycle": "h23",
-        "year": "numeric",
-        "month": "2-digit",
-        "day": "2-digit",
-        "hour": "2-digit",
-        "minute": "2-digit",
-    }
-
+    import { AutoResize } from '../utils/AutoResize';
+    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList } from '../State';
+    import { clickOutside } from '../utils/ClickOutside';
+    import * as Server from './Server.svelte';
+    import * as Format from '../Format';
+    import { tick } from 'svelte';
+    
     export let id : number = -1
-    export let msg : IMessage | null = null
-    export let selected : boolean = false
-
     export let generateSwipe = () => {}
-    // export let selectMessage = (batch) => {}
-
+    
+    // basic
+    $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
     $: is_bot = msg ? msg.participant > -1 : false;
+
+    // author
     $: author = msg && msg.participant > -1 ? $currentChat.participants[msg.participant] : $currentProfile.name;
     $: authorType = is_bot ? "bot" : "user"
+
+    // swipe
     $: index = msg ? msg.index : 0;
-    $: avatar = msg && msg.participant > -1 ? localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "") : "./img/user_default.png"
-    
     $: candidates = msg && msg.candidates ? msg.candidates : []
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
-    $: displayText = current ? parseNames( marked.parse(current.text), $currentProfile.name, $currentCharacter.name) : ""
-    $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", date_options) : 0
+
+    // message
+    $: displayText = current ? Format.parseNames( marked.parse(current.text), $currentProfile.name, $currentCharacter.name) : ""
+    $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
+
+    // avatar
+    $: avatar = localServer + "/" + (msg && msg.participant > -1 ? $currentCharacter.metadata.filepath.replace("../", "") : "./img/user_default.png");
     $: url = encodeURIComponent(avatar).replace(/%2F/g, '/').replace(/%3A/g, ':')
 
+    // deletion
+    $: selected = $deleteList.indexOf(id) > -1;
+
+    // ---
     let editing = false
     let postActions = false;
     let editedText = ""
 
     function SwipeMessage(step : number){
-        index += step;
-        if(index < 0){
-            index = 0;
+        $currentChat.messages[id].index += step;
+        if($currentChat.messages[id].index < 0){
+            $currentChat.messages[id].index = 0;
         }
 
-        if(index > candidates.length-1){
-            index = candidates.length-1;
-            generateSwipe();
+        if($currentChat.messages[id].index > candidates.length-1){
+            $currentChat.messages[id].index = candidates.length-1;
+            if(id === $currentChat.messages.length-1){
+                generateSwipe();
+            }
         }
-    }
-
-    function parseNames(text : string, user : string, bot : string){
-        if(!text) return text;
-        text = text.replaceAll("[NAME_IN_MESSAGE_REDACTED]", user)
-        text = text.replaceAll("{{user}}", user)
-        text = text.replaceAll("<USER>", user)
-        text = text.replaceAll("{{char}}", bot)
-        text = text.replaceAll("<BOT>", bot)
-        return text
     }
 
     function TogglePostActions(){
@@ -94,16 +78,16 @@
             $currentChat.messages[id].candidates[index].text = editedText;
             $currentChat = $currentChat;
         }
-        serverRequest( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
     async function CopyMessage(){
-        SetPostActions(false)
+        this.postActions = false;
         await navigator.clipboard.writeText(current.text)
     }
 
     function DeleteCandidate(){
-        SetPostActions(false)
+        this.postActions = false;
         if(window.confirm("Are you sure you want to delete this message?")){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
             console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
@@ -117,21 +101,39 @@
             }
 
             $currentChat = $currentChat;
-            serverRequest( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
         }
     }
     
-    function SelectMessage(){
-        // if( $deleting ){
-            console.log(avatar)
-            console.log(url)
-            console.log("Not yet implemented")
-        // }
+    function SelectMessageBatch(){
+        if( !$deleting ){
+            return
+        }
+
+        $deleteList = []
+        for( let i = id; i < $currentChat.messages.length; i++ ){
+            $deleteList.push(i)
+        }
+        $deleteList.sort()
+    }
+    
+    function SelectMessageSingle(){
+        if( !$deleting ){
+            return
+        }
+
+        let _found = $deleteList.indexOf(id);
+        if( _found > -1 ){
+            $deleteList.splice(_found, 1)
+        }else{
+            $deleteList.push(id)
+        }
+        $deleteList.sort()
     }
 
 </script>
 
-<div class="msg {authorType}" on:mousedown={SelectMessage} class:delete={$deleting && selected} class:disabled={$busy}>
+<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy}>
     <div class="avatar" style="background-image: url({url}?{$currentCharacter.last_changed})"></div>
     <div class="content">
         <div class="author">
@@ -140,7 +142,7 @@
         </div>
         
         {#if editing}
-            <textarea class="editing" use:AutoResizeTextArea bind:value={editedText}></textarea>
+            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText}></textarea>
             <div class="instruction">
                 Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, 
                 Ctrl+Enter to <span on:mousedown={EditMessage}>Confirm</span>
@@ -154,13 +156,17 @@
             <div class="footer">
                 <button class="more normal" use:clickOutside on:click={TogglePostActions} on:outclick={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html dots}</div>
-                    <div class="actions" class:hidden={!postActions}>
-                        <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                        <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
-                        {#if id > 0}
-                            <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
-                        {/if}
-                    </div>
+
+                    {#if postActions}
+                        <div class="actions">
+                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
+                            <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                            {#if id > 0}
+                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
+                            {/if}
+                        </div>
+                    {/if}
+
                 </button>
 
                 {#if is_bot && id > 0}
@@ -178,10 +184,13 @@
             </div>
         {/if}
 
-        {#if $deleting}
-            <input class="toggle" type="checkbox" bind:checked={selected}>
-        {/if}
+
     </div>
+
+    {#if $deleting && id > 0}
+        <button class="all" on:click|self={SelectMessageBatch} ></button>
+        <input class="toggle" type="checkbox" bind:checked={selected} on:input={SelectMessageSingle}>
+    {/if}
 </div>
 
 
@@ -241,19 +250,25 @@
     .avatar{
         width: var( --avatar-size );
         height: var( --avatar-size );
-        background: #00000080;
+        background: #00000020;
         border-radius: 50%;
         background-size: cover;
         background-position: center;
     }
 
-    .text :global(*){
-        margin: 0px 0px 1em 0px;
-        
+    .text :global(p){
+        margin-bottom: 1em;
     }
 
     .text :global(em){
         color: rgb(106, 135, 149);
+    }
+
+    .text :global(code){
+        white-space: pre-wrap;
+        background: #00000080;
+        font-size: 90%;
+        line-height: 90%;
     }
 
     .editing{
@@ -399,5 +414,12 @@
         right: 12px;
         width: 20px;
         height: 20px;
+        cursor: pointer;
+    }
+
+    .all{
+        position: absolute;
+        width: 100%;
+        height: 100%;
     }
 </style>

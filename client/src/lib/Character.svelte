@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { fetching, editing, currentCharacter, currentChat, currentProfile, currentSettings, chatList, creating, localServer, history, deleting } from "../State";
-    import { serverRequest } from "./Server.svelte";
+    import { fetching, editing, currentCharacter, creating, localServer, history, deleting } from "../State";
+    import * as Server from "./Server.svelte";
 
     export let id : number = -1
     export let character : ICharacter | null = null
@@ -20,49 +20,15 @@
         }
 
         $fetching = true;
-        await serverRequest( "/get_character", { filepath: filepath }).then(data => {
-            $currentCharacter = data;
-            $history = false;
-            $deleting = false;
-        });
+        await Server.getCharacter(filepath);
+        await Server.getChats( $currentCharacter, true )
+        $history = false;
+        $deleting = false;
+        $editing = null;
 
-        await serverRequest( "/get_chats", { character: character }).then(async (data) => {
-            let latest_time = 0;
-            let latest_chat = null;
-
-            if( !data || data.length < 1){
-                $chatList = []
-                latest_chat = await serverRequest( "/new_chat", { character: character });
-
-            }else{
-                // get latest chat
-                $chatList = data;
-                $chatList.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
-                for(let i = 0; i < data.length; i++){
-                    let chat = data[i]
-                    if( chat.last_interaction > latest_time && chat.messages.length > 0 ){
-                        latest_time = chat.last_interaction;
-                        latest_chat = chat;
-                    }
-                }
-            }
-
-            $currentChat = latest_chat;
-            $editing = null;
-            console.debug(`Applied latest chat for ${name}`);
-        });
-
-        let body = { 
-            api_mode: $currentSettings.api_mode, 
-            character: $currentCharacter, 
-            user: $currentProfile.name, 
-            settings: $currentSettings[ $currentSettings.api_mode ] 
-        }
-
-        await serverRequest( "/get_character_tokens", body ).then(data => {
-            $currentCharacter.metadata.tokens = data;
-            $currentCharacter = $currentCharacter
-        })
+        let tokens = await Server.getCharacterTokens( $currentCharacter );
+        $currentCharacter.metadata.tokens = tokens
+        $currentCharacter = $currentCharacter
         
         console.debug(`Selected character ${name} (ID: ${id})`)
         $fetching = false;

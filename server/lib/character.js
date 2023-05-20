@@ -14,9 +14,14 @@ class Character{
     }
 
     SetFrom(json){
-        // tavern backwards compatibility
+        // tavern backwards compatibility (yuck)
         if( json.first_mes ){ this.greeting = json.first_mes }
         if( json.mes_example ){ this.dialogue = json.mes_example }
+        if( json.metadata && json.metadata.created ){
+            this.create_date = parseInt(json.metadata.created)
+        }else if( json.created ){
+            this.create_date = parseInt(json.created)
+        }
 
         // common overrides
         if( json.name ){ this.name = json.name; }
@@ -26,7 +31,13 @@ class Character{
         if( json.scenario ){ this.scenario = json.scenario; }
         if( json.dialogue ){ this.dialogue = json.dialogue; }
         if( json.author ){ this.author = json.author; }
-        if( json.create_date ){ this.create_date = json.create_date; }
+        if( json.create_date ){ this.create_date = parseInt(json.create_date); }
+        if( json.last_changed ){ this.last_changed = parseInt(json.last_changed); }
+
+        // ensure the timestamp has the correct number of digits
+        if( this.create_date.toString().length < 13 ){
+            this.create_date *= 10 ** ( 13 - this.create_date.toString().length )
+        }
     }
 
     Reset(){

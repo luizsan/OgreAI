@@ -2,10 +2,10 @@
 
 declare module "marked"
 
-declare namespace svelteHTML {
-    interface HTMLProps<T> {
-        outclick?: (e: CustomEvent) => void;
-    }
+declare namespace svelte.JSX {
+	interface HTMLAttributes<T> {
+		onoutclick?: (e: CustomEvent) => void
+	}
 }
 
 interface ICharacter{

@@ -36,13 +36,13 @@ class OpenAI{
         frequency_penalty: {
             title: "Frequency Penalty",
             description: "How much to penalize new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim.",
-            type: "range", default: 0, min: 0, max: 2, step: 0.01,
+            type: "range", default: 0, min: -2, max: 2, step: 0.01,
         },
         
         presence_penalty: {
             title: "Presence Penalty",
             description: "How much to penalize new tokens based on whether they appear in the text so far. Increases the model's likelihood to talk about new topics.",
-            type: "range", default: 0, min: 0, max: 2, step: 0.01,
+            type: "range", default: 0, min: -2, max: 2, step: 0.01,
         },
 
         top_p: {
@@ -57,12 +57,17 @@ class OpenAI{
             type: "textarea", default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition.",
         },
 
+        sub_prompt: {
+            title: "Sub Prompt",
+            description: "Appended at the end of the user's last message to reinforce instructions.",
+            type: "textarea", default: "",
+        },
+
         stream: {
             title: "Stream",
             description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
             type: "checkbox", default: true,
         }
-
     }
 
     // private variable to store incomplete messages
@@ -93,14 +98,24 @@ class OpenAI{
         _system = parseNames( _system, user, character.name )
         prompt.push({ role: "system", content: _system })
 
-        let token_count_system = getTokens(_system).length;
+        let sub_prompt = settings.sub_prompt ? "\n\n" + settings.sub_prompt : ""
+        let sub_tokens = settings.sub_prompt ? getTokens( sub_prompt ).length : 0;
+        let token_count_system = getTokens(_system).length + sub_tokens;
         let token_count_messages = 0
+        let injected_sub_prompt = false;
 
         if( messages ){
-            for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i -= 1 ){
+            for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
                 let role = messages[i].participant > -1 ? "assistant" : "user";
                 let index = messages[i].index
                 let content = messages[i].candidates[ index ].text
+                content = parseNames(content, user, character.name )
+                
+                if( role == "user" && !injected_sub_prompt ){
+                    content += sub_prompt;
+                    injected_sub_prompt = true;
+                }
+
                 let next_tokens = getTokens(content).length
                 if( token_count_system + token_count_messages + next_tokens > settings.context_size ){
                     break;
@@ -116,7 +131,11 @@ class OpenAI{
 
     // returns an object with the token breakdown for a character
     static getTokenConsumption( character, user, settings ){
-        let _system = settings.base_prompt + "\n\n"
+        let _system = settings.base_prompt;
+        if( settings.sub_prompt ){
+            _system += "\n\n" + settings.sub_prompt;
+        }
+
         _system = parseNames( _system, user, character.name )
 
         let _description = ""
@@ -153,11 +172,11 @@ class OpenAI{
     }
 
     // returns an output from the prompt that will be fed into receiveData
-    static async generate(prompt, settings){
+    static async generate(prompt, user, settings){
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
-            // stop: [],
+            stop: [ "{{user}}:", user + ":" ],
             max_tokens: parseInt(settings.max_length),
             frequency_penalty: parseFloat(settings.frequency_penalty),
             presence_penalty: parseFloat(settings.presence_penalty),
@@ -168,7 +187,6 @@ class OpenAI{
     
         let options = {
             method: "POST",
-            timeout: 60000,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + settings.api_target,
@@ -177,7 +195,8 @@ class OpenAI{
         }
     
         // console.debug("Sending prompt %o", outgoing_data)
-        console.debug("Sending prompt...")
+        console.debug(`Sending prompt to ${outgoing_data.model}...`)
+        console.debug(prompt)
         return fetch( "https://api.openai.com/v1/chat/completions", options )
     }
 
@@ -189,6 +208,7 @@ class OpenAI{
         try{
             incoming_json = JSON.parse(incoming_data);
             if( incoming_json.choices ){
+                console.debug(incoming_json.model)
                 let message = {
                     participant: 0,
                     swipe: swipe,
@@ -231,7 +251,7 @@ class OpenAI{
                 timestamp: Date.now()
             }
         }
-
+    
         const lines = incoming_data.split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
             const obj = line.replace(/^data: /, '');

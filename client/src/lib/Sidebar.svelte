@@ -1,12 +1,12 @@
 <script>
-    import { characterList, creating, currentProfile, currentSettings, editing, fetching, sectionCharacters } from "../State";
+    import { characterList, creating, editing, fetching, sectionCharacters } from "../State";
     import Character from './Character.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
-    import { serverRequest } from "./Server.svelte";
+    import * as Server from "./Server.svelte";
 
     async function NewCharacter(){
         $fetching = true;
-        await serverRequest( "/new_character" ).then(data => {
+        await Server.request( "/new_character" ).then(data => {
             $creating = true;
             $editing = data;
             $editing.name = "New character"
@@ -14,17 +14,8 @@
             $editing.metadata.filepath = "./img/bot_default.png"
         });
 
-        let body = { 
-            api_mode: $currentSettings.api_mode, 
-            character: $editing, 
-            user: $currentProfile.name, 
-            settings: $currentSettings[ $currentSettings.api_mode ] 
-        }
-
-        await serverRequest("/get_character_tokens", body ).then( data => {
-            $editing.metadata.tokens = data;
-        })
-
+        let tokens = await Server.getCharacterTokens($editing)
+        $editing.metadata.tokens = tokens;
         $fetching = false;
     }
 
@@ -32,9 +23,9 @@
 
 
 <div class:active={$sectionCharacters}>
-    <button class="system" on:click={NewCharacter} title="New character">{@html SVG.add}</button>
+    <button class="system" title="New character" on:click={NewCharacter}>{@html SVG.add}</button>
     <!-- <button class="system">{@html SVG.download}</button> -->
-    <!-- <button class="system">{@html SVG.reload}</button> -->
+    <button class="system" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}</button>
     <hr>
     {#each $characterList as char, i}
         <Character id={i} character={char} />
@@ -90,6 +81,7 @@
         min-width: var( --avatar-size );
         outline: 0px solid white;
         padding: 0px;
+        margin: 0px;
         transition: all 0.125s ease-out;
     }
     

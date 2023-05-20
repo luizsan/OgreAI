@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { characterList, creating, currentCharacter, currentChat, currentProfile, currentSettings, editing, fetching, localServer } from "../State";
+    import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
     import { close } from "../utils/SVGCollection.svelte";
-    import { getCharacterList, serverRequest } from "./Server.svelte";
     import Screen from "../components/Screen.svelte";
+    import * as Server from "./Server.svelte"
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -68,9 +68,14 @@
         $fetching = true 
 
         const formData = new FormData();
+        const fileName = $creating ? $editing.name + "-" + Date.now() : $editing.metadata.filepath
         formData.append("file", uploadInput.files[0])
         formData.append("character", JSON.stringify( $editing ))
-        formData.append("filepath", $creating ? $editing.name : $editing.metadata.filepath)
+        formData.append("filepath", fileName)
+
+        if( $creating ){
+            formData.append("creating", "true" )
+        }
 
         let result = await fetch( localServer + "/save_character", {
             method: "POST",
@@ -79,13 +84,13 @@
 
         if( result ){
             if( $creating ){
-                await getCharacterList();
+                await Server.getCharacterList();
                 $editing = null;
                 $creating = null;
                 alert(result)
             }else{
                 if( $editing && $editing.metadata.avatar ){
-                    let edited = await serverRequest("/get_character", { 
+                    let edited = await Server.request("/get_character", { 
                         filepath: $editing.metadata.filepath 
                     });
 
@@ -99,7 +104,7 @@
                         }
                     }
 
-                    await RefreshTokens();
+                    await refreshTokens();
                     if( $currentChat ){
                         $currentChat.participants[0] = edited.name
                     }
@@ -112,12 +117,12 @@
 
     async function DeleteCharacter(){
         if( $editing && window.confirm("Are you sure you want to delete this character?\nThis action is irreversible!")){
-            let result = await serverRequest("/delete_character", {
+            let result = await Server.request("/delete_character", {
                 filepath: $editing.metadata.filepath
             })
             
             if( result ){
-                await getCharacterList();
+                await Server.getCharacterList();
                 if( $currentCharacter == $editing ){
                     $currentCharacter = null;
                 }
@@ -129,17 +134,10 @@
         }
     }
 
-    async function RefreshTokens(){
-        let body = { 
-            api_mode: $currentSettings.api_mode, 
-            character: $editing,
-            user: $currentProfile.name, 
-            settings: $currentSettings[ $currentSettings.api_mode ] 
-        }
-
-        await serverRequest("/get_character_tokens", body ).then(data =>{
-            $editing.metadata.tokens = data;
-        }) 
+    async function refreshTokens(){
+        let tokens = await Server.getCharacterTokens( $editing )
+        $editing.metadata.tokens = tokens;
+        console.log(tokens)
     }
 
     function SetUploadImage(){
@@ -186,48 +184,48 @@
             <button class="close normal" on:click={Close}>{@html close}</button>
         </div>
 
-        <div class="bottom" on:input={RefreshTokens} on:change={SaveCharacter}>
-            <div class="section">
+        <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
+            <div class="wide">
                 <h3 class="title">Character name</h3>
                 <p class="explanation">The name of the character displayed in chat.</p>
-                <input type="text" class="component" bind:value={$editing.name}>
+                <input type="text" class="component wide" bind:value={$editing.name}>
             </div>
             
-            <div class="section">
+            <div class="wide">
                 <h3 class="title">Greeting</h3>
                 <p class="explanation">The character will start a chat with this message.</p>
-                <textarea class="component" rows=6 bind:value={$editing.greeting}></textarea>
+                <textarea class="component wide" rows=6 bind:value={$editing.greeting}></textarea>
             </div>
 
-            <div class="section description">
+            <div class="wide description">
                 <h3 class="title">Description</h3>
                 <p class="explanation">Description of personality and other characteristics.</p>
-                <textarea class="component" rows=9 bind:value={$editing.description}></textarea>
+                <textarea class="component wide" rows=9 bind:value={$editing.description}></textarea>
             </div>
             
-            <div class="section personality">
+            <div class="wide personality">
                 <h3 class="title">Personality</h3>
                 <p class="explanation">A brief description of the personality.</p>
-                <textarea class="component" rows=3 bind:value={$editing.personality}></textarea>
+                <textarea class="component wide" rows=3 bind:value={$editing.personality}></textarea>
             </div>
             
-            <div class="section scenario">
+            <div class="wide scenario">
                 <h3 class="title">Scenario</h3>
                 <p class="explanation">Circumstances and context of the dialogue.</p>
-                <textarea class="component" rows=3 bind:value={$editing.scenario}></textarea>
+                <textarea class="component wide" rows=3 bind:value={$editing.scenario}></textarea>
             </div>
             
-            <div class="section dialogue">
+            <div class="wide dialogue">
                 <h3 class="title">Example dialogue</h3>
                 <p class="explanation">Forms a personality more clearly.</p>
-                <textarea class="component" rows=6 bind:value={$editing.dialogue}></textarea>
+                <textarea class="component wide" rows=6 bind:value={$editing.dialogue}></textarea>
             </div>
 
-            <div class="section horizontal">
+            <div class="wide horizontal">
                 {#if $creating}
-                    <button class="component normal" on:click={CreateCharacter}>Create</button>
+                    <button class="component confirm" on:click={CreateCharacter}>Create Character</button>
                 {:else}
-                    <button class="component danger" on:click={DeleteCharacter}>Delete</button>
+                    <button class="component danger" on:click={DeleteCharacter}>Delete Character</button>
                 {/if}
             </div>
         </div>

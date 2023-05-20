@@ -1,30 +1,18 @@
 <script lang="ts">
-    import { afterUpdate } from "svelte"
+    import { AutoResize, resize } from "../utils/AutoResize";
     import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettings, deleteList, fetching, chatList } from "../State";
+    import { clickOutside } from "../utils/ClickOutside";
+    import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
-    import { AutoResizeTextArea } from "../utils/AutoResizeTextArea.svelte";
-    import { clickOutside } from "../utils/ClickOutside.svelte";
-    import Message from './Message.svelte'
-    import Loading from '../components/Loading.svelte'
-    import { serverRequest } from "./Server.svelte";
     import History from "./History.svelte";
+    import Loading from '../components/Loading.svelte'
+    import Message from './Message.svelte'
+    import { AutoScroll } from "../utils/AutoScroll";
 
     let userMessage : string = ""
     let messageBox : HTMLElement;
     let messagesDiv : HTMLElement;
     let chatOptions = false;
-
-    export function ScrollToEnd(){
-        if( messagesDiv == null ) return
-        messagesDiv.scrollTo(0, messagesDiv.scrollHeight)
-    }
-
-    afterUpdate(() => {
-        if( messageBox ){
-            AutoResizeTextArea(messageBox)
-        }
-        ScrollToEnd()
-    });
 
     function ToggleChatOptions(){
         chatOptions = !chatOptions;
@@ -36,20 +24,22 @@
         $deleteList = [];
     }
 
-    async function NewChat(){
-        if( !$currentCharacter ){
-            return
+    function CancelDeleteMessages(){
+        chatOptions = false;
+        $deleting = false;
+        $deleteList = [];
+    }
+
+    async function ConfirmDeleteMessages(){
+        if($deleteList.length > 0){
+            if(window.confirm(`Are you sure you want to delete ${$deleteList.length} message(s)?`)){
+                $deleteList.sort()
+                $currentChat.messages = $currentChat.messages.filter((_: any, index: number) => index == 0 || !$deleteList.includes(index))
+                $currentChat = $currentChat;
+                Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+                CancelDeleteMessages();
+            }
         }
-
-        $fetching = true;
-        
-        await serverRequest( "/new_chat", { character: $currentCharacter }).then( data => {
-            $currentChat = data;
-        }).catch( error => {
-            console.error(error)
-        })
-
-        $fetching = false;
     }
 
     async function SendMessage(){
@@ -64,11 +54,13 @@
             }
             $currentChat.messages.push(message)
             userMessage = "";
+            resize(messageBox);
             $currentChat = $currentChat;
+            $currentChat.messages = $currentChat.messages;
         }
 
         console.debug( $currentChat.messages )
-        await serverRequest( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
+        await Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
         await GenerateMessage()
     }
 
@@ -99,7 +91,7 @@
 
                 function processText({ done, value }){
                     if(done || (value && value.done)){
-                        serverRequest( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+                        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
                         return;
                     }
 
@@ -122,7 +114,7 @@
                 response.json().then(async data => {
                     console.log("Received message: %o", data)
                     if( data.error ){
-                        alert(data.error.message)
+                        alert(`${data.error.type}\n${data.error.message}`)
                     }else{
                         ReceiveMessage( data )
                     }
@@ -156,6 +148,7 @@
                 candidates: [ candidate ],
             })
         }
+        $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
         messagesDiv.scrollTo(0, messagesDiv.scrollHeight)
         return candidate;
@@ -180,16 +173,17 @@
                 candidates: [ incoming.candidate ],
             })
         }
+        $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
-        messagesDiv.scrollTo(0, messagesDiv.scrollHeight)
-        serverRequest( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
     async function RegenerateMessage(){
         if( !$currentChat ){
             return;
         }
-
+        
+        chatOptions = false;
         let last = $currentChat.messages.at(-1)
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
             if( last.candidates.length > 1 ){
@@ -210,8 +204,11 @@
         }
     }
 
-    function ChatHistory(){
+    async function ChatHistory(){
         chatOptions = false;
+        $fetching = true;
+        await Server.getChats( $currentCharacter )
+        $fetching = false;
         $history = true;
     }
 
@@ -221,10 +218,10 @@
     <div class="chat" style="grid-template-rows: auto min-content">
 
         {#if !$history}
-            <div class="messages" bind:this={messagesDiv} class:disabled={$busy}>
+            <div class="messages" bind:this={messagesDiv} use:AutoScroll={$currentChat.messages.length}>
                 {#if $currentChat != null}
-                    {#each $currentChat.messages as msg, i}
-                        <Message id={i} msg={msg} generateSwipe={()=>GenerateMessage(true)}/>
+                    {#each $currentChat.messages as _, i}
+                        <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
                     {/each}
                 {/if}
             </div>
@@ -245,8 +242,8 @@
 
         {#if $deleting}
             <div class="bottom">
-                <button class="component normal" on:click={ () => $deleting = false }>Cancel</button>
-                <button class="component danger" on:click={ () => $deleting = false }>Delete</button>
+                <button class="component normal" on:click={CancelDeleteMessages}>Cancel</button>
+                <button class="component danger" on:click={ConfirmDeleteMessages}>Delete</button>
             </div>
         {:else if $history}
             <div class="bottom">
@@ -259,20 +256,19 @@
 
                 {#if chatOptions}
                     <div class="options-list">
-                        <!-- <button class="options-item normal" disabled>{@html share}Share</button> -->
-                        <!-- <hr> -->
-                        <button class="options-item normal" on:click={NewChat}>{@html SVG.chat}New Chat</button> <!-- <span class="shortcut">Ctrl+Insert</span> -->
+                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.chat}New Chat</button>
                         <button class="options-item normal" on:click={ChatHistory}>{@html SVG.history}Chat History</button>
                         <hr>
                         <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
                         <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages<span class="shortcut">Ctrl+Delete</span></button>
                     </div>
                 {/if}
+                
                 </div>
 
-                <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResizeTextArea></textarea>
+                <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize={userMessage}></textarea>
                 {#if $busy}
-                    <Loading width={24} height={24}/>
+                    <Loading/>
                 {:else}
                     <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
                 {/if}
@@ -309,10 +305,12 @@
     .messages{
         display:flex;
         flex-direction: column;
+        box-sizing: border-box;
         margin: 0px var(--chat-padding);
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 8px 0px;
+        box-sizing: border-box;
     }
 
     .input{
@@ -431,9 +429,14 @@
         width: 100%;
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: center;
         place-content: center;
         gap: 16px;
+        border-top: 1px solid #80808024;
+    }
+
+    .bottom *{
+        margin: 0px;
     }
 
 </style>

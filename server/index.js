@@ -6,6 +6,8 @@ import fs from "fs";
 import cors from "cors";
 import chalk from "chalk"
 import multer from "multer";
+import mime from "mime";
+
 
 import { Character } from "./lib/character.js"
 import { Chat } from "./lib/chat.js"
@@ -15,10 +17,13 @@ import { Settings } from "./lib/settings.js"
 
 
 const __dirname = path.resolve("./")
+const _userPath = path.join(__dirname, '../user').replace(/\\/g, '/');
+const _imgPath = path.join(__dirname, '../img').replace(/\\/g, '/');
+
 const _modulePath = "./api/"
 const app = express()
 const port = 8000
-const parser = express.json()
+const parser = express.json({ limit: "100mb" })
 const upload = multer()
 
 var API_MODES = {}
@@ -26,9 +31,16 @@ var API_LIST = []
 
 app.use(cors())
 
-const _userPath = path.join(__dirname, '../user').replace(/\\/g, '/');
+app.use(express.static('public', {
+    setHeaders: (res, path) => {
+      if (mime.getType(path) === 'text/html') {
+        res.setHeader('Content-Type', 'text/html');
+      }
+    }
+}));
 
 app.use('/user', express.static(_userPath, { fallthrough: false, index: false, redirect: true, maxAge: -1  }));
+app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, redirect: true, maxAge: -1  }));
 
 // startup 
 await LoadAPIModes()
@@ -38,40 +50,55 @@ app.listen(port, () => {
     console.log( chalk.white.bold( " > ") + chalk.blue("http://localhost:" + port + "\n" ))
 })
 
-app.get("/", parser, function(_, response){
-    let options = {
-        root: path.join( __dirname, "../build/").replace(/\\/g, '/')
-    }
-    response.sendFile("index.html", options)
-})
 
 app.get("/status", parser, function(_, response){
     response.sendStatus(200)
 })
 
-app.post("/get_profile", parser, function(_, response){
+app.get("/get_profile", parser, function(_, response){
+    let profile = LoadData(Profile.path, new Profile())
+
+    if( !profile.name ){
+        profile.name = "You"
+    }
+
     response.send( LoadData(Profile.path, new Profile()) )
 })
 
-app.post("/get_settings", parser, function(_, response){
-    response.send( LoadData(Settings.path, new Settings()) )
+app.get("/get_settings", parser, function(_, response){
+    let settings = LoadData(Settings.path, new Settings())
+
+    // sanitize settings based on available API modes
+    Object.keys( API_MODES ).forEach(mode => {
+        if( !settings[mode] ){
+            settings[mode] = {}
+        }
+
+        Object.keys( API_MODES[mode].API_SETTINGS ).forEach(key => {
+            if( settings[mode][key] === undefined ){
+                settings[mode][key] = API_MODES[mode].API_SETTINGS[key].default
+            }
+        })
+    })
+
+    response.send( settings )
 })
 
 app.post("/get_api_status", parser, async function(request, response){
     let mode = request.body.api_mode
-    let target = request.body[mode].api_target
-    if( !API_MODES[mode] ){
+    if( !request.body[mode] || !request.body[mode].api_target || !API_MODES[mode] ){
         const msg = "Trying to fetch non-existent API"
         console.error( chalk.red(msg))
-        response.status(500).statusMessage(msg).send(false)
+        response.status(500).send(false)
         return
     }
-
+    
+    let target = request.body[mode].api_target
     await API_MODES[mode].getStatus(target).then((result) => {
         response.send(result)
     }).catch((error) => {
         console.error(error)
-        response.status(500).statusMessage(error).send(false)
+        response.status(500).send(false)
     })
 })
 
@@ -85,8 +112,7 @@ app.post("/save_settings", parser, function(request, response){
     response.send(true)
 })
 
-app.post("/get_characters", parser, function(_, response){
-    console.debug("")
+app.get("/get_characters", parser, function(_, response){
     console.debug( chalk.blue( `Fetching characters from ${Character.path}` ))
     let list = Character.LoadFromDirectory(Character.path)
     response.send(list)
@@ -111,11 +137,6 @@ app.post("/get_chats", parser, function(request, response){
     response.send(chats)
 });
 
-app.post("/save_chat", parser, function(request, response){
-    let result = Chat.Save( request.body.chat, request.body.character )
-    response.send( result )
-})
-
 app.post("/new_chat", parser, function(request, response){
     try{
         response.send(new Chat(request.body.character))
@@ -124,14 +145,40 @@ app.post("/new_chat", parser, function(request, response){
     }
 })
 
-app.post("/new_character", parser, function(request, response){
+app.post("/save_chat", parser, function(request, response){
+    let result = Chat.Save( request.body.chat, request.body.character )
+    response.send( result )
+})
+
+app.post("/copy_chat", parser, function(request, response){
+    const now = Date.now();
+
+    let copy = request.body.chat;
+    copy.title = now;
+    copy.created = now;
+    copy.last_interaction = now;
+
+    let result = Chat.Save( copy, request.body.character )
+    response.send( result )
+})
+
+app.post("/delete_chat", parser, function(request, response){
+    let result = Chat.Delete( request.body.character, request.body.created )
+    response.send( result )
+})
+
+app.get("/new_character", parser, function(request, response){
     response.send(new Character())    
 })
 
 app.post("/save_character", upload.single("file"), function(request, response){
-    const image = request.file ? request.file.buffer : null
     const char = JSON.parse(request.body.character)
     let filepath = request.body.filepath
+    let image = request.file ? request.file.buffer : null
+    if( request.body.creating && !image ){
+        image = fs.readFileSync( path.join( __dirname, "../img/bot_default.png" ))
+    }
+    
     if( !filepath.toLowerCase().startsWith( Character.path )){
         filepath = path.join( Character.path, filepath )
     }
@@ -160,11 +207,7 @@ app.post("/delete_character", parser, function(request, response){
     }
 })
 
-app.post("/delete_chat", parser, function(request, response){
-    response.status(403).send("Forbidden")
-})
-
-app.post("/get_api_modes", parser, async function(_, response){
+app.get("/get_api_modes", parser, async function(_, response){
     response.send( API_LIST )
 })
 
@@ -189,17 +232,19 @@ app.post("/generate", parser, async function(request, response){
         let streaming = request.body.settings.stream;
 
         let prompt = api.makePrompt( char, messages, user, settings, swipe ? 1 : 0 )
-        api.generate( prompt, settings, swipe ).then(async result => {
+        api.generate( prompt, user, settings, swipe ).then(async result => {
             if( streaming ){
                 console.debug( chalk.blue("Streaming message..."))
                 const td = new TextDecoder();
                 for await (const message of result.body){
                     let data = api.receiveStream( td.decode(message), swipe )
                     if( data ){
-                        console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
-                        // the newline at the end is required as sometimes the stream 
-                        // can lag and the client will clump chunks together, so it's 
-                        // easier to separate them by lines instead.
+                        if( !data.error ){
+                            console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
+                            // the newline at the end is required as sometimes the stream 
+                            // can lag and the client will clump chunks together, so it's 
+                            // easier to separate them by lines instead.
+                        }
                         response.write(JSON.stringify(data) + "\n")
                     }
                 }

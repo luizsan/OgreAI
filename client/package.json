@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "host": "vite --host",
-    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "build": "vite build"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.3",

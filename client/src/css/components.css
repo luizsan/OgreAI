@@ -2,11 +2,52 @@
     position: relative;
     margin: 8px 0px 0px 0px;
     font-family: var( --default-font-face );
+
+    scrollbar-width: auto;
+    scrollbar-color: var( --accent-color-dark ) transparent;
 }
 
-.component::-webkit-resizer{
-    border: none;
-    background: none;
+.component:focus{
+    scrollbar-color: var( --accent-color-normal ) transparent;
+}
+
+.component::-webkit-scrollbar{
+    width: 14px;
+}
+
+.component::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.component::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var( --component-bg-normal );
+    background-color: var( --accent-color-normal );
+    margin: 4px;
+}
+
+.component:focus::-webkit-scrollbar-thumb {
+    border-color: var( --component-bg-hover );
+    background-color: var( --accent-color-light );
+}
+
+.component::-webkit-resizer {
+    background: var( --component-bg-normal );
+    border-style: outset; 
+    border-width: 100px;
+    border-top-color: transparent;
+    border-right-color: var( --component-color-normal );
+    border-bottom-color: var( --component-color-normal );
+    border-left-color: transparent;
+}
+
+.component:focus::-webkit-resizer{
+    background: var( --component-bg-hover );
+    border-right-color: var( --component-color-hover );
+    border-bottom-color: var( --component-color-hover );
 }
 
 button {
@@ -35,16 +76,11 @@ input[type="text"].component, textarea.component, select.component{
     transition-timing-function: ease;
 }
 
-input[type="text"].component, textarea.component{
-    width: 100%;
-}
-
 textarea.component{
     line-height: 1.333333;
     overflow-x: hidden;
     overflow-y: scroll;
     resize: vertical;
-    scrollbar-color: gray transparent;
 }
 
 input[type="text"].component:focus, textarea.component:focus, select.component:focus {
@@ -81,6 +117,10 @@ button.component:active, button.component:disabled{
     outline-color: var( --component-border-disabled );
 }
 
+.wide{
+    width: 100%;
+}
+
 .fullscreen{
     position: fixed;
     inset: 0px;
@@ -98,4 +138,8 @@ button.component:active, button.component:disabled{
 
 .disabled{
     pointer-events: none !important;
+}
+
+.deselect{
+    user-select: none;
 }
