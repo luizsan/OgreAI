@@ -74,8 +74,8 @@ class OpenAI{
     static #__message_chunk = "";
 
     // getStatus must return a boolean
-    static async getStatus(key){
-        const options = { method: "GET", headers:{ "Authorization":"Bearer " + key }}
+    static async getStatus(settings){
+        const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.api_target }}
         return await fetch( "https://api.openai.com/v1/models", options ).then((response) => response.ok)
     }
 

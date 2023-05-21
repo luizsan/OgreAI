@@ -73,8 +73,8 @@ class OpenAIProxy{
 
     static #__message_chunk = "";
 
-    static async getStatus(key){
-        const options = { method: "GET", headers:{ "Authorization":"Bearer " + key }}
+    static async getStatus(settings){
+        const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.password }}
         return await fetch( key + "/v1/models", options ).then((response) => response.ok)
     }
 

@@ -81,8 +81,8 @@
         const settings = get( State.currentSettings )
         const mode = settings.api_mode
         const post_requests = [
-            request( "/get_api_settings", { api_mode: mode } ),
-            request( "/get_api_status", settings ),
+            request( "/get_api_settings", { api_mode: mode }),
+            request( "/get_api_status", { api_mode: mode, settings: settings[mode] }),
         ]
 
         await Promise.all(post_requests).then(async responses => {
@@ -92,6 +92,7 @@
             disconnect()
             console.error(error)
         })
+
         State.connected.set(true)
     }
 

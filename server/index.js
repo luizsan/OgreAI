@@ -85,16 +85,15 @@ app.get("/get_settings", parser, function(_, response){
 })
 
 app.post("/get_api_status", parser, async function(request, response){
-    let mode = request.body.api_mode
-    if( !request.body[mode] || !request.body[mode].api_target || !API_MODES[mode] ){
+    let mode = request.body && request.body.api_mode ? request.body.api_mode : "";
+    if( !API_MODES[mode] ){
         const msg = "Trying to fetch non-existent API"
         console.error( chalk.red(msg))
         response.status(500).send(false)
         return
     }
-    
-    let target = request.body[mode].api_target
-    await API_MODES[mode].getStatus(target).then((result) => {
+
+    await API_MODES[mode].getStatus( request.body.settings ).then((result) => {
         response.send(result)
     }).catch((error) => {
         console.error(error)
