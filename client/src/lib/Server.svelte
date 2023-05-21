@@ -82,12 +82,11 @@
         const mode = settings.api_mode
         const post_requests = [
             request( "/get_api_settings", { api_mode: mode }),
-            request( "/get_api_status", { api_mode: mode, settings: settings[mode] }),
         ]
 
         await Promise.all(post_requests).then(async responses => {
             State.availableAPISettings.set( responses[0] )
-            State.api.set( responses[1] )
+            await getAPIStatus()
         }).catch((error) => {
             disconnect()
             console.error(error)
@@ -103,9 +102,11 @@
         }
 
         let settings = get( State.currentSettings )
+        let mode = settings.api_mode;
+
         State.api.set( null );
-        let result = await request( "/get_api_status", settings )
-        State.api.set( result ) 
+        let result = await request( "/get_api_status", { api_mode: mode, settings: settings[mode] })
+        State.api.set( result )
     }
 
     export async function getCharacterList(){
