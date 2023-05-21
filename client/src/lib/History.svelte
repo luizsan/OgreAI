@@ -1,9 +1,9 @@
 <script lang="ts">
     import { marked } from 'marked';
-    import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
-    import * as SVG from "@/utils/SVGCollection.svelte";
-    import * as Server from '@/lib/Server.svelte';
-    import * as Format from '@/Format'
+    import { currentCharacter, currentChat, currentProfile, fetching, history } from "../State";
+    import * as SVG from "../utils/SVGCollection.svelte";
+    import * as Server from './Server.svelte';
+    import * as Format from '../Format'
 
     export let chat : IChat;
     let titleField : HTMLInputElement

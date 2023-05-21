@@ -1,7 +1,7 @@
 <script>
-    import { sectionSettings, currentSettings } from "@/State";
-    import Screen from "@/components/Screen.svelte";
-    import Settings from "@/lib/Settings.svelte"
+    import { sectionSettings, currentSettings } from "../State";
+    import Screen from "../components/Screen.svelte";
+    import Settings from "./Settings.svelte"
 </script>
 
 {#if $sectionSettings && $currentSettings != null}

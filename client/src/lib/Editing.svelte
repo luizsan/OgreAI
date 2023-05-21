@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "@/State";
-    import { close } from "@/utils/SVGCollection.svelte";
-    import Screen from "@/components/Screen.svelte";
-    import * as Server from "@/lib/Server.svelte"
+    import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
+    import { close } from "../utils/SVGCollection.svelte";
+    import Screen from "../components/Screen.svelte";
+    import * as Server from "./Server.svelte"
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;

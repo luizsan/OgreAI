@@ -1,7 +1,7 @@
 <script>
-    import { currentSettings, availableAPIModes, availableAPISettings, fetching } from "@/State";
-    import Status from "@/components/Status.svelte";
-    import * as Server from "@/lib/Server.svelte";
+    import { currentSettings, availableAPIModes, availableAPISettings, fetching } from "../State";
+    import Status from "../components/Status.svelte";
+    import * as Server from "./Server.svelte";
 
     $: api_mode = $currentSettings.api_mode
 

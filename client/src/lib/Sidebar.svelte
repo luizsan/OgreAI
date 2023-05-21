@@ -1,8 +1,8 @@
 <script>
-    import { characterList, creating, editing, fetching, sectionCharacters } from "@/State";
-    import Character from '@/lib/Character.svelte'
-    import * as SVG from "@/utils/SVGCollection.svelte";
-    import * as Server from "@/lib/Server.svelte";
+    import { characterList, creating, editing, fetching, sectionCharacters } from "../State";
+    import Character from './Character.svelte'
+    import * as SVG from "../utils/SVGCollection.svelte";
+    import * as Server from "./Server.svelte";
 
     async function NewCharacter(){
         $fetching = true;
