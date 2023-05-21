@@ -75,7 +75,7 @@ class OpenAIProxy{
 
     static async getStatus(settings){
         const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.password }}
-        return await fetch( key + "/v1/models", options ).then((response) => response.ok)
+        return await fetch( settings.api_target + "/v1/models", options ).then((response) => response.ok)
     }
 
     static makePrompt( character, messages, user, settings, offset = 0 ){
