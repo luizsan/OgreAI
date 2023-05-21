@@ -3,7 +3,7 @@ import { marked } from "marked"
 export const marked_renderer = new marked.Renderer();
 marked_renderer.del = function(text : string){ return "~" + text + "~"; };
 marked_renderer.pre = function(text : string){ return text; };
-marked_renderer.code = function(text) {
+marked_renderer.code = function(text : string) {
     return '<code>' + text + '</code>';
 };
 
