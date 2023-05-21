@@ -2,14 +2,15 @@
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList } from '../State';
+    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList, fetching } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import * as Server from './Server.svelte';
     import * as Format from '../Format';
-    import { tick } from 'svelte';
     
     export let id : number = -1
     export let generateSwipe = () => {}
+
+    let editField : HTMLTextAreaElement;
     
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
@@ -35,12 +36,14 @@
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
 
+    $: lockinput = !$currentChat || $fetching || $busy;
+
     // ---
     let editing = false
     let postActions = false;
     let editedText = ""
 
-    function SwipeMessage(step : number){
+    export function SwipeMessage(step : number){
         $currentChat.messages[id].index += step;
         if($currentChat.messages[id].index < 0){
             $currentChat.messages[id].index = 0;
@@ -62,7 +65,7 @@
         postActions = b
     }
 
-    function SetEditing(b : boolean){
+    export function SetEditing(b : boolean){
         if(b){
             editedText = current.text
         }
@@ -70,7 +73,7 @@
         editing = b
     }
 
-    function EditMessage(){
+    export function EditMessage(){
         SetEditing(false)
         if( editedText.length < 1 ){
             DeleteCandidate();
@@ -86,8 +89,14 @@
         await navigator.clipboard.writeText(current.text)
     }
 
-    function DeleteCandidate(){
-        this.postActions = false;
+    export function DeleteCandidate(){
+        // small hack to allow deletion via action buttons and keyboard event
+        if(this){
+            this.postActions = false;
+        }else{
+            postActions = false;
+        }
+
         if(window.confirm("Are you sure you want to delete this message?")){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
             console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
@@ -131,7 +140,40 @@
         $deleteList.sort()
     }
 
+    function Shortcuts(event : KeyboardEvent){
+        if( lockinput ) return;
+
+        if( id + 1 < $currentChat.messages.length ){
+            return;
+        }
+
+        if( editing ) return;
+
+        switch(event.key){
+            case "ArrowUp": 
+                SetEditing(true);
+                event.preventDefault()
+                break;
+            case "ArrowLeft": 
+                SwipeMessage(-1);
+                event.preventDefault()
+                break;
+            case "ArrowRight": 
+                SwipeMessage(1); 
+                event.preventDefault()
+                break;
+            case "Delete": 
+                DeleteCandidate(); 
+                event.preventDefault()
+                break;
+            default: 
+                break;
+        }
+    }
+
 </script>
+
+<svelte:body on:keydown={Shortcuts}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy}>
     <div class="avatar" style="background-image: url({url}?{$currentCharacter.last_changed})"></div>
@@ -142,7 +184,7 @@
         </div>
         
         {#if editing}
-            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText}></textarea>
+            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText} bind:this={editField}></textarea>
             <div class="instruction">
                 Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, 
                 Ctrl+Enter to <span on:mousedown={EditMessage}>Confirm</span>

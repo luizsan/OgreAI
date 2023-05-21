@@ -9,8 +9,10 @@
     import Message from './Message.svelte'
     import { AutoScroll } from "../utils/AutoScroll";
 
+    $: lockinput = !$currentChat || $fetching || $busy;
+
     let userMessage : string = ""
-    let messageBox : HTMLElement;
+    let messageBox : HTMLTextAreaElement;
     let messagesDiv : HTMLElement;
     let chatOptions = false;
 
@@ -179,9 +181,7 @@
     }
 
     async function RegenerateMessage(){
-        if( !$currentChat ){
-            return;
-        }
+        if( lockinput ) return;
         
         chatOptions = false;
         let last = $currentChat.messages.at(-1)
@@ -212,7 +212,30 @@
         $history = true;
     }
 
+    function Shortcuts(event : KeyboardEvent){
+        if( lockinput ) return;
+
+        if(event.ctrlKey){
+            if(event.key === " "){
+                RegenerateMessage()
+            }
+        }
+
+        if(!event.shiftKey){
+            if(event.key === "Enter"){
+                if(messageBox.selectionEnd === messageBox.value.length){
+                    messageBox.blur()
+                    SendMessage();
+                }
+            }
+        }
+
+        event.preventDefault()
+    }
+
 </script>
+
+<svelte:body on:keydown={Shortcuts}/>
 
 <div class="container">
     <div class="chat" style="grid-template-rows: auto min-content">
