@@ -8,10 +8,12 @@ class Settings{
     SetFrom( source, mode, subset ){
         if( source ){
             this.api_mode = source.api_mode ? source.api_mode : "openai"
-            this.api_target = source.api_target ? source.api_target : ""
+            this.api_url = source.api_url ? source.api_url : ""
+            this.api_auth = source.api_auth ? source.api_auth : ""
         }else{
             this.api_mode = "openai"
-            this.api_target = ""
+            this.api_url = ""
+            this.api_auth = ""
         }
 
         if( subset && mode ){

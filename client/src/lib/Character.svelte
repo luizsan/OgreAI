@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { fetching, editing, currentCharacter, creating, localServer, history, deleting } from "../State";
-    import * as Server from "./Server.svelte";
+    import { fetching, editing, currentCharacter, creating, localServer, history, deleting } from "@/State";
+    import * as Server from "@/lib/Server.svelte";
 
     export let id : number = -1
     export let character : ICharacter | null = null

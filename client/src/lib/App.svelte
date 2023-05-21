@@ -1,15 +1,15 @@
 <script lang="ts">
     
     // components
-    import Chat from './Chat.svelte'
-    import Sidebar from './Sidebar.svelte'
-    import Editing from './Editing.svelte';
-    import Settings from './Settings.svelte';
-    import Header from './Header.svelte'
-    import Loading from '../components/Loading.svelte';
-    import * as Server from './Server.svelte';
+    import Chat from '@/lib/Chat.svelte'
+    import Sidebar from '@/lib/Sidebar.svelte'
+    import Editing from '@/lib/Editing.svelte';
+    import Options from '@/lib/Options.svelte';
+    import Header from '@/lib/Header.svelte'
+    import Loading from '@/components/Loading.svelte';
+    import * as Server from '@/lib/Server.svelte';
     import { onMount } from 'svelte';
-    import { connected, currentCharacter, currentChat, fetching, sectionCharacters } from '../State';
+    import { connected, currentCharacter, currentChat, fetching, sectionCharacters } from '@/State';
     import { fade } from 'svelte/transition';
     import { swipe } from 'svelte-gestures';
 
@@ -56,7 +56,7 @@
         {/if}
         <Sidebar/>
         <Editing/>
-        <Settings/>
+        <Options/>
     </div>
     <Header/>
 {:else}

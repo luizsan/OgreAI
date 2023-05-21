@@ -9,8 +9,6 @@
     
     export let id : number = -1
     export let generateSwipe = () => {}
-
-    let editField : HTMLTextAreaElement;
     
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
@@ -149,6 +147,10 @@
 
         if( editing ) return;
 
+        let activeElement = document.activeElement;
+        if( activeElement.nodeName === "INPUT" ) return;
+        if( activeElement.nodeName === "TEXTAREA" ) return;
+
         switch(event.key){
             case "ArrowUp": 
                 SetEditing(true);
@@ -184,7 +186,7 @@
         </div>
         
         {#if editing}
-            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText} bind:this={editField}></textarea>
+            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText}></textarea>
             <div class="instruction">
                 Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, 
                 Ctrl+Enter to <span on:mousedown={EditMessage}>Confirm</span>

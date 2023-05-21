@@ -1,5 +1,5 @@
 <script>
-    import { api } from "../State";
+    import { api } from "@/State";
 </script>
 
 {#if $api === null }

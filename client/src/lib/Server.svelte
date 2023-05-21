@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import { get } from "svelte/store";
-    import * as State from "../State";
+    import * as State from "@/State";
     
     let _heartbeat = null;
 

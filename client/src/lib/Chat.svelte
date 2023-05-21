@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { AutoResize, resize } from "../utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettings, deleteList, fetching, chatList } from "../State";
-    import { clickOutside } from "../utils/ClickOutside";
-    import * as Server from "./Server.svelte";
-    import * as SVG from "../utils/SVGCollection.svelte"
-    import History from "./History.svelte";
-    import Loading from '../components/Loading.svelte'
-    import Message from './Message.svelte'
-    import { AutoScroll } from "../utils/AutoScroll";
+    import { AutoResize, resize } from "@/utils/AutoResize";
+    import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettings, deleteList, fetching, chatList } from "@/State";
+    import { clickOutside } from "@/utils/ClickOutside";
+    import * as Server from "@/lib/Server.svelte";
+    import * as SVG from "@/utils/SVGCollection.svelte"
+    import History from "@/lib/History.svelte";
+    import Loading from '@/components/Loading.svelte'
+    import Message from '@/lib/Message.svelte'
+    import { AutoScroll } from "@/utils/AutoScroll";
 
     $: lockinput = !$currentChat || $fetching || $busy;
 
@@ -214,23 +214,25 @@
 
     function Shortcuts(event : KeyboardEvent){
         if( lockinput ) return;
-
+        
         if(event.ctrlKey){
             if(event.key === " "){
                 RegenerateMessage()
+                event.preventDefault()
             }
         }
+        
+        if( document.activeElement !== messageBox ) return;
 
         if(!event.shiftKey){
             if(event.key === "Enter"){
                 if(messageBox.selectionEnd === messageBox.value.length){
                     messageBox.blur()
                     SendMessage();
+                    event.preventDefault()
                 }
             }
         }
-
-        event.preventDefault()
     }
 
 </script>

@@ -56,7 +56,7 @@ button {
     border: none;
 }
 
-input[type="text"].component, textarea.component, select.component{
+input[type="text"].component, input[type="password"].component,textarea.component, select.component{
     background: var( --component-bg-normal );
     border-style: solid;
     outline: 1px solid var( --component-border-normal );
@@ -83,7 +83,7 @@ textarea.component{
     resize: vertical;
 }
 
-input[type="text"].component:focus, textarea.component:focus, select.component:focus {
+input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus {
     color: var( --component-color-hover );
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover );

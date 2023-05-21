@@ -75,8 +75,9 @@ class OpenAI{
 
     // getStatus must return a boolean
     static async getStatus(settings){
-        const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.api_target }}
-        return await fetch( "https://api.openai.com/v1/models", options ).then((response) => response.ok)
+        const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.api_auth }}
+        const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
+        return await fetch( url + "/v1/models", options ).then((response) => response.ok)
     }
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
@@ -189,7 +190,7 @@ class OpenAI{
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + settings.api_target,
+                'Authorization': 'Bearer ' + settings.api_auth,
             },
             body: JSON.stringify(outgoing_data)
         }
@@ -197,7 +198,9 @@ class OpenAI{
         // console.debug("Sending prompt %o", outgoing_data)
         console.debug(`Sending prompt to ${outgoing_data.model}...`)
         console.debug(prompt)
-        return fetch( "https://api.openai.com/v1/chat/completions", options )
+
+        const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
+        return fetch( url + "/v1/chat/completions", options )
     }
 
     // processes a single message from the model's output

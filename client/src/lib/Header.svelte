@@ -1,6 +1,6 @@
 <script>
-    import { editing, sectionCharacters, sectionSettings } from "../State";
-    import { menu, settings } from "../utils/SVGCollection.svelte"
+    import { editing, sectionCharacters, sectionSettings } from "@/State";
+    import { menu, settings } from "@/utils/SVGCollection.svelte"
 
     function ToggleSidebar(){
         $sectionCharacters = !$sectionCharacters
