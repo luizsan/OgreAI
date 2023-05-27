@@ -19,6 +19,7 @@ import { Settings } from "./lib/settings.js"
 const __dirname = path.resolve("./")
 const _userPath = path.join(__dirname, '../user').replace(/\\/g, '/');
 const _imgPath = path.join(__dirname, '../img').replace(/\\/g, '/');
+const _buildPath = path.join(__dirname, '../build').replace(/\\/g, '/');
 
 const _modulePath = "./api/"
 const app = express()
@@ -39,8 +40,9 @@ app.use(express.static('public', {
     }
 }));
 
-app.use('/user', express.static(_userPath, { fallthrough: false, index: false, redirect: true, maxAge: -1  }));
-app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, redirect: true, maxAge: -1  }));
+app.use('/user', express.static(_userPath, { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
+app.use('/', express.static(_buildPath, { maxAge: -1  }));
 
 // startup 
 await LoadAPIModes()
@@ -50,19 +52,14 @@ app.listen(port, () => {
     console.log( chalk.white.bold( " > ") + chalk.blue("http://localhost:" + port + "\n" ))
 })
 
-
 app.get("/status", parser, function(_, response){
     response.sendStatus(200)
 })
 
 app.get("/get_profile", parser, function(_, response){
     let profile = LoadData(Profile.path, new Profile())
-
-    if( !profile.name ){
-        profile.name = "You"
-    }
-
-    response.send( LoadData(Profile.path, new Profile()) )
+    if( !profile.name ){ profile.name = "You" }
+    response.send( profile )
 })
 
 app.get("/get_settings", parser, function(_, response){
@@ -73,6 +70,9 @@ app.get("/get_settings", parser, function(_, response){
         if( !settings[mode] ){
             settings[mode] = {}
         }
+
+        if( !settings[mode].api_url ){ settings[mode].api_url = ""; }
+        if( !settings[mode].api_auth ){ settings[mode].api_auth = ""; }
 
         Object.keys( API_MODES[mode].API_SETTINGS ).forEach(key => {
             if( settings[mode][key] === undefined ){
