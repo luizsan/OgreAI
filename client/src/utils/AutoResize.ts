@@ -2,6 +2,7 @@ export function resize( node : HTMLElement ){
     node.style.height = "0px";
     node.style.height = Math.abs(node.scrollHeight) + "px";
     node.style.overflowY = 'hidden';
+    node.scrollIntoView({ block: "nearest" })
 }
 
 export function AutoResize( node : HTMLElement, _param : any ){
