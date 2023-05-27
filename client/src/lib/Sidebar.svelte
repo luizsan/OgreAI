@@ -28,7 +28,7 @@
     <button class="system" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}</button>
     <hr>
     {#each $characterList as char, i}
-        <Character id={i} character={char} />
+        <Character id={i} character={char} label={false} />
     {/each}
 </div>
 
@@ -77,8 +77,10 @@
         border-radius: 50%;
         border: 1px solid white;
         box-shadow: 0px 0px 0px 0px transparent;
-        min-height: var( --avatar-size );
         min-width: var( --avatar-size );
+        min-height: var( --avatar-size );
+        max-width: var( --avatar-size );
+        max-height: var( --avatar-size );
         outline: 0px solid white;
         padding: 0px;
         margin: 0px;
