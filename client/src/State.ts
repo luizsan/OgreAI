@@ -1,6 +1,6 @@
 import { writable } from "svelte/store"
 
-export const localServer = "http://192.168.0.8:8000"
+export const localServer = `${window.location.protocol}//${window.location.hostname}:${8000}`
 
 // SERVER STATE
 // local server status
