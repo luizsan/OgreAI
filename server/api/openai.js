@@ -100,6 +100,8 @@ class OpenAI{
         prompt.push({ role: "system", content: _system })
 
         let sub_prompt = settings.sub_prompt ? "\n\n" + settings.sub_prompt : ""
+        sub_prompt = parseNames( sub_prompt, user, character.name )
+        
         let sub_tokens = settings.sub_prompt ? getTokens( sub_prompt ).length : 0;
         let token_count_system = getTokens(_system).length + sub_tokens;
         let token_count_messages = 0
