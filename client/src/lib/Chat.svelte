@@ -7,7 +7,8 @@
     import History from "./History.svelte";
     import Loading from '../components/Loading.svelte'
     import Message from './Message.svelte'
-    import { AutoScroll } from "../utils/AutoScroll";
+    import { ChatScroll, scroll } from "../utils/ChatScroll";
+    import { onMount, tick } from "svelte";
 
     $: lockinput = !$currentChat || $fetching || $busy;
 
@@ -15,6 +16,11 @@
     let messageBox : HTMLTextAreaElement;
     let messagesDiv : HTMLElement;
     let chatOptions = false;
+
+    onMount(async () => {
+        await tick()
+        scroll( messagesDiv );
+    })
 
     function ToggleChatOptions(){
         chatOptions = !chatOptions;
@@ -57,6 +63,7 @@
             $currentChat.messages.push(message)
             userMessage = "";
             resize(messageBox);
+            scroll( messagesDiv )
             $currentChat = $currentChat;
             $currentChat.messages = $currentChat.messages;
         }
@@ -105,6 +112,8 @@
                             candidate.text += obj.streaming.text
                             candidate.timestamp = obj.streaming.timestamp
                         }
+
+                        scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
 
@@ -152,7 +161,7 @@
         }
         $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
-        messagesDiv.scrollTo(0, messagesDiv.scrollHeight)
+        scroll( messagesDiv )
         return candidate;
     }
 
@@ -177,6 +186,7 @@
         }
         $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
+        scroll( messagesDiv )
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
@@ -192,10 +202,12 @@
                 $currentChat.messages.at(-1).candidates.splice( index, 1 )
                 index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
                 $currentChat.messages.at(-1).index = index;
+                scroll( messagesDiv )
                 $currentChat = $currentChat;
                 await GenerateMessage(true);
             }else{
                 $currentChat.messages.pop()
+                scroll( messagesDiv )
                 $currentChat = $currentChat;
                 await GenerateMessage(false);
             }
@@ -204,12 +216,18 @@
         }
     }
 
-    async function ChatHistory(){
-        chatOptions = false;
-        $fetching = true;
-        await Server.getChats( $currentCharacter )
-        $fetching = false;
-        $history = true;
+    async function ChatHistory(state : boolean){
+        if( state ){
+            chatOptions = false;
+            $fetching = true;
+            await Server.getChats( $currentCharacter )
+            $fetching = false;
+            $history = true;
+        }else{
+            $history = false;
+            await tick()
+            document.dispatchEvent(new CustomEvent("chatscroll"));
+        }
     }
 
     function Shortcuts(event : KeyboardEvent){
@@ -234,7 +252,6 @@
             }
         }
     }
-
 </script>
 
 <svelte:body on:keydown={Shortcuts}/>
@@ -243,7 +260,7 @@
     <div class="chat" style="grid-template-rows: auto min-content">
 
         {#if !$history}
-            <div class="messages" bind:this={messagesDiv} use:AutoScroll={$currentChat.messages.length}>
+            <div class="messages" bind:this={messagesDiv} use:ChatScroll>
                 {#if $currentChat != null}
                     {#each $currentChat.messages as _, i}
                         <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
@@ -272,7 +289,7 @@
             </div>
         {:else if $history}
             <div class="bottom">
-                <button class="component normal" on:click={ () => $history = false }>Back</button>
+                <button class="component normal" on:click={() => ChatHistory(false)}>Back</button>
             </div>
         {:else}
             <div class="input" class:disabled={$busy}>
@@ -282,7 +299,7 @@
                 {#if chatOptions}
                     <div class="options-list">
                         <button class="options-item normal" on:click={Server.newChat}>{@html SVG.chat}New Chat</button>
-                        <button class="options-item normal" on:click={ChatHistory}>{@html SVG.history}Chat History</button>
+                        <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
                         <hr>
                         <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
                         <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages<span class="shortcut">Ctrl+Delete</span></button>

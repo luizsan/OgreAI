@@ -13,6 +13,9 @@
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
     $: is_bot = msg ? msg.participant > -1 : false;
+    
+    $: first = id === 0;
+    $: last = id === $currentChat.messages.length - 1;
 
     // author
     $: author = msg && msg.participant > -1 ? $currentChat.participants[msg.participant] : $currentProfile.name;
@@ -28,7 +31,11 @@
     $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
 
     // avatar
-    $: avatar = localServer + "/" + (msg && msg.participant > -1 ? $currentCharacter.metadata.filepath.replace("../", "") : "./img/user_default.png");
+    const avatar_user_default = localServer + "./img/user_default.png";
+    let avatar_bot_url = localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "")
+    let avatar_user_url = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
+    
+    $: avatar = (msg && msg.participant > -1) ? avatar_bot_url : avatar_user_url;
     $: url = encodeURIComponent(avatar).replace(/%2F/g, '/').replace(/%3A/g, ':')
 
     // deletion
@@ -42,6 +49,14 @@
     let editedText = ""
 
     export function SwipeMessage(step : number){
+        if( first ){
+            return;
+        }
+
+        if( last ){
+            document.dispatchEvent(new CustomEvent("chatscroll"))
+        }
+
         $currentChat.messages[id].index += step;
         if($currentChat.messages[id].index < 0){
             $currentChat.messages[id].index = 0;
@@ -88,6 +103,10 @@
     }
 
     export function DeleteCandidate(){
+        if( first ){
+            return;
+        }
+        
         // small hack to allow deletion via action buttons and keyboard event
         if(this){
             this.postActions = false;
@@ -108,7 +127,11 @@
             }
 
             $currentChat = $currentChat;
-            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+
+            if( last ){
+                document.dispatchEvent(new CustomEvent("chatscroll"))
+            }
         }
     }
     
@@ -140,11 +163,7 @@
 
     function Shortcuts(event : KeyboardEvent){
         if( lockinput ) return;
-
-        if( id + 1 < $currentChat.messages.length ){
-            return;
-        }
-
+        if( !last ) return;
         if( editing ) return;
 
         let activeElement = document.activeElement;
@@ -316,7 +335,8 @@
     }
 
     .editing{
-        width: calc( 100% - 20px );
+        box-sizing: border-box;
+        width: 100%;
         resize: none;
         padding: 8px;
     }

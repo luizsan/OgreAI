@@ -4,6 +4,7 @@
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from './Server.svelte';
     import * as Format from '../Format'
+    import { tick } from 'svelte';
 
     export let chat : IChat;
     let titleField : HTMLInputElement
@@ -17,9 +18,11 @@
         return new Date(timestamp).toLocaleString("ja-JP", Format.date_options)
     }
 
-    function selectHistory(){
+    async function selectHistory(){
         $currentChat = chat;
         $history = false;
+        await tick()
+        document.dispatchEvent(new CustomEvent("chatscroll"));
     }
 
     async function deleteChat(){
