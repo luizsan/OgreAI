@@ -28,6 +28,10 @@
 
 
 <div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
+    <div>
+        <h1>Settings</h1>
+        <hr>
+    </div>
 
     <div class="section">
         <div class="title">API Mode</div>
@@ -50,7 +54,8 @@
             </div>
         </div>
     </div>
-<hr>
+
+<div></div>
 
 {#each Object.entries( $availableAPISettings ) as [key, entry]}
     <div class="section">
@@ -78,6 +83,7 @@
         </div>
     </div>
 {/each}
+
 </div>
 
 
@@ -86,9 +92,14 @@
         margin: 0px;
     }
 
+    h1{
+        margin-bottom: 0;
+        font-size: 40px;
+    }
+
     hr{
-        width: 100%;
-        color: #80808020;
+        color: gray;
+        opacity: 0.25;
     }
 
     .title{
