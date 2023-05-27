@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 # it's ogre
-*unused
+.unused
+build
 user
