@@ -31,7 +31,7 @@
     $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
 
     // avatar
-    const avatar_user_default = localServer + "./img/user_default.png";
+    const avatar_user_default = localServer + "/img/user_default.png";
     let avatar_bot_url = localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "")
     let avatar_user_url = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
     
