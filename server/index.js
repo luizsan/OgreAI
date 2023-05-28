@@ -8,6 +8,7 @@ import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
 
+import open from "open"
 
 import { Character } from "./lib/character.js"
 import { Chat } from "./lib/chat.js"
@@ -42,10 +43,13 @@ app.use(express.static('public', {
 
 app.use('/user', express.static(_userPath, { fallthrough: false, index: false,  maxAge: -1  }));
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
-app.use('/', express.static(_buildPath, { maxAge: -1  }));
-
 // startup 
 await LoadAPIModes()
+
+if( fs.existsSync(_buildPath) ){
+    app.use('/', express.static(_buildPath, { maxAge: -1  }));
+    open( "http://localhost:" + port )
+}
 
 app.listen(port, () => {
     console.log( chalk.cyan.bold( "\nStarted OgreAI server at:" ))
