@@ -1,7 +1,7 @@
 # OgreAI
 A clean and modular AI chatbot client
 
-![](https://raw.githubusercontent.com/luizsan/OgreAI/svelte/docs/img/sample_chat.png)
+![](https://raw.githubusercontent.com/luizsan/OgreAI/main/docs/img/sample_chat.png)
 
 ### Features
  - Light, fast, easy to use and bloat-free interface
