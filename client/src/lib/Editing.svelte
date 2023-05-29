@@ -38,13 +38,7 @@
                     })
                 }
             }
-
-            if( $creating && $editing.metadata.avatar ){
-                avatar = $editing.metadata.avatar;
-            }else{
-                avatar = `${localServer + "/" + $editing.metadata.filepath.replace("../", "")}?${$editing.last_changed}`
-                avatar = avatar.replaceAll("\\", "/")
-            }
+            refreshAvatar();
         }
     }
 
@@ -65,7 +59,8 @@
     }
 
     async function ApplyChanges(){
-        $fetching = true 
+        $fetching = true
+        $editing.last_changed = Date.now()
 
         const formData = new FormData();
         const fileName = $creating ? $editing.name + "-" + Date.now() : $editing.metadata.filepath
@@ -108,6 +103,9 @@
                     if( $currentChat ){
                         $currentChat.participants[0] = edited.name
                     }
+
+                    refreshAvatar();
+                    avatar = avatar;
                 }
             }
         }
@@ -117,6 +115,11 @@
 
     async function DeleteCharacter(){
         if( $editing && window.confirm("Are you sure you want to delete this character?\nThis action is irreversible!")){
+            if( $editing.metadata.filepath === $currentCharacter.metadata.filepath ){
+                $currentCharacter = null;
+                $currentChat = null;
+            }
+
             let result = await Server.request("/delete_character", {
                 filepath: $editing.metadata.filepath
             })
@@ -127,9 +130,6 @@
                     $currentCharacter = null;
                 }
                 $editing = null;
-            }else{
-                console.debug("not result")
-
             }
         }
     }
@@ -150,6 +150,16 @@
         }
         uploadedURL = URL.createObjectURL(uploadInput.files[0])
         $editing.metadata.avatar = uploadedURL
+        refreshAvatar();
+    }
+
+    function refreshAvatar(){
+        if( $creating && $editing.metadata.avatar ){
+            avatar = $editing.metadata.avatar;
+        }else{
+            avatar = `${localServer + "/" + $editing.metadata.filepath.replace("../", "")}?${$editing.last_changed}`
+            avatar = avatar.replaceAll("\\", "/")
+        }
     }
 
     function Close(){
