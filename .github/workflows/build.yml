@@ -1,0 +1,27 @@
+name: Build & Release
+on:
+  push:
+    branches: releases
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with: 
+        node-version: '18'
+    - name: Build Svelte client
+      run: |
+        cd client
+        npm ci
+        npm run build
+    - name: Zip package
+      run: |
+        zip -r ogreai.zip server img build open_normal.bat
+    - name: Archive output
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build
+        path: ogreai.zip
