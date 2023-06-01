@@ -54,6 +54,7 @@ button {
     cursor: pointer;
     background: none;
     border: none;
+    font-family: var( --default-font-face );
 }
 
 input[type="text"].component, input[type="password"].component,textarea.component, select.component{

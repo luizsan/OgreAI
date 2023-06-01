@@ -77,6 +77,9 @@
         })
         
         await getCharacterList()
+
+        let favs = JSON.parse(window.localStorage.getItem("favorites"))
+        State.favoritesList.set( favs ? favs : [] )
         
         const settings = get( State.currentSettings )
         const mode = settings.api_mode

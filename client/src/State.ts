@@ -22,6 +22,7 @@ export const history = writable( false )
 export const characterList = writable( [] )
 export const chatList = writable( [] )
 export const deleteList = writable( [] )
+export const favoritesList = writable( [] )
 export const availableAPIModes = writable( [] )
 export const availableAPISettings = writable( [] )
 

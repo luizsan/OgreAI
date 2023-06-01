@@ -61,3 +61,7 @@
 .confirm{ color: rgb(64, 255, 128); }
 .confirm:hover{ color: rgb(144, 255, 220); }
 .confirm:active{ color: rgb(48, 128, 96); }
+
+.special{ color: rgb(255, 220, 64); }
+.special:hover{ color: rgb(255, 244, 144); }
+.special:active{ color: rgb(128, 120, 48); }

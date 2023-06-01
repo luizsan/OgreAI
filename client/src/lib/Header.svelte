@@ -22,9 +22,9 @@
 
 
 <header>
-    <button class="normal" on:click={ToggleSidebar}>{@html menu}</button>
+    <button class="normal" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
     <div class="title deselect">OGRE</div>
-    <button class="normal" on:click={ToggleSettings}>{@html settings}</button>
+    <button class="normal" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
 </header>
 
 
