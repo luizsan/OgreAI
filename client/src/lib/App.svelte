@@ -1,7 +1,7 @@
 <script lang="ts">
     
     // components
-    import Sidebar from './Sidebar.svelte'
+    import Browse from './Browse.svelte'
     import Editing from './Editing.svelte';
     import Options from './Options.svelte';
     import Header from './Header.svelte'
@@ -54,7 +54,7 @@
                 <Loading width={48} height={48}/>
             </div>
         {/if}
-        <Sidebar/>
+        <Browse/>
         <Editing/>
         <Options/>
     </div>

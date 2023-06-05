@@ -96,10 +96,12 @@
             if( streaming ){
                 const stream = response.body.pipeThrough( new TextDecoderStream() );
                 const reader = stream.getReader()
+                console.debug( "Awaiting stream..." )
                 let candidate = ReceiveStream(swipe)
 
                 function processText({ done, value }){
                     if(done || (value && value.done)){
+                        console.debug( "Received stream: %o", candidate )
                         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
                         return;
                     }
@@ -107,30 +109,27 @@
                     const lines = value.split('\n').filter((line: string) => line.trim() !== '');
                     for( const line of lines ){
                         const obj = JSON.parse(line)
-                        console.log( obj.streaming )
                         if( obj.streaming ){
                             candidate.text += obj.streaming.text
                             candidate.timestamp = obj.streaming.timestamp
                         }
-
                         scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
 
-                    // console.log( value );
                     return reader.read().then(processText)
                 }
                 return reader.read().then(processText)
             }else{
                 response.json().then(async data => {
-                    console.log("Received message: %o", data)
+                    console.debug("Received message: %o", data)
                     if( data.error ){
                         alert(`${data.error.type}\n${data.error.message}`)
                     }else{
                         ReceiveMessage( data )
                     }
                 }).catch(error => {
-                    console.log(error)
+                    console.error(error)
                 })
             }
         }).catch(error => {
@@ -322,9 +321,22 @@
 </div>
 
 <style>
+    .container {
+        --element-bg-normal: hsl(0, 0%, 33%);
+        --element-border-normal: 1px solid hsla(0, 0%, 50%, 0.5);
+        --element-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
+    }
+    
+    @media (prefers-color-scheme: light) {
+        .container{
+            --element-bg-normal: hsl(0, 0%, 90%);
+            --element-border-normal: 1px solid hsla(0, 0%, 75%, 0.5);
+            --element-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
+        }
+    }
+
     * {
-        scrollbar-color: #00000040 transparent;
-        scrollbar-width: thin;
+        scrollbar-color: #80808020 transparent;
     }
 
     .container{
@@ -357,10 +369,10 @@
 
     .input{
         align-items: center;
-        border-radius: 6px;
-        background: hsl(0, 0%, 33%);
-        border: 1.5px solid hsla(0, 0%, 50%, 0.5);
-        outline: 1px solid hsla(0, 0%, 10%, 0.5);
+        border-radius: 5px;
+        background: var( --element-bg-normal );
+        border: var( --element-border-normal );
+        outline: var( --element-outline-normal );
         box-shadow: 0px 4px 12px #18181840;
         column-gap: 0px;
         display: grid;
@@ -373,14 +385,6 @@
         position: relative;
         resize: none;
     }
-    
-    @media (prefers-color-scheme: light) {
-        .input{
-            background: hsl(0, 0%, 90%);
-            border: 1.5px solid hsla(0, 0%, 75%, 0.5);
-            outline: 1px solid hsla(0, 0%, 10%, 0.5);
-        }
-    }  
 
     .side{
         align-items: center;
@@ -424,10 +428,11 @@
         padding: 4px;
         top: 0px;
         left: 0px;
-        translate: 0 calc( -100% - 4px) 0;
-        border: 1px solid gray;
-        border-radius: 6px;
-        background-color: hsl(0, 0%, 30%);
+        translate: -1px calc( -100% - 2px) 0;
+        border-radius: 5px;
+        background: var( --element-bg-normal );
+        border: var( --element-border-normal );
+        outline: var( --element-outline-normal );
     }
 
     .options-list hr{

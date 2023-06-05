@@ -8,7 +8,7 @@
     let searchField : HTMLInputElement;
     let searchResults : Array<ICharacter> = $characterList;
     $: {
-        if( $favoritesList ){
+        if( $characterList || $favoritesList ){
             searchResults = UpdateList()
         }
     }
@@ -36,6 +36,7 @@
     }
 
     function UpdateList(){
+        // search filter
         if( !searchField || !searchField.value ){
             searchResults = [...$characterList];
         }else{
@@ -43,11 +44,11 @@
                 return character.name.toLowerCase().indexOf(searchField.value.toLowerCase()) > -1;
             })
         }
-
-        searchResults = [
-            ...searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) > -1),
-            ...searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) < 0)
-        ]
+        
+        // favorites first
+        let a = searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) > -1)
+        let b = searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) < 0)
+        searchResults = [...a, ...b]
         
         return searchResults
     }
@@ -83,10 +84,6 @@
 
 
 <style>
-    *::-webkit-scrollbar{
-        width: 0px;
-    }
-
     div{
         box-sizing: border-box;
     }
@@ -96,6 +93,8 @@
     }
 
     .main{
+        --scrollbar-bg: hsl(0, 0%, 15%);
+
         background: hsl(0, 0%, 15%);
         border-right: 1px solid hsl(0, 0%, 33%);
         bottom: 0px;
@@ -113,12 +112,14 @@
         width: var( --side-width );
         max-width: 100%;
 
+        /* box-shadow: 4px 0px 4px 0px #00000040; */
+
         transition: translate 0.15s ease;
         translate: -100% 0 0;
     }
 
     hr{
-        width: 100%;
+        width: 90%;
         opacity: 0.25;
     }
 

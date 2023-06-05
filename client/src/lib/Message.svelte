@@ -88,7 +88,8 @@
 
     export function EditMessage(){
         SetEditing(false)
-        if( editedText.length < 1 ){
+        editedText = editedText.trim()
+        if( !editedText ){
             DeleteCandidate();
         }else{
             $currentChat.messages[id].candidates[index].text = editedText;
@@ -207,8 +208,8 @@
         {#if editing}
             <textarea class="editing" use:AutoResize={editedText} bind:value={editedText}></textarea>
             <div class="instruction">
-                Escape to <span on:mousedown={() => SetEditing(false)}>Cancel</span>, 
-                Ctrl+Enter to <span on:mousedown={EditMessage}>Confirm</span>
+                Escape to <span on:mousedown={() => SetEditing(false)} class="info">Cancel</span>, 
+                Ctrl+Enter to <span on:mousedown={EditMessage} class="info">Confirm</span>
             </div>
         {:else}
             <div class="text">{@html displayText}</div>
@@ -334,6 +335,10 @@
         line-height: 90%;
     }
 
+    .text :global(img){
+        max-width: 100%;
+    }
+
     .editing{
         box-sizing: border-box;
         width: 100%;
@@ -346,7 +351,7 @@
         outline: none;
         color: #D0D0D0;
         font-size: 80%;
-        background: #00000040;
+        background: #404040;
         border-radius: 4px;
         margin: 8px 0px;
     }
@@ -357,12 +362,7 @@
     }
 
     .instruction span{
-        color: var( --accent-color-normal );
         cursor: pointer;
-    }
-
-    .instruction span:hover{
-        color: var( --accent-color-light )
     }
 
     .footer{

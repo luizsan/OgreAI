@@ -2,36 +2,6 @@
     position: relative;
     margin: 8px 0px 0px 0px;
     font-family: var( --default-font-face );
-
-    scrollbar-width: auto;
-    scrollbar-color: var( --accent-color-dark ) transparent;
-}
-
-.component:focus{
-    scrollbar-color: var( --accent-color-normal ) transparent;
-}
-
-.component::-webkit-scrollbar{
-    width: 14px;
-}
-
-.component::-webkit-scrollbar-track {
-    border-radius: 8px;
-    background-color: transparent;
-}
-
-.component::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: var( --component-bg-normal );
-    background-color: var( --accent-color-normal );
-    margin: 4px;
-}
-
-.component:focus::-webkit-scrollbar-thumb {
-    border-color: var( --component-bg-hover );
-    background-color: var( --accent-color-light );
 }
 
 .component::-webkit-resizer {
@@ -48,6 +18,10 @@
     background: var( --component-bg-hover );
     border-right-color: var( --component-color-hover );
     border-bottom-color: var( --component-color-hover );
+}
+
+.component::placeholder{
+    color: #FFFFFF40;
 }
 
 button {
@@ -67,14 +41,16 @@ input[type="text"].component, input[type="password"].component,textarea.componen
     box-shadow: 0px 4px 8px 0px #00000030;
     box-sizing: border-box;
     color: var( --component-color-normal );
-    font-family: monospace;
-    font-size: 85%;
+    font-family: var( --default-font-face );
+    font-size: 90%;
     padding: 8px;
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
     transition-duration: 0.125s; 
     transition-timing-function: ease;
+
+    --scrollbar-bg: var( --component-bg-normal )
 }
 
 textarea.component{
@@ -84,16 +60,26 @@ textarea.component{
     resize: vertical;
 }
 
+select.component{
+    cursor: pointer;
+}
+
+select.component option{
+    font-size: 90%;
+}
+
 input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus {
     color: var( --component-color-hover );
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover );
     outline-color: var( --component-border-hover );
+    --scrollbar-bg: var( --component-bg-hover )
 }
 
 input[type="checkbox"].component{
     width: 24px;
     height: 24px;
+    cursor: pointer;
 }
 
 button.component{

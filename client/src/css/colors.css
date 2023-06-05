@@ -6,7 +6,7 @@
     --accent-color-normal: rgb(48, 128, 192);
     --accent-color-light: rgb(96, 192, 220);
 
-    --component-color-normal: hsl(0, 0%, 66%);
+    --component-color-normal: hsl(0, 0%, 75%);
     --component-color-hover: hsl(0, 0%, 100%);
     --component-color-disabled: hsl(0, 0%, 50%);
     --component-bg-normal: hsl(0, 0%, 12%);
@@ -16,6 +16,8 @@
     --component-border-hover: hsl(0, 0%, 66%);
     --component-border-disabled: hsl(0, 0%, 25%);
 
+    --scrollbar-bg: hsl( --default-bg-color );
+    
     color: var( --default-font-color );
     background-color: var( --default-bg-color );
 }
@@ -43,6 +45,8 @@
         --component-border-normal: hsl(0, 0%, 50%);
         --component-border-hover: hsl(0, 0%, 33%);
         --component-border-disabled: hsl(0, 0%, 25%);
+
+        --scrollbar-bg: hsl(0, 0%, 100%);
     }
 
     .normal{ color: hsl(0, 0%, 33% ) }

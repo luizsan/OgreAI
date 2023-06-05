@@ -62,7 +62,7 @@
             </div>
             
         {/if}
-        <button class="favorite" class:special={favorited} class:normal={!favorited} on:click|stopPropagation={() => FavoriteCharacter(filename)}>{@html SVG.star}</button>
+        <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filename)}>{@html SVG.star}</button>
     </button>
 </div>
 
@@ -132,7 +132,7 @@
     }
     
     .sub{
-        direction: rtl;
+        /* direction: rtl; */
         overflow: hidden;
         text-overflow: ellipsis;
 
@@ -147,16 +147,20 @@
     
     .favorite{
         position: absolute;
-        top: 50%;
-        translate: 0 -50% 0;
+        top: 0px;
         right: 0px;
-        background: hsl(0, 0%, 10%);
-        border: 1px solid hsl(0, 0%, 20%);
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 100%;
+        opacity: 0.15;
+        filter: grayscale(0.666666);
+        
     }
-
+    
+    .checked{
+        opacity: 1;
+        filter:grayscale(0);
+    }
+    
     .favorite :global(svg){
         margin-top: 2px;
         width: 16px;
