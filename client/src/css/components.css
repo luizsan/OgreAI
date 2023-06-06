@@ -54,6 +54,7 @@ input[type="text"].component, input[type="password"].component, textarea.compone
     transition-duration: 0.125s; 
     transition-timing-function: ease;
 
+    scrollbar-width: auto;
     --scrollbar-bg: var( --component-bg-normal )
 }
 
