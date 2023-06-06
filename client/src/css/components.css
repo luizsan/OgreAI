@@ -31,7 +31,11 @@ button {
     font-family: var( --default-font-face );
 }
 
-input[type="text"].component, input[type="password"].component,textarea.component, select.component{
+input[type="text"].component, input[type="password"].component, select.component{
+    height: 32px;
+}
+
+input[type="text"].component, input[type="password"].component, textarea.component, select.component{
     background: var( --component-bg-normal );
     border-style: solid;
     outline: 1px solid var( --component-border-normal );
