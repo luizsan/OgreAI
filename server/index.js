@@ -46,9 +46,13 @@ app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, max
 // startup 
 await LoadAPIModes()
 
-if( fs.existsSync(_buildPath) ){
-    app.use('/', express.static(_buildPath, { maxAge: -1  }));
-    open( "http://localhost:" + port )
+
+const args = process.argv.slice(2)
+if (args.includes('--autorun')) {
+    if( fs.existsSync(_buildPath) ){
+        app.use('/', express.static(_buildPath, { maxAge: -1  }));
+        open( "http://localhost:" + port )
+    }
 }
 
 app.listen(port, () => {
@@ -256,7 +260,7 @@ app.post("/generate", parser, async function(request, response){
             }else{
                 result.text().then(raw => {
                     let data = api.receiveData( raw, swipe )     
-                    console.debug( chalk.blue( data ))
+                    console.debug( chalk.blue( "Received message" ))
                     response.send(data);
                 })
             }
@@ -281,9 +285,8 @@ async function LoadAPIModes(){
             let filepath = path.join("file://", __dirname, _modulePath, files[i] ).replaceAll("\\", "/");
             let target = path.basename( files[i], ".js" )
             let api = await import(filepath).then((module) => module.default);
-
-            // check for all required components for an api to work
-            if( !api || !api.API_NAME || !api.API_SETTINGS || !api.getStatus || !api.getTokenConsumption || !api.makePrompt || !api.generate || !api.receiveData ){
+            
+            if( !ValidateAPIMode(api) ){
                 console.warn( chalk.yellow( `Could not load API module "${target}": Invalid export, missing function or missing field` ))
                 continue
             }
@@ -297,4 +300,17 @@ async function LoadAPIModes(){
     }
     console.debug( chalk.green( `Loaded ${API_LIST.length} API module(s)`))
     return API_LIST;
+}
+
+// checks for all required components for an api module to work
+function ValidateAPIMode(api){
+    if( !api ) return false;
+    if( !api.API_NAME ) return false;
+    if( !api.API_SETTINGS ) return false;
+    if( !api.getStatus ) return false;
+    if( !api.getTokenConsumption ) return false;
+    if( !api.makePrompt ) return false;
+    if( !api.generate ) return false;
+    if( !api.receiveData ) return false;
+    return true;
 }

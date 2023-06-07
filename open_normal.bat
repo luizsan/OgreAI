@@ -9,7 +9,7 @@ if not exist build (
 
 cd server
 start "" /b /wait cmd /c "npm install"
-start "" cmd /c "npm run start"
+start "" cmd /c "npm run autorun"
 cd ..
 
 exit

@@ -4,7 +4,8 @@
   "type": "module",
   "version": "0.2.0",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "autorun": "node index.js --autorun"
   },
   "dependencies": {
     "chalk": "^5.2.0",
