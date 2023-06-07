@@ -109,13 +109,12 @@
 
 <style>
     .base{
-        width: 100%;
         background: #00000040;
         display: flex;
         flex-direction: column;
         grid-template-columns: 200px auto;
         box-sizing: border-box;
-        margin: 4px 0px;
+        margin: 4px 8px;
         border-radius: 8px;
         padding: 20px;
         gap: 4px;
