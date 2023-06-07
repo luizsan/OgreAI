@@ -301,7 +301,7 @@
                         <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
                         <hr>
                         <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
-                        <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages<span class="shortcut">Ctrl+Delete</span></button>
+                        <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
                     </div>
                 {/if}
                 
@@ -364,7 +364,6 @@
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 8px 0px;
-        box-sizing: border-box;
     }
 
     .input{
@@ -446,6 +445,9 @@
         border-radius: 3px;
         text-align: left;
         padding: 8px 16px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
     }
 
     .options-item :global(svg){
@@ -465,7 +467,8 @@
     }
 
     .shortcut{
-        margin-left: 24px;
+        padding-left: 48px;
+        margin-left: auto;
         float: right;
         font-size: 80%;
         color: #FFFFFF40;
