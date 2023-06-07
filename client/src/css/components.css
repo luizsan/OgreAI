@@ -24,6 +24,7 @@ button {
     background: none;
     border: none;
     font-family: var( --default-font-face );
+    width: fit-content;
 }
 
 input[type="text"].component, input[type="password"].component, select.component{
@@ -124,6 +125,16 @@ button.component:active, button.component:disabled{
     display: flex;
     place-content: center;
     place-items: center;
+}
+
+.section{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.horizontal{
+    flex-direction: row;
 }
 
 .hidden{

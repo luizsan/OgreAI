@@ -121,9 +121,7 @@
 
 
 <div class="main" class:active={$sectionCharacters} use:clickOutside on:outclick={Close}>
-
-        
-        <div style="display: flex; flex-direction: rows; gap: 8px">
+        <div class="section horizontal">
             <button class="component wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
             <!-- <button class="system">{@html SVG.download}</button> -->
             <button class="component wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
@@ -191,12 +189,6 @@
 
         transition: translate 0.15s ease;
         translate: -100% 0 0;
-    }
-
-    .section{
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
     }
 
     .separator{

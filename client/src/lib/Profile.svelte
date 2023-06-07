@@ -44,12 +44,6 @@
         opacity: 0.25;
     }    
 
-    .section{
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
     .title{
         font-weight: 600;
         margin: 0px;

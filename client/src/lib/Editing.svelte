@@ -195,39 +195,51 @@
         </div>
 
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
-            <div class="wide">
-                <h3 class="title">Character name</h3>
-                <p class="explanation">The name of the character displayed in chat.</p>
+            <div class="section wide">
+                <div>
+                    <h3 class="title">Character name</h3>
+                    <p class="explanation">The name of the character displayed in chat.</p>
+                </div>
                 <input type="text" class="component wide" bind:value={$editing.name}>
             </div>
             
-            <div class="wide">
-                <h3 class="title">Greeting</h3>
-                <p class="explanation">The character will start a chat with this message.</p>
+            <div class="section wide">
+                <div>
+                    <h3 class="title">Greeting</h3>
+                    <p class="explanation">The character will start a chat with this message.</p>
+                </div>
                 <textarea class="component wide" rows=6 bind:value={$editing.greeting}></textarea>
             </div>
 
-            <div class="wide description">
-                <h3 class="title">Description</h3>
-                <p class="explanation">Description of personality and other characteristics.</p>
+            <div class="section wide description">
+                <div>
+                    <h3 class="title">Description</h3>
+                    <p class="explanation">Description of personality and other characteristics.</p>
+                </div>
                 <textarea class="component wide" rows=9 bind:value={$editing.description}></textarea>
             </div>
             
-            <div class="wide personality">
-                <h3 class="title">Personality</h3>
-                <p class="explanation">A brief description of the personality.</p>
+            <div class="section wide personality">
+                <div>
+                    <h3 class="title">Personality</h3>
+                    <p class="explanation">A brief description of the personality.</p>
+                </div>
                 <textarea class="component wide" rows=3 bind:value={$editing.personality}></textarea>
             </div>
             
-            <div class="wide scenario">
-                <h3 class="title">Scenario</h3>
-                <p class="explanation">Circumstances and context of the dialogue.</p>
+            <div class="section wide scenario">
+                <div>
+                    <h3 class="title">Scenario</h3>
+                    <p class="explanation">Circumstances and context of the dialogue.</p>
+                </div>
                 <textarea class="component wide" rows=3 bind:value={$editing.scenario}></textarea>
             </div>
             
-            <div class="wide dialogue">
-                <h3 class="title">Example dialogue</h3>
-                <p class="explanation">Forms a personality more clearly.</p>
+            <div class="section wide dialogue">
+                <div>
+                    <h3 class="title">Example dialogue</h3>
+                    <p class="explanation">Forms a personality more clearly.</p>
+                </div>
                 <textarea class="component wide" rows=6 bind:value={$editing.dialogue}></textarea>
             </div>
 

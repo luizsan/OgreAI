@@ -50,7 +50,7 @@
             <div class="section">
                 <input type="text" class="component wide" placeholder="Insert API URL..." bind:value={$currentSettings[api_mode].api_url} style="flex: 1 1 auto">
                 <input type="password" class="component wide" placeholder="Insert API authentication..." bind:value={$currentSettings[api_mode].api_auth} style="flex: 1 1 auto">
-                <button class="component normal" style="width: fit-content" on:click={Server.getAPIStatus}>Check Status</button>
+                <button class="component normal" on:click={Server.getAPIStatus}>Check Status</button>
             </div>
         </div>
     </div>
@@ -102,12 +102,6 @@
     hr{
         color: gray;
         opacity: 0.25;
-    }
-
-    .section{
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
     }
 
     .title{
