@@ -20,10 +20,6 @@
     border-bottom-color: var( --component-color-hover );
 }
 
-.component::placeholder{
-    color: #FFFFFF40;
-}
-
 button {
     cursor: pointer;
     background: none;
@@ -110,6 +106,10 @@ button.component:active, button.component:disabled{
     background: var( --component-bg-disabled );
     border-color: var( --component-border-disabled );
     outline-color: var( --component-border-disabled );
+}
+
+.component::placeholder{
+    color: #808080A0;
 }
 
 .wide{

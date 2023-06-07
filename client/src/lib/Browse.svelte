@@ -4,6 +4,7 @@
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "./Server.svelte";
     import { clickOutside } from "../utils/ClickOutside";
+    import { onMount } from "svelte";
 
     let searchField : HTMLInputElement;
     let searchResults : Array<ICharacter> = $characterList;
@@ -16,6 +17,10 @@
         }
     }
 
+    onMount(() => {
+        sortField.selectedIndex = sortMode;
+    })
+    
     async function NewCharacter(){
         $fetching = true;
         await Server.request( "/new_character" ).then(data => {
@@ -117,7 +122,6 @@
 
 <div class="main" class:active={$sectionCharacters} use:clickOutside on:outclick={Close}>
 
-    <div class="top">
         
         <div style="display: flex; flex-direction: rows; gap: 8px">
             <button class="component wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
@@ -145,13 +149,11 @@
         <button class="normal cancel" on:click={ClearSearch}>{@html SVG.close} Clear search results</button>
         {/if}
     
-    </div>
+        <div class="separator"/>
 
-    <div class="list">
         {#each searchResults as char, i}
             <Character id={i} character={char} label={true} />
         {/each}
-    </div>
 
 </div>
 
@@ -182,33 +184,17 @@
         width: var( --side-width );
         max-width: 100%;
 
+        padding: 16px;
+        gap: 12px;
+        overflow-y: scroll;
         /* box-shadow: 4px 0px 4px 0px #00000040; */
 
         transition: translate 0.15s ease;
         translate: -100% 0 0;
     }
 
-    .top{
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 20px;
-        
-        border-bottom: 1px solid hsla(0, 0%, 50%, 0.25);
-        box-shadow: 0px 20px 20px -20px #00000040;
-    }
-
-    .top button{
-        margin: 0px;
-    }
-
-    .list{
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        padding: 16px;
+    .separator{
+        min-height: 8px;
     }
 
     .active{
