@@ -129,7 +129,7 @@
             <button class="component wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
         </div>
         
-        <div class="select">
+        <div class="section select">
             <label for="sort" class="deselect">Sort order</label>
             <select name="sort" class="component" on:change={UpdateList} bind:this={sortField}>
                 <option>Creation date (newest)</option>
@@ -184,13 +184,19 @@
         width: var( --side-width );
         max-width: 100%;
 
-        padding: 16px;
+        padding: 20px;
         gap: 12px;
         overflow-y: scroll;
         /* box-shadow: 4px 0px 4px 0px #00000040; */
 
         transition: translate 0.15s ease;
         translate: -100% 0 0;
+    }
+
+    .section{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .separator{

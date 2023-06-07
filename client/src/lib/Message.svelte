@@ -329,10 +329,16 @@
     }
 
     .text :global(code){
+        background: hsl(285, 5%, 12%);
+        padding: 2px;
+        font-size: 85%;
+    }
+
+    .text :global(pre){
         white-space: pre-wrap;
-        background: #00000080;
-        font-size: 90%;
-        line-height: 90%;
+        background: hsl(285, 5%, 12%);
+        padding: 8px;
+        border-radius: 6px;
     }
 
     .text :global(img){

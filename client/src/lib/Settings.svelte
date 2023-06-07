@@ -47,10 +47,10 @@
     <div class="section">
         <div class="title"><div class="inline">API Target <Status/></div></div>
         <div class="setting">
-            <div class="">
+            <div class="section">
                 <input type="text" class="component wide" placeholder="Insert API URL..." bind:value={$currentSettings[api_mode].api_url} style="flex: 1 1 auto">
                 <input type="password" class="component wide" placeholder="Insert API authentication..." bind:value={$currentSettings[api_mode].api_auth} style="flex: 1 1 auto">
-                <button class="component normal" style="flex: 0 0 auto" on:click={Server.getAPIStatus}>Check Status</button>
+                <button class="component normal" style="width: fit-content" on:click={Server.getAPIStatus}>Check Status</button>
             </div>
         </div>
     </div>
@@ -59,8 +59,10 @@
 
 {#each Object.entries( $availableAPISettings ) as [key, entry]}
     <div class="section">
-        <div class="title">{entry.title}</div>
-        <div class="explanation">{entry.description}</div>
+        <div>
+            <div class="title">{entry.title}</div>
+            <div class="explanation">{entry.description}</div>
+        </div>
         <div class="setting">
             {#if entry.type == "text"}
                 <input type="text" class="component wide" bind:value={$currentSettings[api_mode][key]}>
@@ -100,6 +102,12 @@
     hr{
         color: gray;
         opacity: 0.25;
+    }
+
+    .section{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .title{

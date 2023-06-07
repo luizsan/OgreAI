@@ -1,6 +1,5 @@
 .component{
     position: relative;
-    margin: 8px 0px 0px 0px;
     font-family: var( --default-font-face );
 }
 
@@ -84,7 +83,7 @@ input[type="checkbox"].component{
 }
 
 button.component{
-    padding: 8px 24px;
+    padding: 8px 20px;
     background: var( --component-bg-normal );
     outline: 1px solid var( --component-border-normal );
     border-radius: 3px;
@@ -136,5 +135,5 @@ button.component:active, button.component:disabled{
 }
 
 .deselect{
-    user-select: none;
+    user-select: none !important;
 }

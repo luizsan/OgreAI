@@ -11,14 +11,19 @@
     </div>
 
     <div class="section">
-        <div class="title">Display Name</div>
-        <div class="explanation">User's name displayed in chat</div>
+        <div>
+            <div class="title">Display Name</div>
+            <div class="explanation">User's name displayed in chat</div>
+        </div>
+
         <input type="text" class="component wide" bind:value={$currentProfile.name}>
     </div>
 
     <div class="section">
-        <div class="title">Avatar</div>
-        <div class="explanation">User avatar URL</div>
+        <div>
+            <div class="title">Avatar</div>
+            <div class="explanation">User avatar URL</div>
+        </div>
         <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
     </div>
 </div>
@@ -38,6 +43,12 @@
         color: gray;
         opacity: 0.25;
     }    
+
+    .section{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
     .title{
         font-weight: 600;
