@@ -54,11 +54,12 @@
                 <Loading width={48} height={48}/>
             </div>
         {/if}
-        <Browse/>
         <Editing/>
         <Options/>
+        <Header/>
+        <Browse/>
     </div>
-    <Header/>
+
 {:else}
     <div class="fullscreen center loading" transition:fade={{duration:125}}>
         {#if $connected === null }

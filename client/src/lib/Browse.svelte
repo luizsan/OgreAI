@@ -11,6 +11,8 @@
     let sortField : HTMLSelectElement;
     let sortMode : number = parseInt( window.localStorage.getItem("sort_mode"))
 
+    let pinned = false;
+
     $: {
         if( $characterList || $favoritesList ){
             searchResults = UpdateList()
@@ -37,7 +39,7 @@
     }
 
     function Close(){
-        if( $editing ){
+        if( pinned || $editing ){
             return
         }
         $sectionCharacters = false;
@@ -57,6 +59,10 @@
         }else{ 
             return 0
         } 
+    }
+
+    function togglePin(){
+        pinned = !pinned;
     }
 
     function UpdateList(){
@@ -121,37 +127,44 @@
 
 
 <div class="main" class:active={$sectionCharacters} use:clickOutside on:outclick={Close}>
-        <div class="section horizontal">
-            <button class="component wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
-            <!-- <button class="system">{@html SVG.download}</button> -->
-            <button class="component wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
-        </div>
-        
-        <div class="section select">
-            <label for="sort" class="deselect">Sort order</label>
-            <select name="sort" class="component" on:change={UpdateList} bind:this={sortField}>
-                <option>Creation date (newest)</option>
-                <option>Creation date (oldest)</option>
-                <option>Alphabetical (ascending)</option>
-                <option>Alphabetical (descending)</option>
-            </select>
-            <div class="icon">{@html SVG.sort}</div>
-        </div>
-        
-        <div class="search">
-            <input name="search" type="text" class="component" autocomplete="off" placeholder="Search characters..." bind:this={searchField} on:input={UpdateList}>
-            <div class="icon">{@html SVG.search}</div>
-        </div>
 
-        {#if searchField && searchField.value}
-        <button class="normal cancel" on:click={ClearSearch}>{@html SVG.close} Clear search results</button>
-        {/if}
+    <div class="section horizontal">
+        <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
+        <div style="margin-left:auto"/>
+        <button class="pin normal" on:click={() => $sectionCharacters = false}>{@html SVG.close}</button>
+    </div>
+
+    <div class="section horizontal">
+        <button class="component wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
+        <!-- <button class="system">{@html SVG.download}</button> -->
+        <button class="component wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
+    </div>
     
-        <div class="separator"/>
+    <div class="section select">
+        <label for="sort" class="deselect">Sort order</label>
+        <select name="sort" class="component" on:change={UpdateList} bind:this={sortField}>
+            <option>Creation date (newest)</option>
+            <option>Creation date (oldest)</option>
+            <option>Alphabetical (ascending)</option>
+            <option>Alphabetical (descending)</option>
+        </select>
+        <div class="icon">{@html SVG.sort}</div>
+    </div>
+    
+    <div class="search">
+        <input name="search" type="text" class="component" autocomplete="off" placeholder="Search characters..." bind:this={searchField} on:input={UpdateList}>
+        <div class="icon">{@html SVG.search}</div>
+    </div>
 
-        {#each searchResults as char, i}
-            <Character id={i} character={char} label={true} />
-        {/each}
+    {#if searchField && searchField.value}
+    <button class="normal cancel" on:click={ClearSearch}>{@html SVG.close} Clear search results</button>
+    {/if}
+
+    <div class="separator"/>
+
+    {#each searchResults as char, i}
+        <Character id={i} character={char} label={true} />
+    {/each}
 
 </div>
 
@@ -182,7 +195,7 @@
         width: var( --side-width );
         max-width: 100%;
 
-        padding: 20px;
+        padding: 16px 20px;
         gap: 12px;
         overflow-y: scroll;
         /* box-shadow: 4px 0px 4px 0px #00000040; */
@@ -231,7 +244,7 @@
         color: gray;
     }
 
-    .icon :global(svg){
+    .icon :global(svg), .cancel :global(svg){
         width: 16px;
         height: 16px;
     }
@@ -242,12 +255,17 @@
         justify-content: center;
         width: 100%;
         gap: 8px;
-
     }
 
-    .cancel :global(svg){
-        width: 16px;
-        height: 16px;
+    .pin{
+        width: 24px;
+        height: 24px;
+        padding: 0px;
+    }
+
+    .pin :global(svg){
+        width: 20px;
+        height: 20px;
     }
 
     .select{
