@@ -10,6 +10,7 @@
     let searchResults : Array<ICharacter> = $characterList;
     let sortField : HTMLSelectElement;
     let sortMode : number = parseInt( window.localStorage.getItem("sort_mode"))
+    let exclusion : Array<HTMLElement>;
 
     let pinned = false;
 
@@ -21,6 +22,7 @@
 
     onMount(() => {
         sortField.selectedIndex = sortMode;
+        exclusion = [document.getElementById("header")]
     })
     
     async function NewCharacter(){
@@ -126,12 +128,10 @@
 </script>
 
 
-<div class="main" class:active={$sectionCharacters} use:clickOutside on:outclick={Close}>
+<div class="main" class:active={$sectionCharacters} use:clickOutside={exclusion} on:outclick={Close}>
 
     <div class="section horizontal">
         <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
-        <div style="margin-left:auto"/>
-        <button class="pin normal" on:click={() => $sectionCharacters = false}>{@html SVG.close}</button>
     </div>
 
     <div class="section horizontal">
@@ -162,9 +162,13 @@
 
     <div class="separator"/>
 
-    {#each searchResults as char, i}
-        <Character id={i} character={char} label={true} />
-    {/each}
+    {#if searchResults && searchResults.length > 0}
+        {#each searchResults as char, i}
+            <Character id={i} character={char} label={true} />
+        {/each}
+    {:else}
+        <p class="unavailable deselect">No characters available</p>
+    {/if}
 
 </div>
 
@@ -182,7 +186,7 @@
         --scrollbar-bg: hsl(0, 0%, 15%);
 
         background: hsl(0, 0%, 15%);
-        border-right: 1px solid hsl(0, 0%, 33%);
+        /* border-right: 1px solid hsl(0, 0%, 33%); */
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         display: flex;
@@ -278,6 +282,14 @@
         font-size: 80%;
         font-weight: bolder;
         color: gray;
+    }
+
+    .unavailable{
+        font-size: 90%;
+        color: gray;
+        font-style: italic;
+        text-align: center;
+        opacity: 0.5;
     }
 
 </style>

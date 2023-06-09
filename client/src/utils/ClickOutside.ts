@@ -1,4 +1,4 @@
-export function clickOutside(node : HTMLElement, ignore?: Array<HTMLElement>) {
+export function clickOutside(node : HTMLElement, exclude?: Array<HTMLElement>) {
 
     const handleClick = (event: Event) => {
         const target = event.target as HTMLElement;
@@ -6,9 +6,9 @@ export function clickOutside(node : HTMLElement, ignore?: Array<HTMLElement>) {
             return;
         }
 
-        if(ignore){
-            for(let i = 0; i < ignore.length; i++){
-                if(ignore[i] && ignore[i].contains(target)){
+        if(exclude){
+            for(let i = 0; i < exclude.length; i++){
+                if(exclude[i] && exclude[i].contains(target)){
                     return
                 }
             }
@@ -24,6 +24,9 @@ export function clickOutside(node : HTMLElement, ignore?: Array<HTMLElement>) {
 	document.addEventListener("click", handleClick, true);
 
 	return {
+        update(newValue?: Array<HTMLElement>){
+            exclude = newValue;
+        },
 		destroy() {
 			document.removeEventListener("click", handleClick, true);
 		}

@@ -54,10 +54,10 @@
                 <Loading width={48} height={48}/>
             </div>
         {/if}
+        <Browse/>
         <Editing/>
         <Options/>
         <Header/>
-        <Browse/>
     </div>
 
 {:else}

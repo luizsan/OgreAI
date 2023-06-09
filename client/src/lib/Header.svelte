@@ -21,7 +21,7 @@
 </script>
 
 
-<header>
+<header id="header">
     <button class="normal" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
     <div class="title deselect">OGRE</div>
     <button class="normal" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
@@ -42,6 +42,7 @@
         position: fixed;
         top: 0px;
         width: 100%;
+        z-index: 100;
     }
 
     button{
@@ -92,4 +93,5 @@
     .normal{ color: hsl(0, 0%, 50% ) }
     .normal:hover{ color: hsl(0, 0%, 100% ) }
     .normal:active{ color: hsl(0, 0%, 75% ) }
+    .normal:disabled{ color: hsla(0, 0%, 75%, 0.5 ) }
 </style>
