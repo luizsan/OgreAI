@@ -130,7 +130,7 @@
 
 <div class="main" class:active={$sectionCharacters} use:clickOutside={exclusion} on:outclick={Close}>
 
-    <div class="section horizontal">
+    <div class="section horizontal" style="justify-content: end">
         <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
     </div>
 
