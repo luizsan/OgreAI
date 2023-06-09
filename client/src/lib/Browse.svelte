@@ -185,7 +185,7 @@
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
-        background: hsl(0, 0%, 15%);
+        background: hsl(210, 3%, 15%);
         /* border-right: 1px solid hsl(0, 0%, 33%); */
         bottom: 0px;
         box-shadow: 3px 0px transparent;
