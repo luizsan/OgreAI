@@ -32,11 +32,12 @@
 
     // avatar
     const avatar_user_default = localServer + "/img/user_default.png";
-    let avatar_bot_url = localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "")
-    let avatar_user_url = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
-    
+    $: avatar_bot_url = localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "")
+    $: avatar_user_url = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
+    $: append = is_bot ? "?" + $currentCharacter.last_changed : "";
+
     $: avatar = (msg && msg.participant > -1) ? avatar_bot_url : avatar_user_url;
-    $: url = encodeURIComponent(avatar).replace(/%2F/g, '/').replace(/%3A/g, ':')
+    $: url = encodeURIComponent(avatar).replace(/%2F/g, '/').replace(/%3A/g, ':') + append;
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
@@ -198,7 +199,7 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy}>
-    <div class="avatar" style="background-image: url({url}?{$currentCharacter.last_changed})"></div>
+    <div class="avatar" style="background-image: url({url})"></div>
     <div class="content">
         <div class="author">
             <span class="name {authorType}">{author}</span>
