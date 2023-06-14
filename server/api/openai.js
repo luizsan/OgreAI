@@ -12,7 +12,7 @@ class OpenAI{
         model: {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
-            type: "select", default: "gpt-3.5-turbo", choices: [ "gpt-3.5-turbo", "gpt-4", "gpt-4-32k" ]
+            type: "select", default: "gpt-3.5-turbo", choices: [ "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k" ]
         },
 
         max_length: {
@@ -24,7 +24,7 @@ class OpenAI{
         context_size: {
             title: "Context Size",
             description: "Number of context tokens to submit to the AI for sampling. Make sure this is higher than Output Length. Higher values increase VRAM/RAM usage.",
-            type: "range", default: 1024, min: 128, max: 4096, step: 8,
+            type: "range", default: 1024, min: 128, max: 16384, step: 8,
         },
         
         temperature: {
@@ -199,7 +199,7 @@ class OpenAI{
     
         // console.debug("Sending prompt %o", outgoing_data)
         console.debug(`Sending prompt to ${outgoing_data.model}...`)
-        console.debug(prompt)
+        
 
         const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
         return fetch( url + "/v1/chat/completions", options )
