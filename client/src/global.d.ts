@@ -5,10 +5,7 @@ declare module "marked"
 declare namespace svelte.JSX {
 	interface HTMLAttributes<T> {
 		onoutclick?: (e: CustomEvent) => void
-	}
-
-	interface HTMLAttributes<T> {
-		onchatscroll?: (e: CustomEvent) => void
+        onchatscroll?: (e: CustomEvent) => void
 	}
 }
 
