@@ -247,7 +247,7 @@ app.post("/generate", parser, async function(request, response){
                     let data = api.receiveStream( td.decode(message), swipe )
                     if( data ){
                         if( !data.error ){
-                            console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
+                            // console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
                             // the newline at the end is required as sometimes the stream 
                             // can lag and the client will clump chunks together, so it's 
                             // easier to separate them by lines instead.
@@ -313,4 +313,9 @@ function ValidateAPIMode(api){
     if( !api.generate ) return false;
     if( !api.receiveData ) return false;
     return true;
+}
+
+function IsSubfolder(parent, sub){
+    const relative = path.relative(parent, sub);
+    return !relative.startsWith('..') && !path.isAbsolute(relative);
 }
