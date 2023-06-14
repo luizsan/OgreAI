@@ -6,7 +6,9 @@
     import { clickOutside } from '../utils/ClickOutside';
     import * as Server from './Server.svelte';
     import * as Format from '../Format';
-    
+
+    let messageElement : HTMLElement;
+
     export let id : number = -1
     export let generateSwipe = () => {}
     
@@ -82,6 +84,7 @@
     export function SetEditing(b : boolean){
         if(b){
             editedText = current.text
+            messageElement.scrollIntoView({ block: "nearest" })
         }
         SetPostActions(false)
         editing = b
@@ -95,6 +98,7 @@
         }else{
             $currentChat.messages[id].candidates[index].text = editedText;
             $currentChat = $currentChat;
+            messageElement.scrollIntoView({ block: "nearest" })
         }
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
@@ -198,7 +202,7 @@
 
 <svelte:body on:keydown={Shortcuts}/>
 
-<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy}>
+<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={messageElement}>
     <div class="avatar" style="background-image: url({url})"></div>
     <div class="content">
         <div class="author">
@@ -219,20 +223,19 @@
 
         {#if !editing}
             <div class="footer">
-                <button class="more normal" use:clickOutside on:click={TogglePostActions} on:outclick={() => SetPostActions(false)}>
+                <button class="dots normal" class:disabled={postActions} use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html dots}</div>
-
-                    {#if postActions}
-                        <div class="actions">
-                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                            <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
-                            {#if id > 0}
-                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
-                            {/if}
-                        </div>
-                    {/if}
-
                 </button>
+                
+                {#if postActions}
+                    <div class="actions">
+                        <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
+                        <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                        {#if id > 0}
+                            <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
+                        {/if}
+                    </div>
+                {/if}
 
                 {#if is_bot && id > 0}
                     <div class="swipes">
@@ -264,6 +267,7 @@
         position: relative; 
         min-width: 50%;
         margin: 4px;
+        scroll-margin: 8px;
         padding: 16px;
         border-radius: 8px;
         border-left: 4px solid transparent;
@@ -426,7 +430,7 @@
         visibility: visible;
     }
 
-    .more{
+    .dots{
         width: 30px;
         height: 100%;
         background: #00000020;
@@ -437,12 +441,12 @@
         justify-content: center;      
     }
 
-    .more .icon{
+    .dots .icon{
         width: 16px;
         height: 16px;
     }
 
-    .msg:hover .more{
+    .msg:hover .dots{
         visibility: visible;
     }
 
@@ -450,9 +454,9 @@
         position: absolute;
         width: fit-content;
         height: fit-content;
-        background: black;
+        background: hsl(0, 0%, 10%);
         border-radius: 4px;
-        box-shadow: 0px 3px 0px #00000020;
+        box-shadow: 0px 2px 0px #00000020;
         display: flex;
         flex-direction: row-reverse;
         translate: 0px -40px;
@@ -460,14 +464,14 @@
         right: 0px;
     }
 
-    .more:focus .actions{
+    .dots:focus .actions{
         display: flex;
     }
 
     .actions button{
         width: 40px;
         height: 36px;
-        border-radius: 2px;
+        border-radius: 4px;
     }
 
     .actions button :global(svg){
@@ -476,7 +480,7 @@
     }
 
     .actions button:hover {
-        background: #00000040;
+        background: hsl(0, 0%, 5%);
     }
 
     .toggle{
