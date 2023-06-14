@@ -104,7 +104,7 @@
     }
 
     async function CopyMessage(){
-        this.postActions = false;
+        postActions = false;
         await navigator.clipboard.writeText(current.text)
     }
 
@@ -223,20 +223,19 @@
 
         {#if !editing}
             <div class="footer">
-                <button class="dots normal" class:disabled={postActions} use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
+                <button class="dots normal" use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html dots}</div>
+                        {#if postActions}
+                        <div class="actions">
+                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
+                            <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                            {#if id > 0}
+                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
+                            {/if}
+                        </div>
+                    {/if}
                 </button>
                 
-                {#if postActions}
-                    <div class="actions">
-                        <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                        <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
-                        {#if id > 0}
-                            <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
-                        {/if}
-                    </div>
-                {/if}
-
                 {#if is_bot && id > 0}
                     <div class="swipes">
                         <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html arrow}</button>
