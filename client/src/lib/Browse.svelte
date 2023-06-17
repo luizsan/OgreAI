@@ -275,7 +275,6 @@
     .select{
         display: flex;
         flex-direction: column;
-        align-items: left;
     }
 
     .select label{
