@@ -271,8 +271,9 @@ class OpenAI{
                 if( text ){
                     message.streaming.text += text;
                 }
-            }catch(error) {
-                console.error(error);
+            }catch{
+                // console.log(obj)
+                // console.error(error);
             }
         }
 
