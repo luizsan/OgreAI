@@ -162,7 +162,7 @@ app.post("/copy_chat", parser, function(request, response){
 
     let copy = request.body.chat;
     copy.title = now;
-    copy.created = now;
+    copy.create_date = now;
     copy.last_interaction = now;
 
     let result = Chat.Save( copy, request.body.character )
@@ -170,7 +170,7 @@ app.post("/copy_chat", parser, function(request, response){
 })
 
 app.post("/delete_chat", parser, function(request, response){
-    let result = Chat.Delete( request.body.character, request.body.created )
+    let result = Chat.Delete( request.body.character, request.body.create_date )
     response.send( result )
 })
 

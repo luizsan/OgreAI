@@ -30,7 +30,7 @@
             $fetching = true;
             await Server.request("/delete_chat", { 
                 character: $currentCharacter, 
-                created: chat.created 
+                create_date: chat.create_date 
             })
 
             await Server.getChats( $currentCharacter )
@@ -81,7 +81,7 @@
     </div>
 
     <div class="data">
-        <div class="sub normal disabled">{"Created:\n" + getFormattedDate(chat.created)}</div>
+        <div class="sub normal disabled">{"Created:\n" + getFormattedDate(chat.create_date)}</div>
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
     

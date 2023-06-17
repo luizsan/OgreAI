@@ -12,7 +12,7 @@ class Chat{
         let timestamp = Date.now()
         this.title = timestamp.toString()
         this.participants = []
-        this.created = timestamp
+        this.create_date = timestamp
         this.last_interaction = timestamp
         this.messages = []
 
@@ -39,7 +39,10 @@ class Chat{
         for( let p = 0; p < chat.participants.length; p++ ){
             this.participants.push( chat.participants[p] )
         }
-        this.created = chat.created
+
+        if(chat.created){ this.created = chat.created }
+        if(chat.create_date){ this.create_date = chat.create_date }
+
         this.last_interaction = chat.last_interaction
         this.messages = []
         for( let m = 0; m < chat.messages.length; m++ ){
@@ -72,22 +75,31 @@ class Chat{
 
             let files = readdirSync(target)
             for(let i = 0; i < files.length; i++){
-                if(!files[i].toLowerCase().endsWith('.json')){
-                    continue;
-                }
-                
                 try{
-                    let filepath = path.join( target, files[i] )
-                    let content = readFileSync( filepath, "utf-8")
-                    let parsed = JSON.parse( content )
-                    if(parsed.messages < 1){
-                        continue;
+                    if(files[i].toLowerCase().endsWith('.json')){
+                        // OGRE
+                        let filepath = path.join( target, files[i] )
+                        let content = readFileSync( filepath, "utf-8")
+                        let parsed = JSON.parse( content )
+                        if(parsed.messages < 1){
+                            continue;
+                        }
+                        
+                        let new_chat = new Chat()
+                        new_chat.SetFrom( parsed )
+                        chats.push( new_chat )
+        
+                    }else if(files[i].toLowerCase().endsWith('.jsonl')){
+                        // TAVERN
+                        let filepath = path.join( target, files[i] )
+                        let content = readFileSync( filepath, "utf-8")
+                        let parsed = parseChatTavern( content )
+                        if( parsed ){
+                            let new_chat = new Chat()
+                            new_chat.SetFrom( parsed )
+                            chats.push( new_chat )
+                        }
                     }
-                    
-                    let new_chat = new Chat()
-                    new_chat.SetFrom( parsed )
-                    chats.push( new_chat )
-
                 }catch(error){
                     console.warn( chalk.yellow( error ))
                 }
@@ -103,7 +115,7 @@ class Chat{
         if( !character ) return;
         if( !character.name || character.name.length < 1 ) return;
     
-        let filename = chat.created + ".json";
+        let filename = chat.create_date + ".json";
         let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
         let target = path.join(folder, filename)
     
@@ -164,9 +176,9 @@ class Chat{
 
     }
 
-    static Delete( character, created ){
+    static Delete( character, create_date ){
         try{
-            let filename = created + ".json";
+            let filename = create_date + ".json";
             let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
             let target = path.join(folder, filename)
             unlinkSync(target)

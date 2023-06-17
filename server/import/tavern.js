@@ -1,3 +1,11 @@
+function decodeTimestamp(str){
+    // to whoever made me do this, I sincerely 
+    // hope you solve your skill issues someday
+    const [y, m, d, h, min, s, ms] = str.match(/\d+/g);
+    const date = new Date(y, m - 1, d, h || 0, min || 0, s || 0, ms || 0);
+    return date.getTime()
+}
+
 function parseChat( jsonl ){
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
@@ -5,31 +13,65 @@ function parseChat( jsonl ){
     }
 
     let info = JSON.parse( lines[0] )
+    if( typeof(info.create_date) === "string" ){
+        if( info.create_date.indexOf("@") > -1 ){
+            info.create_date = decodeTimestamp(info.create_date)
+        }else{
+            info.create_date = new Date(info.create_date).getTime()
+        }
+    }
+
     let chat = {
         title: info.create_date.toString(),
         participants: [ info.character_name ],
-        created: info.create_date,
+        create_date: info.create_date,
         last_interaction: info.create_date,
         messages: []
     }
 
     for( let line = 1; line < lines.length; line++){
-        let old_msg = JSON.parse( lines[line] )
-        let new_msg = {
-            participant: old_msg.is_user ? -1 : 0,
+        let ref = JSON.parse( lines[line] )
+        let msg = {
+            participant: ref.is_user ? -1 : 0,
             index: 0,
-            candidates: [
-                {
-                    text: old_msg.mes,
-                    timestamp: old_msg.send_date, 
-                }
-            ]
+            candidates: []
         }
 
-        chat.messages.push( new_msg )
+        let timestamp = ref.send_date
+        if( typeof(timestamp) === "string" ){
+            if( timestamp.indexOf("@") > -1 ){
+                timestamp = decodeTimestamp(timestamp)
+            }else{
+                timestamp = new Date(timestamp).getTime()
+            }
+        }
+
+        if( ref.swipes ){
+            if( ref.swipe_id ){
+                msg.index = ref.swipe_id
+            }
+
+            for( let s = 0; s < ref.swipes.length; s++){
+                msg.candidates.push({
+                    text: ref.swipes[s],
+                    timestamp: timestamp,
+                })
+            }
+        }else{
+            msg.candidates.push({
+                text: ref.mes,
+                timestamp: timestamp,
+            })
+        }
+
+        if( timestamp > chat.create_date ){
+            chat.last_interaction = timestamp
+        }
+
+        chat.messages.push( msg )
     }
     
     return chat;
 }
 
-export { parseChat };
+export { parseChat, decodeTimestamp };

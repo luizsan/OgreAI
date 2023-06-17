@@ -25,7 +25,7 @@ interface ICharacter{
 interface IChat{
     title : string;
     participants : string[];
-    created : number;
+    create_date : number;
     last_interaction : number;
     messages : Array
 }

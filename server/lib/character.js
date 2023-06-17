@@ -6,6 +6,8 @@ import PNGtext from 'png-chunk-text';
 import PNGextract from 'png-chunks-extract';
 import PNGencode from 'png-chunks-encode';
 
+import { decodeTimestamp as decodeTimestampTavern } from "../import/tavern.js"
+
 class Character{
     static path = "../user/characters/"
     
@@ -17,10 +19,28 @@ class Character{
         // tavern backwards compatibility (yuck)
         if( json.first_mes ){ this.greeting = json.first_mes }
         if( json.mes_example ){ this.dialogue = json.mes_example }
-        if( json.metadata && json.metadata.created ){
-            this.create_date = parseInt(json.metadata.created)
+
+        // zoltanai
+        if( json.metadata && json.metadata.created && json.metadata.modified ){
+            this.create_date = json.metadata.created
+            this.last_changed = json.metadata.modified
+            
+        // tavern
         }else if( json.created ){
-            this.create_date = parseInt(json.created)
+            this.create_date = json.created
+
+        // standard
+        }else if( json.create_date ){
+            this.create_date = json.create_date
+        }
+
+        // not unix time, but some other bullshit format
+        if(typeof( this.create_date ) === "string"){
+            if( this.create_date.indexOf("@") > -1 ){
+                this.create_date = decodeTimestampTavern(this.create_date)
+            }
+        }else{
+            this.create_date = new Date(this.create_date).getTime()
         }
 
         // common overrides
@@ -31,13 +51,7 @@ class Character{
         if( json.scenario ){ this.scenario = json.scenario; }
         if( json.dialogue ){ this.dialogue = json.dialogue; }
         if( json.author ){ this.author = json.author; }
-        if( json.create_date ){ this.create_date = parseInt(json.create_date); }
         if( json.last_changed ){ this.last_changed = parseInt(json.last_changed); }
-
-        // ensure the timestamp has the correct number of digits
-        if( this.create_date.toString().length < 13 ){
-            this.create_date *= 10 ** ( 13 - this.create_date.toString().length )
-        }
     }
 
     Reset(){
@@ -105,6 +119,7 @@ class Character{
                 console.warn( chalk.yellow( `${filepath} is not valid JSON!` ));
             }else{
                 console.warn( chalk.yellow( `Could not read character at ${filepath}` ));
+                console.error( chalk.red( error ))
             }
             return null;
         }
