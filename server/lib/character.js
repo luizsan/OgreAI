@@ -52,6 +52,12 @@ class Character{
         if( json.dialogue ){ this.dialogue = json.dialogue; }
         if( json.author ){ this.author = json.author; }
         if( json.last_changed ){ this.last_changed = parseInt(json.last_changed); }
+        
+        // ensure the timestamp has the correct number of digits
+        this.create_date = parseInt(this.create_date);
+        if( this.create_date.toString().length < 13 ){
+            this.create_date *= 10 ** ( 13 - this.create_date.toString().length )
+        }
     }
 
     Reset(){
