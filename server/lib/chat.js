@@ -40,7 +40,7 @@ class Chat{
             this.participants.push( chat.participants[p] )
         }
 
-        if(chat.created){ this.created = chat.created }
+        if(chat.created){ this.create_date = chat.created }
         if(chat.create_date){ this.create_date = chat.create_date }
 
         this.last_interaction = chat.last_interaction
