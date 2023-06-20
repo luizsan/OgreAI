@@ -47,10 +47,10 @@ app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, max
 await LoadAPIModes()
 
 
-const args = process.argv.slice(2)
-if (args.includes('--autorun')) {
-    if( fs.existsSync(_buildPath) ){
-        app.use('/', express.static(_buildPath, { maxAge: -1  }));
+if( fs.existsSync(_buildPath) ){
+    app.use('/', express.static(_buildPath, { maxAge: -1  }));
+    const args = process.argv.slice(2)
+    if (args.includes('--autorun')) {
         open( "http://localhost:" + port )
     }
 }
