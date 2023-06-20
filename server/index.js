@@ -43,12 +43,12 @@ app.use(express.static('public', {
 
 app.use('/user', express.static(_userPath, { fallthrough: false, index: false,  maxAge: -1  }));
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
+app.use('/', express.static(_buildPath, { maxAge: -1  }));
+
 // startup 
 await LoadAPIModes()
 
-
 if( fs.existsSync(_buildPath) ){
-    app.use('/', express.static(_buildPath, { maxAge: -1  }));
     const args = process.argv.slice(2)
     if (args.includes('--autorun')) {
         open( "http://localhost:" + port )
@@ -241,22 +241,27 @@ app.post("/generate", parser, async function(request, response){
         let prompt = api.makePrompt( char, messages, user, settings, swipe ? 1 : 0 )
         api.generate( prompt, user, settings, swipe ).then(async result => {
             if( streaming ){
-                console.debug( chalk.blue("Streaming message..."))
-                const td = new TextDecoder();
-                for await (const message of result.body){
-                    let data = api.receiveStream( td.decode(message), swipe )
-                    if( data ){
-                        if( !data.error ){
-                            // console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
-                            // the newline at the end is required as sometimes the stream 
-                            // can lag and the client will clump chunks together, so it's 
-                            // easier to separate them by lines instead.
+                try{
+                    console.debug( chalk.blue("Streaming message..."))
+                    const td = new TextDecoder();
+                    for await (const message of result.body){
+                        let data = api.receiveStream( td.decode(message), swipe )
+                        if( data ){
+                            if( !data.error ){
+                                // console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
+                                // the newline at the end is required as sometimes the stream 
+                                // can lag and the client will clump chunks together, so it's 
+                                // easier to separate them by lines instead.
+                            }
+                            response.write(JSON.stringify(data) + "\n")
                         }
-                        response.write(JSON.stringify(data) + "\n")
                     }
+                    response.end()
+                    console.debug( chalk.blue("Finished message stream"))
+                }catch(error){
+                    console.error( chalk.red("Error in message stream:"))
+                    console.error( chalk.red(error))
                 }
-                response.end()
-                console.debug( chalk.blue("Finished message stream"))
             }else{
                 result.text().then(raw => {
                     let data = api.receiveData( raw, swipe )     
