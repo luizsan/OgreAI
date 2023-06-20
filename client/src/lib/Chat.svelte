@@ -297,6 +297,10 @@
 
                 {#if chatOptions}
                     <div class="options-list">
+                        {#if $currentChat}
+                            <div class="deselect title">{$currentChat.title}</div>
+                        {/if}
+
                         <button class="options-item normal" on:click={Server.newChat}>{@html SVG.chat}New Chat</button>
                         <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
                         <hr>
@@ -308,6 +312,10 @@
                 </div>
 
                 <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize={userMessage}></textarea>
+                
+
+
+
                 {#if $busy}
                     <Loading/>
                 {:else}
@@ -420,7 +428,7 @@
     .options-list{
         position: absolute;
         width: fit-content;
-        max-width: 100%;
+        max-width: 320px;
         height: fit-content;
         display: flex;
         flex-direction: column;
@@ -465,6 +473,15 @@
     .options-item:disabled{
         color: hsl(0, 0%, 40%);
         pointer-events: none;
+    }
+
+    .title{
+        font-size: 75%;
+        padding: 4px 16px;
+        border-radius: 2px;
+        margin-bottom: 8px;
+        color: hsl(0, 0%, 100%, 0.5);
+        background: hsl(0, 0%, 0%, 0.5);
     }
 
     .shortcut{
