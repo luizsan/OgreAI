@@ -476,10 +476,10 @@
     }
 
     .title{
-        font-size: 75%;
+        font-size: 80%;
         padding: 4px 16px;
         border-radius: 2px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         color: hsl(0, 0%, 100%, 0.5);
         background: hsl(0, 0%, 0%, 0.5);
     }
