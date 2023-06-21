@@ -22,7 +22,7 @@
 
     <div class="section avatar grid">
         <div class="avatar container">
-            <Avatar is_bot={false} size={128}/>
+            <Avatar is_bot={false} size={80}/>
         </div>
         
         <div class="section" style="gap: 24px">
@@ -88,7 +88,7 @@
 
     .avatar.grid{
         display: grid;
-        grid-template-columns: 128px auto;
+        grid-template-columns: min-content auto;
         gap: 32px;
     }
 
