@@ -2,7 +2,7 @@
     import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList, fetching } from '../State';
 
     export let is_bot : boolean
-    export let size : number = 48
+    export let size : number = 56
     export let character : ICharacter = null;
 
     let w : number;
