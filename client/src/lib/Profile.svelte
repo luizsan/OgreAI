@@ -1,4 +1,5 @@
 <script>
+    import Avatar from "../components/Avatar.svelte";
     import { currentProfile } from "../State";
     import * as Server from "./Server.svelte";
 
@@ -19,13 +20,36 @@
         <input type="text" class="component wide" bind:value={$currentProfile.name}>
     </div>
 
-    <div class="section">
-        <div>
-            <div class="title">Avatar</div>
-            <div class="explanation">User avatar URL</div>
+    <div class="section avatar grid">
+        <div class="avatar container">
+            <Avatar is_bot={false} size={128}/>
         </div>
-        <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
+        
+        <div class="section" style="gap: 24px">
+            <div class="section">
+                <div>
+                    <div class="title">Avatar</div>
+                    <div class="explanation">User avatar URL</div>
+                </div>
+                <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
+            </div>
+
+            <div class="section">
+                <div>
+                    <div class="title">Avatar Style</div>
+                    <div class="explanation">Define the avatar style in chat.</div>
+                </div>
+
+                <select class="component" bind:value={$currentProfile.customization.avatarShape}>
+                    <option value="round">Round</option>
+                    <option value="square">Square</option>
+                    <option value="portrait">Portrait</option>
+                </select>
+            </div>
+        </div>
+
     </div>
+
 </div>
 
 
@@ -61,4 +85,18 @@
         padding: 24px;
         box-sizing: border-box;
     }
+
+    .avatar.grid{
+        display: grid;
+        grid-template-columns: 128px auto;
+        gap: 32px;
+    }
+
+    .avatar.container{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+
 </style>

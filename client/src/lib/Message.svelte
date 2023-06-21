@@ -4,6 +4,7 @@
     import { AutoResize } from '../utils/AutoResize';
     import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList, fetching } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
+    import Avatar from '../components/Avatar.svelte';
     import * as Server from './Server.svelte';
     import * as Format from '../Format';
 
@@ -203,7 +204,7 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={messageElement}>
-    <div class="avatar" style="background-image: url({url})"></div>
+    <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
     <div class="content">
         <div class="author">
             <span class="name {authorType}">{author}</span>
@@ -313,15 +314,6 @@
         font-weight: 400;
         font-size: 80%;
         color: gray;
-    }
-
-    .avatar{
-        width: var( --avatar-size );
-        height: var( --avatar-size );
-        background: #00000020;
-        border-radius: 50%;
-        background-size: cover;
-        background-position: center;
     }
 
     .text :global(p){

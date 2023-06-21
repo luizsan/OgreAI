@@ -67,6 +67,8 @@ app.get("/status", parser, function(_, response){
 app.get("/get_profile", parser, function(_, response){
     let profile = LoadData(Profile.path, new Profile())
     if( !profile.name ){ profile.name = "You" }
+    if( !profile.avatar ){ profile.avatar = "" }
+    if( !profile.customization ){ profile.customization = {} }
     response.send( profile )
 })
 
