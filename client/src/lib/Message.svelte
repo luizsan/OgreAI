@@ -30,7 +30,14 @@
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
 
     // message
-    $: displayText = current ? Format.parseNames( marked.parse(current.text), $currentProfile.name, $currentCharacter.name) : ""
+    $: displayText = current ? marked.parse(
+        Format.parseNames(
+            current.text, 
+            $currentProfile.name, 
+            $currentCharacter.name
+        ).replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    ) : ""
+
     $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
 
     // deletion
