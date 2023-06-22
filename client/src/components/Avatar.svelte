@@ -18,7 +18,7 @@
 
     $: {
 
-        if($currentProfile.customization !== undefined){
+        if($currentProfile.customization){
             switch($currentProfile.customization.avatarShape){
                 case "square":
                     roundness = "5px";
