@@ -29,7 +29,7 @@
         <div class="section" style="gap: 24px">
             <div class="section">
                 <div>
-                    <div class="title">Avatar</div>
+                    <div class="title">Avatar Image</div>
                     <div class="explanation">User avatar URL</div>
                 </div>
                 <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
@@ -83,7 +83,7 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        padding: 24px;
+        padding: 16px;
         box-sizing: border-box;
     }
 

@@ -124,7 +124,7 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        padding: 24px;
+        padding: 16px;
         box-sizing: border-box;
     }
 
