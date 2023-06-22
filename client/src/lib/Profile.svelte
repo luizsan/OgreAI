@@ -7,7 +7,8 @@
 
 <div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
     <div>
-        <h1>User Profile</h1>
+        <h1>User</h1>
+        <p class="explanation">Customize the user's profile and preferences</p>
         <hr>
     </div>
 
@@ -59,7 +60,7 @@
     }
 
     h1{
-        margin-bottom: 0;
+        margin: 0;
         font-size: 40px;
     }
 
@@ -94,6 +95,7 @@
 
     .avatar.container{
         display: flex;
+        align-items: center;
         justify-content: center;
         width: 100%;
     }

@@ -30,6 +30,7 @@
 <div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
     <div>
         <h1>Settings</h1>
+        <p class="explanation">Change application-wide settings</p>
         <hr>
     </div>
 
@@ -95,7 +96,7 @@
     }
 
     h1{
-        margin-bottom: 0;
+        margin: 0;
         font-size: 40px;
     }
 
