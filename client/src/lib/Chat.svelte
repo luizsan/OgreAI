@@ -313,9 +313,6 @@
 
                 <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize={userMessage}></textarea>
                 
-
-
-
                 {#if $busy}
                     <Loading/>
                 {:else}
@@ -435,8 +432,9 @@
         padding: 4px;
         top: 0px;
         left: 0px;
-        translate: -1px calc( -100% - 2px) 0;
+        translate: -1px calc( -100% - 3px) 0;
         border-radius: 5px;
+        box-shadow: 2px 2px 0px 0px #00000080;
         background: var( --element-bg-normal );
         border: var( --element-border-normal );
         outline: var( --element-outline-normal );
