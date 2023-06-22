@@ -72,43 +72,51 @@
             formData.append("creating", "true" )
         }
 
-        let result = await fetch( localServer + "/save_character", {
+        await fetch( localServer + "/save_character", {
             method: "POST",
             body: formData
-        })
+        }).then( result => {
+            result.json().then( async data => {
+                if( data ){
+                    if( $creating ){
+                        let created = $editing;
+                        $editing = null;
+                        $creating = false;
+                        await Server.getCharacterList();
+                        $characterList = $characterList;
+                        alert("Successfully created character:\n" + created.name)
+                    }else{
+                        if( $editing && $editing.metadata.avatar ){
+                            let edited = await Server.request("/get_character", { 
+                                filepath: $editing.metadata.filepath 
+                            });
 
-        if( result ){
-            if( $creating ){
-                await Server.getCharacterList();
-                $editing = null;
-                $creating = null;
-                alert(result)
-            }else{
-                if( $editing && $editing.metadata.avatar ){
-                    let edited = await Server.request("/get_character", { 
-                        filepath: $editing.metadata.filepath 
-                    });
+                            $currentCharacter = edited;
+                            $editing = edited;
 
-                    $currentCharacter = edited;
-                    $editing = edited;
+                            // update item on list
+                            for( let i = 0; i < $characterList.length; i++ ){
+                                if( $characterList[i].metadata.filepath == $editing.metadata.filepath){
+                                    $characterList[i] = edited;
+                                }
+                            }
 
-                    // update item on list
-                    for( let i = 0; i < $characterList.length; i++ ){
-                        if( $characterList[i].metadata.filepath == $editing.metadata.filepath){
-                            $characterList[i] = edited;
+                            await refreshTokens();
+                            if( $currentChat ){
+                                $currentChat.participants[0] = edited.name
+                            }
+
+                            refreshAvatar();
+                            avatar = avatar;
                         }
                     }
-
-                    await refreshTokens();
-                    if( $currentChat ){
-                        $currentChat.participants[0] = edited.name
-                    }
-
-                    refreshAvatar();
-                    avatar = avatar;
+                }else{
+                    alert("Could not create the character.")
                 }
-            }
-        }
+            })
+        })
+
+
 
         $fetching = false
     }
