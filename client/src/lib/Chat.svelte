@@ -298,10 +298,10 @@
                 {#if chatOptions}
                     <div class="options-list">
                         {#if $currentChat}
-                            <div class="deselect title">{$currentChat.title}</div>
+                            <div class="options-item disabled deselect title">{@html SVG.chat}{$currentChat.title}</div>
                         {/if}
 
-                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.chat}New Chat</button>
+                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
                         <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
                         <hr>
                         <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
@@ -428,7 +428,7 @@
     .options-list{
         position: absolute;
         width: fit-content;
-        max-width: 320px;
+        max-width: 240px;
         height: fit-content;
         display: flex;
         flex-direction: column;
@@ -448,20 +448,21 @@
     }
 
     .options-item{
-        font-family: "Lato";
-        font-size: 90%;
+        font-size: 85%;
+        box-sizing: border-box;
         border-radius: 3px;
         text-align: left;
-        padding: 8px 16px;
+        padding: 8px 12px;
         display: flex;
+        gap: 12px;
         flex-direction: row;
         align-items: center;
         width: 100%;
     }
 
     .options-item :global(svg){
-        margin-bottom: -3px;
-        margin-right: 8px;
+        min-width: 16px;
+        min-height: 16px;
         width: 16px;
         height: 16px;
     }
@@ -476,20 +477,16 @@
     }
 
     .title{
-        font-size: 80%;
-        padding: 4px 16px;
-        border-radius: 2px;
-        margin-bottom: 4px;
-        color: hsl(0, 0%, 100%, 0.5);
-        background: hsl(0, 0%, 0%, 0.5);
+        font-size: 75%;
+        opacity: 0.5;
     }
 
     .shortcut{
         padding-left: 48px;
         margin-left: auto;
         float: right;
-        font-size: 80%;
-        color: #FFFFFF40;
+        font-size: 85%;
+        opacity: 0.5;
     }
 
     .bottom{
