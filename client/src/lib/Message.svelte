@@ -33,15 +33,6 @@
     $: displayText = current ? Format.parseNames( marked.parse(current.text), $currentProfile.name, $currentCharacter.name) : ""
     $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
 
-    // avatar
-    const avatar_user_default = localServer + "/img/user_default.png";
-    $: avatar_bot_url = localServer + "/" + $currentCharacter.metadata.filepath.replace("../", "")
-    $: avatar_user_url = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
-    $: append = is_bot ? "?" + $currentCharacter.last_changed : "";
-
-    $: avatar = (msg && msg.participant > -1) ? avatar_bot_url : avatar_user_url;
-    $: url = encodeURIComponent(avatar).replace(/%2F/g, '/').replace(/%3A/g, ':') + append;
-
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
 
