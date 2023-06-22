@@ -133,6 +133,12 @@ button.component:active, button.component:disabled{
     gap: 8px;
 }
 
+.ellipsis{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .horizontal{
     flex-direction: row;
 }
