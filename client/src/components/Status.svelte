@@ -26,6 +26,10 @@
         word-spacing: 4px;
     }
 
+    .disabled{
+        color: hsl(0, 0%, 85%);
+    }
+
     .badge::before{
         content: "\25CF";
         margin-right: 6px;

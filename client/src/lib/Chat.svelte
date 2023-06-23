@@ -326,18 +326,16 @@
 </div>
 
 <style>
-    .container {
-        --element-bg-normal: hsl(0, 0%, 33%);
-        --element-border-normal: 1px solid hsla(0, 0%, 50%, 0.5);
-        --element-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
+    .container{
+        --input-bg-normal: hsl(0, 0%, 33%);
+        --input-border-normal: 1px solid hsla(0, 0%, 50%, 0.5);
+        --input-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
     }
-    
-    @media (prefers-color-scheme: light) {
-        .container{
-            --element-bg-normal: hsl(0, 0%, 90%);
-            --element-border-normal: 1px solid hsla(0, 0%, 75%, 0.5);
-            --element-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
-        }
+
+    :global(body.light) .container{
+        --input-bg-normal: hsl(0, 0%, 90%);
+        --input-border-normal: 1px solid hsla(0, 0%, 75%, 0.5);
+        --input-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
     }
 
     * {
@@ -374,9 +372,9 @@
     .input{
         align-items: center;
         border-radius: 5px;
-        background: var( --element-bg-normal );
-        border: var( --element-border-normal );
-        outline: var( --element-outline-normal );
+        background: var( --input-bg-normal );
+        border: var( --input-border-normal );
+        outline: var( --input-outline-normal );
         box-shadow: 0px 4px 12px #18181840;
         column-gap: 0px;
         display: grid;
@@ -434,10 +432,10 @@
         left: 0px;
         translate: -1px calc( -100% - 3px) 0;
         border-radius: 5px;
-        box-shadow: 2px 2px 0px 0px #00000080;
-        background: var( --element-bg-normal );
-        border: var( --element-border-normal );
-        outline: var( --element-outline-normal );
+        box-shadow: 2px 2px 0px 0px #00000040;
+        background: var( --input-bg-normal );
+        border: var( --input-border-normal );
+        outline: var( --input-outline-normal );
     }
 
     .options-list hr{
@@ -467,6 +465,10 @@
 
     .options-item:hover{
         background-color: hsl(0, 0%, 20%);
+    }
+
+    .options-item:is(.normal):hover{
+        color: white;
     }
 
     .options-item:disabled{

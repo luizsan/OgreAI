@@ -131,13 +131,13 @@
 <div class="main" class:active={$sectionCharacters} use:clickOutside={exclusion} on:outclick={Close}>
 
     <div class="section horizontal" style="justify-content: end">
-        <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
+        <button class="pin {pinned ? "info" : "unpin"}" on:click={togglePin}>{@html SVG.pin}</button>
     </div>
 
     <div class="section horizontal">
-        <button class="component wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
+        <button class="component normal wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
         <!-- <button class="system">{@html SVG.download}</button> -->
-        <button class="component wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
+        <button class="component normal wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
     </div>
     
     <div class="section select">
@@ -181,7 +181,7 @@
     input[type="text"]{
         width: 100%;
     }
-
+    
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
@@ -260,6 +260,10 @@
         width: 100%;
         gap: 8px;
     }
+
+    .unpin{ color: hsl(0, 0%, 75%); }
+    .unpin:hover{ color: hsl(0, 0%, 100%); }
+    .unpin:active{ color: hsla(0, 0%, 66%, 0.5); }
 
     .pin{
         width: 24px;

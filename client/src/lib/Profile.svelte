@@ -3,19 +3,34 @@
     import { currentProfile } from "../State";
     import * as Server from "./Server.svelte";
 
+    let themes = [
+        { key: "light", label: "Light" }, 
+        { key: "dark", label: "Dark" }
+    ]
+
+    let selectedTheme = window.localStorage.getItem("theme") || "dark"
+
+    function setTheme(){
+        window.localStorage.setItem("theme", selectedTheme)
+        for(let i = 0; i < themes.length; i++){
+            document.body.classList.remove( themes[i].key )
+        }
+        document.body.classList.add(selectedTheme)
+    }
+
 </script>
 
 <div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
     <div>
         <h1>User</h1>
-        <p class="explanation">Customize the user's profile and preferences</p>
+        <p class="explanation">Customize the user's profile and preferences.</p>
         <hr>
     </div>
 
     <div class="section">
         <div>
             <div class="title">Display Name</div>
-            <div class="explanation">User's name displayed in chat</div>
+            <div class="explanation">User's name displayed in chat.</div>
         </div>
 
         <input type="text" class="component wide" bind:value={$currentProfile.name}>
@@ -30,7 +45,7 @@
             <div class="section">
                 <div>
                     <div class="title">Avatar Image</div>
-                    <div class="explanation">User avatar URL</div>
+                    <div class="explanation">User avatar URL.</div>
                 </div>
                 <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
             </div>
@@ -49,6 +64,24 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="section">
+        <div>
+            <div class="title">Theme</div>
+            <div class="explanation">Define your preferred color scheme.</div>
+        </div>
+
+        <div class="section" on:change={setTheme}>
+
+        {#each themes as item, i}
+            <label for="theme_light">
+                <input type="radio" class="component" bind:group={selectedTheme} name="theme" value={item.key}>
+                {item.label}
+            </label>
+        {/each}
+
+        </div>
     </div>
 
 </div>

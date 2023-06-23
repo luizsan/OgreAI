@@ -74,7 +74,7 @@
     <div class="title">
         <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
         {#if editingTitle}
-            <input type="text" class="edit" bind:this={titleField} bind:value={chat.title} on:click|stopPropagation={null} on:change={saveChanges}>
+            <input type="text" class="edit" bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
         {:else}
             <span class="label">{chat.title}</span>
         {/if}
@@ -100,8 +100,8 @@
     <hr>
     
     <div class="buttons">
-        <button class="action svg danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
-        <button class="action svg info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
+        <button class="component svg danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
+        <button class="component svg info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
         <span style="margin-left: auto"></span>
         <button class="component normal right" on:click|stopPropagation={selectHistory}>Continue chat</button>
     </div>
@@ -109,7 +109,7 @@
 
 <style>
     .base{
-        background: #00000040;
+        background: #00000024;
         display: flex;
         flex-direction: column;
         grid-template-columns: 200px auto;
@@ -119,9 +119,12 @@
         padding: 20px;
         gap: 4px;
         text-align: left;
-        font-family: var( --default-font-face );
     }
-    
+
+    :global(body.light) .base{
+        background: #00000012;
+    }
+
     hr{
         width: 100%;
         color: gray;
@@ -174,7 +177,7 @@
         outline: none;
         color: #D0D0D0;
         font-size: 80%;
-        background: #00000040;
+        background: #000000C0;
         border-radius: 4px;
         padding: 0px 6px;
         font-family: monospace;
@@ -224,33 +227,14 @@
         margin: 0px;
     }
 
-    .action{
-        padding: 6px;
-        background: hsl(0, 0%, 10%);
-        border: 1px solid hsl(0, 0%, 20%);
-        border-radius: 4px;
-        height: 32px;
-    }
-
-    .action.svg{
+    .svg{
         width: 32px;
+        padding: 6px;
     }
 
-    .action :global(svg){
+    .svg :global(svg){
         width: 100%;
         height: 100%;
     }
-
-    @media (prefers-color-scheme: light){
-        .base{
-            background: hsl(0, 0%, 90%);
-        }
-
-        .action{
-            background: white;
-            border: 1px solid gray;
-        }
-    }
-
     
 </style>

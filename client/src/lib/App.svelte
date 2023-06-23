@@ -14,8 +14,16 @@
     import Loading from '../components/Loading.svelte';
 
     onMount(() => {
+        LoadTheme()
         Server.initializeData()
     });
+
+    function LoadTheme(){
+        let t = window.localStorage.getItem("theme")
+        if( t === "light" || t === "dark" ){
+            document.body.classList.add(t === "light" || t === "dark" ? t : "dark")
+        }
+    }
     
     function swipeHandler(event : CustomEvent) {
         console.log(event.detail.direction)

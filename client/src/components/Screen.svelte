@@ -8,7 +8,7 @@
     .container{
         --scrollbar-bg: hsl(0, 0%, 15%);
         
-        background: hsl(0, 0%, 15%);
+        background: var( --default-bg-color);
         bottom: 0px;
         display: flex;
         flex-direction: column;
@@ -18,12 +18,6 @@
         right: 0px;
         overflow-y: scroll;
         top: var( --header-size );
-    }
-
-    @media (prefers-color-scheme: light){
-        .container{
-            background: hsl(0, 0%, 85%);
-        }
     }
 
     .main{

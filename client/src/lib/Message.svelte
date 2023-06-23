@@ -323,11 +323,12 @@
     }
 
     .text :global(code){
+        color: orange;
         background: hsl(285, 5%, 12%);
         padding: 2px;
         font-size: 85%;
     }
-
+    
     .text :global(pre){
         white-space: pre-wrap;
         background: hsl(285, 5%, 12%);

@@ -322,7 +322,7 @@
     }
 
     .top{
-        background: hsl(0, 0%, 15%);
+        background: var( --default-bg-color );
         border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
         display: grid;
         gap: 16px;
@@ -332,13 +332,6 @@
         position: sticky;
         top: 0px;
         z-index: 1;
-    }
-
-    
-    @media (prefers-color-scheme: light){
-        .top{
-            background: hsl(0, 0%, 85%);
-        }
     }
     
     .bottom{

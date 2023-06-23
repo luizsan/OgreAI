@@ -30,7 +30,7 @@
 <div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
     <div>
         <h1>Settings</h1>
-        <p class="explanation">Change application-wide settings</p>
+        <p class="explanation">Change application-wide settings.</p>
         <hr>
     </div>
 

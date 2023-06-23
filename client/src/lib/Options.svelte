@@ -9,11 +9,11 @@
     export let tab = 0;
 
     const tab_items = [
-        { name: "User", icon: SVG.user, disabled: false },
         { name: "Settings", icon: SVG.settings, disabled: false },
+        { name: "User", icon: SVG.user, disabled: false },
     ]
 
-    function setTab(id){
+    function setTab(id = -1){
         tab = id;
     }
 
@@ -23,14 +23,14 @@
     <Screen>
         <div class="tabs section horizontal">
             {#each tab_items as item, i}
-                <button class="component tab" class:disabled={i ==tab} disabled={item.disabled || i == tab} on:click={() => setTab(i)}>{@html item.icon}{item.name}</button>
+                <button class="component normal tab" class:disabled={i ==tab} disabled={item.disabled || i == tab} on:click={() => setTab(i)}>{@html item.icon}{item.name}</button>
             {/each}
         </div>
 
         {#if tab == 0}
-            <Profile/>
-        {:else if tab == 1}
             <Settings/>
+        {:else if tab == 1}
+            <Profile/>
         {/if}
         
     </Screen>
