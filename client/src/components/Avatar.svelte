@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList, fetching } from '../State';
+    import { currentProfile, localServer } from '../State';
 
     export let is_bot : boolean
     export let size : number = 56

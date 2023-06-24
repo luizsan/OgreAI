@@ -1,5 +1,4 @@
 <script>
-    import { set_attributes } from "svelte/internal";
     import { sectionSettings, currentSettings } from "../State";
     import Screen from "../components/Screen.svelte";
     import Profile from "./Profile.svelte";

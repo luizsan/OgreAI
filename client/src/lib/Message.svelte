@@ -1,12 +1,8 @@
-<script lang="ts" context="module">
-    let currentlyEditing : number = -1
-</script>
-
 <script lang="ts">
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, localServer, deleteList, fetching } from '../State';
+    import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
     import * as Server from './Server.svelte';

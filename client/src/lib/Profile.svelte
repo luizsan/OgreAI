@@ -74,7 +74,7 @@
 
         <div class="section" on:change={setTheme}>
 
-        {#each themes as item, i}
+        {#each themes as item}
             <label for="theme_light">
                 <input type="radio" class="component" bind:group={selectedTheme} name="theme" value={item.key}>
                 {item.label}
