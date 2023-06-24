@@ -112,6 +112,9 @@
                         if( obj.streaming ){
                             candidate.text += obj.streaming.text
                             candidate.timestamp = obj.streaming.timestamp
+                            if( obj.streaming.model ){
+                                candidate.model = obj.streaming.model
+                            }
                         }
                         scroll( messagesDiv )
                         $currentChat = $currentChat;
@@ -143,6 +146,7 @@
         let candidate = {
             text: "",
             timestamp: Date.now(),
+            model: null,
         }
 
         if( swipe ){
@@ -170,10 +174,7 @@
         if( incoming.swipe ){
             let last = $currentChat.messages.at(-1)
             if( last.participant > -1 ){
-                last.candidates.push({
-                    text: incoming.candidate.text,
-                    timestamp: incoming.candidate.timestamp,
-                })
+                last.candidates.push(incoming.candidate)
                 last.index = last.candidates.length-1;
             }
         }else{

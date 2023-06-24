@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+    let currentlyEditing : number = -1
+</script>
+
 <script lang="ts">
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
@@ -7,6 +11,7 @@
     import Avatar from '../components/Avatar.svelte';
     import * as Server from './Server.svelte';
     import * as Format from '../Format';
+    import { tick } from 'svelte';
 
     let messageElement : HTMLElement;
 
@@ -39,6 +44,7 @@
     ) : ""
 
     $: timestamp = current ? new Date(current.timestamp).toLocaleString("ja-JP", Format.date_options) : 0
+    $: model = ( current && current.model ) || "Unknown model"; 
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
@@ -80,13 +86,15 @@
         postActions = b
     }
 
-    export function SetEditing(b : boolean){
+    async function SetEditing(b : boolean){
         if(b){
-            editedText = current.text
-            messageElement.scrollIntoView({ block: "nearest" })
+            editedText = current.text;
         }
-        SetPostActions(false)
+
         editing = b
+        await tick()
+        SetPostActions(false)
+        ScrollIntoView()
     }
 
     export function EditMessage(){
@@ -197,6 +205,9 @@
         }
     }
 
+    function ScrollIntoView(){
+        messageElement.scrollIntoView({ block: "nearest" })
+    }
 </script>
 
 <svelte:body on:keydown={Shortcuts}/>
@@ -206,11 +217,11 @@
     <div class="content">
         <div class="author">
             <span class="name {authorType}">{author}</span>
-            <span class="timestamp">{timestamp}</span>
+            <span class="timestamp" title={is_bot ? model : ""}>{timestamp}</span>
         </div>
         
         {#if editing}
-            <textarea class="editing" use:AutoResize={editedText} bind:value={editedText}></textarea>
+            <textarea class="editing" use:AutoResize={messageElement} bind:value={editedText}></textarea>
             <div class="instruction">
                 Escape to <span on:mousedown={() => SetEditing(false)} class="info">Cancel</span>, 
                 Ctrl+Enter to <span on:mousedown={EditMessage} class="info">Confirm</span>
@@ -312,6 +323,10 @@
         font-weight: 400;
         font-size: 80%;
         color: gray;
+    }
+    
+    .bot .timestamp{
+        cursor: help;
     }
 
     .text :global(p){

@@ -207,7 +207,8 @@ class OpenAI{
 
     // processes a single message from the model's output
     // - participant: 0
-    // - candidate: { text, timestamp }
+    // - swipe: true or false
+    // - candidate: { text, timestamp, model }
     static receiveData( incoming_data, swipe = false ){
         let incoming_json = ""
         try{
@@ -218,6 +219,7 @@ class OpenAI{
                     participant: 0,
                     swipe: swipe,
                     candidate: {
+                        model: incoming_json.model || undefined,
                         text: incoming_json.choices[0].message.content,
                         timestamp: Date.now(),
                     }
@@ -245,7 +247,8 @@ class OpenAI{
     // if the API supports streams, must return a JSON
     // - done: if the stream has finished
     // - participant: 0
-    // - streaming: { text, timestamp }
+    // - swipe: true or false
+    // - streaming: { text, timestamp, model }
     static receiveStream( incoming_data, swipe ){
         let message = {
             done: false,
@@ -253,27 +256,35 @@ class OpenAI{
             swipe: swipe,
             streaming: {
                 text: "",
+                model: undefined,
                 timestamp: Date.now()
             }
         }
     
         const lines = incoming_data.split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
+            console.debug(line)
             const obj = line.replace(/^data: /, '');
             if (obj === '[DONE]') {
                 message.done = true;
                 break;
             }
 
+            if( obj.startsWith(":") ){
+                console.debug("[" + obj + "]")
+                continue
+            }
+
             try {
                 const parsed = JSON.parse(obj);
                 const text = parsed.choices[0].delta.content;
+                message.streaming.model = parsed.model || undefined
                 if( text ){
                     message.streaming.text += text;
                 }
             }catch{
-                // console.log(obj)
-                // console.error(error);
+                console.log(obj)
+                console.error(error);
             }
         }
 

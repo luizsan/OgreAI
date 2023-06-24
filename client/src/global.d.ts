@@ -6,6 +6,7 @@ declare namespace svelte.JSX {
 	interface HTMLAttributes<T> {
 		onoutclick?: (e: CustomEvent) => void
         onchatscroll?: (e: CustomEvent) => void
+		oneditmessage?: (e: CustomEvent) => void
 	}
 }
 
@@ -45,4 +46,5 @@ interface IReply{
 interface ICandidate{
     text : string;
     timestamp : number;
+    model : string;
 }
