@@ -367,7 +367,7 @@
         margin: 0px var(--chat-padding);
         overflow-x: hidden;
         overflow-y: scroll;
-        padding: 8px 0px;
+        padding: 8px 0px 4px 0px;
     }
 
     .input{

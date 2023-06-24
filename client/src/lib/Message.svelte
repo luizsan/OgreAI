@@ -77,28 +77,38 @@
             }
         }
     }
+    
+    function SetPostActions(b : boolean){
+        // small hack to allow deletion via action buttons and keyboard event
+        if(this){
+            this.postActions = b;
+        }else{
+            postActions = b;
+        }
+    }
 
     function TogglePostActions(){
-        postActions = !postActions
+        SetPostActions(!postActions)
     }
 
-    function SetPostActions(b : boolean){
-        postActions = b
-    }
-
-    async function SetEditing(b : boolean){
-        if(b){
-            editedText = current.text;
+    function CancelEditing(){
+        if( last && editing ){
+            document.dispatchEvent(new CustomEvent("chatscroll"))
         }
+        editing = false;
+    }
 
-        editing = b
+    async function StartEditing(){
+        document.body.dispatchEvent(new CustomEvent("startedit"))
+        editedText = current.text;
+        editing = true
         await tick()
         SetPostActions(false)
         ScrollIntoView()
     }
 
-    export function EditMessage(){
-        SetEditing(false)
+    export function ConfirmEdit(){
+        CancelEditing()
         editedText = editedText.trim()
         if( !editedText ){
             DeleteCandidate();
@@ -111,7 +121,7 @@
     }
 
     async function CopyMessage(){
-        postActions = false;
+        SetPostActions(false)
         await navigator.clipboard.writeText(current.text)
     }
 
@@ -120,13 +130,7 @@
             return;
         }
         
-        // small hack to allow deletion via action buttons and keyboard event
-        if(this){
-            this.postActions = false;
-        }else{
-            postActions = false;
-        }
-
+        SetPostActions(false)
         if(window.confirm("Are you sure you want to delete this message?")){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
             console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
@@ -176,16 +180,40 @@
 
     function Shortcuts(event : KeyboardEvent){
         if( lockinput ) return;
-        if( !last ) return;
-        if( editing ) return;
-
+        
         let activeElement = document.activeElement;
-        if( activeElement.nodeName === "INPUT" ) return;
-        if( activeElement.nodeName === "TEXTAREA" ) return;
 
+        if( editing ){
+            EditingShortcuts(event)
+            return
+        }
+        
+        if( last ){
+            if( activeElement.nodeName !== "INPUT" && activeElement.nodeName !== "TEXTAREA" ){
+                LastMessageShortcuts(event)
+            }
+        }
+    }
+
+    function EditingShortcuts(event : KeyboardEvent){
+        switch(event.key){
+            case "Escape":
+                CancelEditing();
+                break;
+            case "Enter":
+                if( event.ctrlKey ){
+                    ConfirmEdit()
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    function LastMessageShortcuts(event : KeyboardEvent){
         switch(event.key){
             case "ArrowUp": 
-                SetEditing(true);
+                StartEditing();
                 event.preventDefault()
                 break;
             case "ArrowLeft": 
@@ -210,7 +238,7 @@
     }
 </script>
 
-<svelte:body on:keydown={Shortcuts}/>
+<svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={messageElement}>
     <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
@@ -221,10 +249,11 @@
         </div>
         
         {#if editing}
-            <textarea class="editing" use:AutoResize={messageElement} bind:value={editedText}></textarea>
+            <!-- svelte-ignore a11y-autofocus -->
+            <textarea class="editing" autofocus use:AutoResize={messageElement} bind:value={editedText}></textarea>
             <div class="instruction">
-                Escape to <span on:mousedown={() => SetEditing(false)} class="info">Cancel</span>, 
-                Ctrl+Enter to <span on:mousedown={EditMessage} class="info">Confirm</span>
+                Escape to <span on:mousedown={CancelEditing} class="info">Cancel</span>, 
+                Ctrl+Enter to <span on:mousedown={ConfirmEdit} class="info">Confirm</span>
             </div>
         {:else}
             <div class="text">{@html displayText}</div>
@@ -238,7 +267,7 @@
                         {#if postActions}
                         <div class="actions">
                             <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                            <button class="edit confirm" title="Edit message" on:click={() => SetEditing(true)}>{@html edit}</button>
+                            <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html edit}</button>
                             {#if id > 0}
                                 <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
                             {/if}

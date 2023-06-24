@@ -6,7 +6,7 @@ declare namespace svelte.JSX {
 	interface HTMLAttributes<T> {
 		onoutclick?: (e: CustomEvent) => void
         onchatscroll?: (e: CustomEvent) => void
-		oneditmessage?: (e: CustomEvent) => void
+		onstartedit?: (e: CustomEvent) => void
 	}
 }
 
