@@ -263,7 +263,6 @@ class OpenAI{
     
         const lines = incoming_data.split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
-            console.debug(line)
             const obj = line.replace(/^data: /, '');
             if (obj === '[DONE]') {
                 message.done = true;
@@ -271,7 +270,6 @@ class OpenAI{
             }
 
             if( obj.startsWith(":") ){
-                console.debug("[" + obj + "]")
                 continue
             }
 
