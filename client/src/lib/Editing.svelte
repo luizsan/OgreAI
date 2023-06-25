@@ -102,12 +102,19 @@
                             }
 
                             await refreshTokens();
-                            if( $currentChat ){
-                                $currentChat.participants[0] = edited.name
-                            }
+
 
                             refreshAvatar();
                             avatar = avatar;
+                        }
+
+                        if( $currentChat && $currentCharacter ){
+                            $currentChat.participants[0] = $currentCharacter.name
+                            if( $currentChat.messages.length == 1 && $currentChat.messages[0].participant > -1 ){
+                                $currentChat.messages[0].candidates[0].text = $currentCharacter.greeting;
+                                $currentChat.messages[0].index = 0;
+                                $currentChat = $currentChat;
+                            }
                         }
                     }
                 }else{
