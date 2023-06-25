@@ -62,7 +62,8 @@
             }
             $currentChat.messages.push(message)
             userMessage = "";
-            resize(messageBox);
+            await tick()
+            resize( messageBox );
             scroll( messagesDiv )
             $currentChat = $currentChat;
             $currentChat.messages = $currentChat.messages;
@@ -312,7 +313,7 @@
                 
                 </div>
 
-                <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize={userMessage}></textarea>
+                <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
                 
                 {#if $busy}
                     <Loading/>
