@@ -2,7 +2,7 @@
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching } from '../State';
+    import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
     import * as Server from './Server.svelte';
@@ -48,7 +48,7 @@
     $: lockinput = !$currentChat || $fetching || $busy;
 
     // ---
-    let editing = false
+    let isEditing = false
     let postActions = false;
     let editedText = ""
 
@@ -73,6 +73,17 @@
             }
         }
     }
+
+    function EditCharacter(){
+        if(is_bot){
+            if( $currentCharacter ){
+                $editing = $currentCharacter;
+            }
+        }else{
+            $sectionSettings = true;
+            $tabSettings = 1; // user
+        }
+    }
     
     function SetPostActions(b : boolean){
         // small hack to allow deletion via action buttons and keyboard event
@@ -88,16 +99,16 @@
     }
 
     function CancelEditing(){
-        if( last && editing ){
+        if( last && isEditing ){
             document.dispatchEvent(new CustomEvent("chatscroll"))
         }
-        editing = false;
+        isEditing = false;
     }
 
     async function StartEditing(){
         document.body.dispatchEvent(new CustomEvent("startedit"))
         editedText = current.text;
-        editing = true
+        isEditing = true
         await tick()
         SetPostActions(false)
         ScrollIntoView()
@@ -179,7 +190,7 @@
         
         let activeElement = document.activeElement;
 
-        if( editing ){
+        if( isEditing ){
             EditingShortcuts(event)
             return
         }
@@ -237,14 +248,19 @@
 <svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={messageElement}>
-    <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
+    
+    <button class="avatar" on:click={EditCharacter}>
+        <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
+    </button>
+
+
     <div class="content">
         <div class="author">
             <span class="name {authorType}">{author}</span>
             <span class="timestamp" title={is_bot ? model : ""}>{timestamp}</span>
         </div>
         
-        {#if editing}
+        {#if isEditing}
             <!-- svelte-ignore a11y-autofocus -->
             <textarea class="editing" autofocus use:AutoResize={messageElement} bind:value={editedText}></textarea>
             <div class="instruction">
@@ -256,7 +272,7 @@
         {/if}
 
 
-        {#if !editing}
+        {#if !isEditing}
             <div class="footer">
                 <button class="dots normal" use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html dots}</div>
@@ -330,6 +346,17 @@
     .msg.delete, .msg:hover.delete{
         background: rgba(255,64,64,0.1);
         border-color: rgb(255,72,72);
+    }
+
+    .avatar{
+        display: flex;
+        align-items: start;
+        height: min-content;
+        padding: 0px;
+    }
+
+    .avatar:hover{
+        filter: brightness(1.075);
     }
 
     .author{

@@ -1,5 +1,5 @@
 <script>
-    import { editing, sectionCharacters, sectionSettings } from "../State";
+    import { editing, sectionCharacters, sectionSettings, tabSettings } from "../State";
     import { menu, settings } from "../utils/SVGCollection.svelte"
 
     function ToggleSidebar(){
@@ -13,6 +13,10 @@
 
     function ToggleSettings(){
         $sectionSettings = !$sectionSettings
+        if( $sectionSettings ){
+            $tabSettings = 0;
+        }
+        
         if( $sectionSettings && $sectionCharacters ){
             $sectionCharacters = false;
             $editing = null;
