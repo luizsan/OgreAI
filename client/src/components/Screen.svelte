@@ -22,6 +22,7 @@
         right: 0px;
         overflow-y: scroll;
         top: var( --header-size );
+        z-index: 50;
     }
 
     .main{
