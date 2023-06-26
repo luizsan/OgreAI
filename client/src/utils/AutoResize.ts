@@ -1,7 +1,7 @@
 export function resize( node : HTMLElement, container? : HTMLElement ){
     node.style.height = "0px";
     node.style.height = Math.abs(node.scrollHeight) + "px";
-    node.style.overflowY = 'hidden';
+    // node.style.overflowY = 'hidden';
     if( container ){
         container.scrollIntoView({ block: "nearest" })
     }else{

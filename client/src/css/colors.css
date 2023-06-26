@@ -16,7 +16,7 @@
     --component-border-hover: hsl(0, 0%, 66%);
     --component-border-disabled: hsl(0, 0%, 25%);
 
-    --scrollbar-bg: hsl( --default-bg-color );
+    --scrollbar-bg: var( --default-bg-color );
 }
 
 ::selection, ::-moz-selection{
@@ -38,5 +38,5 @@
     --component-border-hover: hsl(0, 0%, 33%);
     --component-border-disabled: hsl(0, 0%, 25%);
 
-    --scrollbar-bg: hsl(0, 0%, 100% );
+    --scrollbar-bg: var( --default-bg-color );
 }  

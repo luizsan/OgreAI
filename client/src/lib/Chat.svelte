@@ -372,6 +372,8 @@
     }
 
     .input{
+        --scrollbar-bg: var( --input-bg-normal );
+
         align-items: center;
         border-radius: 5px;
         background: var( --input-bg-normal );
@@ -404,6 +406,8 @@
     }
 
     .input textarea{
+        scrollbar-color: var( --accent-color-normal ) transparent;
+
         background: none;
         border: none;
         font-family: inherit;
@@ -416,6 +420,7 @@
         resize: none;
         vertical-align: baseline;
         width: 100%;
+        overflow-y: auto;
     }
 
     .input textarea::placeholder{

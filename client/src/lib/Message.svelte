@@ -386,12 +386,13 @@
         resize: none;
         padding: 8px;
     }
-
+    
     textarea.editing{
         border: none;
         outline: none;
         color: #D0D0D0;
         font-size: 80%;
+        overflow-y: hidden;
         background: #404040;
         border-radius: 4px;
         margin: 8px 0px;
