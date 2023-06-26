@@ -23,7 +23,7 @@ class Chat{
                     "participant": 0,
                     "index": 0,
                     "candidates": [ 
-                        { 
+                        {
                             "timestamp": Date.now(), 
                             "text": character.greeting ? character.greeting : "Hello, {{user}}!"
                         },
@@ -58,6 +58,10 @@ class Chat{
                 let new_candidate = {
                     timestamp: old_candidate.timestamp,
                     text: old_candidate.text
+                }
+
+                if( old_candidate.model ){
+                    new_candidate.model = old_candidate.model
                 }
 
                 new_msg.candidates.push( new_candidate )
