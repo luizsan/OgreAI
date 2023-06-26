@@ -1,4 +1,8 @@
-<div class="container">
+<script>
+    import { fade } from "svelte/transition";
+</script>
+
+<div class="container" transition:fade={{duration: 120}}>
     <div class="main">
         <slot></slot>
     </div>
