@@ -17,6 +17,9 @@
     let messagesDiv : HTMLElement;
     let chatOptions = false;
 
+    let abortController : AbortController = new AbortController()
+    let abortSignal = abortController.signal;
+
     onMount(async () => {
         await tick()
         scroll( messagesDiv );
@@ -87,6 +90,7 @@
 
         const options = {
             method: "POST",
+            signal: abortSignal,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         }
@@ -140,6 +144,14 @@
             console.error(error)
         })
 
+        $busy = false;
+    }
+
+    function AbortMessage(){
+        if(!$busy) return;
+        abortController.abort()
+        abortController = new AbortController()
+        abortSignal = abortController.signal
         $busy = false;
     }
 
@@ -320,8 +332,11 @@
                 {:else}
                     <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
                 {/if}
-                
             </div>
+
+            {#if $busy}
+                <button class="abort danger side" on:click={AbortMessage}>Abort Message {@html SVG.stop}</button>
+            {/if}
         {/if}
 
     </div>
@@ -359,6 +374,7 @@
         height: 100%;
         max-width: var( --chat-width );
         width: 100%;
+        position: relative;
     }
 
     .messages{
@@ -425,6 +441,21 @@
 
     .input textarea::placeholder{
         color: hsl(0, 0%, 50%);
+    }
+
+    .abort{
+        width: fit-content;
+        height: min-content;
+        position: absolute;
+        right: 16px;;
+        bottom: 8px;
+        gap: 4px;
+        font-size: 75%;
+    }
+
+    .abort :global(svg){
+        width: 16px;
+        height: 16px;
     }
 
     .options-list{
