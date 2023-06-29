@@ -447,7 +447,7 @@
         width: fit-content;
         height: min-content;
         position: absolute;
-        right: 16px;;
+        right: 20px;;
         bottom: 8px;
         gap: 4px;
         font-size: 75%;
