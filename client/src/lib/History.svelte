@@ -66,6 +66,7 @@
 
     async function saveChanges(){
         await Server.request("/save_chat", { chat: chat, character: $currentCharacter })
+        editingTitle = false;
     }
 
 </script>
@@ -74,7 +75,8 @@
     <div class="title">
         <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
         {#if editingTitle}
-            <input type="text" class="edit" bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
+            <!-- svelte-ignore a11y-autofocus -->
+            <input type="text" class="edit" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
         {:else}
             <span class="label">{chat.title}</span>
         {/if}
