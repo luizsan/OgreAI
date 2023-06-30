@@ -59,11 +59,4 @@ npm run build
 
 # To-do
  - Customize chat colors and background
- - Sort modes and search for characters list
- - Importing/exporting characters and chats to/from other formats
-
-# Known issues
- - Changing a character's greeting doesn't update the current chat immediately (need to create a new one)
- - Changing a character's avatar does not update it immediately
- - Editing a message scrolls the chat incorrectly
- - Shortcuts for editing messages aren't implemented yet
+ - Settings presets
