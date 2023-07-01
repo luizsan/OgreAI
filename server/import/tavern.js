@@ -1,4 +1,4 @@
-function decodeTimestamp(str){
+export function decodeTimestamp(str){
     // to whoever made me do this, I sincerely 
     // hope you solve your skill issues someday
     const [y, m, d, h, min, s, ms] = str.match(/\d+/g);
@@ -6,7 +6,7 @@ function decodeTimestamp(str){
     return date.getTime()
 }
 
-function parseChat( jsonl ){
+export function parseChat( jsonl ){
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
         return null;

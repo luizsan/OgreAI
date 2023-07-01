@@ -1,4 +1,4 @@
-function parseChat( json ){
+export function parseChat( json ){
     let chats = []
 
     if( !json ){ return chats; }
@@ -42,5 +42,3 @@ function parseChat( json ){
 
     return chats;
 }
-
-export default { parseChat };
