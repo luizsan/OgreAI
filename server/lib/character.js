@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import * as fs from "fs";
 import path from "path"
 import sharp from "sharp";
 import chalk from "chalk";
@@ -6,7 +6,8 @@ import PNGtext from 'png-chunk-text';
 import PNGextract from 'png-chunks-extract';
 import PNGencode from 'png-chunks-encode';
 
-import { decodeTimestamp as decodeTimestampTavern } from "../import/tavern.js"
+import * as Tavern from "../import/tavern.js"
+import * as Cards from 'character-card-utils'
 
 class Character{
     static path = "../user/characters/"
@@ -37,7 +38,7 @@ class Character{
         // not unix time, but some other bullshit format
         if(typeof( this.create_date ) === "string"){
             if( this.create_date.indexOf("@") > -1 ){
-                this.create_date = decodeTimestampTavern(this.create_date)
+                this.create_date = Tavern.decodeTimestamp(this.create_date)
             }
         }else{
             this.create_date = new Date(this.create_date).getTime()
@@ -80,31 +81,37 @@ class Character{
     static LoadFromDirectory( directory_path ){
         var list = [];
         let target = path.join( directory_path )
-        if( !existsSync(target) ){
-            mkdirSync(target, { recursive: true })
+        if( !fs.existsSync(target) ){
+            fs.mkdirSync(target, { recursive: true })
         }
 
-        let files = readdirSync(target)
-    
-        for(let i = 0; i < files.length; i++){
-            if(!files[i].toLowerCase().endsWith('.png')){
-                continue;
-            }   
-    
-            let filepath = path.join(target, files[i])
-            let char = Character.ReadFromFile( filepath )
-            if( char ){
-                list.push( char )
+        function ExploreDirectory( current_path ){
+            const entries = fs.readdirSync( current_path )
+            for (const entry of entries) {
+                const full_path = path.join( current_path, entry);
+                const stats = fs.statSync( full_path );
+                if (stats.isDirectory()) {
+                    ExploreDirectory( full_path );
+                } else if (stats.isFile()) {
+                    if(!full_path.toLowerCase().endsWith('.png')){
+                        continue;
+                    }   
+                    let char = Character.ReadFromFile( full_path )
+                    if( char ){
+                        list.push( char )
+                    }
+                }
             }
         }
-    
+
+        ExploreDirectory(target)
         console.debug( chalk.green( `Loaded ${chalk.bold(list.length)} characters from directory ${target}` ))
         return list;
     }
 
     static ReadFromFile( filepath ){
         sharp.cache(false);
-        const _buffer = readFileSync( filepath );
+        const _buffer = fs.readFileSync( filepath );
         const _chunks = PNGextract(_buffer);
         const _tEXtChunks = _chunks.filter(function (chunk) {
             return chunk.name === 'tEXt';
@@ -135,7 +142,7 @@ class Character{
         try {
             sharp.cache(false);
             if( !buffer ){
-                buffer = readFileSync( filepath )
+                buffer = fs.readFileSync( filepath )
             }
 
             let _image = await sharp(buffer).toFormat('png').toBuffer();
@@ -151,7 +158,7 @@ class Character{
             
             var _base64 = Buffer.from(_data, 'utf8').toString('base64');
             _chunks.splice(-1, 0, PNGtext.encode("character", _base64));
-            writeFileSync( filepath, new Buffer.from(PNGencode(_chunks)));
+            fs.writeFileSync( filepath, new Buffer.from(PNGencode(_chunks)));
             console.debug( chalk.green( `Successfully wrote character at ${ filepath }` ))
             return true;
         } catch (error) {

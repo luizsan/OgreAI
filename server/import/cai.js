@@ -43,4 +43,4 @@ function parseChat( json ){
     return chats;
 }
 
-export { parseChat };
+export default { parseChat };

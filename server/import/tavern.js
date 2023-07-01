@@ -74,4 +74,4 @@ function parseChat( jsonl ){
     return chat;
 }
 
-export { parseChat, decodeTimestamp };
+export default { parseChat, decodeTimestamp };

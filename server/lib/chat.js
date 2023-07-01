@@ -2,8 +2,8 @@ import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlink
 import path from "path"
 import chalk from "chalk"
 
-import { parseChat as parseChatCAI } from "../import/cai.js"
-import { parseChat as parseChatTavern } from "../import/tavern.js"
+import * as CAI from "../import/cai.js"
+import * as Tavern from "../import/tavern.js"
 
 class Chat{
     static path = "../user/chats/"
@@ -97,7 +97,7 @@ class Chat{
                         // TAVERN
                         let filepath = path.join( target, files[i] )
                         let content = readFileSync( filepath, "utf-8")
-                        let parsed = parseChatTavern( content )
+                        let parsed = Tavern.parseChat( content )
                         if( parsed ){
                             let new_chat = new Chat()
                             new_chat.SetFrom( parsed )
@@ -149,7 +149,7 @@ class Chat{
             try{
                 let file = files[i]
                 let content = readFileSync( file, "utf-8")
-                let parsed = parseChatTavern( content )
+                let parsed = Tavern.parseChat( content )
                 if( parsed ){
                     let new_chat = new Chat( character );
                     new_chat.SetFrom( parsed )
@@ -167,7 +167,7 @@ class Chat{
         try{
             let content = readFileSync( file, "utf-8")
             let json = JSON.parse( content )
-            let chats = parseChatCAI( json )
+            let chats = CAI.parseChat( json )
 
             for(let i = 0; i < chats.length; i++){
                 let new_chat = new Chat( character )
