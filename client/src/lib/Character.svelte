@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fetching, editing, favoritesList, currentCharacter, creating, localServer, history, deleting, busy } from "../State";
+    import { fetching, editing, favoritesList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "./Server.svelte";
 
@@ -22,6 +22,7 @@
 
         if( $currentCharacter && $currentCharacter.metadata.filepath == filepath ){
             $editing = $currentCharacter
+            $tabEditing = 0
             return;
         }
 

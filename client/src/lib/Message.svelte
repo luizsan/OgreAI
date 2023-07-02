@@ -2,7 +2,7 @@
     import { marked } from 'marked';
     import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
-    import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings } from '../State';
+    import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
     import * as Server from './Server.svelte';
@@ -78,6 +78,7 @@
         if(is_bot){
             if( $currentCharacter ){
                 $editing = $currentCharacter;
+                $tabEditing = 0;
             }
         }else{
             $sectionSettings = true;

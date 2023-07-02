@@ -37,28 +37,3 @@
         
     </Screen>
 {/if}
-
-<style>
-    .tabs{
-        padding: 24px 16px;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .tab{
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-direction: row;
-        font-size: 80%;
-        justify-content: center;
-        
-    }
-
-    .tab :global(svg){
-        width: 16px;
-        height: 16px;
-    }
-
-</style>
