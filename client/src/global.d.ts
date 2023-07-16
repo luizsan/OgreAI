@@ -1,6 +1,7 @@
 /// <reference types="svelte-gestures" />
 
 declare module "marked"
+declare module "character-card-utils"
 
 declare namespace svelte.JSX {
 	interface HTMLAttributes<T> {
