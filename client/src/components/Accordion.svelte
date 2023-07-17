@@ -4,28 +4,37 @@
     export let name = "";
     export let open = false;
 
+    let element : HTMLElement;
+
     function Toggle(){ 
         open = !open;
+    }
+
+    function Scroll(){
         if( open ){
-            
+            element.scrollIntoView({ block: "nearest", behavior: "smooth" })
         }
     }
 
 </script>
 
-<div>
+<div class="main" bind:this={element}>
     <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
         <span class="label">{name}</span>
     </button>
 
     {#if open}
-        <div class="container" transition:slide={{duration: 150}}>
+        <div class="container" transition:slide={{duration: 150}} on:introend={Scroll}>
             <slot/>
         </div>
     {/if}
 </div>
 
 <style>
+    .main{
+        scroll-margin: 20px;
+    }
+
     .label{
         text-align: left;
         width: 100%;
