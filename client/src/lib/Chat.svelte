@@ -426,6 +426,7 @@
 
         background: none;
         border: none;
+        color: var( --default-font-color );
         font-family: inherit;
         height: 20px;
         margin: 8px 0px;

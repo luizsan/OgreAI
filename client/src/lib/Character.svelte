@@ -7,10 +7,10 @@
     export let character : ICharacter | null = null
     export let label : boolean = false;
 
-    $: name = character.name
-    $: avatar = character.metadata.filepath
+    $: name = character.data.name
+    $: avatar = character.temp.filepath
     $: url = avatar ? localServer + "/" + encodeURIComponent(avatar.replace("../", "")).replace(/%2F/g, '/').replace(/%3A/g, ':') : ""
-    $: filename = character.metadata.filepath.replaceAll("../user/characters/", "")
+    $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
     $: favorited = $favoritesList.indexOf(filename) > -1
 
      async function SelectCharacter(filepath : string){
@@ -20,7 +20,7 @@
 
         $creating = false;
 
-        if( $currentCharacter && $currentCharacter.metadata.filepath == filepath ){
+        if( $currentCharacter && $currentCharacter.temp.filepath == filepath ){
             $editing = $currentCharacter
             $tabEditing = 0
             return;
@@ -34,7 +34,7 @@
         $editing = null;
 
         let tokens = await Server.getCharacterTokens( $currentCharacter );
-        $currentCharacter.metadata.tokens = tokens
+        $currentCharacter.temp.tokens = tokens
         $currentCharacter = $currentCharacter
         
         console.debug(`Selected character ${name} (ID: ${id})`)
@@ -55,10 +55,10 @@
 
 <div class="container">
     <button class="main" on:click={() => SelectCharacter(avatar)}>
-        <div class="avatar" style="background-image: url({url}?{character.last_changed})"/>
+        <div class="avatar" style="background-image: url({url}?{character.metadata.modified})"/>
         {#if label}
             <div class="label">
-                <div class="name">{character.name}</div>
+                <div class="name">{character.data.name}</div>
                 <div class="sub">{filename}</div>
             </div>
             

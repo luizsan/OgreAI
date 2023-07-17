@@ -12,16 +12,36 @@ declare namespace svelte.JSX {
 }
 
 interface ICharacter{
+    spec : string;
+    spec_version : string;
+    data : ICharacterBaseV2;
+    metadata : ICharacterMetadata;
+    temp : any;
+}
+
+interface ICharacterBaseV2{
+    // v1
     name : string;
     description : string;
-    greeting : string;
     personality : string;
     scenario : string;
-    dialogue : string;
     author : string;
-    create_date : number;
-    last_changed : number;
-    metadata : any;
+    first_mes : string;
+    mes_example : string;
+
+    // v2
+    creator_notes : string
+    creator : string
+    character_version : string
+    system_prompt : string
+    post_history_instructions : string
+    alternate_greetings : string[]
+    tags : string[]
+}
+
+interface ICharacterMetadata{
+    created : number;
+    modified : number;
 }
 
 interface IChat{

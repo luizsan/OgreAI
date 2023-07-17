@@ -9,13 +9,13 @@
         await Server.request( "/new_character" ).then(data => {
             $creating = true;
             $editing = data;
-            $editing.name = "New character"
-            $editing.metadata.tokens = {}
-            $editing.metadata.filepath = "./img/bot_default.png"
+            $editing.data.name = "New character"
+            $editing.temp.tokens = {}
+            $editing.temp.filepath = "./img/bot_default.png"
         });
 
         let tokens = await Server.getCharacterTokens($editing)
-        $editing.metadata.tokens = tokens;
+        $editing.temp.tokens = tokens;
         $fetching = false;
     }
 </script>

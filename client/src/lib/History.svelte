@@ -12,7 +12,7 @@
 
     $: last = chat ? chat.messages.at(-1) : null;
     $: index = last ? last.index : 0;
-    $: author = last.participant > -1 ? $currentCharacter.name : $currentProfile.name
+    $: author = last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
 
     function getFormattedDate(timestamp : number) : string{
         return new Date(timestamp).toLocaleString("ja-JP", Format.date_options)
@@ -95,7 +95,7 @@
             <span class="timestamp sub">{getFormattedDate(last.candidates[index].timestamp)}</span>
         </div>
         <div class="message disabled">
-            {@html Format.parseNames( marked.parse(last.candidates[index].text), $currentProfile.name, $currentCharacter.name)}
+            {@html Format.parseNames( marked.parse(last.candidates[index].text), $currentProfile.name, $currentCharacter.data.name)}
         </div>
     </div>
     

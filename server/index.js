@@ -196,7 +196,7 @@ app.post("/save_character", upload.single("file"), function(request, response){
         filepath += ".png"
     }
 
-    char.last_changed = Date.now()
+    char.metadata.modified = Date.now()
     let result = Character.WriteToFile( char, filepath, image )
     response.send( result )
 })

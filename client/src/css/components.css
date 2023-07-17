@@ -100,6 +100,23 @@ button.component{
     gap: 4px;
 }
 
+
+button.tab{
+    padding: 8px 16px;
+    border-bottom: 1px solid hsla(0, 0%, 50%, 0.25);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-direction: row;
+    font-size: 80%;
+    justify-content: center;
+}
+
+button.tab.active{
+    color: var( --accent-color-light );
+    border-bottom: 1px solid var( --accent-color-light );
+}
+
 button.component:hover{
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover);
@@ -174,25 +191,10 @@ button.component:disabled{
 }
 
 .tabs{
-    padding: 24px 16px;
+    padding: 24px 16px 0px 16px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-}
-
-.tab{
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-direction: row;
-    font-size: 80%;
-    justify-content: center;
-    
-}
-
-.tab :global(svg){
-    width: 16px;
-    height: 16px;
 }
 
 .hidden{

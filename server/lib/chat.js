@@ -17,19 +17,32 @@ class Chat{
         this.messages = []
 
         if( character ){
-            this.participants.push( character.name )
-            this.messages = [
-                {
-                    "participant": 0,
-                    "index": 0,
-                    "candidates": [ 
-                        {
-                            "timestamp": Date.now(), 
-                            "text": character.greeting ? character.greeting : "Hello, {{user}}!"
-                        },
-                    ],
-                },
-            ]
+            this.participants.push( character.data.name )
+            let first = {
+                participant: 0,
+                index: 0,
+                candidates: [ 
+                    {
+                        timestamp: Date.now(), 
+                        text: character.data.first_mes ? character.data.first_mes : "Hello, {{user}}!"
+                    },
+                ],
+            }
+
+            if( character.data.alternate_greetings ){
+                for( let i = 0; i < character.data.alternate_greetings.length; i++ ){
+                    if( !character.data.alternate_greetings[i] ){ 
+                        continue 
+                    }
+
+                    first.candidates.push({
+                        timestamp: Date.now(),
+                        text: character.data.alternate_greetings[i]
+                    })
+                }
+            }
+
+            this.messages = [ first ]
         }
     }
 
@@ -40,11 +53,10 @@ class Chat{
             this.participants.push( chat.participants[p] )
         }
 
-        if(chat.created){ this.create_date = chat.created }
-        if(chat.create_date){ this.create_date = chat.create_date }
-
+        this.create_date = chat.created ?? chat.create_date
         this.last_interaction = chat.last_interaction
         this.messages = []
+
         for( let m = 0; m < chat.messages.length; m++ ){
             let old_msg = chat.messages[m]
             let new_msg = {
@@ -73,7 +85,7 @@ class Chat{
 
     static GetAllChats(character){
         let chats = []
-        let target = path.join(Chat.path, path.parse( character.metadata.filepath ).name, "/" )
+        let target = path.join(Chat.path, path.parse( character.temp.filepath ).name, "/" )
         console.debug( chalk.blue( "Reading chats from " + chalk.blue(target)))
         if(existsSync(target)){
 
@@ -91,8 +103,9 @@ class Chat{
                         
                         let new_chat = new Chat()
                         new_chat.SetFrom( parsed )
+                        new_chat.filepath = filepath
                         chats.push( new_chat )
-        
+                        
                     }else if(files[i].toLowerCase().endsWith('.jsonl')){
                         // TAVERN
                         let filepath = path.join( target, files[i] )
@@ -101,6 +114,7 @@ class Chat{
                         if( parsed ){
                             let new_chat = new Chat()
                             new_chat.SetFrom( parsed )
+                            new_chat.filepath = filepath
                             chats.push( new_chat )
                         }
                     }
@@ -117,10 +131,10 @@ class Chat{
 
     static Save( chat, character ){
         if( !character ) return;
-        if( !character.name || character.name.length < 1 ) return;
+        if( !character.data.name ) return;
     
         let filename = chat.create_date + ".json";
-        let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
+        let folder =  path.join(Chat.path, path.parse( character.temp.filepath ).name )
         let target = path.join(folder, filename)
     
         try{
@@ -183,7 +197,7 @@ class Chat{
     static Delete( character, create_date ){
         try{
             let filename = create_date + ".json";
-            let folder =  path.join(Chat.path, path.parse( character.metadata.filepath ).name )
+            let folder =  path.join(Chat.path, path.parse( character.temp.filepath ).name )
             let target = path.join(folder, filename)
             unlinkSync(target)
             return true

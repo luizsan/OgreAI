@@ -41,8 +41,8 @@
         h = size * ( ratio >= 1 ? ratio : (1.0 / ratio ));
         
         if(is_bot && character){
-            img = localServer + "/" + character.metadata.filepath.replace("../", "")
-            append = is_bot ? "?" + character.last_changed : "";
+            img = localServer + "/" + character.temp.filepath.replace("../", "")
+            append = is_bot ? "?" + character.metadata.modified : "";
         }else{
             img = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
             append = ""

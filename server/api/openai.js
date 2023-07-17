@@ -1,5 +1,5 @@
 // required for calculating tokens correctly
-import { getTokens, parseNames } from "../lib/utils.js"
+import * as Utils from "../lib/utils.js"
 
 class OpenAI{
 
@@ -67,6 +67,12 @@ class OpenAI{
             title: "Stream",
             description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
             type: "checkbox", default: true,
+        },
+
+        logit_bias: {
+            title: "Logit Bias",
+            description: "Modify the likelihood of specified tokens appearing in the completion. Only change this if you know what you're doing.",
+            type: "textarea", default: "",
         }
     }
 
@@ -82,28 +88,38 @@ class OpenAI{
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
     static makePrompt( character, messages, user, settings, offset = 0 ){
-        var prompt = []
+        let prompt = []
 
-        var _system = settings.base_prompt + "\n\n"
-        _system += `{Description:} ${character.description.trim()}\n`
+        let main_prompt = settings.base_prompt ?? ""
+        if( character.data.system_prompt ){
+            main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
+        }
+
+        let sub_prompt = settings.sub_prompt ?? ""
+        if( character.data.post_history_instructions ){
+            sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
+        }
+
+        var _system = main_prompt + "\n\n"
+        _system += `{Description:} ${character.data.description.trim()}\n`
     
         if(character.personality)
-            _system += `{Personality:} ${character.personality.trim()}\n`
+            _system += `{Personality:} ${character.data.personality.trim()}\n`
         
         if(character.scenario)
-            _system += `{Scenario:} ${character.scenario.trim()}\n`
+            _system += `{Scenario:} ${character.data.scenario.trim()}\n`
         
         if(character.dialogue)
-            _system += `{Example dialogue:} ${character.dialogue.trim()}\n`
+            _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
 
-        _system = parseNames( _system, user, character.name )
+        _system = Utils.parseNames( _system, user, character.data.name )
         prompt.push({ role: "system", content: _system })
 
-        let sub_prompt = settings.sub_prompt ? "\n\n" + settings.sub_prompt : ""
-        sub_prompt = parseNames( sub_prompt, user, character.name )
+        sub_prompt = sub_prompt ? "\n\n" + sub_prompt : ""
+        sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
         
-        let sub_tokens = settings.sub_prompt ? getTokens( sub_prompt ).length : 0;
-        let token_count_system = getTokens(_system).length + sub_tokens;
+        let sub_tokens = settings.sub_prompt ? Utils.getTokens( sub_prompt ).length : 0;
+        let token_count_system = Utils.getTokens(_system).length + sub_tokens;
         let token_count_messages = 0
         let injected_sub_prompt = false;
 
@@ -112,14 +128,14 @@ class OpenAI{
                 let role = messages[i].participant > -1 ? "assistant" : "user";
                 let index = messages[i].index
                 let content = messages[i].candidates[ index ].text
-                content = parseNames(content, user, character.name )
+                content = Utils.parseNames(content, user, character.data.name )
                 
-                if( role == "user" && !injected_sub_prompt ){
+                if( role === "user" && !injected_sub_prompt ){
                     content += sub_prompt;
                     injected_sub_prompt = true;
                 }
 
-                let next_tokens = getTokens(content).length
+                let next_tokens = Utils.getTokens(content).length
                 if( token_count_system + token_count_messages + next_tokens > settings.context_size ){
                     break;
                 }
@@ -134,43 +150,54 @@ class OpenAI{
 
     // returns an object with the token breakdown for a character
     static getTokenConsumption( character, user, settings ){
-        let _system = settings.base_prompt;
-        if( settings.sub_prompt ){
-            _system += "\n\n" + settings.sub_prompt;
+        let main_prompt = settings.base_prompt ?? ""
+        if( character.data.system_prompt ){
+            main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
         }
 
-        _system = parseNames( _system, user, character.name )
+        let sub_prompt = settings.sub_prompt ?? ""
+        if( character.data.post_history_instructions ){
+            sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
+        }
+
+        let _system = main_prompt;
+
+        if( sub_prompt ){
+            _system += "\n\n" + sub_prompt;
+        }
+
+        _system = Utils.parseNames( _system, user, character.data.name )
 
         let _description = ""
-        if(character.description){
-            _description += `{Description:} ${character.description.trim()}\n`
-            _description = parseNames( _description, user, character.name )
+        if(character.data.description){
+            _description += `{Description:} ${character.data.description.trim()}\n`
+            _description = Utils.parseNames( _description, user, character.data.name )
         }
         
         let _personality = ""
-        if(character.personality){
-            _personality += `{Personality:} ${character.personality.trim()}\n`
-            _personality = parseNames( _personality, user, character.name )
+        if(character.data.personality){
+            _personality += `{Personality:} ${character.data.personality.trim()}\n`
+            _personality = Utils.parseNames( _personality, user, character.data.name )
         }
         
         let _scenario = ""
-        if(character.scenario){
-            _scenario += `{Scenario:} ${character.scenario.trim()}\n`
-            _scenario = parseNames( _scenario, user, character.name )
+        if(character.data.scenario){
+            _scenario += `{Scenario:} ${character.data.scenario.trim()}\n`
+            _scenario = Utils.parseNames( _scenario, user, character.data.name )
         }
 
         let _dialogue = ""
-        if(character.dialogue){
-            _dialogue += `{Example dialogue:} ${character.dialogue.trim()}\n`
-            _dialogue = parseNames( _dialogue, user, character.name )
+        if(character.data.dialogue){
+            _dialogue += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
+            _dialogue = Utils.parseNames( _dialogue, user, character.data.name )
         }
 
         return {
-            system: getTokens(_system).length,
-            description: getTokens(_description).length,
-            personality: getTokens(_personality).length,
-            scenario: getTokens(_scenario).length,
-            dialogue: getTokens(_dialogue).length,
+            system: Utils.getTokens(_system).length,
+            description: Utils.getTokens(_description).length,
+            personality: Utils.getTokens(_personality).length,
+            scenario: Utils.getTokens(_scenario).length,
+            dialogue: Utils.getTokens(_dialogue).length,
         }
     }
 
@@ -185,6 +212,7 @@ class OpenAI{
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
+            logit_bias: settings.logit_bias ? JSON.parse(settings.logit_bias) ?? {} : {},
             stream: settings.stream,
         };
     
@@ -196,10 +224,9 @@ class OpenAI{
             },
             body: JSON.stringify(outgoing_data)
         }
-    
-        // console.debug("Sending prompt %o", outgoing_data)
-        console.debug(`Sending prompt to ${outgoing_data.model}...`)
-        
+
+        console.debug("Sending prompt %o", outgoing_data)
+        // console.debug(`Sending prompt to ${outgoing_data.model}...`)
 
         const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
         return fetch( url + "/v1/chat/completions", options )

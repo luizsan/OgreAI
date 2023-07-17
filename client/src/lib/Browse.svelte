@@ -30,13 +30,13 @@
         await Server.request( "/new_character" ).then(data => {
             $creating = true;
             $editing = data;
-            $editing.name = "New character"
-            $editing.metadata.tokens = {}
-            $editing.metadata.filepath = "./img/bot_default.png"
+            $editing.data.name = "New character"
+            $editing.temp.tokens = {}
+            $editing.temp.filepath = "./img/bot_default.png"
         });
 
         let tokens = await Server.getCharacterTokens($editing)
-        $editing.metadata.tokens = tokens;
+        $editing.temp.tokens = tokens;
         $fetching = false;
     }
 
@@ -48,12 +48,12 @@
     }
 
     function sortByCreateDate(a : ICharacter, b : ICharacter){
-        return b.create_date - a.create_date
+        return b.metadata.created - a.metadata.created
     }
 
     function sortByName(a : ICharacter, b : ICharacter){
-        let nameA = a.name.toLowerCase()
-        let nameB = b.name.toLowerCase()
+        let nameA = a.data.name.toLowerCase()
+        let nameB = b.data.name.toLowerCase()
         if( nameA < nameB ){ 
             return -1 
         }else if( nameA > nameB ){ 
@@ -73,7 +73,7 @@
             searchResults = [...$characterList];
         }else{
             searchResults = [...$characterList].filter(character => {
-                return character.name.toLowerCase().indexOf(searchField.value.toLowerCase()) > -1;
+                return character.data.name.toLowerCase().indexOf(searchField.value.toLowerCase()) > -1;
             })
         }
 
@@ -112,8 +112,8 @@
         window.localStorage.setItem("sort_mode", sortMode.toString() )
 
         // favorites first
-        let a = searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) > -1)
-        let b = searchResults.filter(item => $favoritesList.indexOf(item.metadata.filepath.replaceAll("../user/characters/", "")) < 0)
+        let a = searchResults.filter(item => $favoritesList.indexOf(item.temp.filepath.replaceAll("../user/characters/", "")) > -1)
+        let b = searchResults.filter(item => $favoritesList.indexOf(item.temp.filepath.replaceAll("../user/characters/", "")) < 0)
         searchResults = [...a, ...b]
         
         return searchResults

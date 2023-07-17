@@ -1,6 +1,6 @@
 import { encode } from 'gpt-3-encoder';
 
-function parseNames(text, user, bot){
+export function parseNames(text, user, bot){
     if(!text) return text;
     text = text.replaceAll(/(\[NAME_IN_MESSAGE_REDACTED\])/gmi, user)
     text = text.replaceAll(/{{user}}/gmi, user)
@@ -10,9 +10,9 @@ function parseNames(text, user, bot){
     return text
 }
 
-function getTokens(text){
+export function getTokens(text){
     if(!text) return []
     return encode(text)
 }
 
-export { parseNames, getTokens };
+export default { parseNames, getTokens };

@@ -21,7 +21,8 @@
         <div class="tabs section horizontal">
             {#each tab_items as item, i}
                 <button 
-                    class="component normal tab" 
+                    class="normal tab"
+                    class:active={i == $tabSettings}
                     class:disabled={i == $tabSettings} 
                     disabled={item.disabled || i == $tabSettings} 
                     on:click={() => setTab(i)}>{@html item.icon}{item.name}
@@ -37,3 +38,12 @@
         
     </Screen>
 {/if}
+
+<style>
+    
+.tab :global(svg){
+    width: 16px;
+    height: 16px;
+}
+
+</style>

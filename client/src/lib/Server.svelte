@@ -115,7 +115,7 @@
     export async function getCharacterList(){
         await request("/get_characters").then( async response => {
             if( response ){
-                response.sort((a : ICharacter, b : ICharacter) => { return b.create_date - a.create_date });
+                response.sort((a : ICharacter, b : ICharacter) => { return b.metadata.created - a.metadata.created });
                 State.characterList.set( response )
             }
         })
@@ -138,7 +138,7 @@
                 list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
             }
 
-            console.debug(`Retrieved chats for ${character.name}`)
+            console.debug(`Retrieved chats for ${character.data.name}`)
             State.chatList.set( list )
             
             if( set_latest ){
@@ -154,7 +154,7 @@
                     latest_chat = await request( "/new_chat", { character: character });
                 }
                 State.currentChat.set(latest_chat);
-                console.debug(`Applied latest chat for ${character.name}`)
+                console.debug(`Applied latest chat for ${character.data.name}`)
             }
         })
     }

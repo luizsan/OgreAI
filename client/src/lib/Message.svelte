@@ -35,7 +35,7 @@
         Format.parseNames(
             current.text, 
             $currentProfile.name, 
-            $currentCharacter.name
+            $currentCharacter.data.name
         ).replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     ) : ""
 
@@ -53,7 +53,7 @@
     let editedText = ""
 
     export function SwipeMessage(step : number){
-        if( first ){
+        if( first && candidates.length === 1){
             return;
         }
 
@@ -68,7 +68,7 @@
 
         if($currentChat.messages[id].index > candidates.length-1){
             $currentChat.messages[id].index = candidates.length-1;
-            if(id === $currentChat.messages.length-1){
+            if(!first && id === $currentChat.messages.length-1){
                 generateSwipe();
             }
         }
@@ -288,7 +288,7 @@
                     {/if}
                 </button>
                 
-                {#if is_bot && id > 0}
+                {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
                         <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html arrow}</button>
                         <div class="count">{index+1} / {candidates.length}</div>
@@ -334,6 +334,10 @@
 
     .msg:hover{
         background: rgb(128, 128, 128, 0.1);
+    }
+
+    :global(body.light) .msg:hover{
+        background: rgb(255, 255, 255, 0.5);
     }
 
     .msg:hover.user{

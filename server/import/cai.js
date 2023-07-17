@@ -12,7 +12,7 @@ export function parseChat( json ){
                 title: cai_chat.external_id,
                 created: Date.parse(cai_chat.created),
                 last_interaction: Date.parse(cai_chat.last_interaction),
-                participants: [ json.info.character.name ],
+                participants: [ json.info.character.data.name ],
                 messages: []
             }
 

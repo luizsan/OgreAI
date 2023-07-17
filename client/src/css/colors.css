@@ -26,7 +26,7 @@
 
 :root .light{
     --default-font-color: hsl(0, 0%, 15%);
-    --default-bg-color: hsl(0, 0%, 100% );
+    --default-bg-color: hsl(192, 5%, 92%);
 
     --component-color-normal: hsl(0, 0%, 25%);
     --component-color-hover: hsl(0, 0%, 33%);
