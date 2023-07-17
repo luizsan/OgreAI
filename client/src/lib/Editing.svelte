@@ -232,9 +232,6 @@
 
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
 
-            {#if $editing.data.creator_notes}
-                <p class="explanation">{$editing.data.creator_notes}</p>
-            {/if}
 
             <div class="section wide">
                 <div>
