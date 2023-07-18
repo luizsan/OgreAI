@@ -109,7 +109,7 @@ class OpenAI{
         if(character.scenario)
             _system += `{Scenario:} ${character.data.scenario.trim()}\n`
         
-        if(character.dialogue)
+        if(character.mes_example)
             _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
 
         _system = Utils.parseNames( _system, user, character.data.name )
@@ -187,7 +187,7 @@ class OpenAI{
         }
 
         let _dialogue = ""
-        if(character.data.dialogue){
+        if(character.data.mes_example){
             _dialogue += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
             _dialogue = Utils.parseNames( _dialogue, user, character.data.name )
         }
