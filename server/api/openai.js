@@ -103,13 +103,13 @@ class OpenAI{
         var _system = main_prompt + "\n\n"
         _system += `{Description:} ${character.data.description.trim()}\n`
     
-        if(character.personality)
+        if(character.data.personality)
             _system += `{Personality:} ${character.data.personality.trim()}\n`
         
-        if(character.scenario)
+        if(character.data.scenario)
             _system += `{Scenario:} ${character.data.scenario.trim()}\n`
         
-        if(character.mes_example)
+        if(character.data.mes_example)
             _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
 
         _system = Utils.parseNames( _system, user, character.data.name )
