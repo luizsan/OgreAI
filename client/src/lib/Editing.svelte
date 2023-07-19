@@ -247,7 +247,7 @@
                         <h3 class="title">Author</h3>
                         <p class="explanation">The name of the creator.</p>
                     </div>
-                    <input type="text" class="component wide" bind:value={$editing.data.creator}>
+                    <input type="text" class="component wide" placeholder="Unknown author" bind:value={$editing.data.creator}>
                 </div>
 
                 <div class="section wide">
