@@ -62,6 +62,7 @@ interface IReply{
     swipe : boolean;
     candidate : ICandidate;
     participant : number;
+    replace : boolean;
 }
 
 interface ICandidate{

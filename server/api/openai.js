@@ -275,12 +275,14 @@ class OpenAI{
     // - done: if the stream has finished
     // - participant: 0
     // - swipe: true or false
+    // - replace: replace the message contents or keep adding
     // - streaming: { text, timestamp, model }
-    static receiveStream( incoming_data, swipe ){
+    static receiveStream( incoming_data, swipe, replace = false ){
         let message = {
             done: false,
             participant: 0,
             swipe: swipe,
+            replace: replace,
             streaming: {
                 text: "",
                 model: undefined,
@@ -307,7 +309,7 @@ class OpenAI{
                 if( text ){
                     message.streaming.text += text;
                 }
-            }catch{
+            }catch(error){
                 console.log(obj)
                 console.error(error);
             }

@@ -115,8 +115,12 @@
                     for( const line of lines ){
                         const obj = JSON.parse(line)
                         if( obj.streaming ){
-                            candidate.text += obj.streaming.text
                             candidate.timestamp = obj.streaming.timestamp
+                            if( obj.replace ){
+                                candidate.text = obj.streaming.text
+                            }else{
+                                candidate.text += obj.streaming.text
+                            }
                             if( obj.streaming.model ){
                                 candidate.model = obj.streaming.model
                             }
@@ -160,6 +164,7 @@
             text: "",
             timestamp: Date.now(),
             model: null,
+            replace: false
         }
 
         if( swipe ){

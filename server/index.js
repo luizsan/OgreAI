@@ -249,12 +249,10 @@ app.post("/generate", parser, async function(request, response){
                     for await (const message of result.body){
                         let data = api.receiveStream( td.decode(message), swipe )
                         if( data ){
-                            if( !data.error ){
-                                // console.debug( chalk.blue(`Chunk: ${data.streaming.text}`))
-                                // the newline at the end is required as sometimes the stream 
-                                // can lag and the client will clump chunks together, so it's 
-                                // easier to separate them by lines instead.
-                            }
+                            // console.debug( chalk.blue("%o"), data)
+                            // the newline at the end is required as sometimes the stream 
+                            // can lag and the client will clump chunks together, so it's 
+                            // easier to separate them by lines instead.
                             response.write(JSON.stringify(data) + "\n")
                         }
                     }
