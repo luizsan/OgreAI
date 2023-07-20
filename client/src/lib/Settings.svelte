@@ -130,7 +130,7 @@
 
     .input{
         display: grid;
-        grid-template-columns: 64px auto;
+        grid-template-columns: 72px auto;
         gap: 16px;
     }
 </style>

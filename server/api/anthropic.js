@@ -38,7 +38,7 @@ class Anthropic{
         context_size: {
             title: "Context Size",
             description: "Number of context tokens to submit to the AI for sampling.",
-            type: "range", default: 200000, min: 120, max: 200000, step: 10,
+            type: "range", default: 100000, min: 120, max: 100000, step: 10,
         },
         
         temperature: {
