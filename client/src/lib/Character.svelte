@@ -129,7 +129,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-weight: bolder;
-        color: white;
+        color: hsl(0, 0%, 85%);
     }
     
     .sub{
@@ -140,6 +140,10 @@
         padding: 0px;
         font-size: 80%;
         color: gray;
+    }
+
+    .main:hover .name{
+        color: white;
     }
 
     .main:hover .sub{
