@@ -317,7 +317,7 @@
                 {#if chatOptions}
                     <div class="options-list">
                         {#if $currentChat}
-                            <div class="options-item disabled deselect title">{@html SVG.chat}{$currentChat.title}</div>
+                            <div class="options-item disabled deselect title">{@html SVG.chat}<p class="name">{$currentChat.title}</p></div>
                         {/if}
 
                         <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
@@ -523,6 +523,11 @@
     .title{
         font-size: 75%;
         opacity: 0.5;
+    }
+
+    .options-list .name{
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .shortcut{
