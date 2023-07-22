@@ -1,6 +1,5 @@
 <script lang="ts">
     import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
-    import { close } from "../utils/SVGCollection.svelte";
     import Screen from "../components/Screen.svelte";
     import * as Server from "./Server.svelte"
     import Accordion from "../components/Accordion.svelte";
@@ -183,6 +182,10 @@
         $editing = null;
     }
 
+    function OpenImage(){
+        window.open( localServer + "/" + $editing.temp.filepath.replace("../", "") ,  "_blank");
+    }
+
     function AddGreeting(){
         $editing.data.alternate_greetings.push("Hello, {{user}}!")
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
@@ -227,7 +230,8 @@
                 </div>
             </div>
 
-            <button class="close normal" on:click={Close}>{@html close}</button>
+            <button class="close normal" title="Close window" on:click={Close}>{@html SVG.close}</button>
+            <button class="open normal" title="Open image in new tab" on:click={OpenImage}>{@html SVG.open}</button>
         </div>
 
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
@@ -409,6 +413,14 @@
         position: absolute;
         right: 8px;
         top: 16px;
+        width: 32px;
+    }
+
+    .open{
+        height: 32px;
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
         width: 32px;
     }
 
