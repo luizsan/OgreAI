@@ -149,7 +149,7 @@
 
     <div class="container" bind:this={mainElement} on:scroll={RefreshScroll}>
         <div class="section horizontal" style="justify-content: end">
-            <button class="component pin {pinned ? "info" : "unpin"}" on:click={togglePin}>{@html SVG.pin}</button>
+            <button class="pin {pinned ? "info" : "unpin"}" on:click={togglePin}>{@html SVG.pin}</button>
         </div>
 
         <div class="section horizontal">
