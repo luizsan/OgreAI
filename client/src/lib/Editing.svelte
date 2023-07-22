@@ -188,8 +188,8 @@
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
     }
     
-    function DuplicateGreeting(item : string){
-        $editing.data.alternate_greetings.push(item)
+    function DuplicateGreeting(id : number, item : string){
+        $editing.data.alternate_greetings.splice(id, 0, item)
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
     }
     
@@ -271,7 +271,7 @@
                 {#each $editing.data.alternate_greetings as alt, i}
                     <div class="greeting">
                         <div class="controls">
-                            <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(alt)}>{@html SVG.copy}</button>
+                            <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
                             <button class="component danger" title="Remove greeting" on:click={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
                         </div>
                         <textarea class="component wide" rows=6 bind:value={alt}></textarea>
