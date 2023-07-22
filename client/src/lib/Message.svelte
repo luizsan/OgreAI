@@ -1,6 +1,6 @@
 <script lang="ts">
     import { marked } from 'marked';
-    import { arrow, dots, copy, trashcan, edit } from "../utils/SVGCollection.svelte"
+    import * as SVG from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
     import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
@@ -159,6 +159,23 @@
             }
         }
     }
+
+    async function BranchChat(){
+        if(window.confirm("Create a new chat from start until this message?")){
+            $fetching = true;
+            let branch = JSON.parse( JSON.stringify( $currentChat ))
+            branch.messages = branch.messages.slice(0, id + 1)
+
+            let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch })
+            if( result ){
+                await Server.getChats( $currentCharacter, true )
+                $fetching = false;
+                window.alert("Successfully branched chat!")
+            }else{
+                $fetching = false;
+            }
+        }
+    }
     
     function SelectMessageBatch(){
         if( !$deleting ){
@@ -276,13 +293,14 @@
         {#if !isEditing}
             <div class="footer">
                 <button class="dots normal" use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
-                    <div class="icon" title="More actions">{@html dots}</div>
+                    <div class="icon" title="More actions">{@html SVG.dots}</div>
                         {#if postActions}
                         <div class="actions">
-                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html copy}</button>
-                            <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html edit}</button>
+                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
+                            <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
                             {#if id > 0}
-                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html trashcan}</button>
+                                <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
+                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html SVG.trashcan}</button>
                             {/if}
                         </div>
                     {/if}
@@ -290,9 +308,9 @@
                 
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
-                        <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html arrow}</button>
+                        <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count">{index+1} / {candidates.length}</div>
-                        <button class="right normal" title="Next candidate" on:click={() => SwipeMessage(1)}>{@html arrow}</button>
+                        <button class="right normal" title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
                     </div>
 
                     <div class="ratings">
