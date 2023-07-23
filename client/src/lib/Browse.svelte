@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters } from "../State";
+    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile } from "../State";
     import Character from './Character.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "./Server.svelte";
@@ -36,6 +36,8 @@
             $creating = true;
             $editing = data;
             $editing.data.name = "New character"
+            $editing.data.creator = $currentProfile.name ?? ""
+            $editing.data.character_version = "main"
             $editing.temp.tokens = {}
             $editing.temp.filepath = "./img/bot_default.png"
         });
