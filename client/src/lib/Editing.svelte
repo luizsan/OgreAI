@@ -420,7 +420,7 @@
         height: 32px;
         position: absolute;
         right: 8px;
-        bottom: 8px;
+        bottom: 12px;
         width: 32px;
     }
 
