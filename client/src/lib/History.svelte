@@ -219,6 +219,20 @@
         margin-bottom: 1em;
     }
 
+    .message :global(code){
+        color: orange;
+        background: hsl(285, 5%, 12%);
+        padding: 2px;
+        font-size: 85%;
+    }
+    
+    .message :global(pre){
+        white-space: pre-wrap;
+        background: hsl(285, 5%, 12%);
+        padding: 8px;
+        border-radius: 6px;
+    }
+
     .buttons{
         margin-top: auto;
         display: flex;
