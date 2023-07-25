@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
     import { currentSettings, availableAPIModes, availableAPISettings, fetching } from "../State";
     import Status from "../components/Status.svelte";
     import * as Server from "./Server.svelte";
 
     $: api_mode = $currentSettings.api_mode
+
+    let presetElements = {}
 
     async function getSettings(){
         $fetching = true;
@@ -23,7 +25,20 @@
         $fetching = false;
     }
 
+    function setAPIAuth(){
+        const index = presetElements["auth"]
+        $currentSettings[api_mode].api_url = $currentSettings.presets.auth[ index ].address
+        $currentSettings[api_mode].api_auth = $currentSettings.presets.auth[ index ].password
+    }
 
+    function setPrompt(key : string){
+        const index = presetElements[key]
+        $currentSettings[api_mode][key] = $currentSettings.presets[key][ index ].content
+    }
+
+    function clearPrompt(key : string){
+        $currentSettings[api_mode][key] = ""
+    }
 </script>
 
 
@@ -48,7 +63,18 @@
     <div class="section">
         <div class="title"><div class="inline">API Target <Status/></div></div>
         <div class="setting">
-            <div class="section">
+            <div class="section vertical">
+                {#if $currentSettings.presets.auth.length > 0}
+                    <div class="section horizontal wrap">
+                        <select class="component" bind:value={presetElements["auth"]} on:change={setAPIAuth} style="flex: 1 1 auto">
+                            {#each $currentSettings.presets.auth as entry, i}
+                                <option value={i}>{entry.name ?? `Preset ${i}`}</option>
+                            {/each}
+                        </select>
+                        <button class="component normal" on:click={setAPIAuth}>Apply</button>
+                    </div>
+                {/if}
+                
                 <input type="text" class="component wide" placeholder="Insert API URL..." bind:value={$currentSettings[api_mode].api_url} style="flex: 1 1 auto">
                 <input type="password" class="component wide" placeholder="Insert API authentication..." bind:value={$currentSettings[api_mode].api_auth} style="flex: 1 1 auto">
                 <button class="component normal" on:click={Server.getAPIStatus}>Check Status</button>
@@ -64,11 +90,26 @@
             <div class="title">{entry.title}</div>
             <div class="explanation">{entry.description}</div>
         </div>
-        <div class="setting">
+
+        <div class="setting vertical">
+
+            {#if (key == "base_prompt" || key == "sub_prompt") && $currentSettings.presets[key].length > 0}
+                <div class="section horizontal">
+                    <select class="component" bind:value={presetElements[key]} on:change={() => setPrompt(key)} style="flex: 1 1 auto">
+                        {#each $currentSettings.presets[key] as entry, i}
+                            <option value={i}>{entry.name ?? `Preset ${i}`}</option>
+                        {/each}
+                    </select>
+                    <button class="component normal" on:click={() => setPrompt(key)}>Apply</button>
+                    <button class="component danger" on:click={() => clearPrompt(key)}>Clear</button>
+                </div>
+                <div></div>
+            {/if}
+
             {#if entry.type == "text"}
                 <input type="text" class="component wide" bind:value={$currentSettings[api_mode][key]}>
             {:else if entry.type == "textarea"}
-                <textarea class="component wide" rows={6} bind:value={$currentSettings[api_mode][key]}></textarea>
+                <textarea class="component wide" rows={8} bind:value={$currentSettings[api_mode][key]}></textarea>
             {:else if entry.type == "select"}
                 <select class="component" bind:value={$currentSettings[api_mode][key]}>
                     {#each entry.choices as choice}
@@ -83,6 +124,7 @@
             {:else if entry.type == "checkbox"}
                 <input type="checkbox" class="component" bind:checked={$currentSettings[api_mode][key]}>
             {/if}
+
         </div>
     </div>
 {/each}
@@ -132,5 +174,11 @@
         display: grid;
         grid-template-columns: 72px auto;
         gap: 16px;
+    }
+
+    .setting{
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 </style>

@@ -88,7 +88,7 @@ input[type="radio"].component{
 }
 
 button.component{
-    padding: 8px 20px;
+    padding: 6px 20px;
     background: var( --component-bg-normal );
     outline: 1px solid var( --component-border-normal );
     border-radius: 3px;
@@ -97,6 +97,7 @@ button.component{
     transition: all 0.1s ease;
     display: flex;
     align-items: center;
+    min-height: 32px;
     gap: 4px;
 }
 
@@ -123,7 +124,8 @@ button.component:hover{
     outline-color: var( --component-border-hover );
 }
 
-button.component:disabled{
+.component:disabled{
+    color: var( --component-color-disabled );
     background: var( --component-bg-disabled );
     border-color: var( --component-border-disabled );
     outline-color: var( --component-border-disabled );
@@ -190,18 +192,21 @@ button.component:disabled{
     flex-direction: row;
 }
 
+.wrap{
+    flex-wrap: wrap;
+}
+
 .tabs{
     padding: 24px 16px 0px 16px;
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
 }
 
 .hidden{
     display: none !important;
 }
 
-.disabled{
+:disabled, .disabled{
     pointer-events: none !important;
 }
 

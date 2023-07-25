@@ -24,7 +24,7 @@
     </button>
 
     {#if open}
-        <div class="container" transition:slide={{duration: 150}} on:introend={Scroll}>
+        <div class="container" in:slide={{duration: 150}} on:introend={Scroll}>
             <slot/>
         </div>
     {/if}

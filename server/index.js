@@ -75,6 +75,14 @@ app.get("/get_profile", parser, function(_, response){
 app.get("/get_settings", parser, function(_, response){
     let settings = LoadData(Settings.path, new Settings())
 
+    if( !settings.presets ){
+        settings.presets = {}
+    }
+
+    if( !settings.presets.auth ){ settings.presets.auth = [] }
+    if( !settings.presets.base_prompt ){ settings.presets.base_prompt = [] }
+    if( !settings.presets.sub_prompt ){ settings.presets.sub_prompt = [] }
+
     // sanitize settings based on available API modes
     Object.keys( API_MODES ).forEach(mode => {
         if( !settings[mode] ){

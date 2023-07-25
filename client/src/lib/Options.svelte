@@ -3,10 +3,12 @@
     import Screen from "../components/Screen.svelte";
     import Profile from "./Profile.svelte";
     import Settings from "./Settings.svelte"
+    import Presets from "./Presets.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     const tab_items = [
         { name: "Settings", icon: SVG.settings, disabled: false },
+        { name: "Presets", icon: SVG.sliders, disabled: false },
         { name: "User", icon: SVG.user, disabled: false },
     ]
 
@@ -18,7 +20,7 @@
 
 {#if $sectionSettings && $currentSettings != null}
     <Screen>
-        <div class="tabs section horizontal">
+        <div class="tabs section horizontal wrap">
             {#each tab_items as item, i}
                 <button 
                     class="normal tab"
@@ -33,6 +35,8 @@
         {#if $tabSettings == 0}
             <Settings/>
         {:else if $tabSettings == 1}
+            <Presets/>
+        {:else if $tabSettings == 2}
             <Profile/>
         {/if}
         
