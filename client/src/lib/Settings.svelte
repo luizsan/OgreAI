@@ -27,12 +27,14 @@
 
     function setAPIAuth(){
         const index = presetElements["auth"]
+        if( index < 0 ) return;
         $currentSettings[api_mode].api_url = $currentSettings.presets.auth[ index ].address
         $currentSettings[api_mode].api_auth = $currentSettings.presets.auth[ index ].password
     }
 
     function setPrompt(key : string){
         const index = presetElements[key]
+        if( index < 0 ) return;
         $currentSettings[api_mode][key] = $currentSettings.presets[key][ index ].content
     }
 
@@ -52,7 +54,7 @@
     <div class="section">
         <div class="title">API Mode</div>
         <div class="setting">
-            <select class="component" bind:value={$currentSettings.api_mode} on:change={getSettings}>
+            <select class="component min" bind:value={$currentSettings.api_mode} on:change={getSettings}>
                 {#each $availableAPIModes as entry}
                     <option value={entry.key}>{entry.title}</option>
                 {/each}
@@ -94,8 +96,9 @@
         <div class="setting vertical">
 
             {#if (key == "base_prompt" || key == "sub_prompt") && $currentSettings.presets[key].length > 0}
-                <div class="section horizontal">
+                <div class="section horizontal wrap">
                     <select class="component" bind:value={presetElements[key]} on:change={() => setPrompt(key)} style="flex: 1 1 auto">
+                        <option value={-1}>None</option>
                         {#each $currentSettings.presets[key] as entry, i}
                             <option value={i}>{entry.name ?? `Preset ${i}`}</option>
                         {/each}
@@ -107,11 +110,11 @@
             {/if}
 
             {#if entry.type == "text"}
-                <input type="text" class="component wide" bind:value={$currentSettings[api_mode][key]}>
+                <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
             {:else if entry.type == "textarea"}
                 <textarea class="component wide" rows={8} bind:value={$currentSettings[api_mode][key]}></textarea>
             {:else if entry.type == "select"}
-                <select class="component" bind:value={$currentSettings[api_mode][key]}>
+                <select class="component min" bind:value={$currentSettings[api_mode][key]}>
                     {#each entry.choices as choice}
                         <option value={choice}>{choice}</option>
                     {/each}
@@ -181,4 +184,9 @@
         flex-direction: column;
         gap: 4px;
     }
+
+    .min{
+        align-self: flex-start;
+    }
+
 </style>
