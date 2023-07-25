@@ -206,7 +206,7 @@ button.component:hover{
     display: none !important;
 }
 
-:disabled, .disabled{
+.disabled{
     pointer-events: none !important;
 }
 
