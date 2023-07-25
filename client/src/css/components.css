@@ -28,7 +28,7 @@ button {
 }
 
 input[type="text"].component, input[type="password"].component, select.component{
-    height: 32px;
+    height: 30px;
 }
 
 input[type="text"].component, input[type="password"].component, textarea.component, select.component{
@@ -43,7 +43,7 @@ input[type="text"].component, input[type="password"].component, textarea.compone
     color: var( --component-color-normal );
     font-family: var( --default-font-face );
     font-size: 90%;
-    padding: 8px;
+    padding: 4px 8px;
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
@@ -97,7 +97,7 @@ button.component{
     transition: all 0.1s ease;
     display: flex;
     align-items: center;
-    min-height: 32px;
+    min-height: 30px;
     gap: 4px;
 }
 
