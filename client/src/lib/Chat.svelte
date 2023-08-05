@@ -355,9 +355,9 @@
     }
 
     :global(body.light) .container{
-        --input-bg-normal: hsl(0, 0%, 90%);
+        --input-bg-normal: hsl(0, 0%, 100%);
         --input-border-normal: 1px solid hsla(0, 0%, 75%, 0.5);
-        --input-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
+        --input-outline-normal: 1px solid hsla(0, 0%, 33%, 0.5);
     }
 
     * {
