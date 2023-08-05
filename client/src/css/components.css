@@ -54,6 +54,10 @@ input[type="text"].component, input[type="password"].component, textarea.compone
     --scrollbar-bg: var( --component-bg-normal )
 }
 
+select.component{
+    border-width: 0px;
+}
+
 textarea.component{
     line-height: 1.333333;
     overflow-x: hidden;
