@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fade, scale, slide } from "svelte/transition";
+    import { slide } from "svelte/transition";
 
     export let name = "";
     export let open = false;
