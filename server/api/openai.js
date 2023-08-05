@@ -7,7 +7,7 @@ class OpenAI{
     static API_NAME = "OpenAI"
 
     // settings for this API
-    // types: textarea, select (dropdown), range (slider), checkbox
+    // types: text, textarea, select (dropdown), range (slider), checkbox
     static API_SETTINGS = {
         model: {
             title: "Model",
@@ -51,6 +51,12 @@ class OpenAI{
             type: "range", default: 0.9, min: 0, max: 1, step: 0.01,
         },
         
+        stream: {
+            title: "Stream",
+            description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
+            type: "checkbox", default: true,
+        },
+
         base_prompt: {
             title: "Base Prompt",
             description: "Used to give basic instructions to the model on how to behave in the chat.",
@@ -63,10 +69,16 @@ class OpenAI{
             type: "textarea", default: "",
         },
 
-        stream: {
-            title: "Stream",
-            description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
-            type: "checkbox", default: true,
+        prefill_prompt: {
+            title: "Prefill Prompt",
+            description: "Appended at the very end of the prompt to enforce instructions and patterns.",
+            type: "textarea", default: "",
+        },
+
+        stop_sequences: {
+            title: "Stop Sequences",
+            description: "Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
+            type: "list", limit: 4, default: [],
         },
 
         logit_bias: {
@@ -100,17 +112,22 @@ class OpenAI{
             sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
         }
 
+        let prefill_prompt = settings.prefill_prompt ?? ""
+
         var _system = main_prompt + "\n\n"
         _system += `{Description:} ${character.data.description.trim()}\n`
     
-        if(character.data.personality)
+        if(character.data.personality){
             _system += `{Personality:} ${character.data.personality.trim()}\n`
+        }
         
-        if(character.data.scenario)
+        if(character.data.scenario){
             _system += `{Scenario:} ${character.data.scenario.trim()}\n`
+        }
         
-        if(character.data.mes_example)
+        if(character.data.mes_example){
             _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
+        }
 
         _system = Utils.parseNames( _system, user, character.data.name )
         prompt.push({ role: "system", content: _system })
@@ -118,11 +135,17 @@ class OpenAI{
         sub_prompt = sub_prompt ? "\n\n" + sub_prompt : ""
         sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
         
-        let sub_tokens = settings.sub_prompt ? Utils.getTokens( sub_prompt ).length : 0;
-        let token_count_system = Utils.getTokens(_system).length + sub_tokens;
-        let token_count_messages = 0
-        let injected_sub_prompt = false;
+        prefill_prompt = prefill_prompt ? "\n\n" + prefill_prompt : ""
+        prefill_prompt = Utils.parseNames( prefill_prompt, user, character.data.name )
 
+        let sub_tokens = Utils.getTokens( sub_prompt ).length;
+        let prefill_tokens = Utils.getTokens( prefill_prompt ).length;
+        let injected_sub_prompt = false;
+        let injected_prefill_prompt = false;
+
+        let token_count_system = Utils.getTokens(_system).length + sub_tokens + prefill_tokens;
+        let token_count_messages = 0
+        
         if( messages ){
             for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
                 let role = messages[i].participant > -1 ? "assistant" : "user";
@@ -133,6 +156,11 @@ class OpenAI{
                 if( role === "user" && !injected_sub_prompt ){
                     content += sub_prompt;
                     injected_sub_prompt = true;
+                }
+
+                if( !injected_prefill_prompt ){
+                    content += prefill_prompt;
+                    injected_prefill_prompt = true;
                 }
 
                 let next_tokens = Utils.getTokens(content).length
@@ -202,16 +230,17 @@ class OpenAI{
     }
 
     // returns an output from the prompt that will be fed into receiveData
-    static async generate(prompt, user, settings){
+    static async generate(character, prompt, user, settings){
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
-            stop: [ "{{user}}:", user + ":" ],
+            stop: Utils.sanitizeStopSequences(settings.stop, user, character),
             max_tokens: parseInt(settings.max_length),
             frequency_penalty: parseFloat(settings.frequency_penalty),
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
+            stop: settings.stop ?? [],
             logit_bias: settings.logit_bias ? JSON.parse(settings.logit_bias) ?? {} : {},
             stream: settings.stream,
         };

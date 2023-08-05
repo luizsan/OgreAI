@@ -1,21 +1,27 @@
 <script lang="ts">
     import Accordion from "../components/Accordion.svelte";
-    import { currentSettings, availableAPIModes, availableAPISettings, fetching, api } from "../State";
-    import Status from "../components/Status.svelte";
+    import { currentSettings } from "../State";
     import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
-    function AddItem(key){
+    const prompt_categories = [
+        { key: "base_prompt", label: "Base Prompt"},
+        { key: "sub_prompt", label: "Sub Prompt"},
+        { key: "prefill_prompt", label: "Prefill Prompt"},
+    ]
+
+
+    function AddItem(key : string){
         $currentSettings.presets[key].push({ name: "", address: "", password: "" })
         $currentSettings.presets[key] = $currentSettings.presets[key];
     }
 
-    function DuplicateItem(key, id, item){
+    function DuplicateItem(key : string, id : number, item : any){
         $currentSettings.presets[key].splice(id, 0, JSON.parse(JSON.stringify(item)))
         $currentSettings.presets[key] = $currentSettings.presets[key];
     }
 
-    function RemoveItem(key, id){
+    function RemoveItem(key : string, id : number){
         $currentSettings.presets[key].splice(id, 1)
         $currentSettings.presets[key] = $currentSettings.presets[key];
     }
@@ -34,7 +40,7 @@
             <div class="preset">
                 <div class="controls">
                     <button class="component info" title="Duplicate" on:click={() => DuplicateItem("auth", i, auth)}>{@html SVG.copy}</button>
-                    <button class="component danger" title="Remove greeting" on:click={() => RemoveItem("auth", i)}>{@html SVG.trashcan}</button>
+                    <button class="component danger" title="Remove" on:click={() => RemoveItem("auth", i)}>{@html SVG.trashcan}</button>
                 </div>
                 <div class="fields">
                     <input type="text" class="component wide" placeholder="Title" bind:value={auth.name} style="flex: 1 1 auto">
@@ -46,37 +52,23 @@
         <button class="component normal" on:click={() => AddItem("auth")}>{@html SVG.plus}Add API Authentication</button>
     </Accordion>
     
-    <Accordion name="Base Prompts">
-        {#each $currentSettings.presets.base_prompt as main, i}
-            <div class="preset">
-                <div class="controls">
-                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("base_prompt", i, main)}>{@html SVG.copy}</button>
-                    <button class="component danger" title="Remove greeting" on:click={() => RemoveItem("base_prompt", i)}>{@html SVG.trashcan}</button>
+    {#each prompt_categories as category}
+        <Accordion name={category.label}>
+            {#each $currentSettings.presets[category.key] as main, i}
+                <div class="preset">
+                    <div class="controls">
+                        <button class="component info" title="Duplicate" on:click={() => DuplicateItem(category.key, i, main)}>{@html SVG.copy}</button>
+                        <button class="component danger" title="Remove" on:click={() => RemoveItem(category.key, i)}>{@html SVG.trashcan}</button>
+                    </div>
+                    <div class="fields">
+                        <input type="text" class="component wide" placeholder="{category.label} Title" bind:value={main.name} style="flex: 1 1 auto">
+                        <textarea class="component wide" placeholder="Content" rows={8} bind:value={main.content}></textarea>
+                    </div>
                 </div>
-                <div class="fields">
-                    <input type="text" class="component wide" placeholder="Base Prompt Title" bind:value={main.name} style="flex: 1 1 auto">
-                    <textarea class="component wide" placeholder="Content" rows={8} bind:value={main.content}></textarea>
-                </div>
-            </div>
-        {/each}
-        <button class="component normal" on:click={() => AddItem("base_prompt")}>{@html SVG.plus}Add Base Prompt</button>
-    </Accordion>
-    
-    <Accordion name="Sub Prompts">
-        {#each $currentSettings.presets.sub_prompt as sub, i}
-            <div class="preset">
-                <div class="controls">
-                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("sub_prompt", i, sub)}>{@html SVG.copy}</button>
-                    <button class="component danger" title="Remove greeting" on:click={() => RemoveItem("sub_prompt", i)}>{@html SVG.trashcan}</button>
-                </div>
-                <div class="fields">
-                    <input type="text" class="component wide" placeholder="Sub Prompt title" bind:value={sub.name} style="flex: 1 1 auto">
-                    <textarea class="component wide" placeholder="Content" rows={8} bind:value={sub.content}></textarea>
-                </div>
-            </div>
-        {/each}
-        <button class="component normal" on:click={() => AddItem("sub_prompt")}>{@html SVG.plus}Add Sub Prompt</button>
-    </Accordion>
+            {/each}
+            <button class="component normal" on:click={() => AddItem(category.key)}>{@html SVG.plus}Add {category.label}</button>
+        </Accordion>
+    {/each}
 
 <div></div>
 

@@ -1,5 +1,6 @@
 // required for calculating tokens correctly
 import OpenAI from "../api/openai.js"
+import * as Utils from "../lib/utils.js"
 
 class Anthropic{
 
@@ -32,7 +33,7 @@ class Anthropic{
         max_tokens_to_sample: {
             title: "Max Length",
             description: "The maximum number of tokens to generate before stopping. Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.",
-            type: "range", default: 256, min: 8, max: 1024, step: 8,
+            type: "range", default: 250, min: 8, max: 1200, step: 10,
         }, 
 
         context_size: {
@@ -58,6 +59,12 @@ class Anthropic{
             description: "Only sample from the top K options for each subsequent token. Used to remove \"long tail\" low probability responses.",
             type: "range", default: 5, min: 0, max: 100, step: 1,
         },
+
+        stream: {
+            title: "Stream",
+            description: "Whether to incrementally stream the response using server-sent events.",
+            type: "checkbox", default: true,
+        },
         
         base_prompt: {
             title: "Base Prompt",
@@ -71,60 +78,34 @@ class Anthropic{
             type: "textarea", default: "",
         },
 
-        stream: {
-            title: "Stream",
-            description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
-            type: "checkbox", default: true,
+        prefill_prompt: {
+            title: "Prefill Prompt",
+            description: "Appended at the very end of the prompt to enforce instructions and patterns.",
+            type: "textarea", default: "",
         },
+
+        stop_sequences: {
+            title: "Stop Sequences",
+            description: "Sequences that will cause the model to stop generating completion text.",
+            type: "list", limit: -1, default: [],
+        },
+
+        human_prefix: {
+            title: "Human Prefix",
+            description: "Replaces the \"Human\" prefix identifier in prompts.",
+            type: "text", default: "Human",
+        },
+        
+        assistant_prefix: {
+            title: "Assistant Prefix",
+            description: "Replaces the \"Assistant\" prefix identifier in prompts.",
+            type: "text", default: "Assistant",
+        }
     }
 
 
     // private variable to store incomplete messages
     static #__message_chunk = "";
-
-    // Prompt Conversion script taken from RisuAI by @kwaroran (GPLv3).
-    static convertClaudePrompt(messages, addHumanPrefix, addAssistantPostfix) {
-        // Claude doesn't support message names, so we'll just add them to the message content.
-        for (const message of messages) {
-            if (message.name && message.role !== "system") {
-                message.content = message.name + ": " + message.content;
-                delete message.name;
-            }
-        }
-
-        let requestPrompt = messages.map((v) => {
-            let prefix = '';
-            switch (v.role) {
-                case "assistant":
-                    prefix = "\n\nAssistant: ";
-                    break
-                case "user":
-                    prefix = "\n\nHuman: ";
-                    break
-                case "system":
-                    // According to the Claude docs, H: and A: should be used for example conversations.
-                    if (v.name === "example_assistant") {
-                        prefix = "\n\nA: ";
-                    } else if (v.name === "example_user") {
-                        prefix = "\n\nH: ";
-                    } else {
-                        prefix = "\n\nSystem: ";
-                    }
-                    break
-            }
-            return prefix + v.content;
-        }).join('');
-
-        if (addHumanPrefix) {
-            requestPrompt = "\n\nHuman: " + requestPrompt;
-        }
-
-        if (addAssistantPostfix) {
-            requestPrompt = requestPrompt + '\n\nAssistant: ';
-        }
-
-        return requestPrompt;
-    }
 
     // getStatus must return a boolean
     static async getStatus(settings){
@@ -132,18 +113,23 @@ class Anthropic{
     }
 
     static makePrompt( character, messages, user, settings, offset = 0 ){
-        return OpenAI.makePrompt( character, messages, user, settings, offset )
+        const list = OpenAI.makePrompt( character, messages, user, settings, offset )
+        let prompt = Utils.messagesToString( list, character, user, settings )
+        if( !prompt.includes("Assistant:")){
+            prompt += "\n\nAssistant:"
+        }
+        return prompt
     }
 
     static getTokenConsumption( character, user, settings ){
         return OpenAI.getTokenConsumption( character, user, settings )
     }
 
-    static async generate(prompt, user, settings){
+    static async generate(character, prompt, user, settings){
         let outgoing_data = {
             model: settings.model,
-            prompt: this.convertClaudePrompt(prompt, true, true),
-            stop_sequences: [],
+            prompt: prompt,
+            stop_sequences: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
             max_tokens_to_sample: parseInt(settings.max_tokens_to_sample),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
@@ -225,6 +211,10 @@ class Anthropic{
             }
 
             if( obj.startsWith(":") ){
+                continue
+            }
+
+            if( obj === 'event: ping' ){
                 continue
             }
 

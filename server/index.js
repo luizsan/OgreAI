@@ -249,7 +249,7 @@ app.post("/generate", parser, async function(request, response){
         let streaming = request.body.settings.stream;
 
         let prompt = api.makePrompt( char, messages, user, settings, swipe ? 1 : 0 )
-        api.generate( prompt, user, settings, swipe ).then(async result => {
+        api.generate( char, prompt, user, settings, swipe ).then(async result => {
             if( streaming ){
                 try{
                     console.debug( chalk.blue("Streaming message..."))
