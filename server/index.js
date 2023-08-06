@@ -82,6 +82,7 @@ app.get("/get_settings", parser, function(_, response){
     if( !settings.presets.auth ){ settings.presets.auth = [] }
     if( !settings.presets.base_prompt ){ settings.presets.base_prompt = [] }
     if( !settings.presets.sub_prompt ){ settings.presets.sub_prompt = [] }
+    if( !settings.presets.prefill_prompt ){ settings.presets.prefill_prompt = [] }
 
     // sanitize settings based on available API modes
     Object.keys( API_MODES ).forEach(mode => {
