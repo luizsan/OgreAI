@@ -249,6 +249,10 @@
     }
 
     function Shortcuts(event : KeyboardEvent){
+        if( event.key === "Escape"){
+            AbortMessage()
+        }
+
         if( lockinput ) return;
         
         if(event.ctrlKey){
