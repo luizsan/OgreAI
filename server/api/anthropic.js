@@ -109,7 +109,29 @@ class Anthropic{
 
     // getStatus must return a boolean
     static async getStatus(settings){
-        return OpenAI.getStatus( settings )
+        const options = { 
+            method: "POST",           
+            headers: {
+                'accept': 'application/json',
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json',
+                'x-api-key': settings.api_auth,
+            },
+            'body': JSON.stringify({
+                'model': 'claude-2',
+                'stream': false,
+                'max_tokens_to_sample': 1,
+                'prompt': '\n\nHuman: Hello, world!\n\nAssistant:'
+            })
+        }
+        if( settings.api_url ){
+            return OpenAI.getStatus( settings )
+        }else{
+            const url = "https://api.anthropic.com"
+            return await fetch( url + "/v1/complete", options ).then((response) => {
+                return response.ok || response.status === 429
+            })
+        }
     }
 
     static makePrompt( character, messages, user, settings, offset = 0 ){
@@ -140,7 +162,9 @@ class Anthropic{
         let options = {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                'accept': 'application/json',
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json',
                 'x-api-key': settings.api_auth,
             },
             body: JSON.stringify(outgoing_data)
@@ -188,7 +212,7 @@ class Anthropic{
         }
     }
 
-    static receiveStream( incoming_data, swipe, replace = true ){
+    static receiveStream( incoming_data, swipe, replace = false ){
         let message = {
             done: false,
             participant: 0,
@@ -214,7 +238,7 @@ class Anthropic{
                 continue
             }
 
-            if( obj === 'event: ping' ){
+            if( obj.startsWith("event:")){
                 continue
             }
 
@@ -223,7 +247,7 @@ class Anthropic{
                 const text = parsed.completion;
                 message.streaming.model = parsed.model || undefined
                 if( text ){
-                    message.streaming.text = text;
+                    message.streaming.text += text;
                 }
             }catch(error){
                 console.log(obj)

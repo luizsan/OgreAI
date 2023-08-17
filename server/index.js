@@ -257,7 +257,7 @@ app.post("/generate", parser, async function(request, response){
                     const td = new TextDecoder();
                     for await (const message of result.body){
                         let data = api.receiveStream( td.decode(message), swipe )
-                        if( data ){
+                        if( data && ( data?.candidate?.text || data?.streaming?.text )){
                             // console.debug( chalk.blue("%o"), data)
                             // the newline at the end is required as sometimes the stream 
                             // can lag and the client will clump chunks together, so it's 
