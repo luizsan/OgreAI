@@ -33,7 +33,7 @@ class Anthropic{
         max_tokens_to_sample: {
             title: "Max Length",
             description: "The maximum number of tokens to generate before stopping. Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.",
-            type: "range", default: 250, min: 8, max: 1200, step: 10,
+            type: "range", default: 250, min: 10, max: 1200, step: 10,
         }, 
 
         context_size: {
