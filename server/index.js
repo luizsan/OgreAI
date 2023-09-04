@@ -318,14 +318,28 @@ async function LoadAPIModes(){
 
 // checks for all required components for an api module to work
 function ValidateAPIMode(api){
-    if( !api ) return false;
-    if( !api.API_NAME ) return false;
-    if( !api.API_SETTINGS ) return false;
-    if( !api.getStatus ) return false;
-    if( !api.getTokenConsumption ) return false;
-    if( !api.makePrompt ) return false;
-    if( !api.generate ) return false;
-    if( !api.receiveData ) return false;
+    if( !api ){
+        console.debug( chalk.red( "Invalid API" ))
+        return false;
+    }
+
+    const check = [
+        "API_NAME", 
+        "API_SETTINGS", 
+        "getStatus", 
+        "getTokenConsumption",
+        "makePrompt",
+        "generate",
+        "receiveData"
+    ]
+
+    for( let i = 0; i < check.length; i++ ){
+        if( !api[ check[i] ] ){
+            console.debug( chalk.red( `Missing or invalid ${check[i]}` ))
+            return false;
+        }
+    }
+    
     return true;
 }
 
