@@ -1,6 +1,7 @@
 // required for calculating tokens correctly
 import OpenAI from "../api/openai.js"
 import * as Utils from "../lib/utils.js"
+import * as Tokenizer from "../tokenizer/gpt.js"
 
 class Anthropic{
 
@@ -135,7 +136,7 @@ class Anthropic{
     }
 
     static makePrompt( character, messages, user, settings, offset = 0 ){
-        const list = OpenAI.makePrompt( character, messages, user, settings, offset )
+        const list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
         let prompt = Utils.messagesToString( list, character, user, settings )
         if( !prompt.includes("Assistant:")){
             prompt += "\n\nAssistant:"
@@ -144,7 +145,7 @@ class Anthropic{
     }
 
     static getTokenConsumption( character, user, settings ){
-        return OpenAI.getTokenConsumption( character, user, settings )
+        return Utils.getTokenConsumption( Tokenizer, character, user, settings )
     }
 
     static async generate(character, prompt, user, settings){

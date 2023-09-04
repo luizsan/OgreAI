@@ -1,5 +1,6 @@
 // required for calculating tokens correctly
 import * as Utils from "../lib/utils.js"
+import * as Tokenizer from "../tokenizer/gpt.js"
 
 class OpenAI{
 
@@ -100,133 +101,12 @@ class OpenAI{
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
     static makePrompt( character, messages, user, settings, offset = 0 ){
-        let prompt = []
-
-        let main_prompt = settings.base_prompt ?? ""
-        if( character.data.system_prompt ){
-            main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
-        }
-
-        let sub_prompt = settings.sub_prompt ?? ""
-        if( character.data.post_history_instructions ){
-            sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
-        }
-
-        let prefill_prompt = settings.prefill_prompt ?? ""
-
-        var _system = main_prompt + "\n\n"
-        _system += `{Description:} ${character.data.description.trim()}\n`
-    
-        if(character.data.personality){
-            _system += `{Personality:} ${character.data.personality.trim()}\n`
-        }
-        
-        if(character.data.scenario){
-            _system += `{Scenario:} ${character.data.scenario.trim()}\n`
-        }
-        
-        if(character.data.mes_example){
-            _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
-        }
-
-        _system = Utils.parseNames( _system, user, character.data.name )
-        prompt.push({ role: "system", content: _system })
-
-        sub_prompt = sub_prompt ? "\n\n" + sub_prompt : ""
-        sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
-        
-        prefill_prompt = prefill_prompt ? "\n\n" + prefill_prompt : ""
-        prefill_prompt = Utils.parseNames( prefill_prompt, user, character.data.name )
-
-        let sub_tokens = Utils.getTokens( sub_prompt ).length;
-        let prefill_tokens = Utils.getTokens( prefill_prompt ).length;
-        let injected_sub_prompt = false;
-        let injected_prefill_prompt = false;
-
-        let token_count_system = Utils.getTokens(_system).length + sub_tokens + prefill_tokens;
-        let token_count_messages = 0
-        
-        if( messages ){
-            for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
-                let role = messages[i].participant > -1 ? "assistant" : "user";
-                let index = messages[i].index
-                let content = messages[i].candidates[ index ].text
-                content = Utils.parseNames(content, user, character.data.name )
-                
-                if( role === "user" && !injected_sub_prompt ){
-                    content += sub_prompt;
-                    injected_sub_prompt = true;
-                }
-
-                if( !injected_prefill_prompt ){
-                    content += prefill_prompt;
-                    injected_prefill_prompt = true;
-                }
-
-                let next_tokens = Utils.getTokens(content).length
-                if( token_count_system + token_count_messages + next_tokens > settings.context_size ){
-                    break;
-                }
-
-                token_count_messages += next_tokens
-                prompt.splice(1, 0, { role: role, content: content })
-            }
-        }
-        
-        return prompt;
+        return Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
     }
 
     // returns an object with the token breakdown for a character
     static getTokenConsumption( character, user, settings ){
-        let main_prompt = settings.base_prompt ?? ""
-        if( character.data.system_prompt ){
-            main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
-        }
-
-        let sub_prompt = settings.sub_prompt ?? ""
-        if( character.data.post_history_instructions ){
-            sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
-        }
-
-        let _system = main_prompt;
-
-        if( sub_prompt ){
-            _system += "\n\n" + sub_prompt;
-        }
-
-        _system = Utils.parseNames( _system, user, character.data.name )
-
-        let _description = ""
-        if(character.data.description){
-            _description += `{Description:} ${character.data.description.trim()}\n`
-            _description = Utils.parseNames( _description, user, character.data.name )
-        }
-        
-        let _personality = ""
-        if(character.data.personality){
-            _personality += `{Personality:} ${character.data.personality.trim()}\n`
-            _personality = Utils.parseNames( _personality, user, character.data.name )
-        }
-        
-        let _scenario = ""
-        if(character.data.scenario){
-            _scenario += `{Scenario:} ${character.data.scenario.trim()}\n`
-            _scenario = Utils.parseNames( _scenario, user, character.data.name )
-        }
-
-        let _dialogue = ""
-        if(character.data.mes_example){
-            _dialogue += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
-            _dialogue = Utils.parseNames( _dialogue, user, character.data.name )
-        }
-
-        return {
-            system: Utils.getTokens(_system).length,
-            description: Utils.getTokens(_description).length,
-            personality: Utils.getTokens(_personality).length,
-            scenario: Utils.getTokens(_scenario).length,
-            dialogue: Utils.getTokens(_dialogue).length,
-        }
+        return Utils.getTokenConsumption( Tokenizer, character, user, settings )
     }
 
     // returns an output from the prompt that will be fed into receiveData
@@ -234,13 +114,13 @@ class OpenAI{
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
-            stop: Utils.sanitizeStopSequences(settings.stop, user, character),
+            stop: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
             max_tokens: parseInt(settings.max_length),
             frequency_penalty: parseFloat(settings.frequency_penalty),
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
-            stop: settings.stop ?? [],
+
             logit_bias: settings.logit_bias ? JSON.parse(settings.logit_bias) ?? {} : {},
             stream: settings.stream,
         };
