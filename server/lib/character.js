@@ -215,7 +215,7 @@ class Character{
             });
             
             var _base64 = Buffer.from(_data, 'utf8').toString('base64');
-            _chunks.splice(-1, 0, PNGtext.encode("character", _base64));
+            _chunks.splice(-1, 0, PNGtext.encode("chara", _base64));
             fs.writeFileSync( filepath, new Buffer.from(PNGencode(_chunks)));
             console.debug( chalk.green( `Successfully wrote character at ${ filepath }` ))
             return true;
