@@ -161,12 +161,13 @@
     }
 
     async function BranchChat(){
-        if(window.confirm("Create a new chat from start until this message?")){
+        const new_name = window.prompt("Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
+        if(new_name !== null){
             $fetching = true;
             let branch = JSON.parse( JSON.stringify( $currentChat ))
             branch.messages = branch.messages.slice(0, id + 1)
 
-            let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch })
+            let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch, name: new_name })
             if( result ){
                 await Server.getChats( $currentCharacter, true )
                 $fetching = false;

@@ -172,7 +172,7 @@ app.post("/copy_chat", parser, function(request, response){
     const now = Date.now();
 
     let copy = request.body.chat;
-    copy.title = now;
+    copy.title = request.body.name ? request.body.name : now;
     copy.create_date = now;
     copy.last_interaction = now;
 
