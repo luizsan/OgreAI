@@ -479,6 +479,7 @@
         align-items: center;
         color: gray;
         gap: 4px;
+        height: 100%;
     }
 
     .swipes .right{
@@ -495,12 +496,13 @@
 
     .swipes :global(svg){
         width: 16px;
-        width: 16px;
+        height: 16px;
     }
 
     .swipes .count{
         text-align: center;
         overflow-x: visible;
+        align-self: flex-end;
         font-size: 90%;
     }
 
