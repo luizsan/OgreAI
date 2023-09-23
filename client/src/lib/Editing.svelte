@@ -9,6 +9,7 @@
     let uploadedURL : string = null;
 
     let tokens = {}
+    let permanent = 0;
     let total = 0;
     let percent = {}
     let breakdown = []
@@ -21,6 +22,7 @@
             if( $editing.temp.tokens ){
                 tokens = $editing.temp.tokens
             
+                permanent = 0;
                 total = 0;
                 percent = {};
                 breakdown = [];
@@ -28,9 +30,13 @@
 
                 if( $editing && $editing.temp.tokens ){
                     Object.keys(tokens).forEach( key =>{
-                        total += tokens[key]
+                        total += tokens[key];
+                        if( key !== "greeting" ){
+                            permanent += tokens[key]
+                        }
                     });
                     
+                    breakdown.push( `${total} Total tokens\n` )
                     Object.keys(tokens).forEach( key => {
                         let k = key.charAt(0).toUpperCase() + key.slice(1)
                         percent[key] = tokens[key] / total * 100
@@ -220,7 +226,7 @@
                     <p class="explanation">Currently editing</p>
                     <h1 class="title" style="font-size: 120%">{$editing.data.name}</h1>
                     <div class="tokens" title={breakdown.join("\n")}>
-                        <div class="label"><strong>{total}</strong> Tokens</div>
+                        <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
                         <div class="meter" style="grid-template-columns:{distribution}">
                             {#each Object.keys(tokens) as type}
                                 <div class={type}></div>
@@ -263,7 +269,7 @@
                 </div>
             </Accordion>
 
-            <div class="section wide">
+            <div class="section wide greeting">
                 <div>
                     <h3 class="title">Greeting</h3>
                     <p class="explanation">The character will start a chat with this message.</p>
@@ -273,7 +279,7 @@
 
             <Accordion name="Alternate Greetings">
                 {#each $editing.data.alternate_greetings as alt, i}
-                    <div class="greeting">
+                    <div class="altgreeting">
                         <div class="controls">
                             <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
                             <button class="component danger" title="Remove greeting" on:click={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
@@ -494,6 +500,7 @@
         font-size: 85%;
     }
 
+    .meter .greeting{ background: hotpink; }
     .meter .description{ background: royalblue; }
     .meter .personality{ background: mediumspringgreen; }
     .meter .scenario{ background: gold; }
@@ -501,24 +508,25 @@
     
     .meter div{ margin-right: 2px; }
 
+    .greeting textarea{ border-left-color: hotpink; }
     .description textarea{ border-left-color: royalblue; }
     .personality textarea{ border-left-color: mediumspringgreen; }
     .scenario textarea{ border-left-color: gold; }
     .dialogue textarea{ border-left-color: tomato; }
 
-    .greeting{
+    .altgreeting{
         display: grid;
         grid-template-columns: 32px auto;
         gap: 8px;
     }
 
-    .greeting .controls{
+    .altgreeting .controls{
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
 
-    .greeting button{
+    .altgreeting button{
         padding: 6px;
         max-width: 40px;
     }

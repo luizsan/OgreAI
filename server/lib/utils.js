@@ -155,8 +155,15 @@ export function getTokenConsumption( tokenizer, character, user, settings ){
         _dialogue = parseNames( _dialogue, user, character.data.name )
     }
 
+    let _greeting = ""
+    if(character.data.first_mes){
+        _greeting += `${character.data.first_mes.trim()}`
+        _greeting = parseNames( _greeting, user, character.data.name )
+    }
+
     return {
         system: tokenizer.getTokens(_system).length,
+        greeting: tokenizer.getTokens(_greeting).length,
         description: tokenizer.getTokens(_description).length,
         personality: tokenizer.getTokens(_personality).length,
         scenario: tokenizer.getTokens(_scenario).length,
