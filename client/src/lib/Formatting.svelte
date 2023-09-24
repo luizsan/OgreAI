@@ -1,0 +1,114 @@
+<script lang="ts">
+    import Accordion from "../components/Accordion.svelte";
+    import { currentSettings } from "../State";
+    import * as Server from "./Server.svelte";
+    import * as SVG from "../utils/SVGCollection.svelte";
+
+    function AddItem(key : string){
+        $currentSettings.formatting[key].push({ pattern: "", replacement: "" })
+        $currentSettings.formatting[key] = $currentSettings.formatting[key];
+    }
+
+    function RemoveItem(key : string, id : number){
+        $currentSettings.formatting[key].splice(id, 1)
+        $currentSettings.formatting[key] = $currentSettings.formatting[key];
+        Server.request("/save_settings", $currentSettings)
+    }
+</script>
+
+
+<div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
+    <div>
+        <h1>Formatting</h1>
+        <p class="explanation">Use regex to automatically format text when receiving replies.</p>
+        <hr>
+    </div>
+
+    <Accordion name="Text Replace">
+        {#each $currentSettings.formatting.replace as rep, i}
+            <div class="preset">
+                <div class="controls">
+                    <button class="component danger" title="Remove" on:click={() => RemoveItem("replace", i)}>{@html SVG.trashcan}</button>
+                </div>
+                <div class="fields">
+                    <input type="text" class="component wide" placeholder="Pattern" bind:value={rep.pattern} style="flex: 1 1 auto">
+                    <div class="separator normal">{@html SVG.arrow}</div>
+                    <input type="text" class="component wide" placeholder="Replacement" bind:value={rep.replacement} style="flex: 1 1 auto">
+                </div>
+            </div>
+        {/each}
+        <button class="component normal" on:click={() => AddItem("replace")}>{@html SVG.plus}Add Text Replace</button>
+    </Accordion>
+
+<div></div>
+
+</div>
+
+
+<style>
+    :global(p) {
+        margin: 0px;
+    }
+
+    h1{
+        margin: 0;
+        font-size: 40px;
+    }
+
+    hr{
+        color: gray;
+        opacity: 0.25;
+    }
+
+    .explanation{
+        color: #606060;
+        font-size: 85%;
+    }
+    
+    .content{
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    .preset{
+        display: grid;
+        grid-template-columns: 32px auto;
+        gap: 8px;
+    }
+
+    .fields{
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+    }
+
+    .controls{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .controls .component{
+        padding: 6px;
+    }
+
+    .separator{
+        width: 48px;
+        height: 100%;
+        display: flex;
+    }
+
+    .separator :global(svg){
+        transform: scaleX(-1);
+        translate: 0px -2px;
+    }
+
+    .component :global(svg){
+        width: 16px;
+        height: 16px;
+    }
+
+</style>

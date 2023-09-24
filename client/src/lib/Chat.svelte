@@ -125,6 +125,7 @@
                                 candidate.model = obj.streaming.model
                             }
                         }
+                        FormatCandidate(candidate)
                         scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
@@ -188,6 +189,7 @@
 
     function ReceiveMessage(incoming : IReply){
         console.debug($currentChat.messages)
+        FormatCandidate(incoming.candidate)
 
         if( incoming.swipe ){
             let last = $currentChat.messages.at(-1)
@@ -206,6 +208,20 @@
         $currentChat = $currentChat;
         scroll( messagesDiv )
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+    }
+
+    function FormatCandidate(candidate : ICandidate){
+        if($currentSettings.formatting && $currentSettings.formatting.replace){
+            for(let i = 0; i < $currentSettings.formatting.replace.length; i++ ){
+                const item = $currentSettings.formatting.replace[i]
+                if( !item.pattern ){
+                    continue
+                }
+                const regex = new RegExp(item.pattern, "gmi")
+                const replaced = candidate.text.replaceAll(regex, item.replacement ?? "")
+                candidate.text = replaced
+            }
+        }
     }
 
     async function RegenerateMessage(){

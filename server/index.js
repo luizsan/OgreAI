@@ -84,6 +84,12 @@ app.get("/get_settings", parser, function(_, response){
     if( !settings.presets.sub_prompt ){ settings.presets.sub_prompt = [] }
     if( !settings.presets.prefill_prompt ){ settings.presets.prefill_prompt = [] }
 
+    if( !settings.formatting ){
+        settings.formatting = {}
+    }
+
+    if( !settings.formatting.replace ){ settings.formatting.replace = [] }
+
     // sanitize settings based on available API modes
     Object.keys( API_MODES ).forEach(mode => {
         if( !settings[mode] ){

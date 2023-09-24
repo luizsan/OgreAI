@@ -4,11 +4,13 @@
     import Profile from "./Profile.svelte";
     import Settings from "./Settings.svelte"
     import Presets from "./Presets.svelte";
+    import Formatting from "./Formatting.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     const tab_items = [
         { name: "Settings", icon: SVG.settings, disabled: false },
         { name: "Presets", icon: SVG.sliders, disabled: false },
+        { name: "Formatting", icon: SVG.formatting, disabled: false },
         { name: "User", icon: SVG.user, disabled: false },
     ]
 
@@ -37,6 +39,8 @@
         {:else if $tabSettings == 1}
             <Presets/>
         {:else if $tabSettings == 2}
+            <Formatting/>
+        {:else if $tabSettings == 3}
             <Profile/>
         {/if}
         
