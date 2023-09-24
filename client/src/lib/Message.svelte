@@ -82,7 +82,7 @@
             }
         }else{
             $sectionSettings = true;
-            $tabSettings = 1; // user
+            $tabSettings = 3; // user
         }
     }
     
