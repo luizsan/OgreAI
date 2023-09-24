@@ -217,7 +217,7 @@
                 if( !item.pattern ){
                     continue
                 }
-                const regex = new RegExp(item.pattern, "gmi")
+                const regex = new RegExp(item.pattern, "gi")
                 const replaced = candidate.text.replaceAll(regex, item.replacement ?? "")
                 candidate.text = replaced
             }
