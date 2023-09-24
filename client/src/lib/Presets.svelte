@@ -24,6 +24,7 @@
     function RemoveItem(key : string, id : number){
         $currentSettings.presets[key].splice(id, 1)
         $currentSettings.presets[key] = $currentSettings.presets[key];
+        Server.request("/save_settings", $currentSettings)
     }
 </script>
 
