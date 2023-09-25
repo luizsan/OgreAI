@@ -106,6 +106,9 @@
 
                 function processText({ done, value }){
                     if(done || (value && value.done)){
+                        FormatCandidate(candidate)
+                        $currentChat = $currentChat;
+                        
                         console.debug( "Received stream: %o", candidate )
                         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
                         return;
@@ -125,7 +128,6 @@
                                 candidate.model = obj.streaming.model
                             }
                         }
-                        FormatCandidate(candidate)
                         scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
@@ -217,7 +219,7 @@
                 if( !item.pattern ){
                     continue
                 }
-                const regex = new RegExp(item.pattern, "gmi")
+                const regex = new RegExp(item.pattern, "gi")
                 const replaced = candidate.text.replaceAll(regex, item.replacement ?? "")
                 candidate.text = replaced
             }
