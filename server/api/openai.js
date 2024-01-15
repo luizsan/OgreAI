@@ -199,9 +199,15 @@ class OpenAI{
             }
         }
     
-        const lines = incoming_data.split('\n').filter(line => line.trim() !== '');
+        const raw_text = this.__message_chunk + incoming_data
+        const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
-            const obj = line.replace(/^data: /, '');
+            if(!line){
+                continue;
+            }
+
+            const obj = line.replace(/data: /gm, '')
+
             if (obj === '[DONE]') {
                 message.done = true;
                 break;
@@ -216,11 +222,23 @@ class OpenAI{
                 const text = parsed.choices[0].delta.content;
                 message.streaming.model = parsed.model || undefined
                 if( text ){
+                    if( this.__message_chunk ){
+                        console.log("CORRECTED: " + obj)
+                    }
                     message.streaming.text += text;
+                    this.__message_chunk = "";
                 }
             }catch(error){
-                console.log(obj)
-                console.error(error);
+                if(error instanceof SyntaxError){
+                    console.log("PARSE ERROR: " + obj)
+                    this.__message_chunk = obj
+                }else{
+                    console.log(obj)
+                    console.error(error);
+                }
+                if(obj.error){
+                    return obj;
+                }
             }
         }
 

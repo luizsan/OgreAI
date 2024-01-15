@@ -20,6 +20,7 @@ class Anthropic{
                 "claude-v1-100k",
                 "claude-instant-v1",
                 "claude-instant-v1-100k",
+                "claude-2.1",
                 "claude-2.0",
                 "claude-v1.3",
                 "claude-v1.3-100k",
@@ -226,12 +227,17 @@ class Anthropic{
             }
         }
     
-        const lines = incoming_data.split('\n').filter(line => line.trim() !== '');
+        const raw_text = this.__message_chunk + incoming_data
+        const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
-            const obj = line.replace(/^data: /, '');
+            if(!line){
+                continue;
+            }
+
+            let obj = line.replace(/data: /gm, '').replace(/event: completion/gm, '')
+
             if (obj === '[DONE]') {
                 message.done = true;
-                message.replace = false;
                 break;
             }
 
@@ -239,7 +245,7 @@ class Anthropic{
                 continue
             }
 
-            if( obj.startsWith("event:")){
+            if( !obj || obj === ""){
                 continue
             }
 
@@ -248,11 +254,23 @@ class Anthropic{
                 const text = parsed.completion;
                 message.streaming.model = parsed.model || undefined
                 if( text ){
+                    if( this.__message_chunk ){
+                        console.log("CORRECTED: " + obj)
+                    }
                     message.streaming.text += text;
+                    this.__message_chunk = "";
                 }
             }catch(error){
-                console.log(obj)
-                console.error(error);
+                if(error instanceof SyntaxError){
+                    console.log("PARSE ERROR: " + obj)
+                    this.__message_chunk = obj
+                }else{
+                    console.log(obj)
+                    console.error(error);
+                }
+                if(obj.error){
+                    return obj;
+                }
             }
         }
 
