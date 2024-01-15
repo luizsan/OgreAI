@@ -9,7 +9,7 @@ import PNGencode from 'png-chunks-encode';
 import * as Tavern from "../import/tavern.js"
 import * as Cards from 'character-card-utils'
 
-class Character{
+export default class Character{
     static path = "../user/characters/"
     
     constructor(){
@@ -225,6 +225,3 @@ class Character{
         }
     }
 }
-
-const _Character = Character;
-export { _Character as Character };

@@ -1,4 +1,4 @@
-class Settings{
+export default class Settings{
     static path = "../user/settings.json"
 
     constructor(){
@@ -34,6 +34,3 @@ class Settings{
         }
     }
 }
-
-const _Settings = Settings;
-export { _Settings as Settings };

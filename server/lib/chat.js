@@ -5,7 +5,7 @@ import chalk from "chalk"
 import * as CAI from "../import/cai.js"
 import * as Tavern from "../import/tavern.js"
 
-class Chat{
+export default class Chat{
     static path = "../user/chats/"
 
     constructor( character ){
@@ -208,6 +208,3 @@ class Chat{
     }
 
 }
-
-const _Chat = Chat
-export { _Chat as Chat }

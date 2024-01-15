@@ -10,11 +10,11 @@ import mime from "mime";
 
 import open from "open"
 
-import { Character } from "./lib/character.js"
-import { Chat } from "./lib/chat.js"
+import Character from "./lib/character.js"
+import Chat from "./lib/chat.js"
 import { LoadData, SaveData } from "./lib/data.js"
-import { Profile } from "./lib/profile.js"
-import { Settings } from "./lib/settings.js"
+import Profile from "./lib/profile.js"
+import Settings from "./lib/settings.js"
 
 
 const __dirname = path.resolve("./")
@@ -100,7 +100,7 @@ app.get("/get_settings", parser, function(_, response){
         if( !settings[mode].api_auth ){ settings[mode].api_auth = ""; }
 
         Object.keys( API_MODES[mode].API_SETTINGS ).forEach(key => {
-            if( settings[mode][key] === undefined ){
+            if( !(key in settings[mode] )){
                 settings[mode][key] = API_MODES[mode].API_SETTINGS[key].default
             }
         })
@@ -263,7 +263,7 @@ app.post("/generate", parser, async function(request, response){
                     const td = new TextDecoder();
                     for await (const message of result.body){
                         let data = api.receiveStream( td.decode(message), swipe )
-                        if( data && ( data?.candidate?.text || data?.streaming?.text )){
+                        if( data && (data?.candidate?.text || data?.streaming?.text || data?.error)){
                             // console.debug( chalk.blue("%o"), data)
                             // the newline at the end is required as sometimes the stream 
                             // can lag and the client will clump chunks together, so it's 
@@ -280,18 +280,18 @@ app.post("/generate", parser, async function(request, response){
             }else{
                 result.text().then(raw => {
                     let data = api.receiveData( raw, swipe )     
-                    console.debug( chalk.blue( "Received message" ))
+                    console.debug(chalk.blue("Received message"))
                     response.send(data);
                 })
             }
         }).catch(error => {
-            console.error( chalk.red( error ))
-            response.status(error.status).send({ error: error })
+            console.error(chalk.red(error))
+            response.status(error.status).send(error)
         });
     }else{
         const error = "Cannot generate message: Invalid API"
-        console.error( chalk.red( error ))
-        response.status(500).send({ error: error })
+        console.error(chalk.red(error))
+        response.status(500).send(error)
     }
 })
 

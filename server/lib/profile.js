@@ -1,4 +1,4 @@
-class Profile{
+export default class Profile{
     static path = "../user/profile.json"
 
     constructor(){
@@ -17,6 +17,3 @@ class Profile{
         this.customization = {}
     }
 }
-
-const _Profile = Profile;
-export { _Profile as Profile };
