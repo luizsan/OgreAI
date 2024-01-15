@@ -114,56 +114,62 @@
 
         <div class="setting vertical">
 
-            {#if (key == "base_prompt" || key == "sub_prompt" || key == "prefill_prompt") && $currentSettings.presets[key].length > 0}
-                <div class="section horizontal wrap">
-                    <select class="component" bind:value={presetElements[key]} on:change={() => setPrompt(key)} style="flex: 1 1 auto">
-                        <option value={-1}>-- Select a prompt --</option>
-                        {#each $currentSettings.presets[key] as entry, i}
-                            <option value={i}>{entry.name ?? `Preset ${i}`}</option>
+            {#if $currentSettings[api_mode][key] !== undefined }
+
+                {#if (key == "base_prompt" || key == "sub_prompt" || key == "prefill_prompt") && $currentSettings.presets[key].length > 0}
+                    <div class="section horizontal wrap">
+                        <select class="component" bind:value={presetElements[key]} on:change={() => setPrompt(key)} style="flex: 1 1 auto">
+                            <option value={-1}>-- Select a prompt --</option>
+                            {#each $currentSettings.presets[key] as entry, i}
+                                <option value={i}>{entry.name ?? `Preset ${i}`}</option>
+                            {/each}
+                        </select>
+                        <button class="component normal" on:click={() => setPrompt(key)}>Apply</button>
+                        <button class="component danger" on:click={() => clearPrompt(key)}>Clear</button>
+                    </div>
+                    <div></div>
+                {/if}
+
+                {#if entry.type == "text"}
+                    <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
+
+                {:else if entry.type == "textarea"}
+                    <textarea class="component wide" rows={8} bind:value={$currentSettings[api_mode][key]}></textarea>
+
+                {:else if entry.type == "select"}
+                    <select class="component min" bind:value={$currentSettings[api_mode][key]}>
+                        {#each entry.choices as choice}
+                            <option value={choice}>{choice}</option>
                         {/each}
                     </select>
-                    <button class="component normal" on:click={() => setPrompt(key)}>Apply</button>
-                    <button class="component danger" on:click={() => clearPrompt(key)}>Clear</button>
-                </div>
-                <div></div>
-            {/if}
 
-            {#if entry.type == "text"}
-                <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
+                {:else if entry.type == "range"}
+                    <div class="input wide">
+                        <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
+                        <input type="range" class="component" bind:value={$currentSettings[api_mode][key]} min={entry.min} max={entry.max} step={entry.step}>
+                    </div>
 
-            {:else if entry.type == "textarea"}
-                <textarea class="component wide" rows={8} bind:value={$currentSettings[api_mode][key]}></textarea>
+                {:else if entry.type == "checkbox"}
+                    <input type="checkbox" class="component" bind:checked={$currentSettings[api_mode][key]}>
 
-            {:else if entry.type == "select"}
-                <select class="component min" bind:value={$currentSettings[api_mode][key]}>
-                    {#each entry.choices as choice}
-                        <option value={choice}>{choice}</option>
-                    {/each}
-                </select>
+                {:else if entry.type == "list"}
+                    <Accordion name={`List ${
+                        entry.limit && entry.limit > -1 ? 
+                        "(" + $currentSettings[api_mode][key].length + " of " + entry.limit + ")" : 
+                        "(" + $currentSettings[api_mode][key].length + ")"}`
+                    }>
+                        {#each $currentSettings[api_mode][key] as item, i}
+                            <div class="section horizontal preset">
+                                <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
+                                <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
+                            </div>
+                        {/each}
+                        <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
+                    </Accordion>
+                {/if}
 
-            {:else if entry.type == "range"}
-                <div class="input wide">
-                    <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
-                    <input type="range" class="component" bind:value={$currentSettings[api_mode][key]} min={entry.min} max={entry.max} step={entry.step}>
-                </div>
-
-            {:else if entry.type == "checkbox"}
-                <input type="checkbox" class="component" bind:checked={$currentSettings[api_mode][key]}>
-
-            {:else if entry.type == "list"}
-                <Accordion name={`List ${entry.limit && entry.limit > -1 ? "(" + $currentSettings[api_mode][key].length + " of " + entry.limit + ")": "(" + $currentSettings[api_mode][key].length + ")"}`}>
-                    {#each $currentSettings[api_mode][key] as item, i}
-
-                        <div class="section horizontal preset">
-                            <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
-                            <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
-                        </div>
-                    {/each}
-                    <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
-                </Accordion>
             {/if}
             
-
         </div>
     </div>
 {/each}
