@@ -31,7 +31,7 @@
                 if( $editing && $editing.temp.tokens ){
                     Object.keys(tokens).forEach( key =>{
                         total += tokens[key];
-                        if( key !== "greeting" ){
+                        if( key !== "greeting" && key !== "system" ){
                             permanent += tokens[key]
                         }
                     });
