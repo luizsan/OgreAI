@@ -18,8 +18,8 @@
     }
     
     .badge{
-        border-radius: 4px;
-        padding: 4px 8px;
+        border-radius: 50px;
+        padding: 4px 12px;
         font-size: 75%;
         background: hsla(0, 0%, 10%, 75% );
         font-weight: 700;
