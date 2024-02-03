@@ -6,6 +6,7 @@ class OpenAI{
 
     // display name
     static API_NAME = "OpenAI"
+    static API_ADDRESS = "https://api.openai.com/"
 
     // settings for this API
     // types: text, textarea, select (dropdown), range (slider), checkbox
@@ -95,7 +96,7 @@ class OpenAI{
     // getStatus must return a boolean
     static async getStatus(settings){
         const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.api_auth }}
-        const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
+        const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return await fetch( url + "/v1/models", options ).then((response) => response.ok)
     }
 
@@ -137,7 +138,7 @@ class OpenAI{
         console.debug("Sending prompt %o", outgoing_data)
         // console.debug(`Sending prompt to ${outgoing_data.model}...`)
 
-        const url = settings.api_url ? settings.api_url : "https://api.openai.com/"
+        const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return fetch( url + "/v1/chat/completions", options )
     }
 

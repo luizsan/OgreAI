@@ -7,6 +7,7 @@ class Anthropic{
 
     // display name
     static API_NAME = "Anthropic"
+    static API_ADDRESS = "https://api.anthropic.com"
 
     // settings for this API
     // types: textarea, select (dropdown), range (slider), checkbox
@@ -129,8 +130,7 @@ class Anthropic{
         if( settings.api_url ){
             return OpenAI.getStatus( settings )
         }else{
-            const url = "https://api.anthropic.com"
-            return await fetch( url + "/v1/complete", options ).then((response) => {
+            return await fetch( this.API_ADDRESS + "/v1/complete", options ).then((response) => {
                 return response.ok || response.status === 429
             })
         }
@@ -175,7 +175,7 @@ class Anthropic{
         console.debug("Sending prompt %o", outgoing_data)
         // console.debug(`Sending prompt to ${outgoing_data.model}...`)
         
-        const url = settings.api_url ? settings.api_url : "https://api.anthropic.com/"
+        const url = settings.api_url ? settings.api_url : API_ADDRESS
         return fetch( url + "/v1/complete", options )
     }
 

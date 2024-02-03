@@ -66,46 +66,13 @@ app.get("/status", parser, function(_, response){
 
 app.get("/get_profile", parser, function(_, response){
     let profile = LoadData(Profile.path, new Profile())
-    if( !profile.name ){ profile.name = "You" }
-    if( !profile.avatar ){ profile.avatar = "" }
-    if( !profile.customization ){ profile.customization = {} }
+    Profile.Validate(profile)
     response.send( profile )
 })
 
 app.get("/get_settings", parser, function(_, response){
     let settings = LoadData(Settings.path, new Settings())
-
-    if( !settings.presets ){
-        settings.presets = {}
-    }
-
-    if( !settings.presets.auth ){ settings.presets.auth = [] }
-    if( !settings.presets.base_prompt ){ settings.presets.base_prompt = [] }
-    if( !settings.presets.sub_prompt ){ settings.presets.sub_prompt = [] }
-    if( !settings.presets.prefill_prompt ){ settings.presets.prefill_prompt = [] }
-
-    if( !settings.formatting ){
-        settings.formatting = {}
-    }
-
-    if( !settings.formatting.replace ){ settings.formatting.replace = [] }
-
-    // sanitize settings based on available API modes
-    Object.keys( API_MODES ).forEach(mode => {
-        if( !settings[mode] ){
-            settings[mode] = {}
-        }
-
-        if( !settings[mode].api_url ){ settings[mode].api_url = ""; }
-        if( !settings[mode].api_auth ){ settings[mode].api_auth = ""; }
-
-        Object.keys( API_MODES[mode].API_SETTINGS ).forEach(key => {
-            if( !(key in settings[mode] )){
-                settings[mode][key] = API_MODES[mode].API_SETTINGS[key].default
-            }
-        })
-    })
-
+    Settings.Validate(settings, API_MODES )
     response.send( settings )
 })
 
@@ -330,7 +297,8 @@ function ValidateAPIMode(api){
     }
 
     const check = [
-        "API_NAME", 
+        "API_NAME",
+        "API_ADDRESS",
         "API_SETTINGS", 
         "getStatus", 
         "getTokenConsumption",
@@ -341,7 +309,7 @@ function ValidateAPIMode(api){
 
     for( let i = 0; i < check.length; i++ ){
         if( !api[ check[i] ] ){
-            console.debug( chalk.red( `Missing or invalid ${check[i]}` ))
+            console.debug( chalk.red( `Could not validate API. Missing or invalid '${check[i]}'` ))
             return false;
         }
     }

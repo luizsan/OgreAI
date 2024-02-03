@@ -2,35 +2,58 @@ export default class Settings{
     static path = "../user/settings.json"
 
     constructor(){
-        this.SetFrom( null );
+        Settings.Validate( {}, {} );
     }
 
-    SetFrom( source, mode, subset ){
-        if( source ){
-            this.api_mode = source.api_mode ? source.api_mode : "openai"
-            this.api_url = source.api_url ? source.api_url : ""
-            this.api_auth = source.api_auth ? source.api_auth : ""
-        }else{
-            this.api_mode = "openai"
-            this.api_url = ""
-            this.api_auth = ""
+    static Validate(obj, api_modes){
+        if( !obj.presets ){
+            obj.presets = {}
+        }
+    
+        if( !obj.presets.auth ){ 
+            obj.presets.auth = [] 
         }
 
-        if( subset && mode ){
-            let keys = Object.keys(subset)
-            if( !this[mode] ){
-                this[mode] = {}
+        if( !obj.presets.base_prompt ){ 
+            obj.presets.base_prompt = []
+        }
+
+        if( !obj.presets.sub_prompt ){ 
+            obj.presets.sub_prompt = []
+        }
+
+        if( !obj.presets.prefill_prompt ){ 
+            obj.presets.prefill_prompt = []
+        }
+
+        if( !obj.formatting ){
+            obj.formatting = {}
+        }
+    
+        if( !obj.formatting.replace ){ 
+            obj.formatting.replace = []
+        }
+
+        // sanitize settings based on available API modes
+        Object.keys( api_modes ).forEach(mode => {
+            if( !obj[mode] ){
+                obj[mode] = {}
             }
 
-            for( let i = 0; i < keys.length; i++ ){
-                let key = keys[i]
+            if( !obj[mode].api_url ){ 
+                obj[mode].api_url = ""; 
+            }
 
-                if( source && source[mode] && source[mode][key] ){
-                    this[mode][key] = source[mode][key]
-                }else{
-                    this[mode][key] = subset[key].default
+            if( !obj[mode].api_auth ){ 
+                obj[mode].api_auth = ""; 
+            }
+
+            Object.keys( api_modes[mode].API_SETTINGS ).forEach(key => {
+                if( !(key in obj[mode] )){
+                    obj[mode][key] = api_modes[mode].API_SETTINGS[key].default
                 }
-            }
-        }
+            })
+        })
+
     }
 }

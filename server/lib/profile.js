@@ -2,18 +2,24 @@ export default class Profile{
     static path = "../user/profile.json"
 
     constructor(){
-        this.Reset();
+        Profile.Validate( {} );
     }
 
-    SetFrom(json){
-        if( json.name ) this.name = json.name
-        if( json.avatar ) this.avatar = json.avatar
-        if( json.customization ) this.customization = json.customization
-    }
+    static Validate(obj){
+        if( !obj.name ){ 
+            obj.name = "You" 
+        }
 
-    Reset(){
-        this.name = "You"
-        this.avatar = ""
-        this.customization = {}
+        if( !obj.persona ){ 
+            obj.persona = "" 
+        }
+
+        if( !obj.avatar ){ 
+            obj.avatar = "" 
+        }
+
+        if( !obj.customization ){ 
+            obj.customization = {} 
+        }
     }
 }

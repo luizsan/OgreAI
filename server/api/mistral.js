@@ -6,6 +6,7 @@ class Mistral{
 
     // display name
     static API_NAME = "Mistral"
+    static API_ADDRESS = "https://api.mistral.ai/"    
 
     // settings for this API
     // types: text, textarea, select (dropdown), range (slider), checkbox
@@ -77,7 +78,7 @@ class Mistral{
     // getStatus must return a boolean
     static async getStatus(settings){
         const options = { method: "GET", headers:{ "Authorization":"Bearer " + settings.api_auth }}
-        const url = settings.api_url ? settings.api_url : "https://api.mistral.ai/"
+        const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return await fetch( url + "/v1/models", options ).then((response) => response.ok)
     }
 
@@ -115,7 +116,7 @@ class Mistral{
         console.debug("Sending prompt %o", outgoing_data)
         // console.debug(`Sending prompt to ${outgoing_data.model}...`)
 
-        const url = settings.api_url ? settings.api_url : "https://api.mistral.ai/"
+        const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return fetch( url + "/v1/chat/completions", options )
     }
 
