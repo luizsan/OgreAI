@@ -31,7 +31,7 @@ input[type="text"].component, input[type="password"].component, select.component
     height: 30px;
 }
 
-input[type="text"].component, input[type="password"].component, textarea.component, select.component{
+input[type="text"].component, input[type="password"].component, textarea.component, select.component, .group.component{
     background: var( --component-bg-normal );
     border-style: solid;
     outline: 1px solid var( --component-border-normal );
@@ -73,10 +73,9 @@ select.component option{
     font-size: 90%;
 }
 
-input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus {
+input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus, .component:focus-within{
     color: var( --component-color-hover );
     background: var( --component-bg-hover );
-    border-color: var( --component-border-hover );
     outline-color: var( --component-border-hover );
     --scrollbar-bg: var( --component-bg-hover )
 }
@@ -204,6 +203,13 @@ button.component:hover{
     padding: 24px 16px 0px 16px;
     display: flex;
     flex-direction: row;
+}
+
+.clear{
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .hidden{
