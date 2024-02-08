@@ -32,7 +32,6 @@
             <div class="title">Display Name</div>
             <div class="explanation">User's name displayed in chat.</div>
         </div>
-
         <input type="text" class="component wide" bind:value={$currentProfile.name}>
     </div>
 
@@ -63,7 +62,14 @@
                 </select>
             </div>
         </div>
+    </div>
 
+    <div class="section">
+        <div>
+            <div class="title">Persona</div>
+            <div class="explanation">User's character description.</div>
+        </div>
+        <textarea class="component wide" rows={4} bind:value={$currentProfile.persona}></textarea>
     </div>
 
     <div class="section">

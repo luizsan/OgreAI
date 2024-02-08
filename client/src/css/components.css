@@ -19,6 +19,24 @@
     border-bottom-color: var( --component-color-hover );
 }
 
+.component.container{
+    background: var( --component-bg-normal );
+    border-style: solid;
+    outline: 1px solid var( --component-border-normal );
+    border-color: var( --component-border-normal );
+    border-width: 0px 0px 0px 4px;
+    border-radius: 3px;
+    box-shadow: 0px 4px 8px 0px #00000030;
+    box-sizing: border-box;
+    color: var( --component-color-normal );
+    font-size: 90%;
+    transition-property: color;
+    transition-property: border-color;
+    transition-property: outline-color;
+    transition-duration: 0.125s; 
+    transition-timing-function: ease;
+}
+
 button {
     cursor: pointer;
     background: none;
@@ -31,7 +49,7 @@ input[type="text"].component, input[type="password"].component, select.component
     height: 30px;
 }
 
-input[type="text"].component, input[type="password"].component, textarea.component, select.component, .group.component{
+input[type="text"].component, input[type="password"].component, textarea.component, select.component, .component.container{
     background: var( --component-bg-normal );
     border-style: solid;
     outline: 1px solid var( --component-border-normal );
@@ -73,7 +91,7 @@ select.component option{
     font-size: 90%;
 }
 
-input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus, .component:focus-within{
+input[type="text"].component:focus, input[type="password"].component:focus, textarea.component:focus, select.component:focus, .component.focusable:focus-within{
     color: var( --component-color-hover );
     background: var( --component-bg-hover );
     outline-color: var( --component-border-hover );
@@ -214,6 +232,10 @@ button.component:hover{
 
 .hidden{
     display: none !important;
+}
+
+.invisible{
+    visibility: hidden !important;
 }
 
 .disabled{

@@ -39,3 +39,6 @@ export const sectionEditing = writable( false )
 export const sectionSettings = writable( false )
 export const tabSettings = writable( 0 )
 export const tabEditing = writable( 0 )
+
+
+export const TEST_STORE = writable( [] )

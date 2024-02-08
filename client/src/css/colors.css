@@ -19,11 +19,6 @@
     --scrollbar-bg: var( --default-bg-color );
 }
 
-::selection, ::-moz-selection{
-    color: white;
-    background: hsl(220, 100%, 50% );
-}
-
 :root .light{
     --default-font-color: hsl(0, 0%, 15%);
     --default-bg-color: hsl(192, 5%, 90%);
@@ -40,3 +35,8 @@
 
     --scrollbar-bg: var( --default-bg-color );
 }  
+
+::selection, ::-moz-selection{
+    color: white;
+    background: hsl(220, 100%, 50% );
+}

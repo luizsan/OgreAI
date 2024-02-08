@@ -3,7 +3,9 @@
 
     // object to build options
     export let elements : Array<any> 
-    export let content : any // actual content
+    export let content : any = "" // actual content
+    export let rows : number = 0
+    export let resizable : Boolean = false
     let index : number = -1; // the numerical selection index
 
     $: enabled = elements && index > -1;
@@ -25,7 +27,7 @@
 </script>
 
 
-<div class="component group overall">
+<div class="component focusable main">
     <div class="top">
         {#if elements}
             <select class="component" bind:value={index} on:change={() => set(index)} style="flex: 1 1 auto">
@@ -39,7 +41,7 @@
         <button class="component danger" id="clear" on:click={clear}>Clear {@html SVG.close}</button>
     </div>
     <hr>
-    <textarea class="component clear wide" rows={6} bind:value={content} on:change={() => update(content)}></textarea>
+    <textarea class="component clear wide" class:resizable={resizable} rows={rows > 0 ? rows : 0} bind:value={content} on:change={() => update(content)}></textarea>
 </div>
 
 <style>
@@ -47,19 +49,20 @@
         align-self: center;
         width: 100%;
         margin: 0px;
-        border: 1px solid gray;
+        border: none;
+        border-bottom: 2px dotted gray;
         opacity: 0.1;
     }
 
-    .overall{
-        display: flex;
+    .main{
+        display: grid;
+        width: 100%;
         flex-direction: column;
-        gap: 2px;
-        padding: 2px;
+        gap: 1px;
+        grid-template-rows: 32px 1px auto;
     }
 
     .top{
-        height: 26px;
         display: flex;
         flex-direction: row;
         gap: 2px;
@@ -96,8 +99,14 @@
     }
 
     textarea{
+        margin: 0px;
         padding: 8px;
         font-size: 95%;
+        resize: none;
+    }
+
+    textarea.resizable{
+        resize: vertical;
     }
 
     #apply :global(svg){

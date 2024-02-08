@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { currentSettings, availableAPIModes, availableAPISettings, fetching } from "../State";
+    import { TEST_STORE, currentSettings, availableAPIModes, availableAPISettings, fetching } from "../State";
     import Accordion from "../components/Accordion.svelte";
     import Status from "../components/Status.svelte";
     import Preset from "../components/Preset.svelte"
+    import Prompt from "../components/Prompt.svelte"
     import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
@@ -94,7 +95,7 @@
                     </div>
                 {/if}
                 
-                <div class="component group">
+                <div class="component container group">
                     <input type="text" class="component clear wide" placeholder="Insert API URL..." bind:value={$currentSettings[api_mode].api_url} style="flex: 1 1 auto">
                     <hr style="margin: 0px">
                     <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={$currentSettings[api_mode].api_auth} style="flex: 1 1 auto">
@@ -104,11 +105,11 @@
         </div>
     </div>
 
-<div></div>
+<!-- <div></div> -->
 
 {#each Object.entries( $availableAPISettings ) as [key, entry]}
-    <div class="section">
 
+    <div class="section">
         {#if entry && entry.type && entry.type !== "checkbox" }
             <div>
                 <div class="title">{entry.title}</div>
@@ -122,12 +123,16 @@
 
                 {#if (key == "base_prompt" || key == "sub_prompt" || key == "prefill_prompt") && $currentSettings.presets[key].length > 0}
 
+                    <div class="container component focusable">
                     <Preset 
                         elements={ $currentSettings.presets[key] } 
                         item={ getPrompt } 
                         update={ (v) => setPrompt(v, key) } 
                         content={ $currentSettings[api_mode][key] }
+                        rows={8}
+                        resizable={true}
                     />
+                    </div>
 
                 {:else if entry.type == "text"}
                     <input type="text" class="component" bind:value={$currentSettings[api_mode][key]}>
@@ -183,6 +188,19 @@
     </div>
 {/each}
 
+
+<div class="section">
+    <div>
+        <div class="title">Prompt Manager</div>
+        <div class="explanation">Build each part of the prompt for this model</div>
+    </div>
+    <Prompt 
+        list={$TEST_STORE} 
+        update={(v) => $TEST_STORE = v}
+    />
+</div>
+
+
 </div>
 
 
@@ -214,6 +232,14 @@
     .inline{
         display: flex;
         gap: 8px;
+    }
+
+    .group{
+        padding: 2px 8px;
+    }
+
+    .container{
+        padding: 2px;
     }
 
     .content{
