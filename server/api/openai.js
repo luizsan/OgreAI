@@ -14,7 +14,7 @@ class OpenAI{
         model: {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
-            type: "select", default: "gpt-3.5-turbo", choices: [ "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4-1106-preview", "gpt-4", "gpt-4-32k" ]
+            type: "select", default: "gpt-3.5-turbo", choices: [ "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4-turbo-preview", "gpt-4", "gpt-4-32k" ]
         },
 
         max_length: {
