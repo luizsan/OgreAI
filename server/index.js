@@ -15,6 +15,8 @@ import Chat from "./lib/chat.js"
 import { LoadData, SaveData } from "./lib/data.js"
 import Profile from "./lib/profile.js"
 import Settings from "./lib/settings.js"
+import Presets from "./lib/presets.js"
+import Prompt from "./lib/prompt.js"
 
 
 const __dirname = path.resolve("./")
@@ -70,9 +72,23 @@ app.get("/get_profile", parser, function(_, response){
     response.send( profile )
 })
 
-app.get("/get_settings", parser, function(_, response){
-    let settings = LoadData(Settings.path, new Settings())
-    Settings.Validate(settings, API_MODES )
+app.get("/get_main_settings", parser, function(_, response){
+    const filepath = path.join(Settings.path, Settings.file)
+    let settings = LoadData(filepath)
+    Settings.ValidateMain(settings, Object.keys(API_MODES))
+    response.send( settings )
+})
+
+app.post("/get_api_settings", parser, function(request, response){
+    if( !request.body || !request.body.api_mode || !API_MODES[request.body.api_mode]){
+        response.status(500).send({})
+        return
+    }
+
+    const mode = request.body.api_mode
+    const filepath = path.join(Settings.path, mode, Settings.file )
+    let settings = LoadData(filepath)
+    Settings.ValidateAPI(settings, API_MODES[mode] )
     response.send( settings )
 })
 
@@ -98,10 +114,54 @@ app.post("/save_profile", parser, function(request, response){
     response.send(true)
 })
 
-app.post("/save_settings", parser, function(request, response){
-    SaveData( Settings.path, request.body )
+app.post("/save_main_settings", parser, function(request, response){
+    const filepath = path.join(Settings.path, Settings.file)
+    SaveData( filepath, request.body.data )
     response.send(true)
 })
+
+app.post("/save_api_settings", parser, function(request, response){
+    if( !request.body || !request.body.api_mode || !API_MODES[request.body.api_mode]){
+        response.send(false)
+        return
+    }
+
+    const mode = request.body.api_mode
+    const filepath = path.join(Settings.path, mode, Settings.file )
+    SaveData( filepath, request.body.data )
+    response.send(true)
+})
+
+app.post("/get_presets", parser, function(request, response){
+    if( !request.body || !request.body.type || !Presets.categories.includes( request.body.type )){
+        let obj = {}
+        for( let i = 0; i < Presets.categories.length; i++ ){
+            let type = Presets.categories[i]
+            let filepath = path.join(Presets.path, type + ".json")
+            let presets = LoadData(filepath, [])
+            obj[type] = presets
+        }
+        response.send( obj )
+    }else{
+        const type = request.body.type
+        const filepath = path.join(Presets.path, type + ".json")
+        let presets = LoadData(filepath)
+        response.send( presets )
+    }
+})
+
+app.post("/save_presets", parser, function(request, response){
+    if( !request.body || !request.body.type || !Presets.categories.includes( request.body.type )){
+        response.send( false )
+        return
+    }
+
+    const type = request.body.type
+    const filepath = path.join(Presets.path, type + ".json")
+    SaveData( filepath, request.body.data )
+    response.send(true)
+})
+
 
 app.get("/get_characters", parser, function(_, response){
     console.debug( chalk.blue( `Fetching characters from ${Character.path}` ))
@@ -202,13 +262,17 @@ app.get("/get_api_modes", parser, async function(_, response){
     response.send( API_LIST )
 })
 
-app.post("/get_api_settings", parser, function(request, response){
+app.post("/get_api_defaults", parser, function(request, response){
     let api = API_MODES[request.body.api_mode]
     if( api && api.API_SETTINGS ){
         response.send( api.API_SETTINGS )
     }else{
         response.status(500).send({})
     }
+})
+
+app.get("/get_prompt", parser, function(_, response){
+    response.send( Prompt.default )
 })
 
 app.post("/generate", parser, async function(request, response){

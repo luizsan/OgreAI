@@ -47,29 +47,19 @@ class Mistral{
             type: "checkbox", default: true,
         },
 
+        prompt: {
+            title: "Prompt Manager",
+            description: "Build each part of the prompt for this model.",
+            type: "prompt",
+        },
+        
         safe_prompt: {
             title: "Safe Prompt",
             description: "Whether to inject a safety prompt before all conversations.",
             type: "checkbox", default: false,
         },
 
-        base_prompt: {
-            title: "Base Prompt",
-            description: "Used to give basic instructions to the model on how to behave in the chat.",
-            type: "textarea", default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition.",
-        },
 
-        sub_prompt: {
-            title: "Sub Prompt",
-            description: "Appended at the end of the user's last message to reinforce instructions.",
-            type: "textarea", default: "",
-        },
-
-        prefill_prompt: {
-            title: "Prefill Prompt",
-            description: "Appended at the very end of the prompt to enforce instructions and patterns.",
-            type: "textarea", default: "",
-        }
     }
 
     // private variable to store incomplete messages

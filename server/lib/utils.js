@@ -8,53 +8,106 @@ export function parseNames(text, user, bot){
     return text
 }
 
+function getPromptField( key, settings){
+    const item = settings.prompt.find((item) => item.key === key )
+    return item && item.content ? item.content : ""
+}
+
+function getMainPrompt( character, settings ){
+    let result = getPromptField( "base_prompt", settings )
+    if( character.data.system_prompt ){
+        const override = character.data.system_prompt.replaceAll(/{{original}}/gmi, result)
+        result = override
+    }
+    result = result.trim()
+    return result
+}
+
+function getSubPrompt( character, settings ){
+    let result = getPromptField( "sub_prompt", settings )
+    if( character.data.post_history_instructions ){
+        const override = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, result)
+        result = override
+    }
+    result = result.trim()
+    return result
+}
+
+function getPrefillPrompt( _, settings ){
+    let result = getPromptField( "prefill_prompt", settings )
+    result = result.trim()
+    return result
+}
+
+function getPersona( _, settings ){
+    let result = getPromptField( "persona", settings )
+    result = result.trim()
+    return result
+}
+
+function getCharacterProperty( key, character, settings ){
+    let result = ""
+    if( character.data[key] ){
+        let prompt = getPromptField( key, settings )
+        if( prompt ){
+            result = prompt
+            if( result.includes( "{{original}}" )){
+                result = result.replaceAll(/{{original}}/gmi, character.data[key] )
+            }else{
+                result += "\n\n" + character.data[key]
+            }
+        }else{
+            result = character.data[key]
+        }
+    }
+    result = result.trim()
+    return result
+}
+
+function buildSystemPrompt( character, user, settings ){
+    let list = []
+    let result = ""
+    const skip = [ "messages", "sub_prompt", "prefill_prompt" ]
+
+    settings.prompt.forEach((item) => {
+        if( !item.key ) return
+        if( skip.includes( item.key )) return
+        if( item.enabled !== undefined && item.enabled === false ) return
+
+        if( item.key === "base_prompt" ){
+            list.push(getMainPrompt(character, settings))
+        }else if( item.key === "persona" ){
+            list.push(getPersona(character, settings))
+        }else{
+            list.push(getCharacterProperty(item.key, character, settings))
+        }
+    })
+    
+    list = list.filter((e) => e && e.length > 0)
+    result = list.join("\n\n")
+    result = parseNames( result, user, character.data.name )
+
+    return result
+}
+
 export function makePrompt( tokenizer, character, messages, user, settings, offset = 0 ){
     let prompt = []
 
-    let main_prompt = settings.base_prompt ?? ""
-    if( character.data.system_prompt ){
-        main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
-    }
+    let system = buildSystemPrompt( character, user, settings)
+    prompt.push({ role: "system", content: system })
 
-    let sub_prompt = settings.sub_prompt ?? ""
-    if( character.data.post_history_instructions ){
-        sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
-    }
-
-    let prefill_prompt = settings.prefill_prompt ?? ""
-
-    var _system = main_prompt + "\n\n"
-    _system += `{Description:} ${character.data.description.trim()}\n`
-
-    if(character.data.personality){
-        _system += `{Personality:} ${character.data.personality.trim()}\n`
-    }
-    
-    if(character.data.scenario){
-        _system += `{Scenario:} ${character.data.scenario.trim()}\n`
-    }
-    
-    if(character.data.mes_example){
-        _system += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
-    }
-
-    _system = parseNames( _system, user, character.data.name )
-    prompt.push({ role: "system", content: _system })
-
-    sub_prompt = sub_prompt ? "\n\n" + sub_prompt : ""
+    let sub_prompt = getSubPrompt( character, settings )
     sub_prompt = parseNames( sub_prompt, user, character.data.name )
     
-    prefill_prompt = prefill_prompt ? "\n\n" + prefill_prompt : ""
+    let prefill_prompt = getPrefillPrompt( character, settings )
     prefill_prompt = parseNames( prefill_prompt, user, character.data.name )
 
-    let sub_tokens = tokenizer.getTokens( sub_prompt ).length;
-    let prefill_tokens = tokenizer.getTokens( prefill_prompt ).length;
+    let tokens_system = tokenizer.getTokens(system).length;
+    let tokens_messages = 0
+
     let injected_sub_prompt = false;
     let injected_prefill_prompt = false;
 
-    let token_count_system = tokenizer.getTokens(_system).length + sub_tokens + prefill_tokens;
-    let token_count_messages = 0
-    
     if( messages ){
         for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
             let role = messages[i].participant > -1 ? "assistant" : "user";
@@ -63,21 +116,21 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
             content = parseNames(content, user, character.data.name )
             
             if( role === "user" && !injected_sub_prompt ){
-                content += sub_prompt;
+                content += "\n\n" + sub_prompt;
                 injected_sub_prompt = true;
             }
 
             if( !injected_prefill_prompt ){
-                content += prefill_prompt;
+                content += "\n\n" + prefill_prompt;
                 injected_prefill_prompt = true;
             }
 
             let next_tokens = tokenizer.getTokens(content).length
-            if( token_count_system + token_count_messages + next_tokens > settings.context_size ){
+            if( tokens_system + tokens_messages + next_tokens > settings.context_size ){
                 break;
             }
 
-            token_count_messages += next_tokens
+            tokens_messages += next_tokens
             prompt.splice(1, 0, { role: role, content: content })
         }
     }
@@ -113,53 +166,30 @@ export function messagesToString(messages, character, user, settings, separator 
 }
 
 export function getTokenConsumption( tokenizer, character, user, settings ){
-    let main_prompt = settings.base_prompt ?? ""
-    if( character.data.system_prompt ){
-        main_prompt = character.data.system_prompt.replaceAll(/{{original}}/gmi, settings.base_prompt)
+    let _system = getMainPrompt( character, settings );
+    const persona = getPersona( character, settings )
+    const prompt_sub = getSubPrompt( character, settings );
+    const prompt_prefill = getPrefillPrompt( character, settings );
+
+    if( persona ){
+        _system += "\n\n" + persona
     }
 
-    let sub_prompt = settings.sub_prompt ?? ""
-    if( character.data.post_history_instructions ){
-        sub_prompt = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, settings.sub_prompt)
+    if( prompt_sub ){
+        _system += "\n\n" + prompt_sub;
     }
 
-    let _system = main_prompt;
-
-    if( sub_prompt ){
-        _system += "\n\n" + sub_prompt;
+    if( prompt_prefill ){
+        _system += "\n\n" + prompt_prefill;
     }
 
     _system = parseNames( _system, user, character.data.name )
 
-    let _description = ""
-    if(character.data.description){
-        _description += `{Description:} ${character.data.description.trim()}\n`
-        _description = parseNames( _description, user, character.data.name )
-    }
-    
-    let _personality = ""
-    if(character.data.personality){
-        _personality += `{Personality:} ${character.data.personality.trim()}\n`
-        _personality = parseNames( _personality, user, character.data.name )
-    }
-    
-    let _scenario = ""
-    if(character.data.scenario){
-        _scenario += `{Scenario:} ${character.data.scenario.trim()}\n`
-        _scenario = parseNames( _scenario, user, character.data.name )
-    }
-
-    let _dialogue = ""
-    if(character.data.mes_example){
-        _dialogue += `{Example dialogue:} ${character.data.mes_example.trim()}\n`
-        _dialogue = parseNames( _dialogue, user, character.data.name )
-    }
-
-    let _greeting = ""
-    if(character.data.first_mes){
-        _greeting += `${character.data.first_mes.trim()}`
-        _greeting = parseNames( _greeting, user, character.data.name )
-    }
+    const _description = parseNames( getCharacterProperty( "description", character, settings ), user, character.data.name )
+    const _personality = parseNames( getCharacterProperty( "personality", character, settings ), user, character.data.name )
+    const _scenario = parseNames( getCharacterProperty( "scenario", character, settings ), user, character.data.name )
+    const _dialogue = parseNames( getCharacterProperty( "mes_example", character, settings ), user, character.data.name )
+    const _greeting = parseNames( getCharacterProperty( "first_mes", character, settings ), user, character.data.name )
 
     return {
         system: tokenizer.getTokens(_system).length,

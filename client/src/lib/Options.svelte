@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sectionSettings, currentSettings, tabSettings } from "../State";
+    import { sectionSettings, currentSettingsMain, currentSettingsAPI, tabSettings } from "../State";
     import Screen from "../components/Screen.svelte";
     import Profile from "./Profile.svelte";
     import Settings from "./Settings.svelte"
@@ -20,7 +20,7 @@
 
 </script>
 
-{#if $sectionSettings && $currentSettings != null}
+{#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
     <Screen>
         <div class="tabs section horizontal wrap">
             {#each tab_items as item, i}

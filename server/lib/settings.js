@@ -1,59 +1,38 @@
+import Prompt from "./prompt.js"
+
 export default class Settings{
-    static path = "../user/settings.json"
+    static path = "../user/settings/"
+    static file = "main.json"
 
-    constructor(){
-        Settings.Validate( {}, {} );
-    }
-
-    static Validate(obj, api_modes){
-        if( !obj.presets ){
-            obj.presets = {}
-        }
-    
-        if( !obj.presets.auth ){ 
-            obj.presets.auth = [] 
+    static ValidateMain(obj, api_modes){
+        if( !obj.api_mode ){
+            obj.api_mode = api_modes[0]
         }
 
-        if( !obj.presets.base_prompt ){ 
-            obj.presets.base_prompt = []
-        }
-
-        if( !obj.presets.sub_prompt ){ 
-            obj.presets.sub_prompt = []
-        }
-
-        if( !obj.presets.prefill_prompt ){ 
-            obj.presets.prefill_prompt = []
-        }
-
-        if( !obj.formatting ){
-            obj.formatting = {}
-        }
-    
         if( !obj.formatting.replace ){ 
             obj.formatting.replace = []
         }
+    }
 
-        // sanitize settings based on available API modes
-        Object.keys( api_modes ).forEach(mode => {
-            if( !obj[mode] ){
-                obj[mode] = {}
+    static ValidateAPI(obj, api_mode){
+        if( !obj.api_url ){
+            obj.api_url = ""
+        }
+        
+        if( !obj.api_auth ){
+            obj.api_auth = ""
+        }
+
+        Object.keys( api_mode.API_SETTINGS ).forEach(key => {
+            if( !(key in obj) ){
+                obj[key] = api_mode.API_SETTINGS[key].default
             }
-
-            if( !obj[mode].api_url ){ 
-                obj[mode].api_url = ""; 
-            }
-
-            if( !obj[mode].api_auth ){ 
-                obj[mode].api_auth = ""; 
-            }
-
-            Object.keys( api_modes[mode].API_SETTINGS ).forEach(key => {
-                if( !(key in obj[mode] )){
-                    obj[mode][key] = api_modes[mode].API_SETTINGS[key].default
-                }
-            })
         })
 
+        if( !obj.prompt ){
+            obj.prompt = []
+        }
+
+        obj.prompt = Prompt.Validate(obj.prompt)
     }
 }

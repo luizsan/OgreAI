@@ -1,6 +1,6 @@
 <script lang="ts">
     import Accordion from "../components/Accordion.svelte";
-    import { currentSettings } from "../State";
+    import { currentPresets } from "../State";
     import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
@@ -10,26 +10,25 @@
         { key: "prefill_prompt", label: "Prefill Prompt"},
     ]
 
-
     function AddItem(key : string){
-        $currentSettings.presets[key].push({ name: "", address: "", password: "" })
-        $currentSettings.presets[key] = $currentSettings.presets[key];
+        $currentPresets[key].push({ name: "", address: "", password: "" })
+        $currentPresets[key] = $currentPresets[key];
     }
 
     function DuplicateItem(key : string, id : number, item : any){
-        $currentSettings.presets[key].splice(id, 0, JSON.parse(JSON.stringify(item)))
-        $currentSettings.presets[key] = $currentSettings.presets[key];
+        $currentPresets[key].splice(id, 0, JSON.parse(JSON.stringify(item)))
+        $currentPresets[key] = $currentPresets[key];
     }
 
     function RemoveItem(key : string, id : number){
-        $currentSettings.presets[key].splice(id, 1)
-        $currentSettings.presets[key] = $currentSettings.presets[key];
-        Server.request("/save_settings", $currentSettings)
+        $currentPresets[key].splice(id, 1)
+        $currentPresets[key] = $currentPresets[key];
+        Server.request("/save_presets", { type: key, data: $currentPresets[key] })
     }
 </script>
 
 
-<div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
+<div class="content wide">
     <div>
         <h1>Presets</h1>
         <p class="explanation">Set up predefined settings to use across different API modes.</p>
@@ -37,16 +36,16 @@
     </div>
 
     <Accordion name="API Authentication">
-        {#each $currentSettings.presets.auth as auth, i}
-            <div class="preset">
+        {#each $currentPresets.api_auth as item, i}
+            <div class="preset" on:change={() => Server.request("/save_presets", { type: "api_auth", data: $currentPresets.api_auth })}>
                 <div class="controls">
-                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("auth", i, auth)}>{@html SVG.copy}</button>
+                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("auth", i, item)}>{@html SVG.copy}</button>
                     <button class="component danger" title="Remove" on:click={() => RemoveItem("auth", i)}>{@html SVG.trashcan}</button>
                 </div>
                 <div class="fields">
-                    <input type="text" class="component wide" placeholder="Title" bind:value={auth.name} style="flex: 1 1 auto">
-                    <input type="text" class="component wide" placeholder="URL" bind:value={auth.address} style="flex: 1 1 auto">
-                    <input type="password" class="component wide" placeholder="Authentication" bind:value={auth.password} style="flex: 1 1 auto">
+                    <input type="text" class="component wide" placeholder="Title" bind:value={item.name} style="flex: 1 1 auto">
+                    <input type="text" class="component wide" placeholder="URL" bind:value={item.address} style="flex: 1 1 auto">
+                    <input type="password" class="component wide" placeholder="Authentication" bind:value={item.password} style="flex: 1 1 auto">
                 </div>
             </div>
         {/each}
@@ -55,15 +54,15 @@
     
     {#each prompt_categories as category}
         <Accordion name={category.label}>
-            {#each $currentSettings.presets[category.key] as main, i}
-                <div class="preset">
+            {#each $currentPresets[category.key] as item, i}
+                <div class="preset" on:change={() => Server.request("/save_presets", { type: category.key, data: $currentPresets[category.key] })}>
                     <div class="controls">
-                        <button class="component info" title="Duplicate" on:click={() => DuplicateItem(category.key, i, main)}>{@html SVG.copy}</button>
+                        <button class="component info" title="Duplicate" on:click={() => DuplicateItem(category.key, i, item)}>{@html SVG.copy}</button>
                         <button class="component danger" title="Remove" on:click={() => RemoveItem(category.key, i)}>{@html SVG.trashcan}</button>
                     </div>
                     <div class="fields">
-                        <input type="text" class="component wide" placeholder="{category.label} Title" bind:value={main.name} style="flex: 1 1 auto">
-                        <textarea class="component wide" placeholder="Content" rows={8} bind:value={main.content}></textarea>
+                        <input type="text" class="component wide" placeholder="{category.label} Title" bind:value={item.name} style="flex: 1 1 auto">
+                        <textarea class="component wide" placeholder="Content" rows={8} bind:value={item.content}></textarea>
                     </div>
                 </div>
             {/each}

@@ -60,13 +60,13 @@
         const init_requests = [
             request( "/get_api_modes" ),
             request( "/get_profile" ),
-            request( "/get_settings" ),
+            request( "/get_main_settings" ),
         ]
 
         await Promise.all(init_requests).then(async responses => {
             State.availableAPIModes.set( responses[0] )
             State.currentProfile.set( responses[1] )
-            State.currentSettings.set( responses[2] )
+            State.currentSettingsMain.set( responses[2] )
             status()
             
         }).catch(error => {
@@ -81,14 +81,21 @@
         let favs = JSON.parse(window.localStorage.getItem("favorites"))
         State.favoritesList.set( favs ? favs : [] )
         
-        const settings = get( State.currentSettings )
+
+        const settings = get( State.currentSettingsMain )
         const mode = settings.api_mode
         const post_requests = [
             request( "/get_api_settings", { api_mode: mode }),
+            request( "/get_api_defaults", { api_mode: mode }),
+            request( "/get_presets", {} ),
+            request( "/get_prompt" )
         ]
 
         await Promise.all(post_requests).then(async responses => {
-            State.availableAPISettings.set( responses[0] )
+            State.currentSettingsAPI.set( responses[0] )
+            State.defaultSettingsAPI.set( responses[1] )
+            State.currentPresets.set( responses[2] )
+            State.defaultPrompt.set( responses[3] )
             await getAPIStatus()
         }).catch((error) => {
             disconnect()
@@ -104,11 +111,12 @@
             return
         }
 
-        let settings = get( State.currentSettings )
-        let mode = settings.api_mode;
+        let settings_main = get( State.currentSettingsMain )
+        let settings_api = get( State.currentSettingsAPI )
+        let mode = settings_main.api_mode;
 
         State.api.set( null );
-        let result = await request( "/get_api_status", { api_mode: mode, settings: settings[mode] })
+        let result = await request( "/get_api_status", { api_mode: mode, settings: settings_api })
         State.api.set( result )
     }
 
@@ -173,13 +181,14 @@
     }
 
     export async function getCharacterTokens( character : ICharacter ){
-        let settings = get( State.currentSettings )
+        let settings_main = get( State.currentSettingsMain )
+        let settings_api = get( State.currentSettingsAPI )
         let profile = get( State.currentProfile )
         let body = { 
-            api_mode: settings.api_mode, 
+            api_mode: settings_main.api_mode, 
             character: character, 
             user: profile.name, 
-            settings: settings[ settings.api_mode ] 
+            settings: settings_api 
         }
 
         return request( "/get_character_tokens", body )

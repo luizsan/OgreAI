@@ -12,7 +12,7 @@ function SaveData(file_path, content){
     }
 }
 
-function LoadData(file_path, defaults){
+function LoadData(file_path, defaults = {}){
     let dir = dirname(file_path)
     if( !existsSync(dir)){
         mkdirSync(dir, { recursive: true })

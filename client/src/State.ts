@@ -24,14 +24,20 @@ export const chatList = writable( [] )
 export const deleteList = writable( [] )
 export const favoritesList = writable( [] )
 export const availableAPIModes = writable( [] )
-export const availableAPISettings = writable( [] )
+
+// defaults
+export const defaultSettingsAPI = writable( null )
+export const defaultPrompt = writable( null )
 
 // logic
-export const currentSettings = writable( null )
+export const currentSettingsMain = writable( null )
+export const currentSettingsAPI = writable( null )
+export const currentPresets = writable( null )
 export const currentProfile = writable( null )
 export const currentCharacter = writable( null )
 export const currentCreate = writable( null )
 export const currentChat = writable( null )
+export const currentTheme = writable( null )
 
 // toggle elements
 export const sectionCharacters = writable( false )
@@ -39,6 +45,3 @@ export const sectionEditing = writable( false )
 export const sectionSettings = writable( false )
 export const tabSettings = writable( 0 )
 export const tabEditing = writable( 0 )
-
-
-export const TEST_STORE = writable( [] )

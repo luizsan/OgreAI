@@ -1,64 +1,8 @@
 <script lang="ts">
     import * as SVG from "../utils/SVGCollection.svelte";
     import Preset from "../components/Preset.svelte";
-    import { currentSettings } from "../State";
+    import { defaultPrompt, currentPresets } from "../State";
 
-    const default_data = {
-        base_prompt: { 
-            toggleable: false, editable: true, 
-            label: "Main prompt",
-            description: "Used to give basic instructions to the model on how to behave in the chat.",
-        },
-
-        description: { 
-            toggleable: true, editable: false, 
-            label: "Character description",
-            description: "",
-        },
-
-        personality: { 
-            toggleable: true, editable: false, 
-            label: "Character personality",
-            description: "",
-        },
-
-        scenario: { 
-            toggleable: true, editable: false, 
-            label: "Character scenario",
-            description: "",
-        },
-
-        mes_example: { 
-            toggleable: true, editable: false, 
-            label: "Example chat",
-            description: "",
-        },
-        
-        persona: { 
-            toggleable: true, editable: false, 
-            label: "User persona",
-            description: "",
-        },
-
-        messages: { 
-            toggleable: false, editable: false, 
-            label: "Chat history",
-            description: "",
-        },
-
-        sub_prompt: { 
-            toggleable: true, editable: true, 
-            label: "Jailbreak prompt",
-            description: "Appended at the end of the user's last message to reinforce instructions.",
-        },
-
-        prefill_prompt: { 
-            toggleable: true, editable: true, 
-            label: "Prefill prompt",
-            description: "Appended at the very end of the prompt to enforce instructions and patterns.",
-        },
-    }
-    
     export let list : Array<any> = []
     export let update = (v: any) => {}
 
@@ -80,6 +24,7 @@
 
     function comparePosition(y : number, e : Element){
         if( !e ) return;
+        if( e.classList.contains("locked")) return;
         const rect = e.getBoundingClientRect();
         if (y > rect.top && y < rect.bottom) {
             if (y < rect.top + rect.height * 0.5) {
@@ -172,11 +117,11 @@
         update(list)
     }
 
-    function getPresetsForKey(key){
-        if( !(key in default_data) || !(key in $currentSettings.presets) ){
+    function getPresetsForKey(key: string){
+        if( !$defaultPrompt[key] || !$currentPresets[key] ){
             return []
         }
-        return $currentSettings.presets[key]
+        return $currentPresets[key]
     }
 
 </script>
@@ -193,11 +138,12 @@
     <div class="list" bind:this={container} class:invisible={editing} class:disabled={editing}>
         <div bind:this={marker} class="marker"/>
         {#each list as item}
-            {#if item.key in default_data}
+            {#if item.key in $defaultPrompt }
 
                 <div 
                     class="item" 
-                    draggable="true"
+                    draggable={ !$defaultPrompt[item.key].locked }
+                    class:locked={ $defaultPrompt[item.key].locked }
                     id={ item.key }
                     on:dragstart|self={pickItem} 
                     on:touchstart|self={(e) => pickItem(e, true)}
@@ -206,15 +152,15 @@
                     <div class="handle">{@html SVG.handle}</div>
 
                     <div class="center">
-                        {#if default_data[item.key].toggleable}
+                        {#if $defaultPrompt[item.key].toggleable}
                         <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={() => update(list)}>
                         {/if}
                     </div>
 
-                    <div class="text disabled" class:unfocus={ !item.enabled } title="Edit">{default_data[item.key].label}</div>
+                    <div class="text disabled" class:unfocus={ $defaultPrompt[item.key].toggleable && !item.enabled } title="Edit">{$defaultPrompt[item.key].label}</div>
 
                     <div class="center">
-                        {#if default_data[item.key].editable}
+                        {#if $defaultPrompt[item.key].editable}
                         <button class="confirm" on:click={() => { editing = true; current_key = item.key; }}>{@html SVG.edit}</button>
                         {/if}
                     </div>
@@ -226,23 +172,23 @@
     </div>
 
     {#if editing}
-    <div class="overlay focusable">
-        <div class="top">
-            <button class="normal" on:click={() => { editing = false; }}>{@html SVG.arrow}</button>
-            <div>
-                <div class="title">Editing: {default_data[current_key].label}</div>
-                <div class="explanation">{default_data[current_key].description}</div>
+        <div class="overlay focusable">
+            <div class="top">
+                <button class="normal" on:click={() => { editing = false; }}>{@html SVG.arrow}</button>
+                <div>
+                    <div class="title">Editing: {$defaultPrompt[current_key].label}</div>
+                    <div class="explanation">{$defaultPrompt[current_key].description}</div>
+                </div>
+            </div>
+            <div class="bottom">
+                <Preset 
+                    elements={ getPresetsForKey(current_key) } 
+                    content={ list.find((e) => e.key == current_key).content } 
+                    item={(v) => v.content } 
+                    update={(v) => list.find((e) => e.key === current_key).content = v } 
+                />
             </div>
         </div>
-        <div class="bottom">
-            <Preset 
-                elements={getPresetsForKey(current_key)} 
-                content={ list.find((e) => e.key == current_key).content } 
-                item={(v) => v.content } 
-                update={(v) => list.find((e) => e.key === current_key).content = v } 
-            />
-        </div>
-    </div>
     {/if}
 
 </div>
@@ -280,7 +226,10 @@
         border-radius: 2px;
         align-items: center;
         font-size: 90%;
+    }
 
+    .item.locked{
+        background: #60606010;
     }
 
     .overlay{
@@ -311,12 +260,12 @@
         translate: 0px -1px;
     }
 
-    .item:hover{
+    .item:not(.locked):hover{
         background: var( --component-bg-hover );
     }
 
     .unfocus{
-        opacity: 0.25
+        opacity: 0.333333;
     }
 
     .handle{

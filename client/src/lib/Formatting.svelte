@@ -1,23 +1,23 @@
 <script lang="ts">
     import Accordion from "../components/Accordion.svelte";
-    import { currentSettings } from "../State";
+    import { currentSettingsMain } from "../State";
     import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     function AddItem(key : string){
-        $currentSettings.formatting[key].push({ pattern: "", replacement: "" })
-        $currentSettings.formatting[key] = $currentSettings.formatting[key];
+        $currentSettingsMain.formatting[key].push({ pattern: "", replacement: "" })
+        $currentSettingsMain.formatting[key] = $currentSettingsMain.formatting[key];
     }
 
     function RemoveItem(key : string, id : number){
-        $currentSettings.formatting[key].splice(id, 1)
-        $currentSettings.formatting[key] = $currentSettings.formatting[key];
-        Server.request("/save_settings", $currentSettings)
+        $currentSettingsMain.formatting[key].splice(id, 1)
+        $currentSettingsMain.formatting[key] = $currentSettingsMain.formatting[key];
+        Server.request("/save_main_settings", { data: $currentSettingsMain })
     }
 </script>
 
 
-<div class="content wide" on:change={() => Server.request("/save_settings", $currentSettings)}>
+<div class="content wide" on:change={() => Server.request("/save_main_settings", { data: $currentSettingsMain })}>
     <div>
         <h1>Formatting</h1>
         <p class="explanation">Use regex to automatically format text when receiving replies.</p>
@@ -25,7 +25,7 @@
     </div>
 
     <Accordion name="Text Replace">
-        {#each $currentSettings.formatting.replace as rep, i}
+        {#each $currentSettingsMain.formatting.replace as rep, i}
             <div class="preset">
                 <div class="controls">
                     <button class="component danger" title="Remove" on:click={() => RemoveItem("replace", i)}>{@html SVG.trashcan}</button>

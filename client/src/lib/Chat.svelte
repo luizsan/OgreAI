@@ -1,6 +1,6 @@
 <script lang="ts">
     import { AutoResize, resize } from "../utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettings, deleteList, fetching, chatList } from "../State";
+    import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
     import * as Server from "./Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
@@ -78,13 +78,13 @@
     }
 
     export async function GenerateMessage(swipe = false){
-        let mode = $currentSettings.api_mode;
+        let mode = $currentSettingsMain.api_mode;
         let body = {
             api_mode: mode,
             character: $currentCharacter,
             messages: $currentChat.messages,
             user: $currentProfile.name,
-            settings: $currentSettings[mode],
+            settings: $currentSettingsAPI,
             swipe: swipe,
         }
 
@@ -96,7 +96,7 @@
         }
 
         $busy = true;
-        let streaming = $currentSettings[mode].stream;
+        let streaming = $currentSettingsAPI.stream;
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough( new TextDecoderStream() );
@@ -213,9 +213,9 @@
     }
 
     function FormatCandidate(candidate : ICandidate){
-        if($currentSettings.formatting && $currentSettings.formatting.replace){
-            for(let i = 0; i < $currentSettings.formatting.replace.length; i++ ){
-                const item = $currentSettings.formatting.replace[i]
+        if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
+            for(let i = 0; i < $currentSettingsMain.formatting.replace.length; i++ ){
+                const item = $currentSettingsMain.formatting.replace[i]
                 if( !item.pattern ){
                     continue
                 }
