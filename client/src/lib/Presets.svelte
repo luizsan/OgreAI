@@ -39,8 +39,8 @@
         {#each $currentPresets.api_auth as item, i}
             <div class="preset" on:change={() => Server.request("/save_presets", { type: "api_auth", data: $currentPresets.api_auth })}>
                 <div class="controls">
-                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("auth", i, item)}>{@html SVG.copy}</button>
-                    <button class="component danger" title="Remove" on:click={() => RemoveItem("auth", i)}>{@html SVG.trashcan}</button>
+                    <button class="component info" title="Duplicate" on:click={() => DuplicateItem("api_auth", i, item)}>{@html SVG.copy}</button>
+                    <button class="component danger" title="Remove" on:click={() => RemoveItem("api_auth", i)}>{@html SVG.trashcan}</button>
                 </div>
                 <div class="fields">
                     <input type="text" class="component wide" placeholder="Title" bind:value={item.name} style="flex: 1 1 auto">
@@ -49,7 +49,7 @@
                 </div>
             </div>
         {/each}
-        <button class="component normal" on:click={() => AddItem("auth")}>{@html SVG.plus}Add API Authentication</button>
+        <button class="component normal" on:click={() => AddItem("api_auth")}>{@html SVG.plus}Add API Authentication</button>
     </Accordion>
     
     {#each prompt_categories as category}
