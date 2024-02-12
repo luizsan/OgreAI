@@ -13,6 +13,12 @@ function getPromptField( key, settings){
     return item && item.content ? item.content : ""
 }
 
+function getFieldEnabled( key, settings ){
+    const item = settings.prompt.find((item) => item.key === key )
+    if( item === undefined ) return undefined
+    return item && item.enabled
+}
+
 function getMainPrompt( character, settings ){
     let result = getPromptField( "base_prompt", settings )
     if( character.data.system_prompt ){
@@ -98,11 +104,15 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
 
     let sub_prompt = getSubPrompt( character, settings )
     sub_prompt = parseNames( sub_prompt, user, character.data.name )
-    
+    sub_prompt = sub_prompt.length > 0 ? "\n\n" + sub_prompt : ""
+
     let prefill_prompt = getPrefillPrompt( character, settings )
     prefill_prompt = parseNames( prefill_prompt, user, character.data.name )
+    prefill_prompt = prefill_prompt.length > 0 ? "\n\n" + prefill_prompt : ""
 
     let tokens_system = tokenizer.getTokens(system).length;
+    tokens_system += tokenizer.getTokens(sub_prompt).length
+    tokens_system += tokenizer.getTokens(prefill_prompt).length
     let tokens_messages = 0
 
     let injected_sub_prompt = false;
@@ -115,13 +125,13 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
             let content = messages[i].candidates[ index ].text
             content = parseNames(content, user, character.data.name )
             
-            if( role === "user" && !injected_sub_prompt ){
-                content += "\n\n" + sub_prompt;
+            if( !injected_sub_prompt && getFieldEnabled("sub_prompt", settings) && role === "user"){
+                content += sub_prompt;
                 injected_sub_prompt = true;
             }
 
-            if( !injected_prefill_prompt ){
-                content += "\n\n" + prefill_prompt;
+            if( !injected_prefill_prompt && getFieldEnabled("prefill_prompt", settings)){
+                content += prefill_prompt;
                 injected_prefill_prompt = true;
             }
 
