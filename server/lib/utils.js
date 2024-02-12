@@ -118,6 +118,9 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
     let injected_sub_prompt = false;
     let injected_prefill_prompt = false;
 
+    const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
+    const enabled_prefill_prompt = getFieldEnabled("prefill_prompt", settings)
+
     if( messages ){
         for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
             let role = messages[i].participant > -1 ? "assistant" : "user";
@@ -125,12 +128,12 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
             let content = messages[i].candidates[ index ].text
             content = parseNames(content, user, character.data.name )
             
-            if( !injected_sub_prompt && getFieldEnabled("sub_prompt", settings) && role === "user"){
+            if( enabled_sub_prompt && !injected_sub_prompt && role === "user"){
                 content += sub_prompt;
                 injected_sub_prompt = true;
             }
 
-            if( !injected_prefill_prompt && getFieldEnabled("prefill_prompt", settings)){
+            if( enabled_prefill_prompt && !injected_prefill_prompt ){
                 content += prefill_prompt;
                 injected_prefill_prompt = true;
             }
