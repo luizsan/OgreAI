@@ -492,6 +492,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        translate: 0px 1px;
     }
 
     .swipes :global(svg){
