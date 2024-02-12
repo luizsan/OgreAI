@@ -44,7 +44,7 @@
             }
         }else{
             // Required for some browsers to allow dragging
-            e.dataTransfer.setData('text/plain', ''); 
+            e.dataTransfer.setData('text/plain', '');
             picked = e.target;
             pickedItem()
         }
@@ -55,6 +55,10 @@
         }
 
         function pickedItem(){
+            if(picked.classList.contains("locked")){
+                picked = null
+                return
+            }
             marker.style.visibility = "visible"
             comparePosition(e.clientY, picked)
             container.insertBefore(marker, direction > 0 ? picked.nextSibling : picked)
@@ -79,7 +83,9 @@
             touch_timer = null;
         }
 
-        reorderItems()
+        if( picked && !picked.classList.contains("locked") && target ){
+            reorderItems()
+        }
         picked = null
         target = null
         direction = 0
@@ -141,8 +147,8 @@
             {#if item.key in $defaultPrompt }
 
                 <div 
-                    class="item" 
-                    draggable={ !$defaultPrompt[item.key].locked }
+                    class="item"
+                    draggable="{ !$defaultPrompt[item.key].locked }"
                     class:locked={ $defaultPrompt[item.key].locked }
                     id={ item.key }
                     on:dragstart|self={pickItem} 
