@@ -66,14 +66,6 @@
 
     <div class="section">
         <div>
-            <div class="title">Persona</div>
-            <div class="explanation">User's character description.</div>
-        </div>
-        <textarea class="component wide" rows={4} bind:value={$currentProfile.persona}></textarea>
-    </div>
-
-    <div class="section">
-        <div>
             <div class="title">Theme</div>
             <div class="explanation">Define your preferred color scheme.</div>
         </div>
