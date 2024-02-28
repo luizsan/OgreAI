@@ -9,6 +9,10 @@ export default class Settings{
             obj.api_mode = api_modes[0]
         }
 
+        if( !obj.formatting ){
+            obj.formatting = {}
+        }
+
         if( !obj.formatting.replace ){ 
             obj.formatting.replace = []
         }
