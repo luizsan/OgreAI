@@ -14,7 +14,7 @@ class Mistral{
         model: {
             title: "Model",
             description: "ID of the model to use.",
-            type: "select", default: "mistral-small", choices: [ "mistral-tiny", "mistral-small", "mistral-medium" ]
+            type: "select", default: "mistral-small", choices: [ "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest" ]
         },
 
         max_tokens: {
