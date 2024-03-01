@@ -216,6 +216,9 @@
         if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
             for(let i = 0; i < $currentSettingsMain.formatting.replace.length; i++ ){
                 const item = $currentSettingsMain.formatting.replace[i]
+                if( !item.enabled ){
+                    continue
+                }
                 if( !item.pattern ){
                     continue
                 }

@@ -28,12 +28,15 @@
         {#each $currentSettingsMain.formatting.replace as rep, i}
             <div class="preset">
                 <div class="controls">
-                    <button class="component danger" title="Remove" on:click={() => RemoveItem("replace", i)}>{@html SVG.trashcan}</button>
+                    <input type="checkbox" class="component" bind:checked={rep.enabled}>
                 </div>
-                <div class="fields">
+                <div class="fields" class:disabled={!rep.enabled}>
                     <input type="text" class="component wide" placeholder="Pattern" bind:value={rep.pattern} style="flex: 1 1 auto">
                     <div class="separator normal">{@html SVG.arrow}</div>
                     <input type="text" class="component wide" placeholder="Replacement" bind:value={rep.replacement} style="flex: 1 1 auto">
+                </div>
+                <div class="controls">
+                    <button class="component danger" title="Remove" on:click={() => RemoveItem("replace", i)}>{@html SVG.trashcan}</button>
                 </div>
             </div>
         {/each}
@@ -75,7 +78,7 @@
 
     .preset{
         display: grid;
-        grid-template-columns: 32px auto;
+        grid-template-columns: 32px auto 32px;
         gap: 8px;
     }
 
@@ -83,6 +86,10 @@
         display: flex;
         flex-direction: row;
         gap: 4px;
+    }
+
+    .disabled{
+        opacity: 0.25;
     }
 
     .controls{
