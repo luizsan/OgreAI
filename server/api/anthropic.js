@@ -16,6 +16,8 @@ class Anthropic{
             title: "Model",
             description: "The model that will complete your prompt. This parameter controls which version of Claude answers your request.",
             type: "select", default: "claude-v1.2", choices: [
+                "claude-3-opus-20240229",
+                "claude-3-sonnet-20240229",
                 "claude-2",
                 "claude-v1",
                 "claude-v1-100k",
