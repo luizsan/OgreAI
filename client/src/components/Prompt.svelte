@@ -155,7 +155,7 @@
                     on:touchstart|self={(e) => pickItem(e, true)}
                 >
 
-                    <div class="handle">{@html SVG.handle}</div>
+                    <div class="handle" class:invisible={ $defaultPrompt[item.key].locked }>{@html SVG.reorder}</div>
 
                     <div class="center">
                         {#if $defaultPrompt[item.key].toggleable}
@@ -163,14 +163,14 @@
                         {/if}
                     </div>
 
-                    <div class="text disabled" class:unfocus={ $defaultPrompt[item.key].toggleable && !item.enabled } title="Edit">{$defaultPrompt[item.key].label}</div>
-
+                    
                     <div class="center">
                         {#if $defaultPrompt[item.key].editable}
                         <button class="confirm" on:click={() => { editing = true; current_key = item.key; }}>{@html SVG.edit}</button>
                         {/if}
                     </div>
-
+                    
+                    <div class="text disabled" class:unfocus={ $defaultPrompt[item.key].toggleable && !item.enabled } title="Edit">{$defaultPrompt[item.key].label}</div>
                 </div>
                 
             {/if}
@@ -225,7 +225,7 @@
     
     .item {
         display: grid;
-        grid-template-columns: 20px 32px auto 36px;
+        grid-template-columns: 32px 32px 36px auto;
         user-select: none;
         width: 100%;
         min-height: 32px;
@@ -280,9 +280,9 @@
     }
 
     .handle :global(svg){
-        width: 20px;
-        height: 20px;
-        translate: 1px 0px;
+        width: 100%;
+        height: 16px;
+        translate: 2px 0px;
     }
 
     .marker{
