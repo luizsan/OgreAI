@@ -126,6 +126,8 @@
                             }
                             if( obj.streaming.model ){
                                 candidate.model = obj.streaming.model
+                            }else if( $currentSettingsAPI.model ){
+                                candidate.model = $currentSettingsAPI.model
                             }
                         }
                         scroll( messagesDiv )
