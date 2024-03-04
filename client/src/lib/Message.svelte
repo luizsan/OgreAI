@@ -476,7 +476,7 @@
         display: grid;
         grid-template-columns: 32px auto 32px;
         visibility: hidden;
-        align-items: center;
+        align-items: baseline;
         color: gray;
         gap: 4px;
         height: 100%;
@@ -503,7 +503,6 @@
     .swipes .count{
         text-align: center;
         overflow-x: visible;
-        align-self: flex-end;
         font-size: 90%;
     }
 
