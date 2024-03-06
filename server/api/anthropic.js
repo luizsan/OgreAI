@@ -35,7 +35,7 @@ class Anthropic{
             ]
         },
 
-        max_tokens_to_sample: {
+        max_tokens: {
             title: "Max Length",
             description: "The maximum number of tokens to generate before stopping. Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.",
             type: "range", default: 250, min: 10, max: 1200, step: 10,
@@ -81,18 +81,6 @@ class Anthropic{
             title: "Stop Sequences",
             description: "Sequences that will cause the model to stop generating completion text.",
             type: "list", limit: -1, default: [],
-        },
-
-        human_prefix: {
-            title: "Human Prefix",
-            description: "Replaces the \"Human\" prefix identifier in prompts.",
-            type: "text", default: "Human",
-        },
-        
-        assistant_prefix: {
-            title: "Assistant Prefix",
-            description: "Replaces the \"Assistant\" prefix identifier in prompts.",
-            type: "text", default: "Assistant",
         }
     }
 
@@ -111,28 +99,26 @@ class Anthropic{
                 'x-api-key': settings.api_auth,
             },
             'body': JSON.stringify({
-                'model': 'claude-2',
+                'model': 'claude-instant-v1',
                 'stream': false,
                 'max_tokens_to_sample': 1,
-                'prompt': '\n\nHuman: Hello, world!\n\nAssistant:'
+                'messages': [{'role': 'user', 'content': "Hello world!"}]
             })
         }
         if( settings.api_url ){
             return OpenAI.getStatus( settings )
         }else{
-            return await fetch( this.API_ADDRESS + "/v1/complete", options ).then((response) => {
+            return await fetch( this.API_ADDRESS + "/v1/messages", options ).then((response) => {
                 return response.ok || response.status === 429
             })
         }
     }
 
     static makePrompt( character, messages, user, settings, offset = 0 ){
-        const list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
-        let prompt = Utils.messagesToString( list, character, user, settings )
-        if( !prompt.includes("Assistant:")){
-            prompt += "\n\nAssistant:"
-        }
-        return prompt
+        let list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
+        list[0].role = "user"
+        // list = list.filter(message => message.role && message.role !== "system")
+        return list
     }
 
     static getTokenConsumption( character, user, settings ){
@@ -142,9 +128,10 @@ class Anthropic{
     static async generate(character, prompt, user, settings){
         let outgoing_data = {
             model: settings.model,
-            prompt: prompt,
+            messages: prompt,
+            system: Utils.getSystemPrompt(character, user, settings),
             stop_sequences: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
-            max_tokens_to_sample: parseInt(settings.max_tokens_to_sample),
+            max_tokens: parseInt(settings.max_tokens),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
             top_k: parseFloat(settings.top_k),
@@ -163,24 +150,22 @@ class Anthropic{
         }
     
         console.debug("Sending prompt %o", outgoing_data)
-        // console.debug(`Sending prompt to ${outgoing_data.model}...`)
-        
         const url = settings.api_url ? settings.api_url : API_ADDRESS
-        return fetch( url + "/v1/complete", options )
+        return fetch( url + "/v1/messages", options )
     }
 
     static receiveData( incoming_data, swipe = false ){
         let incoming_json = ""
         try{
             incoming_json = JSON.parse(incoming_data);
-            if( incoming_json.choices ){
+            if( incoming_json.content ){
                 console.debug(incoming_json.model)
                 let message = {
                     participant: 0,
                     swipe: swipe,
                     candidate: {
                         model: incoming_json.model || undefined,
-                        text: incoming_json.completion,
+                        text: incoming_json.content[0].text,
                         timestamp: Date.now(),
                     }
                 }
@@ -216,43 +201,49 @@ class Anthropic{
                 timestamp: Date.now()
             }
         }
+
+        
     
         const raw_text = this.__message_chunk + incoming_data
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
-            if(!line){
-                continue;
-            }
+            if(!line) continue;
+            if(line.startsWith("event:")) continue;
 
-            let obj = line.replace(/data: /gm, '').replace(/event: completion/gm, '')
-
-            if (obj === '[DONE]') {
-                message.done = true;
-                break;
-            }
-
-            if( obj.startsWith(":") ){
-                continue
-            }
-
-            if( !obj || obj === ""){
-                continue
-            }
+            let obj = line.replace(/data: /gm, '')
+            if(!obj || obj === "") continue;
+            if(obj.startsWith(":")) continue;
 
             try {
                 const parsed = JSON.parse(obj);
-                const text = parsed.completion;
-                message.streaming.model = parsed.model || undefined
-                if( text ){
-                    if( this.__message_chunk ){
-                        console.log("CORRECTED: " + obj)
+        
+                if (parsed.delta && parsed.delta.stop_reason) {
+                    message.done = true;
+                    break;
+                }
+                
+                if( parsed.type && parsed.type === "message_start" ){
+                    if( parsed.message && parsed.message.model ){
+                        message.streaming.model = parsed.message.model
+                        continue
                     }
+                }
+                
+                if( parsed.type !== "content_block_delta" ) continue;
+
+                const text = parsed.delta.text;
+
+                if( text ){
+                    // if( this.__message_chunk ){
+                    //     console.log("CORRECTED: " + obj)
+                    // }
                     message.streaming.text += text;
+                    // console.log(obj)
                     this.__message_chunk = "";
                 }
             }catch(error){
                 if(error instanceof SyntaxError){
-                    console.log("PARSE ERROR: " + obj)
+                    // console.log("PARSE ERROR: " + obj)
                     this.__message_chunk = obj
                 }else{
                     console.log(obj)

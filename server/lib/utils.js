@@ -70,7 +70,7 @@ function getCharacterProperty( key, character, settings ){
     return result
 }
 
-function buildSystemPrompt( character, user, settings ){
+export function getSystemPrompt( character, user, settings ){
     let list = []
     let result = ""
     const skip = [ "messages", "sub_prompt", "prefill_prompt" ]
@@ -99,7 +99,7 @@ function buildSystemPrompt( character, user, settings ){
 export function makePrompt( tokenizer, character, messages, user, settings, offset = 0 ){
     let prompt = []
 
-    let system = buildSystemPrompt( character, user, settings)
+    let system = getSystemPrompt( character, user, settings)
     prompt.push({ role: "system", content: system })
 
     let sub_prompt = getSubPrompt( character, settings )
@@ -111,15 +111,19 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
     prefill_prompt = prefill_prompt.length > 0 ? "\n\n" + prefill_prompt : ""
 
     let tokens_system = tokenizer.getTokens(system).length;
-    tokens_system += tokenizer.getTokens(sub_prompt).length
-    tokens_system += tokenizer.getTokens(prefill_prompt).length
     let tokens_messages = 0
-
+    
     let injected_sub_prompt = false;
-    let injected_prefill_prompt = false;
 
     const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
+    if( enabled_sub_prompt ){
+        tokens_system += tokenizer.getTokens(sub_prompt).length
+    }
+
     const enabled_prefill_prompt = getFieldEnabled("prefill_prompt", settings)
+    if( enabled_prefill_prompt ){
+        tokens_system += tokenizer.getTokens(prefill_prompt).length
+    }
 
     if( messages ){
         for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
@@ -128,14 +132,9 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
             let content = messages[i].candidates[ index ].text
             content = parseNames(content, user, character.data.name )
             
-            if( enabled_sub_prompt && !injected_sub_prompt && role === "user"){
+            if( enabled_sub_prompt && !injected_sub_prompt && role === "user" ){
                 content += sub_prompt;
                 injected_sub_prompt = true;
-            }
-
-            if( enabled_prefill_prompt && !injected_prefill_prompt ){
-                content += prefill_prompt;
-                injected_prefill_prompt = true;
             }
 
             let next_tokens = tokenizer.getTokens(content).length
@@ -147,7 +146,11 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
             prompt.splice(1, 0, { role: role, content: content })
         }
     }
-    
+
+    if( enabled_prefill_prompt ){
+        messages.push({ "role": "assistant", "content": prefill_prompt })
+    }
+
     return prompt;
 }
 
