@@ -112,7 +112,7 @@
                 
                 <div class="component container group">
                     <input type="text" class="component clear wide" placeholder="Insert API URL..." bind:value={$currentSettingsAPI.api_url} style="flex: 1 1 auto">
-                    <hr style="margin: 0px">
+                    <hr>
                     <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={$currentSettingsAPI.api_auth} style="flex: 1 1 auto">
                 </div>
                 <button class="component normal" on:click={Server.getAPIStatus}>Check Status</button>
@@ -144,11 +144,23 @@
                     <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
 
                 {:else if entry.type == "select"}
-                    <select class="component min" bind:value={$currentSettingsAPI[key]}>
-                        {#each entry.choices as choice}
-                            <option value={choice}>{choice}</option>
-                        {/each}
-                    </select>
+
+                    {#if key == "model"}
+                        <div class="component dropdown container min">
+                            <select class="component borderless min" bind:value={$currentSettingsAPI[key]}>
+                                {#each entry.choices as choice}
+                                    <option value={choice}>{choice}</option>
+                                {/each}
+                            </select>
+                            <input type="text" class="component borderless" bind:value={$currentSettingsAPI[key]}>
+                        </div>
+                    {:else}
+                        <select class="component min" bind:value={$currentSettingsAPI[key]}>
+                            {#each entry.choices as choice}
+                                <option value={choice}>{choice}</option>
+                            {/each}
+                        </select>
+                    {/if}
 
                 {:else if entry.type == "range"}
                     <div class="input wide horizontal" >
@@ -233,12 +245,8 @@
 
     h1{
         margin: 0;
+        line-height: 2em;
         font-size: 40px;
-    }
-
-    hr{
-        color: gray;
-        opacity: 0.25;
     }
 
     .title{
@@ -307,10 +315,6 @@
         translate: 0px 1px;
         width: 18px;
         height: 18px;
-    }
-
-    .min{
-        align-self: flex-start;
     }
 
     .preset{

@@ -40,3 +40,29 @@
     color: white;
     background: hsl(220, 100%, 50% );
 }
+
+
+.normal{ color: var( --component-color-normal ) }
+.normal:hover{ color: var( --component-color-hover ) }
+.normal:active{ color: var( --component-color-disabled ) }
+.normal:disabled{ color: var( --component-color-disabled ) }
+
+.danger{  color: rgb(255, 64, 64) }
+.danger:hover{ color: rgb(255, 128, 128) }
+.danger:active{  color: rgb(192, 64, 64) }
+.danger:disabled{  color: rgba(192, 64, 64, 0.5) }
+
+.info{ color: rgb(64, 128, 255) }
+.info:hover{ color: rgb(128, 192, 255) }
+.info:active{ color: rgb(48, 128, 192) }
+.info:disabled{ color: rgba(48, 128, 192, 0.5) }
+
+.confirm{ color: rgb(64, 255, 128) }
+.confirm:hover{ color: rgb(144, 255, 220) }
+.confirm:active{ color: rgb(48, 128, 96) }
+.confirm:disabled{ color: rgba(48, 128, 96, 0.5) }
+
+.special{ color: rgb(255, 220, 64) }
+.special:hover{ color: rgb(255, 244, 144) }
+.special:active{ color: rgb(128, 120, 48) }
+.special:disabled{ color: rgba(128, 120, 48, 0.5) }

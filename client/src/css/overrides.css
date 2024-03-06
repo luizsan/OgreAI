@@ -1,0 +1,28 @@
+.borderless{
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important; 
+}
+
+.clear{
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.invisible{
+    visibility: hidden !important;
+}
+
+.disabled{
+    pointer-events: none !important;
+}
+
+.deselect{
+    user-select: none !important;
+}

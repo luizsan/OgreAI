@@ -27,7 +27,7 @@
 </script>
 
 
-<div class="component focusable main">
+<div class="component main">
     <div class="top">
         {#if elements}
             <select class="component" bind:value={index} on:change={() => set(index)} style="flex: 1 1 auto">
@@ -47,11 +47,11 @@
 <style>
     hr{
         align-self: center;
-        width: 100%;
+        width: calc( 100% - 20px );
         margin: 0px;
         border: none;
         border-bottom: 2px dotted gray;
-        opacity: 0.1;
+        opacity: 0.2;
     }
 
     .main{

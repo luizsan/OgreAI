@@ -1,6 +1,19 @@
 .component{
     position: relative;
     font-family: var( --default-font-face );
+    color: var( --component-color-normal );
+    background: var( --component-bg-normal );
+    border-color: var( --component-border-normal );
+    outline-color: var( --component-border-normal );
+    scrollbar-width: auto;
+    --scrollbar-bg: var( --component-bg-normal )
+}
+
+.component:focus, .component:focus-within, .component:focus-within *{
+    --scrollbar-bg: var( --component-bg-hover );
+    background: var( --component-bg-hover );
+    color: var( --component-color-hover );
+    outline-color: var( --component-border-hover );
 }
 
 .component::-webkit-resizer {
@@ -20,16 +33,11 @@
 }
 
 .component.container{
-    background: var( --component-bg-normal );
     border-style: solid;
-    outline: 1px solid var( --component-border-normal );
-    border-color: var( --component-border-normal );
     border-width: 0px 0px 0px 4px;
     border-radius: 3px;
     box-shadow: 0px 4px 8px 0px #00000030;
     box-sizing: border-box;
-    color: var( --component-color-normal );
-    font-size: 90%;
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
@@ -37,91 +45,78 @@
     transition-timing-function: ease;
 }
 
-button {
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-family: var( --default-font-face );
-    width: fit-content;
+.component:disabled{
+    color: var( --component-color-disabled );
+    background: var( --component-bg-disabled );
+    border-color: var( --component-border-disabled );
+    outline-color: var( --component-border-disabled );
 }
 
-input[type="text"].component, input[type="password"].component, input[type="number"].component,select.component{
+.component::placeholder{
+    color: #808080A0;
+}
+
+input:not([type="range"], [type="checkbox"], [type="radio"]).component, select.component{
     height: 30px;
 }
 
-input[type="text"].component, input[type="password"].component, input[type="number"].component, textarea.component, select.component, .component.container{
-    background: var( --component-bg-normal );
+input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea.component, select.component, .component.container{
     border-style: solid;
-    outline: 1px solid var( --component-border-normal );
-    border-color: var( --component-border-normal );
+    outline-width: 1px;
+    outline-style: solid;
     border-width: 0px 0px 0px 4px;
     border-radius: 3px;
     box-shadow: 0px 4px 8px 0px #00000030;
     box-sizing: border-box;
-    color: var( --component-color-normal );
-    font-family: var( --default-font-face );
-    font-size: 90%;
     padding: 4px 8px;
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
     transition-duration: 0.125s; 
     transition-timing-function: ease;
-
-    scrollbar-width: auto;
-    --scrollbar-bg: var( --component-bg-normal )
 }
 
-select.component{
-    border-width: 0px;
+input[type="text"], textarea.component{
+    font-size: 90%;
 }
 
 textarea.component{
-    line-height: 1.333333;
+    line-height: 1.5em;
     overflow-x: hidden;
     overflow-y: scroll;
     resize: vertical;
 }
 
-select.component{
+select.component, input[type="checkbox"].component, input[type="radio"].component{
     cursor: pointer;
 }
 
 select.component option{
-    font-size: 90%;
-}
-
-input[type="text"].component:focus, input[type="password"].component:focus, input[type="number"].component:focus, textarea.component:focus, select.component:focus, .component.focusable:focus-within{
-    color: var( --component-color-hover );
-    background: var( --component-bg-hover );
-    outline-color: var( --component-border-hover );
-    --scrollbar-bg: var( --component-bg-hover )
+    font-size: 1em;
 }
 
 input[type="checkbox"].component{
     width: 24px;
     height: 24px;
-    cursor: pointer;
-}
-
-input[type="radio"].component{
-    cursor: pointer;
 }
 
 button.component{
     padding: 6px 20px;
-    background: var( --component-bg-normal );
-    outline: 1px solid var( --component-border-normal );
+    outline-width: 1px;
+    outline-style: solid;
     border-radius: 3px;
-    box-shadow: 0px 4px 8px 0px #00000020;
-    font-size: 90%;
-    transition: all 0.1s ease;
+    transition-duration: all 0.125s;
     display: flex;
     align-items: center;
     min-height: 30px;
     gap: 4px;
 }
 
+button.component:hover{
+    background: var( --component-bg-hover );
+    border-color: var( --component-border-hover);
+    outline-color: var( --component-border-hover );
+}
 
 button.tab{
     padding: 8px 16px;
@@ -139,47 +134,32 @@ button.tab.active{
     border-bottom: 1px solid var( --accent-color-light );
 }
 
-button.component:hover{
-    background: var( --component-bg-hover );
-    border-color: var( --component-border-hover);
-    outline-color: var( --component-border-hover );
+.component.container *{
+    position: relative;
 }
 
-.component:disabled{
-    color: var( --component-color-disabled );
-    background: var( --component-bg-disabled );
-    border-color: var( --component-border-disabled );
-    outline-color: var( --component-border-disabled );
+.component.container hr{
+    margin: 0px;
+    width: calc( 100% - 16px );
+    left: 8px;
+    right: 8px;
+    color: gray;
+    opacity: 0.2;
 }
 
+.component.dropdown select{
+    padding-right: 20px;
+}
 
-.normal{ color: var( --component-color-normal ) }
-.normal:hover{ color: var( --component-color-hover ) }
-.normal:active{ color: var( --component-color-disabled ) }
-.normal:disabled{ color: var( --component-color-disabled ) }
+.component.dropdown input{
+    position: absolute;
+    padding-right: 0px;
+    width: calc( 100% - 24px );
+    left: 0px;
+}
 
-.danger{  color: rgb(255, 64, 64) }
-.danger:hover{ color: rgb(255, 128, 128) }
-.danger:active{  color: rgb(192, 64, 64) }
-.danger:disabled{  color: rgba(192, 64, 64, 0.5) }
-
-.info{ color: rgb(64, 128, 255) }
-.info:hover{ color: rgb(128, 192, 255) }
-.info:active{ color: rgb(48, 128, 192) }
-.info:disabled{ color: rgba(48, 128, 192, 0.5) }
-
-.confirm{ color: rgb(64, 255, 128) }
-.confirm:hover{ color: rgb(144, 255, 220) }
-.confirm:active{ color: rgb(48, 128, 96) }
-.confirm:disabled{ color: rgba(48, 128, 96, 0.5) }
-
-.special{ color: rgb(255, 220, 64) }
-.special:hover{ color: rgb(255, 244, 144) }
-.special:active{ color: rgb(128, 120, 48) }
-.special:disabled{ color: rgba(128, 120, 48, 0.5) }
-
-.component::placeholder{
-    color: #808080A0;
+.min{
+    align-self: flex-start;
 }
 
 .wide{
@@ -221,27 +201,4 @@ button.component:hover{
     padding: 24px 16px 0px 16px;
     display: flex;
     flex-direction: row;
-}
-
-.clear{
-    border: none !important;
-    background: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.hidden{
-    display: none !important;
-}
-
-.invisible{
-    visibility: hidden !important;
-}
-
-.disabled{
-    pointer-events: none !important;
-}
-
-.deselect{
-    user-select: none !important;
 }

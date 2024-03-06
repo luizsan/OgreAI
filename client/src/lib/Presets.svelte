@@ -82,6 +82,7 @@
 
     h1{
         margin: 0;
+        line-height: 2em;
         font-size: 40px;
     }
 

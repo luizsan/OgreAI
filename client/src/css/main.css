@@ -1,5 +1,5 @@
 :root {
-    line-height: 1.333333;
+    line-height: 1.333333em;
     font-weight: 400;
     
     box-sizing: border-box;
@@ -28,4 +28,23 @@ html, body{
 
     color: var( --default-font-color );
     background-color: var( --default-bg-color );
+}
+
+button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var( --default-font-face );
+    width: fit-content;
+}
+
+input[type="number"]{
+    -moz-appearance: textfield;
+    appearance: textfield;
+    margin: 0; 
+}
+
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
 }

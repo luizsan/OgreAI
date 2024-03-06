@@ -5,7 +5,7 @@
     import * as SVG from "../utils/SVGCollection.svelte";
 
     function AddItem(key : string){
-        $currentSettingsMain.formatting[key].push({ pattern: "", replacement: "" })
+        $currentSettingsMain.formatting[key].push({ pattern: "", replacement: "", enabled: true })
         $currentSettingsMain.formatting[key] = $currentSettingsMain.formatting[key];
     }
 
@@ -55,6 +55,7 @@
 
     h1{
         margin: 0;
+        line-height: 2em;
         font-size: 40px;
     }
 

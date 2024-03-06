@@ -133,7 +133,7 @@
 </script>
 
 
-<div class="container component" class:focusable={editing}  
+<div class="container component"  
     on:dragover={moveItem} 
     on:dragend={dropItem} 
     on:touchmove={(e) => moveItem(e, true)} 
@@ -178,7 +178,7 @@
     </div>
 
     {#if editing}
-        <div class="overlay focusable">
+        <div class="overlay">
             <div class="top">
                 <button class="normal" on:click={() => { editing = false; }}>{@html SVG.arrow}</button>
                 <div>
