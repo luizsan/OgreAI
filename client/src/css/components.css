@@ -81,7 +81,7 @@ input[type="text"], textarea.component{
 }
 
 textarea.component{
-    line-height: 1.5em;
+    line-height: 1.333333em;
     overflow-x: hidden;
     overflow-y: scroll;
     resize: vertical;
@@ -116,22 +116,6 @@ button.component:hover{
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover);
     outline-color: var( --component-border-hover );
-}
-
-button.tab{
-    padding: 8px 16px;
-    border-bottom: 1px solid hsla(0, 0%, 50%, 0.25);
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-direction: row;
-    font-size: 80%;
-    justify-content: center;
-}
-
-button.tab.active{
-    color: var( --accent-color-light );
-    border-bottom: 1px solid var( --accent-color-light );
 }
 
 .component.container *{

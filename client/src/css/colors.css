@@ -66,3 +66,8 @@
 .special:hover{ color: rgb(255, 244, 144) }
 .special:active{ color: rgb(128, 120, 48) }
 .special:disabled{ color: rgba(128, 120, 48, 0.5) }
+
+.accent{ color: var( --accent-color-normal ) }
+.accent:hover{ color: var( --accent-color-light ) }
+.accent:active{ color: var( --accent-color-light ) }
+.accent:disabled{ color: var( --accent-color-dark ) }
