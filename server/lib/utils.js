@@ -108,7 +108,7 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
 
     let prefill_prompt = getPrefillPrompt( character, settings )
     prefill_prompt = parseNames( prefill_prompt, user, character.data.name )
-    prefill_prompt = prefill_prompt.length > 0 ? "\n\n" + prefill_prompt : ""
+    prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
     let tokens_system = tokenizer.getTokens(system).length;
     let tokens_messages = 0
@@ -148,7 +148,7 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
     }
 
     if( enabled_prefill_prompt ){
-        messages.push({ "role": "assistant", "content": prefill_prompt })
+        prompt.push({ "role": "assistant", "content": prefill_prompt })
     }
 
     return prompt;

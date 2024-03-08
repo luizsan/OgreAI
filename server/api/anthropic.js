@@ -99,9 +99,10 @@ class Anthropic{
                 'x-api-key': settings.api_auth,
             },
             'body': JSON.stringify({
-                'model': 'claude-instant-v1',
+                'model': 'claude-instant-1.2',
                 'stream': false,
-                'max_tokens_to_sample': 1,
+                'max_tokens': 1,
+                'temperature': 0,
                 'messages': [{'role': 'user', 'content': "Hello world!"}]
             })
         }
@@ -117,6 +118,9 @@ class Anthropic{
     static makePrompt( character, messages, user, settings, offset = 0 ){
         let list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
         list[0].role = "user"
+        if( list[1].role === "user"){
+            list.splice(1, 1)
+        }
         // list = list.filter(message => message.role && message.role !== "system")
         return list
     }
@@ -129,7 +133,7 @@ class Anthropic{
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
-            system: Utils.getSystemPrompt(character, user, settings),
+            // system: Utils.getSystemPrompt(character, user, settings),
             stop_sequences: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
             max_tokens: parseInt(settings.max_tokens),
             temperature: parseFloat(settings.temperature),
@@ -150,7 +154,7 @@ class Anthropic{
         }
     
         console.debug("Sending prompt %o", outgoing_data)
-        const url = settings.api_url ? settings.api_url : API_ADDRESS
+        const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return fetch( url + "/v1/messages", options )
     }
 
