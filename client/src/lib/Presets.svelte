@@ -29,12 +29,6 @@
 
 
 <div class="content wide">
-    <div>
-        <h1>Presets</h1>
-        <p class="explanation">Set up predefined settings to use across different API modes.</p>
-        <hr>
-    </div>
-
     <Accordion name="API Authentication">
         {#each $currentPresets.api_auth as item, i}
             <div class="preset" on:change={() => Server.request("/save_presets", { type: "api_auth", data: $currentPresets.api_auth })}>
@@ -78,22 +72,6 @@
 <style>
     :global(p) {
         margin: 0px;
-    }
-
-    h1{
-        margin: 0;
-        line-height: 2em;
-        font-size: 40px;
-    }
-
-    hr{
-        color: gray;
-        opacity: 0.25;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
     }
     
     .content{

@@ -18,12 +18,6 @@
 
 
 <div class="content wide" on:change={() => Server.request("/save_main_settings", { data: $currentSettingsMain })}>
-    <div>
-        <h1>Formatting</h1>
-        <p class="explanation">Use regex to automatically format text when receiving replies.</p>
-        <hr>
-    </div>
-
     <Accordion name="Text Replace">
         {#each $currentSettingsMain.formatting.replace as rep, i}
             <div class="preset">
@@ -53,22 +47,6 @@
         margin: 0px;
     }
 
-    h1{
-        margin: 0;
-        line-height: 2em;
-        font-size: 40px;
-    }
-
-    hr{
-        color: gray;
-        opacity: 0.25;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
-    }
-    
     .content{
         display: flex;
         flex-direction: column;

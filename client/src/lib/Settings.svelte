@@ -74,12 +74,6 @@
 
 
 <div class="content wide">
-    <div>
-        <h1>Settings</h1>
-        <p class="explanation">Change application-wide settings.</p>
-        <hr>
-    </div>
-
     <div class="section">
         <div class="title">API Mode</div>
         <div class="setting">
@@ -241,12 +235,6 @@
 <style>
     :global(p) {
         margin: 0px;
-    }
-
-    h1{
-        margin: 0;
-        line-height: 2em;
-        font-size: 40px;
     }
 
     .title{

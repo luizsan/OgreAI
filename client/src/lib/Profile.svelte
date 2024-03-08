@@ -21,12 +21,6 @@
 </script>
 
 <div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
-    <div>
-        <h1>User</h1>
-        <p class="explanation">Customize the user's profile and preferences.</p>
-        <hr>
-    </div>
-
     <div class="section">
         <div>
             <div class="title">Display Name</div>
@@ -89,17 +83,6 @@
     :global(p) {
         margin: 0px;
     }
-
-    h1{
-        margin: 0;
-        line-height: 2em;
-        font-size: 40px;
-    }
-
-    hr{
-        color: gray;
-        opacity: 0.25;
-    }    
 
     .title{
         font-weight: 600;
