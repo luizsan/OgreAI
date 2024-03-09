@@ -46,18 +46,6 @@
         })
     }
 
-    function getPrompt(item){
-        return item.content;
-    }
-
-    function setPrompt(value, key){
-        $currentSettingsAPI[key] = value
-        Server.request("/save_api_settings", { 
-            api_mode: $currentSettingsMain.api_mode, 
-            data: $currentSettingsMain 
-        })
-    }
-
     function addListItem(key, item, limit = -1){
         if( limit > -1 && $defaultSettingsAPI[key].length >= limit ){
             return
@@ -69,6 +57,7 @@
     function removeListItem(key, index){
         $currentSettingsAPI[key].splice(index, 1)
         $currentSettingsAPI[key] = $currentSettingsAPI[key];
+        saveSettings()
     }
 </script>
 
