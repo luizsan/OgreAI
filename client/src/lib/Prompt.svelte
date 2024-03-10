@@ -13,14 +13,14 @@
     }
 
     let normal_order : Array<string> = Object.keys($defaultPrompt)
-    let custom_order : Array<string> = [
-        "base_prompt",
-        "sub_prompt",
-        "prefill_prompt",
-        "persona"
-    ]
+    let custom_order : object = {
+        base_prompt: { "rows": 8 },
+        sub_prompt: { "rows": 4 },
+        prefill_prompt: { "rows": 4 },
+        persona: { "rows": 4 },
+    }
     
-    normal_order = normal_order.filter(item => !custom_order.includes(item))
+    normal_order = normal_order.filter(item => !Object.keys(custom_order).includes(item))
 
     async function saveSettings(){
         const mode = $currentSettingsMain.api_mode
@@ -53,7 +53,7 @@
         />
     </div>
 
-    {#each custom_order as key}
+    {#each Object.keys(custom_order) as key}
         {#if $defaultPrompt[key].editable && $currentSettingsAPI.prompt.find((e) => e.key == key)}
             <div class="section" on:change={saveSettings}>
                 <div>
@@ -67,7 +67,7 @@
                         item={(v) => v.content } 
                         update={(v) => $currentSettingsAPI.prompt.find((e) => e.key === key).content = v }
                         resizable={true}
-                        rows={8}
+                        rows={custom_order[key].rows ?? 4}
                     />
                 </div>
             </div>
