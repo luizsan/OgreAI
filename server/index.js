@@ -317,7 +317,7 @@ app.post("/generate", parser, async function(request, response){
             }
         }).catch(error => {
             console.error(chalk.red(error))
-            response.status(error.status).send(error)
+            response.status(error.status ?? 500).send(error)
         });
     }else{
         const error = "Cannot generate message: Invalid API"
