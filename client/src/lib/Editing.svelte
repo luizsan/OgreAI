@@ -1,7 +1,7 @@
 <script lang="ts">
     import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
     import Screen from "../components/Screen.svelte";
-    import * as Server from "./Server.svelte"
+    import * as Server from "../modules/Server.svelte"
     import Accordion from "../components/Accordion.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
     

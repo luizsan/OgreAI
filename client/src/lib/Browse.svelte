@@ -2,7 +2,7 @@
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile } from "../State";
     import Character from './Character.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
     import { clickOutside } from "../utils/ClickOutside";
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";

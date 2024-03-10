@@ -14,7 +14,7 @@
     function ToggleSettings(){
         $sectionSettings = !$sectionSettings
         if( $sectionSettings ){
-            $tabSettings = 0;
+            $tabSettings = $tabSettings;
         }
         
         if( $sectionSettings && $sectionCharacters ){

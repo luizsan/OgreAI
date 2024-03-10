@@ -5,7 +5,7 @@
     import { currentProfile, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
-    import * as Server from './Server.svelte';
+    import * as Server from '../modules/Server.svelte';
     import * as Format from '../Format';
     import { tick } from 'svelte';
 

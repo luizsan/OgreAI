@@ -1,7 +1,7 @@
 <script lang="ts">
     import { fetching, editing, favoritesList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
 
     export let id : number = -1
     export let character : ICharacter | null = null

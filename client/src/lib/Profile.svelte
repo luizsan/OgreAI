@@ -1,7 +1,7 @@
 <script>
     import Avatar from "../components/Avatar.svelte";
     import { currentProfile } from "../State";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
 
     let themes = [
         { key: "light", label: "Light" }, 
@@ -98,7 +98,6 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        padding: 16px;
         box-sizing: border-box;
     }
 

@@ -59,12 +59,6 @@ class OpenAI{
             type: "checkbox", default: true,
         },
 
-        prompt: {
-            title: "Prompt Manager",
-            description: "Build each part of the prompt for this model.",
-            type: "prompt",
-        },
-
         stop_sequences: {
             title: "Stop Sequences",
             description: "Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.",

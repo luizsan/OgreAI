@@ -8,7 +8,8 @@
     let w : number;
     let h : number;
     let ratio : number = 1;
-    let roundness : string = "50%";
+    let roundness : number = 50;
+    let unit : string = "%"
 
     const avatar_user_default = localServer + "/img/user_default.png";
 
@@ -21,17 +22,20 @@
         if($currentProfile.customization){
             switch($currentProfile.customization.avatarShape){
                 case "square":
-                    roundness = "5px";
+                    roundness = 5;
+                    unit = "px"
                     ratio = 1;
                     break;
                     
                 case "portrait":
-                    roundness = "5px";
+                    roundness = 5;
+                    unit = "px"
                     ratio = (2 / 3.0)
                     break;
 
                 default:
-                    roundness = "50%";
+                    roundness = 50;
+                    unit = "%"
                     ratio = 1;
                     break;
             }
@@ -52,7 +56,7 @@
     }
 </script>
 
-<div class="avatar" style="background-image: url({url}); width: {w}px; height: {h}px; border-radius: {roundness}"></div>
+<div class="avatar" style="background-image: url({url}); width: {w}px; height: {h}px; border-radius: {roundness}{unit}"></div>
 
 <style>
     .avatar{

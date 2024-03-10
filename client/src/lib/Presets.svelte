@@ -1,13 +1,14 @@
 <script lang="ts">
     import Accordion from "../components/Accordion.svelte";
     import { currentPresets } from "../State";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     const prompt_categories = [
-        { key: "base_prompt", label: "Base Prompt"},
-        { key: "sub_prompt", label: "Sub Prompt"},
+        { key: "base_prompt", label: "Main Prompt"},
+        { key: "sub_prompt", label: "Jailbreak Prompt"},
         { key: "prefill_prompt", label: "Prefill Prompt"},
+        { key: "persona", label: "User Persona"},
     ]
 
     function AddItem(key : string){
@@ -78,7 +79,6 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
-        padding: 16px;
         box-sizing: border-box;
     }
 

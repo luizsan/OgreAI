@@ -132,14 +132,29 @@ button.component:hover{
 }
 
 .component.dropdown select{
-    padding-right: 20px;
+    padding-right: 24px;
+    height: 100%;
 }
 
 .component.dropdown input{
     position: absolute;
-    padding-right: 0px;
-    width: calc( 100% - 24px );
+    padding-right: 4px;
+    width: calc( 100% - 22px );
+    height: 100%;
     left: 0px;
+    top: 0px;
+    height: 100%;
+    outline: none;
+    border: none;
+    box-shadow: none;
+    border-radius:0px;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var( --component-border-normal );
+}
+
+.component:focus-within.dropdown input{
+    border-right-color: var( --component-border-hover );
 }
 
 .min{

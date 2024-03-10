@@ -2,9 +2,7 @@
     import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, currentPresets, availableAPIModes, fetching } from "../State";
     import Accordion from "../components/Accordion.svelte";
     import Status from "../components/Status.svelte";
-    import Preset from "../components/Preset.svelte"
-    import Prompt from "../components/Prompt.svelte"
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     let presetElements = {}
@@ -135,7 +133,7 @@
                                     <option value={choice}>{choice}</option>
                                 {/each}
                             </select>
-                            <input type="text" class="component borderless" bind:value={$currentSettingsAPI[key]}>
+                            <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
                         </div>
                     {:else}
                         <select class="component min" bind:value={$currentSettingsAPI[key]}>
@@ -178,16 +176,6 @@
                         {/each}
                         <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
                     </Accordion>
-
-                {:else if entry.type == "prompt"}
-                    <Prompt 
-                        list={$currentSettingsAPI.prompt} 
-                        update={(v) => {
-                            $currentSettingsAPI.prompt = v
-                            $currentSettingsAPI = $currentSettingsAPI
-                            saveSettings()
-                        }}
-                    />
                 {/if}
 
             {/if}
@@ -196,27 +184,6 @@
     </div>
 
     {/each}
-
-
-    {#if !Object.values($defaultSettingsAPI).some(setting => setting.type && setting.type === "prompt") }
-    
-    <div class="section" on:change={saveSettings}>
-        <div>
-            <div class="title">Prompt Manager</div>
-            <div class="explanation">Build each part of the prompt for this model</div>
-        </div>
-        <Prompt 
-            list={$currentSettingsAPI.prompt} 
-            update={(v) => {
-                $currentSettingsAPI.prompt = v
-                $currentSettingsAPI = $currentSettingsAPI
-                saveSettings()
-            }}
-        />
-    </div>
-
-    {/if}
-
 
 </div>
 
@@ -253,7 +220,6 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        padding: 16px 16px 32px 16px;
         box-sizing: border-box;
     }
 

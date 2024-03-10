@@ -2,7 +2,7 @@
     import { marked } from 'marked';
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
-    import * as Server from './Server.svelte';
+    import * as Server from '../modules/Server.svelte';
     import * as Format from '../Format'
     import { tick } from 'svelte';
 

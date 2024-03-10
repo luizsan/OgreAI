@@ -31,7 +31,7 @@
     <div class="top">
         {#if elements}
             <select class="component" bind:value={index} on:change={() => set(index)} style="flex: 1 1 auto">
-                <option value={-1}>-- Select a prompt --</option>
+                <option value={-1}>-- Select a preset --</option>
                 {#each elements as entry, i}
                     <option value={i}>{entry.name ?? `Preset ${i}`}</option>
                 {/each}
@@ -101,7 +101,7 @@
     textarea{
         margin: 0px;
         padding: 8px;
-        font-size: 95%;
+        font-size: 0.9em;
         resize: none;
     }
 

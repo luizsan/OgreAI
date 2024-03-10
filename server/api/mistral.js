@@ -47,12 +47,6 @@ class Mistral{
             type: "checkbox", default: true,
         },
 
-        prompt: {
-            title: "Prompt Manager",
-            description: "Build each part of the prompt for this model.",
-            type: "prompt",
-        },
-        
         safe_prompt: {
             title: "Safe Prompt",
             description: "Whether to inject a safety prompt before all conversations.",

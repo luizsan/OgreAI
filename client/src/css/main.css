@@ -6,6 +6,7 @@
     font-size: var( --default-font-size );
     font-family: var( --default-font-face );
     
+    
     color-scheme: light dark;
     font-synthesis: none;
     text-rendering: optimizeLegibility;

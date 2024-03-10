@@ -71,12 +71,6 @@ class Anthropic{
             type: "checkbox", default: true,
         },
         
-        prompt: {
-            title: "Prompt Manager",
-            description: "Build each part of the prompt for this model.",
-            type: "prompt",
-        },
-
         stop_sequences: {
             title: "Stop Sequences",
             description: "Sequences that will cause the model to stop generating completion text.",

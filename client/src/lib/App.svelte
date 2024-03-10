@@ -5,30 +5,21 @@
     import Editing from './Editing.svelte';
     import Options from './Options.svelte';
     import Header from './Header.svelte'
-    import * as Server from './Server.svelte';
+    import Chat from './Chat.svelte';
     import { onMount } from 'svelte';
-    import { connected, currentCharacter, currentChat, currentTheme, fetching, sectionCharacters } from '../State';
     import { fade } from 'svelte/transition';
     import { swipe } from 'svelte-gestures';
-    import Chat from './Chat.svelte';
+    import { connected, currentCharacter, currentChat, currentTheme, fetching, sectionCharacters } from '../State';
     import Loading from '../components/Loading.svelte';
+    import * as Server from '../modules/Server.svelte';
+    import * as Theme from '../modules/Theme.svelte';
 
     onMount(() => {
-        LoadTheme()
+        Theme.updateRatio()
+        Theme.loadTheme()
         Server.initializeData()
     });
 
-    function LoadTheme(){
-        $currentTheme = { 
-            theme: window.localStorage.getItem("theme") 
-        }
-        if( $currentTheme.theme === "light" || $currentTheme.theme === "dark" ){
-            document.body.classList.add($currentTheme.theme)
-        }else{
-            document.body.classList.add("dark")
-        }
-    }
-    
     function swipeHandler(event : CustomEvent) {
         console.log(event.detail.direction)
         switch(event.detail.direction){
@@ -49,9 +40,11 @@
             default:
                 break;
         }
-        // _target = event.detail.target;
     }
+
 </script>
+
+<svelte:window on:resize={Theme.updateRatio}/>
 
 {#if $connected }
     <div class="fullscreen" use:swipe={{ timeframe: 300, minSwipeDistance: 100, touchAction: 'pan-y' }} on:swipe={swipeHandler}>

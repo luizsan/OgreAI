@@ -2,7 +2,7 @@
     import { AutoResize, resize } from "../utils/AutoResize";
     import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
     import History from "./History.svelte";
     import Loading from '../components/Loading.svelte'

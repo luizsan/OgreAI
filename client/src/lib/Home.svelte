@@ -2,7 +2,7 @@
     import { characterList, creating, currentCharacter, currentChat, editing, fetching } from "../State";
     import Character from './Character.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
 
     async function NewCharacter(){
         $fetching = true;

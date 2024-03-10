@@ -1,10 +1,13 @@
 <script lang="ts">
     import { sectionSettings, currentSettingsMain, currentSettingsAPI, tabSettings } from "../State";
     import Screen from "../components/Screen.svelte";
-    import Profile from "./Profile.svelte";
-    import Settings from "./Settings.svelte"
+    import Footer from "../components/Footer.svelte";
+
+    import Settings from "./Settings.svelte";
+    import Prompt from "./Prompt.svelte";
     import Presets from "./Presets.svelte";
     import Formatting from "./Formatting.svelte";
+    import Profile from "./Profile.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     const tab_items = [
@@ -12,6 +15,11 @@
             title: "Settings", 
             explanation: "Change API, connection and related settings.",
             icon: SVG.sliders, disabled: false 
+        },
+        {   
+            title: "Prompt", 
+            explanation: "Customize the user's profile and preferences.",
+            icon: SVG.prompt, disabled: false 
         },
         {   
             title: "Presets", 
@@ -27,7 +35,7 @@
             title: "User", 
             explanation: "Customize the user's profile and preferences.",
             icon: SVG.user, disabled: false 
-        },
+        }
     ]
 
     function setTab(id = -1){
@@ -45,15 +53,23 @@
                 <hr>
             </div>
 
-            {#if $tabSettings == 0}
-                <Settings/>
-            {:else if $tabSettings == 1}
-                <Presets/>
-            {:else if $tabSettings == 2}
-                <Formatting/>
-            {:else if $tabSettings == 3}
-                <Profile/>
-            {/if}
+            <div class="mid">
+                {#if $tabSettings == 0}
+                    <Settings/>
+                {:else if $tabSettings == 1}
+                    <Prompt/>
+                {:else if $tabSettings == 2}
+                    <Presets/>
+                {:else if $tabSettings == 3}
+                    <Formatting/>
+                {:else if $tabSettings == 4}
+                    <Profile/>
+                {/if}
+            </div>
+            
+            <div class="bottom">
+                <Footer height={"128px"}/>
+            </div>
         </div>
 
         <div class="side section wrap">
@@ -68,23 +84,20 @@
                 </button>
             {/each}
         </div>
+
     </Screen>
 {/if}
 
 <style>
     h1{
         margin: 0;
-        line-height: 2em;
+        line-height: 1.2em;
         font-size: 40px;
     }
 
     hr{
         color: gray;
         opacity: 0.25;
-    }   
-
-    .top{
-        padding: 16px;
     }
 
     .explanation{
@@ -94,14 +107,13 @@
 
     .tab{
         width: 100%;
-        height: 64px;
+        height: 56px;
         padding: 0px;
         display: flex;
         gap: 0px;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        filter: brightness(1.2);
     }
 
     .tab :global(svg){
@@ -118,16 +130,16 @@
         gap: 0px;
         padding: 16px 0px;
         width: 72px;
-        bottom: 0px;
         position: fixed;
     }
 
     .content{
-        padding-left: 64px;
+        padding: 24px 24px 0px 80px;
         display: flex;
         flex-direction: column;
         position: relative;
         height: fit-content;
+        gap: 32px;
     }
 
 </style>

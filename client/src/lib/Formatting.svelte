@@ -1,7 +1,7 @@
 <script lang="ts">
     import Accordion from "../components/Accordion.svelte";
     import { currentSettingsMain } from "../State";
-    import * as Server from "./Server.svelte";
+    import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     function AddItem(key : string){
@@ -51,7 +51,6 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
-        padding: 16px;
         box-sizing: border-box;
     }
 

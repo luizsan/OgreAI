@@ -1,14 +1,10 @@
 <script lang="ts">
     import * as SVG from "../utils/SVGCollection.svelte";
-    import Preset from "../components/Preset.svelte";
-    import { defaultPrompt, currentPresets } from "../State";
 
     export let list : Array<any> = []
+    export let defaults : object = {}
+    export let presets : object = {}
     export let update = (v: any) => {}
-
-    // state
-    let editing : Boolean = false
-    let current_key : string = ""
 
     // reorderable
     let container : HTMLElement;
@@ -124,10 +120,10 @@
     }
 
     function getPresetsForKey(key: string){
-        if( !$defaultPrompt[key] || !$currentPresets[key] ){
+        if( !defaults[key] || !presets[key] ){
             return []
         }
-        return $currentPresets[key]
+        return presets[key]
     }
 
 </script>
@@ -141,62 +137,42 @@
 >
 
 
-    <div class="list" bind:this={container} class:invisible={editing} class:disabled={editing}>
+    <div class="list" bind:this={container}>
         <div bind:this={marker} class="marker"/>
+        
         {#each list as item}
-            {#if item.key in $defaultPrompt }
+            {#if item.key in defaults }
 
                 <div 
                     class="item"
-                    draggable="{ !$defaultPrompt[item.key].locked }"
-                    class:locked={ $defaultPrompt[item.key].locked }
+                    draggable="{ !defaults[item.key].locked }"
+                    class:locked={ defaults[item.key].locked }
                     id={ item.key }
                     on:dragstart|self={pickItem} 
                     on:touchstart|self={(e) => pickItem(e, true)}
                 >
 
-                    <div class="handle" class:invisible={ $defaultPrompt[item.key].locked }>{@html SVG.reorder}</div>
-
-                    <div class="center">
-                        {#if $defaultPrompt[item.key].toggleable}
-                        <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={() => update(list)}>
+                    <div class="handle">
+                        {#if defaults[item.key].locked }
+                            {@html SVG.lock}
+                        {:else}
+                            {@html SVG.reorder}
                         {/if}
                     </div>
 
-                    
                     <div class="center">
-                        {#if $defaultPrompt[item.key].editable}
-                        <button class="confirm" on:click={() => { editing = true; current_key = item.key; }}>{@html SVG.edit}</button>
+                        {#if defaults[item.key].toggleable}
+                        <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={() => update(list)} on:mousedown|preventDefault>
                         {/if}
                     </div>
                     
-                    <div class="text disabled" class:unfocus={ $defaultPrompt[item.key].toggleable && !item.enabled } title="Edit">{$defaultPrompt[item.key].label}</div>
+                    <div class="text disabled" class:unfocus={ defaults[item.key].toggleable && !item.enabled } title="Edit">{defaults[item.key].label}</div>
                 </div>
                 
             {/if}
         {/each}
+    
     </div>
-
-    {#if editing}
-        <div class="overlay">
-            <div class="top">
-                <button class="normal" on:click={() => { editing = false; }}>{@html SVG.arrow}</button>
-                <div>
-                    <div class="title">Editing: {$defaultPrompt[current_key].label}</div>
-                    <div class="explanation">{$defaultPrompt[current_key].description}</div>
-                </div>
-            </div>
-            <div class="bottom">
-                <Preset 
-                    elements={ getPresetsForKey(current_key) } 
-                    content={ list.find((e) => e.key == current_key).content } 
-                    item={(v) => v.content } 
-                    update={(v) => list.find((e) => e.key === current_key).content = v } 
-                />
-            </div>
-        </div>
-    {/if}
-
 </div>
 
 
@@ -225,7 +201,7 @@
     
     .item {
         display: grid;
-        grid-template-columns: 32px 32px 36px auto;
+        grid-template-columns: 32px 36px auto;
         user-select: none;
         width: 100%;
         min-height: 32px;
@@ -236,14 +212,6 @@
 
     .item.locked{
         background: #60606010;
-    }
-
-    .overlay{
-        display: grid;
-        grid-template-rows: min-content auto;
-        position: absolute;
-        inset: 1px;
-        /* padding: 2px; */
     }
 
     [draggable=true] {
@@ -276,7 +244,7 @@
 
     .handle{
         color: gray;
-        opacity: 0.25;
+        opacity: 0.333;
     }
 
     .handle :global(svg){
@@ -294,42 +262,5 @@
         background: cyan;
         visibility: hidden;
         z-index: 1;
-    }
-
-    .top{
-        padding: 8px 4px 8px 2px;
-        display: grid;
-        grid-template-columns: 32px auto;
-        gap: 4px;
-    }
-
-    .bottom{
-        display: flex;
-        padding: 0px 0px 0px 4px;
-        flex: 1 1 auto;
-        font-size: 90%;
-    }
-
-    .title{
-        font-weight: 600;
-        margin: 0px;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
-    }
-
-    button{
-        padding: 0px;
-        width: 100%;
-        height: 100%;
-    }
-
-    button :global(svg){
-        width: 20px;
-        height: 20px;
-        translate: 0px 1px;
-        
     }
 </style>
