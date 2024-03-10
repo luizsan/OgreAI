@@ -131,6 +131,10 @@ button.component:hover{
     opacity: 0.2;
 }
 
+.component.dropdown{
+    height: 30px;
+}
+
 .component.dropdown select{
     padding-right: 24px;
     height: 100%;
