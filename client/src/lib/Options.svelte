@@ -68,7 +68,7 @@
             </div>
             
             <div class="bottom">
-                <Footer height={"128px"}/>
+                <Footer/>
             </div>
         </div>
 
@@ -115,7 +115,7 @@
         align-items: center;
         justify-content: center;
     }
-
+    
     .tab :global(svg){
         width: 24px;
         height: 24px;
@@ -140,6 +140,12 @@
         position: relative;
         height: fit-content;
         gap: 32px;
+        height: 100vh;
+    }
+
+    .bottom{
+        display: flex;
+        flex-grow: 1;
     }
 
 </style>

@@ -1,15 +1,16 @@
 <script lang="ts">
     export let color : string = "black"
     export let opacity : number = 0.05
-    export let height : string = "256px"
+    export let height : string = "25vh"
 </script>
 
-<div class="main" style="height: {height}; --stripe-color: {color}; opacity: {opacity}">
+<div class="main" style="min-height: {height}; --stripe-color: {color}; opacity: {opacity}">
 </div>
 
 <style>
     .main{
         width: 100%;
+        flex-grow: 1;
         background: repeating-linear-gradient( 
             -45deg, 
             var( --stripe-color ), 

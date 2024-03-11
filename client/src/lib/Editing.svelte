@@ -4,6 +4,7 @@
     import * as Server from "../modules/Server.svelte"
     import Accordion from "../components/Accordion.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
+    import Footer from "../components/Footer.svelte";
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -241,8 +242,6 @@
         </div>
 
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
-
-
             <div class="section wide">
                 <div>
                     <h3 class="title">Name</h3>
@@ -357,9 +356,9 @@
                     <button class="component danger" on:click={DeleteCharacter}>Delete Character</button>
                 {/if}
             </div>
-
-
         </div>
+
+        <Footer/>
     </Screen>
 {/if}
 
