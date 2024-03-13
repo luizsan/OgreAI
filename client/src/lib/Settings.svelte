@@ -96,7 +96,7 @@
                     <hr>
                     <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={$currentSettingsAPI.api_auth} style="flex: 1 1 auto">
                 </div>
-                <button class="component normal" on:click={Server.getAPIStatus}>Check Status</button>
+                <button class="component normal" on:click|preventDefault={Server.getAPIStatus}>Check Status</button>
             </div>
         </div>
     </div>
