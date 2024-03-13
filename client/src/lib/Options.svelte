@@ -18,7 +18,7 @@
         },
         {   
             title: "Prompt", 
-            explanation: "Customize the user's profile and preferences.",
+            explanation: "Build the chat prompt for the current API mode.",
             icon: SVG.prompt, disabled: false 
         },
         {   
