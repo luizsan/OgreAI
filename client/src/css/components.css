@@ -9,7 +9,7 @@
     --scrollbar-bg: var( --component-bg-normal )
 }
 
-.component:focus, .component:focus-within, .component:focus-within *{
+.component:focus, .component:focus-within, .component:focus-within *:is(input, select){
     --scrollbar-bg: var( --component-bg-hover );
     background: var( --component-bg-hover );
     color: var( --component-color-hover );
@@ -116,6 +116,10 @@ button.component:hover{
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover);
     outline-color: var( --component-border-hover );
+}
+
+.component.container{
+    padding: 2px;
 }
 
 .component.container *{

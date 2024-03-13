@@ -6,9 +6,10 @@
     export let content : any = "" // actual content
     export let rows : number = 0
     export let resizable : Boolean = false
-    let index : number = -1; // the numerical selection index
 
-    $: enabled = elements && index > -1;
+    let index : number = findEntryByContent(content)
+
+    $: can_apply = elements && index > -1 && content != item(elements[index]);
 
     // functions to call when the value changes
     function set(i: number){
@@ -24,25 +25,48 @@
         content = ""
         update(content)
     }
+
+    export let save = (c: string) => {}
+
+    function findEntryByContent(s : string){
+        if(!elements) return -1
+        return elements.findIndex((item) => item.content == s)
+    }
+
+    function refreshIndex(){
+        index = findEntryByContent(content)
+    }
+    
 </script>
 
 
-<div class="component main">
-    <div class="top">
+<div class="main">
+    <div class="component container">
         {#if elements}
-            <select class="component" bind:value={index} on:change={() => set(index)} style="flex: 1 1 auto">
-                <option value={-1}>-- Select a preset --</option>
-                {#each elements as entry, i}
-                    <option value={i}>{entry.name ?? `Preset ${i}`}</option>
-                {/each}
-            </select>
+        <div class="top">
+            <div class="list">
+                <select class="component borderless" bind:value={index} on:change={() => set(index)}>
+                    <option value={-1}>-- Select a preset --</option>
+                    {#each elements as entry, i}
+                        <option value={i}>{entry.name ?? `Preset ${i}`}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <div class="controls">
+                <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={() => set(index)}>{@html SVG.confirm} Apply</button>
+                <button class="component clear info" title="Save current" on:click={() => { save(content); refreshIndex(); }}>{@html SVG.save} Save</button>
+                <button class="component clear danger" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
+            </div>
+        </div>
+        
+        <hr>
         {/if}
-        <button class="component {enabled ? "confirm" : "normal disabled"}" id="apply" disabled={!enabled} on:click={() => set(index)}>Apply {@html SVG.arrow}</button>
-        <button class="component danger" id="clear" on:click={clear}>Clear {@html SVG.close}</button>
+        
+        <textarea class="component clear wide" class:resizable={resizable} rows={rows > 0 ? rows : 0} bind:value={content} on:change={() => update(content)}></textarea>
     </div>
-    <hr>
-    <textarea class="component clear wide" class:resizable={resizable} rows={rows > 0 ? rows : 0} bind:value={content} on:change={() => update(content)}></textarea>
 </div>
+
 
 <style>
     hr{
@@ -55,47 +79,15 @@
     }
 
     .main{
-        display: grid;
+        display: flex;
         width: 100%;
         flex-direction: column;
-        gap: 1px;
-        grid-template-rows: 32px 1px auto;
-    }
-
-    .top{
-        display: flex;
-        flex-direction: row;
-        gap: 2px;
-    }
-
-    .top *{
-        height: 100%;
-    }
-
-    button{
-        padding: 0px 12px;
-        font-size: 90%;
-    }
-
-    button, select{
-        min-height: 12px;
-        border-radius: 4px;
-        border: none;
-        outline: none;
-        box-shadow: none;
-        background: none;
-    }
-
-    button:hover{
-        background: var( --component-bg-normal );
-    }
-
-    select:focus{
-        background: var( --component-bg-hover );
+        gap: 8px;
     }
 
     select{
-        padding: 2px 8px;
+        height: 32px;
+        width: 100%;
     }
 
     textarea{
@@ -109,17 +101,38 @@
         resize: vertical;
     }
 
-    #apply :global(svg){
-        width: 16px;
-        height: 16px;
-        transform: scaleX(-1);
-        translate: 0px 0px;
+    .list{
+        flex: 1 1 content;
+        min-width: 50%;
     }
 
-    #clear :global(svg){
-        width: 14px;
-        height: 14px;
-        translate: 0px 0px;
+    .top{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        height: fit-content;
+    }
+
+    .controls{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .controls button{
+        height: 32px;
+        display: flex;
+        align-items: center;
+        padding: 4px 16px;
+    }
+
+    .controls button :global(svg){
+        width: 16px;
+        height: 16px;
+    }
+    
+    .controls button.disabled{
+        opacity: 0.25;
     }
 
 </style>
