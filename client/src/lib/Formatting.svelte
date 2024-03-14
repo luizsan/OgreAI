@@ -43,10 +43,6 @@
 
 
 <style>
-    :global(p) {
-        margin: 0px;
-    }
-
     .content{
         display: flex;
         flex-direction: column;

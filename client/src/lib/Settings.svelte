@@ -189,20 +189,6 @@
 
 
 <style>
-    :global(p) {
-        margin: 0px;
-    }
-
-    .title{
-        font-weight: 600;
-        margin: 0px;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
-    }
-    
     .inline{
         display: flex;
         gap: 8px;

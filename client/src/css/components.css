@@ -190,6 +190,16 @@ button.component:hover{
     gap: 8px;
 }
 
+.section .title{
+    font-weight: 600;
+    margin: 0px;
+}
+
+.section .explanation{
+    color: #606060;
+    font-size: 0.85em;
+}
+
 .ellipsis{
     overflow: hidden;
     white-space: nowrap;

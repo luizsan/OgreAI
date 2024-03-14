@@ -1,11 +1,12 @@
 <script lang="ts">
+    import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
-    // object to build options
-    export let elements : Array<any> 
-    export let content : any = "" // actual content
-    export let rows : number = 0
-    export let resizable : Boolean = false
+    export let key : string = "" // presets category
+    export let elements : Array<any> // list of presets
+    export let content : string = "" // actual content
+    export let rows : number = 4 // number of rows
+    export let resizable : Boolean = false // textarea resizable?
 
     let index : number = findEntryByContent(content)
 
@@ -20,13 +21,11 @@
     }
 
     export let item = (e: any) => e;
-    export let update = (v: any) => {}
+    export let update = (v: any) => v;
     export function clear(){
         content = ""
         update(content)
     }
-
-    export let save = (c: string) => {}
 
     function findEntryByContent(s : string){
         if(!elements) return -1
@@ -35,6 +34,34 @@
 
     function refreshIndex(){
         index = findEntryByContent(content)
+    }
+
+    function savePreset(){
+        let target_name = ""
+        let existing_index = elements.findIndex((e) => e.content == content)
+        if( existing_index > -1 && elements.at(existing_index).name){
+            target_name = elements.at(existing_index).name
+        }else{
+            let id = 0;
+            do{
+                target_name = "New preset " + id
+                id += 1;
+            }while( elements.some((item) => item.name == target_name ))
+        }
+
+        let new_name = prompt("Choose a name for the saved preset:", target_name )
+        if( new_name ){
+            let existing_item = elements.find((item) => item.name == new_name)
+            if( existing_item ){
+                existing_item.content = content
+            }else{
+                elements.push({ "name": new_name, "content": content })
+            }
+
+            elements = elements;
+            Server.request("/save_presets", { type: key, data: elements })
+            refreshIndex()
+        }
     }
     
 </script>
@@ -55,7 +82,7 @@
 
             <div class="controls">
                 <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={() => set(index)}>{@html SVG.confirm} Apply</button>
-                <button class="component clear info" title="Save current" on:click={() => { save(content); refreshIndex(); }}>{@html SVG.save} Save</button>
+                <button class="component clear info" title="Save current" on:click={savePreset}>{@html SVG.save} Save</button>
                 <button class="component clear danger" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
             </div>
         </div>

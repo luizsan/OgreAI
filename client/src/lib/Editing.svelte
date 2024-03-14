@@ -213,7 +213,7 @@
 {#if $editing }
     <Screen>
         <div class="top" on:change={SaveCharacter} >
-            <div class="header">
+            <div class="section header">
 
                 <div class="avatar">
                     <img src={avatar} alt=""/>
@@ -465,16 +465,6 @@
 
     .tabs{
         padding: 0px;
-    }
-
-    .title{
-        font-weight: 600;
-        margin: 0px;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
     }
 
     .tokens{

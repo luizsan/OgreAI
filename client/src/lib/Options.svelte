@@ -13,28 +13,33 @@
     const tab_items = [
         {   
             title: "Settings", 
-            explanation: "Change API, connection and related settings.",
+            description: "Change API, connection and related settings.",
             icon: SVG.sliders, disabled: false 
         },
         {   
             title: "Prompt", 
-            explanation: "Build the chat prompt for the current API mode.",
+            description: "Build the chat prompt for the current API mode.",
             icon: SVG.prompt, disabled: false 
         },
         {   
             title: "Presets", 
-            explanation: "Manage predefined settings to use across different API modes.",
+            description: "Manage predefined settings to use across different API modes.",
             icon: SVG.saved, disabled: false 
         },
         {   
             title: "Formatting", 
-            explanation: "Use regex to automatically format text when receiving replies.",
+            description: "Use regex to automatically format text when receiving replies.",
             icon: SVG.formatting, disabled: false 
         },
         {   
             title: "User", 
-            explanation: "Customize the user's profile and preferences.",
+            description: "Customize the user's profile and preferences.",
             icon: SVG.user, disabled: false 
+        },
+        {
+            title: "Customization",
+            description: "Customize visual preferences",
+            icon: SVG.palette, disabled: false 
         }
     ]
 
@@ -47,9 +52,9 @@
 {#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
     <Screen>
         <div class="content">
-            <div class="top">
+            <div class="top section">
                 <h1>{tab_items[$tabSettings].title}</h1>
-                <p class="explanation">{tab_items[$tabSettings].explanation}</p>
+                <p class="explanation">{tab_items[$tabSettings].description}</p>
                 <hr>
             </div>
 
@@ -96,13 +101,9 @@
     }
 
     hr{
-        color: gray;
-        opacity: 0.25;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
+        opacity: 0.1;
+        width: 100%;
+        border: 1px solid gray;
     }
 
     .tab{
