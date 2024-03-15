@@ -1,6 +1,6 @@
 <script lang="ts">
     export let color : string = "black"
-    export let opacity : number = 0.05
+    export let opacity : number = 0.0333
     export let height : string = "25vh"
 </script>
 
