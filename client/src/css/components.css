@@ -77,7 +77,7 @@ input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea
 }
 
 input[type="text"], textarea.component{
-    font-size: 90%;
+    font-size: 0.9em;
 }
 
 textarea.component{
@@ -148,6 +148,7 @@ button.component:hover{
     position: absolute;
     padding-right: 4px;
     width: calc( 100% - 22px );
+    font-size: 0.825em;
     height: 100%;
     left: 0px;
     top: 0px;
