@@ -1,23 +1,10 @@
-<script>
+<script lang="ts">
     import Avatar from "../components/Avatar.svelte";
-    import { currentProfile } from "../State";
+    import Preset from "../components/Preset.svelte";
     import * as Server from "../modules/Server.svelte";
+    import { currentProfile, currentPresets, currentSettingsAPI } from "../State";
 
-    let themes = [
-        { key: "light", label: "Light" }, 
-        { key: "dark", label: "Dark" }
-    ]
-
-    let selectedTheme = window.localStorage.getItem("theme") || "dark"
-
-    function setTheme(){
-        window.localStorage.setItem("theme", selectedTheme)
-        for(let i = 0; i < themes.length; i++){
-            document.body.classList.remove( themes[i].key )
-        }
-        document.body.classList.add(selectedTheme)
-    }
-
+    const key : string = "persona";
 </script>
 
 <div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
@@ -60,40 +47,24 @@
 
     <div class="section">
         <div>
-            <div class="title">Theme</div>
-            <div class="explanation">Define your preferred color scheme.</div>
+            <div class="title">User Persona</div>
+            <div class="explanation">Describe yourself to the AI? This description is inserted in the prompt.</div>
         </div>
 
-        <div class="section" on:change={setTheme}>
-
-        {#each themes as item}
-            <label for="theme_light">
-                <input type="radio" class="component" bind:group={selectedTheme} name="theme" value={item.key}>
-                {item.label}
-            </label>
-        {/each}
-
-        </div>
+        <Preset
+            key={key}
+            bind:elements={ $currentPresets[key] } 
+            content={ $currentProfile.persona } 
+            item={(v) => v.content } 
+            update={(v) => $currentProfile.persona = v }
+            resizable={true}
+            rows={8}
+        />
     </div>
-
 </div>
 
 
 <style>
-    :global(p) {
-        margin: 0px;
-    }
-
-    .title{
-        font-weight: 600;
-        margin: 0px;
-    }
-
-    .explanation{
-        color: #606060;
-        font-size: 85%;
-    }
-
     .content{
         display: flex;
         flex-direction: column;

@@ -37,7 +37,7 @@ export const currentProfile = writable( null )
 export const currentCharacter = writable( null )
 export const currentCreate = writable( null )
 export const currentChat = writable( null )
-export const currentTheme = writable( null )
+export const currentTheme = writable( "" )
 
 // toggle elements
 export const sectionCharacters = writable( false )

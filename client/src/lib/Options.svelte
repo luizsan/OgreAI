@@ -8,6 +8,7 @@
     import Presets from "./Presets.svelte";
     import Formatting from "./Formatting.svelte";
     import Profile from "./Profile.svelte";
+    import Customization from "./Customization.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     const tab_items = [
@@ -38,7 +39,7 @@
         },
         {
             title: "Customization",
-            description: "Customize visual preferences",
+            description: "Customize interface and visual preferences",
             icon: SVG.palette, disabled: false 
         }
     ]
@@ -69,6 +70,8 @@
                     <Formatting/>
                 {:else if $tabSettings == 4}
                     <Profile/>
+                {:else if $tabSettings == 5}
+                    <Customization/>
                 {/if}
             </div>
             
@@ -96,7 +99,8 @@
 <style>
     h1{
         margin: 0;
-        line-height: 1.2em;
+        padding-top: 24px;
+        padding-bottom: 4px;
         font-size: 40px;
     }
 
@@ -104,6 +108,7 @@
         opacity: 0.1;
         width: 100%;
         border: 1px solid gray;
+        margin-bottom: 0px;
     }
 
     .tab{

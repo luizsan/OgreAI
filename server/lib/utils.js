@@ -8,7 +8,7 @@ export function parseNames(text, user, bot){
     return text
 }
 
-function getPromptField( key, settings){
+function getPromptField( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
     return item && item.content ? item.content : ""
 }
@@ -45,10 +45,8 @@ function getPrefillPrompt( _, settings ){
     return result
 }
 
-function getPersona( _, settings ){
-    let result = getPromptField( "persona", settings )
-    result = result.trim()
-    return result
+function getPersona( user ){
+    return user.persona ?? ""
 }
 
 function getCharacterProperty( key, character, settings ){
@@ -83,7 +81,7 @@ export function getSystemPrompt( character, user, settings ){
         if( item.key === "base_prompt" ){
             list.push(getMainPrompt(character, settings))
         }else if( item.key === "persona" ){
-            list.push(getPersona(character, settings))
+            list.push(getPersona(user))
         }else{
             list.push(getCharacterProperty(item.key, character, settings))
         }
