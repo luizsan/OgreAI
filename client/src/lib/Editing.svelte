@@ -273,7 +273,7 @@
                     <h3 class="title">Greeting</h3>
                     <p class="explanation">The character will start a chat with this message.</p>
                 </div>
-                <textarea class="component wide" rows=6 bind:value={$editing.data.first_mes}></textarea>
+                <textarea class="component wide" rows=12 bind:value={$editing.data.first_mes}></textarea>
             </div>
 
             <Accordion name="Alternate Greetings">
@@ -283,7 +283,7 @@
                             <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
                             <button class="component danger" title="Remove greeting" on:click={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
                         </div>
-                        <textarea class="component wide" rows=6 bind:value={alt}></textarea>
+                        <textarea class="component wide" rows=8 bind:value={alt}></textarea>
                     </div>
                 {/each}
                 <button class="component normal" on:click={AddGreeting}>{@html SVG.plus}Add greeting</button>
@@ -294,7 +294,7 @@
                     <h3 class="title">Description</h3>
                     <p class="explanation">Description of personality and other characteristics.</p>
                 </div>
-                <textarea class="component wide" rows=9 bind:value={$editing.data.description}></textarea>
+                <textarea class="component wide" rows=16 bind:value={$editing.data.description}></textarea>
             </div>
             
             <div class="section wide personality">
@@ -302,7 +302,7 @@
                     <h3 class="title">Personality</h3>
                     <p class="explanation">A brief description of the personality.</p>
                 </div>
-                <textarea class="component wide" rows=3 bind:value={$editing.data.personality}></textarea>
+                <textarea class="component wide" rows=4 bind:value={$editing.data.personality}></textarea>
             </div>
             
             <div class="section wide scenario">
@@ -310,7 +310,7 @@
                     <h3 class="title">Scenario</h3>
                     <p class="explanation">Circumstances and context of the dialogue.</p>
                 </div>
-                <textarea class="component wide" rows=3 bind:value={$editing.data.scenario}></textarea>
+                <textarea class="component wide" rows=4 bind:value={$editing.data.scenario}></textarea>
             </div>
             
             <div class="section wide dialogue">
@@ -318,7 +318,7 @@
                     <h3 class="title">Example dialogue</h3>
                     <p class="explanation">Forms a personality more clearly.</p>
                 </div>
-                <textarea class="component wide" rows=6 bind:value={$editing.data.mes_example}></textarea>
+                <textarea class="component wide" rows=8 bind:value={$editing.data.mes_example}></textarea>
             </div>
 
             <Accordion name="Advanced Settings">
