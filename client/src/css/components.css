@@ -199,6 +199,7 @@ button.component:hover{
 .section .explanation{
     color: #606060;
     font-size: 0.85em;
+    white-space: pre-line;
 }
 
 .ellipsis{

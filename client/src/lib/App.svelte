@@ -9,14 +9,16 @@
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { swipe } from 'svelte-gestures';
-    import { connected, currentCharacter, currentChat, currentTheme, fetching, sectionCharacters } from '../State';
+    import { connected, currentTheme, currentPreferences, currentCharacter, currentChat, fetching, sectionCharacters } from '../State';
     import Loading from '../components/Loading.svelte';
-    import * as Server from '../modules/Server.svelte';
+    import * as Preferences from '../modules/Preferences.svelte';
     import * as Theme from '../modules/Theme.svelte';
+    import * as Server from '../modules/Server.svelte';
 
     onMount(() => {
         Theme.updateRatio()
-        Theme.loadTheme()
+        $currentTheme = Theme.loadTheme()
+        $currentPreferences = Preferences.loadAllPreferences()
         Server.initializeData()
     });
 
@@ -44,10 +46,11 @@
 
 </script>
 
+<svelte:body style="--OGEY: RRAT"/>
 <svelte:window on:resize={Theme.updateRatio}/>
 
 {#if $connected }
-    <div class="fullscreen" use:swipe={{ timeframe: 300, minSwipeDistance: 100, touchAction: 'pan-y' }} on:swipe={swipeHandler}>
+    <div class="fullscreen" use:swipe={{ timeframe: 300, minSwipeDistance: 100, touchAction: 'pan-y' }} on:swipe={swipeHandler} style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
         {#if !$fetching}
             {#if $currentCharacter && $currentChat}
                 <Chat/>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { AutoResize, resize } from "../utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList } from "../State";
+    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
@@ -295,13 +295,12 @@
         
         if( document.activeElement !== messageBox ) return;
 
-        if(!event.shiftKey){
-            if(event.key === "Enter"){
-                if(messageBox.selectionEnd === messageBox.value.length){
-                    messageBox.blur()
-                    SendMessage();
-                    event.preventDefault()
-                }
+        const condition = $currentPreferences["enter_sends_message"] ?? false
+        if(event.key === "Enter" && (event.shiftKey !== condition)){
+            if(messageBox.selectionEnd === messageBox.value.length){
+                messageBox.blur()
+                SendMessage();
+                event.preventDefault()
             }
         }
     }

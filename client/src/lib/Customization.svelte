@@ -1,12 +1,25 @@
 <script lang="ts">
+
     import * as Theme from "../modules/Theme.svelte";
-    // import * as Preferences from "../modules/Preferences.svelte";
-    import { currentTheme } from "../State";
-    // import * as SVG from "../utils/SVGCollection.svelte"
+    import * as Preferences from "../modules/Preferences.svelte";
+    import { currentTheme, currentPreferences } from "../State";
+    import * as SVG from "../utils/SVGCollection.svelte"
 
-    $currentTheme = Theme.loadTheme()
+    let buffer = {}
+    Preferences.prefsList.forEach(key => {
+        buffer[key] = $currentPreferences[key]
+    });
 
-    // let messagePrefs;
+    function resetPreference(key){
+        const value = Preferences.prefs[key].default
+        $currentPreferences[key] = value
+        Preferences.setPreference(key, value)
+    }
+
+    function applyPreference(key, value){
+        $currentPreferences[key] = value
+        Preferences.setPreference(key, value)
+    }
 </script>
 
 
@@ -19,46 +32,55 @@
         </div>
 
         <div class="section" on:change={() => Theme.setTheme($currentTheme)}>
-
-        {#each Object.keys(Theme.themes) as key}
-            <label>
-                <input type="radio" class="component" bind:group={$currentTheme} name="theme" value={key}>
-                {Theme.themes[key].label}
-            </label>
-        {/each}
-
+            {#each Object.keys(Theme.themes) as key}
+                <label class="min">
+                    <input type="radio" class="component" bind:group={$currentTheme} name="theme" value={key}>
+                    {Theme.themes[key].label}
+                </label>
+            {/each}
         </div>
     </div>
 
-    <!-- {#each Object.keys(Preferences.prefs) as key}
+    {#each Preferences.prefsList as key}
         {@const entry = Preferences.prefs[key] }
 
+        
         <div class="setting">
-        <div class="section wide">
-            <div>
-                <p class="title">{entry.title}</p>
-                <p class="explanation">{entry.description}</p>
-            </div>
-            
-            {#if entry.type == "checklist"}
-                {#each entry.default as check}
-                    <label>
-                        <input class="component" type="checkbox" bind:group={messagePrefs} value={check} />
-                        {check}
-                    </label>
-                {/each}
-            
-            {:else if entry.type == "range"}
-                <div class="input wide horizontal" >
-                    <button class="sub danger" title="Reset to default ({entry.default})">{@html SVG.refresh}</button>
-                    <input type="number" class="component" style="padding-left: 40px" step={entry.step}>
-                    <input type="range" class="component" min={entry.min} max={entry.max} step={entry.step}>
-                </div>
+            <div class="section wide" on:change={() => applyPreference(key, buffer[key])}>
 
-            {/if}
+                {#if entry && entry.type && entry.type != "checkbox" }
+                    <div>
+                        <p class="title">{entry.title}</p>
+                        <p class="explanation">{entry.description}</p>
+                    </div>
+                {/if}
+            
+                
+                {#if entry.type == "range"}
+                
+                    <div class="input wide horizontal">
+                        <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => resetPreference(key)}>{@html SVG.refresh}</button>
+                        <input type="number" class="component" style="padding-left: 40px" step={entry.step} bind:value={ buffer[key] }>
+                        <input type="range" class="component" min={entry.min} max={entry.max} step={entry.step} bind:value={ buffer[key] }>
+                    </div>
+
+                {:else if entry.type == "checkbox"}
+
+                    <div class="toggle wide vertical">
+                        <label>
+                            <input type="checkbox" class="component" bind:checked={buffer[key]}>
+                        </label>
+                        <div>
+                            <div class="title">{entry.title}</div>
+                            <div class="explanation">{entry.description}</div>
+                        </div>
+                    </div>
+
+                {/if}
+
+            </div>
         </div>
-        </div>
-    {/each} -->
+    {/each}
 
 </div>
 
@@ -71,7 +93,19 @@
         box-sizing: border-box;
     }
 
-    /* .setting{
+    .input{
+        display: grid;
+        grid-template-columns: 128px auto;
+        gap: 16px;
+    }
+
+    .toggle{
+        display: grid;
+        grid-template-columns: 32px auto;
+        gap: 16px;
+    }
+
+    .setting{
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -89,5 +123,5 @@
         translate: 0px 1px;
         width: 18px;
         height: 18px;
-    } */
+    }
 </style>

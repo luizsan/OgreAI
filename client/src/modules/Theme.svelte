@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
 
     export const themes = {
-        "light": { label: "Light" }, 
-        "dark": { label: "Dark" }
+        "dark": { label: "Dark" },
+        "light": { label: "Light" },
     }
 
     export const themeList : Array<string> = Object.keys(themes)
@@ -26,17 +26,17 @@
 
     export function loadTheme(){
         let theme = window.localStorage.getItem("theme") 
-        if( themeList.includes(theme) ){
-            document.body.classList.add(theme)
-        }else{
-            document.body.classList.add("dark")
-        }
+        theme = themeList.includes(theme) ? theme : "dark"
+        setTheme( theme )
         return theme;
     }
 
     export function setTheme(s: string){
         if(!themeList.includes(s)){
-            return;
+            if( themeList.length > 0 ){
+                setTheme( themeList[0] )
+            }
+            return
         }
 
         window.localStorage.setItem("theme", s)
