@@ -4,18 +4,21 @@
             title: "Content width",
             description: "Controls the maximum width of chat, editing and settings screens in px.",
             type: "range", default: 900, min: 600, max: window.screen.availWidth, step: 10,
+            disabled: false,
         },
 
         enter_sends_message: {
             title: "Send message with Enter",
             description: "Off - Sends message with Shift+Enter, newline with Enter.\nOn - Sends message with Enter, newline with Shift+Enter.",
-            type: "checkbox", default: false
+            type: "checkbox", default: false,
+            disabled: false,
         },
 
         load_last_chat: {
             title: "Auto-load last chat",
             description: "Automatically loads the latest chat for the latest character interacted with.",
             type: "checkbox", default: false,
+            disabled: true,
         },
     }
 

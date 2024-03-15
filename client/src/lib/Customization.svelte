@@ -44,42 +44,44 @@
     {#each Preferences.prefsList as key}
         {@const entry = Preferences.prefs[key] }
 
-        
-        <div class="setting">
-            <div class="section wide" on:change={() => applyPreference(key, buffer[key])}>
+        {#if !entry.disabled }
+            <div class="setting">
+                <div class="section wide" on:change={() => applyPreference(key, buffer[key])}>
 
-                {#if entry && entry.type && entry.type != "checkbox" }
-                    <div>
-                        <p class="title">{entry.title}</p>
-                        <p class="explanation">{entry.description}</p>
-                    </div>
-                {/if}
-            
-                
-                {#if entry.type == "range"}
-                
-                    <div class="input wide horizontal">
-                        <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => resetPreference(key)}>{@html SVG.refresh}</button>
-                        <input type="number" class="component" style="padding-left: 40px" step={entry.step} bind:value={ buffer[key] }>
-                        <input type="range" class="component" min={entry.min} max={entry.max} step={entry.step} bind:value={ buffer[key] }>
-                    </div>
-
-                {:else if entry.type == "checkbox"}
-
-                    <div class="toggle wide vertical">
-                        <label>
-                            <input type="checkbox" class="component" bind:checked={buffer[key]}>
-                        </label>
+                    {#if entry && entry.type && entry.type != "checkbox" }
                         <div>
-                            <div class="title">{entry.title}</div>
-                            <div class="explanation">{entry.description}</div>
+                            <p class="title">{entry.title}</p>
+                            <p class="explanation">{entry.description}</p>
                         </div>
-                    </div>
+                    {/if}
+                
+                    
+                    {#if entry.type == "range"}
+                    
+                        <div class="input wide horizontal">
+                            <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => resetPreference(key)}>{@html SVG.refresh}</button>
+                            <input type="number" class="component" style="padding-left: 40px" step={entry.step} bind:value={ buffer[key] }>
+                            <input type="range" class="component" min={entry.min} max={entry.max} step={entry.step} bind:value={ buffer[key] }>
+                        </div>
 
-                {/if}
+                    {:else if entry.type == "checkbox"}
 
+                        <div class="toggle wide vertical">
+                            <label>
+                                <input type="checkbox" class="component" bind:checked={buffer[key]}>
+                            </label>
+                            <div>
+                                <div class="title">{entry.title}</div>
+                                <div class="explanation">{entry.description}</div>
+                            </div>
+                        </div>
+
+                    {/if}
+
+                </div>
             </div>
-        </div>
+
+        {/if}
     {/each}
 
 </div>
