@@ -271,6 +271,14 @@
         }
     }
 
+    function ChangeChatTitle(){
+        let new_title = prompt("Insert the new chat title", $currentChat.title)
+        if( new_title ){
+            $currentChat.title = new_title
+            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+        }
+    }
+
     function Shortcuts(event : KeyboardEvent){
         if( event.key === "Escape"){
             AbortMessage()
@@ -344,7 +352,7 @@
                 {#if chatOptions}
                     <div class="options-list">
                         {#if $currentChat}
-                            <div class="options-item disabled deselect title">{@html SVG.chat}<p class="name">{$currentChat.title}</p></div>
+                            <button class="options-item normal title" on:click={ChangeChatTitle}>{@html SVG.chat}<div><p class="subtitle">Current chat</p><p class="name">{$currentChat.title}</p></div></button>
                         {/if}
 
                         <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
@@ -548,7 +556,10 @@
     }
 
     .title{
-        font-size: 75%;
+        font-size: 0.75em;
+    }
+
+    .subtitle{
         opacity: 0.5;
     }
 
