@@ -64,6 +64,15 @@
                             <input type="range" class="component" min={entry.min} max={entry.max} step={entry.step} bind:value={ buffer[key] }>
                         </div>
 
+                    {:else if entry.type == "select"}
+
+                        <select class="component min" bind:value={buffer[key]}>
+                            {#each entry.choices as choice}
+                                <option value={choice}>{choice}</option>
+                            {/each}
+                        </select>
+
+
                     {:else if entry.type == "checkbox"}
 
                         <div class="toggle wide vertical">

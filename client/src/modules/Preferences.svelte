@@ -7,6 +7,13 @@
             disabled: false,
         },
 
+        show_model: {
+            title: "Show model",
+            description: "Toggle the display of the model used to generate the reply in chat.",
+            type: "checkbox", default: false,
+            disabled: false,
+        },
+
         enter_sends_message: {
             title: "Send message with Enter",
             description: "Off - Sends message with Shift+Enter, newline with Enter.\nOn - Sends message with Enter, newline with Shift+Enter.",
@@ -33,10 +40,13 @@
             if( value === "NaN" ) value = NaN
             if( value === "undefined" ) value = undefined
 
-            if(parseFloat(value)){
+
+            if( prefs[key].type == "select"){
+                value = prefs[key].choices.find(item => item.key === value)
+            }else if(parseFloat(value)){
                 value = parseFloat(value)
             }
-
+    
             obj[key] = value ? value : prefs[key].default;
             setPreference(key, obj[key])
         });
