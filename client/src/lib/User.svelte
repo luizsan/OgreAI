@@ -2,7 +2,7 @@
     import Avatar from "../components/Avatar.svelte";
     import Preset from "../components/Preset.svelte";
     import * as Server from "../modules/Server.svelte";
-    import { currentProfile, currentPresets, currentSettingsAPI } from "../State";
+    import { currentProfile, currentPresets, defaultPrompt } from "../State";
 
     const key : string = "persona";
 </script>
@@ -48,7 +48,7 @@
     <div class="section">
         <div>
             <div class="title">User Persona</div>
-            <div class="explanation">How would you describe yourself to the AI? This description is inserted in the prompt.</div>
+            <div class="explanation">{$defaultPrompt.persona.description}</div>
         </div>
 
         <Preset
