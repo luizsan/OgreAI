@@ -1,0 +1,8 @@
+# wildcards are supported:
+# 192.168.*.*
+#
+# to allow all IPs (not recommended):
+# *.*.*.* 
+
+# whitelist:
+127.0.0.1

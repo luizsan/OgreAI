@@ -7,9 +7,9 @@ import cors from "cors";
 import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
-
 import open from "open"
 
+import Security from "./core/security.js"
 import Character from "./lib/character.js"
 import Chat from "./lib/chat.js"
 import { LoadData, SaveData } from "./lib/data.js"
@@ -33,6 +33,7 @@ const upload = multer()
 var API_MODES = {}
 var API_LIST = []
 
+app.use(Security.whitelistMiddleware)
 app.use(cors())
 
 app.use(express.static('public', {

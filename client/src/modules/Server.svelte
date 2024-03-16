@@ -30,7 +30,7 @@
         return data;
     }
 
-    export function status(){
+    export function getStatus(){
         fetch( State.localServer + "/status" ).then( response => {
             if( response.ok ){
                 _heartbeat = setTimeout( status, 1000 )
@@ -57,6 +57,12 @@
             clearTimeout( _heartbeat );
         }
 
+        let status = await fetch( State.localServer + "/status" )
+        if( !status || !status.ok ){
+            disconnect()
+            return;
+        }
+
         const init_requests = [
             request( "/get_api_modes" ),
             request( "/get_profile" ),
@@ -67,7 +73,7 @@
             State.availableAPIModes.set( responses[0] )
             State.currentProfile.set( responses[1] )
             State.currentSettingsMain.set( responses[2] )
-            status()
+            getStatus()
             
         }).catch(error => {
             State.characterList.set( [] )
