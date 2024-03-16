@@ -10,7 +10,7 @@
         base_prompt: { "rows": 12 },
         sub_prompt: { "rows": 6 },
         prefill_prompt: { "rows": 6 },
-        persona: { "rows": 4 },
+        // persona: { "rows": 4 },
     }
     
     normal_order = normal_order.filter(item => item == "persona")
