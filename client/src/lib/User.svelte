@@ -48,7 +48,7 @@
     <div class="section">
         <div>
             <div class="title">User Persona</div>
-            <div class="explanation">Describe yourself to the AI? This description is inserted in the prompt.</div>
+            <div class="explanation">How would you describe yourself to the AI? This description is inserted in the prompt.</div>
         </div>
 
         <Preset

@@ -7,7 +7,7 @@
     import Prompt from "./Prompt.svelte";
     import Presets from "./Presets.svelte";
     import Formatting from "./Formatting.svelte";
-    import Profile from "./Profile.svelte";
+    import User from "./User.svelte";
     import Customization from "./Customization.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
@@ -69,7 +69,7 @@
                 {:else if $tabSettings == 3}
                     <Formatting/>
                 {:else if $tabSettings == 4}
-                    <Profile/>
+                    <User/>
                 {:else if $tabSettings == 5}
                     <Customization/>
                 {/if}
