@@ -46,7 +46,6 @@
 
 </script>
 
-<svelte:body style="--OGEY: RRAT"/>
 <svelte:window on:resize={Theme.updateRatio}/>
 
 {#if $connected }
