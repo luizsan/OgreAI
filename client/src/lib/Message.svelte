@@ -41,7 +41,7 @@
 
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
     $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
-    $: model = current && current.model ? current.model : "Unknown model"; 
+    $: model = current && current.model ? current.model : "Unknown model";
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
@@ -279,8 +279,13 @@
             <span class="name {authorType}">{author}</span>
             <span class="sub" title={date_time}>{relative_time}</span>
             {#if is_bot && ($currentPreferences["show_model"] ?? false)}
+                {@const botmaker = $currentCharacter.data.creator}
                 <span class="sub">&middot;</span>
-                <span class="sub">{model}</span>
+                {#if id > 0}
+                    <span class="sub">{model}</span>
+                {:else}
+                    <span class="sub">{botmaker ? `@${botmaker.toLowerCase()}` : "Unknown creator"}</span>
+                {/if}
             {/if}
             <span class="sub index"># {id+1}</span>
             
