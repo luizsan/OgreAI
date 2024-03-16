@@ -194,12 +194,14 @@ button.component:hover{
 .section .title{
     font-weight: 600;
     margin: 0px;
+    line-height: 1.5rem;
 }
 
 .section .explanation{
     color: #606060;
     font-size: 0.85em;
     white-space: pre-line;
+    line-height: 1.2rem;
 }
 
 .ellipsis{

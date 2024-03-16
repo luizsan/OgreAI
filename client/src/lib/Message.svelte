@@ -528,7 +528,7 @@
         align-items: baseline;
         justify-content: center;
         word-spacing: 0.25em;
-        font-size: 0.85em;
+        font-size: 0.8rem;
         width: 72px;
     }
 
