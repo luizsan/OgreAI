@@ -309,7 +309,7 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="container">
-    <div class="chat" style="grid-template-rows: auto min-content">
+    <div class="chat">
 
         {#if !$history}
             <div class="messages" bind:this={messagesDiv} use:ChatScroll>
@@ -410,6 +410,7 @@
     .chat{
         align-self: center;
         display: grid;
+        grid-template-rows: auto min-content;
         height: 100%;
         max-width: var( --chat-width );
         width: 100%;
