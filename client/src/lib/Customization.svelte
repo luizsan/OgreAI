@@ -12,6 +12,7 @@
 
     function resetPreference(key){
         const value = Preferences.prefs[key].default
+        buffer[key] = value
         $currentPreferences[key] = value
         Preferences.setPreference(key, value)
     }
