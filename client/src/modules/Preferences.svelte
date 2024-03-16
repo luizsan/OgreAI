@@ -39,7 +39,8 @@
             if( value === "null" ) value = null
             if( value === "NaN" ) value = NaN
             if( value === "undefined" ) value = undefined
-
+            if( value === "true" ) value = true
+            if( value === "false" ) value = false
 
             if( prefs[key].type == "select"){
                 value = prefs[key].choices.find(item => item.key === value)
@@ -47,7 +48,7 @@
                 value = parseFloat(value)
             }
     
-            obj[key] = value ? value : prefs[key].default;
+            obj[key] = value !== null && value !== undefined ? value : prefs[key].default;
             setPreference(key, obj[key])
         });
         return obj;
