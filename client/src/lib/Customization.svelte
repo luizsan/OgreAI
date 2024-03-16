@@ -44,7 +44,7 @@
     {#each Preferences.prefsList as key}
         {@const entry = Preferences.prefs[key] }
 
-        {#if !entry.disabled }
+        {#if !entry.disabled() }
             <div class="setting">
                 <div class="section wide" on:change={() => applyPreference(key, buffer[key])}>
 
