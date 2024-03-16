@@ -4,7 +4,7 @@
             title: "Content width",
             description: "Controls the maximum width of chat, editing and settings screens in px.",
             type: "range", default: 900, min: 600, max: window.screen.availWidth, step: 10,
-            disabled: false,
+            disabled: document.body.classList.contains("portrait"),
         },
 
         show_model: {
