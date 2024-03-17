@@ -45,8 +45,11 @@
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
-
     $: lockinput = !$currentChat || $fetching || $busy;
+
+    // prefs
+    $: prefs_show_model = $currentPreferences["show_model"] ?? false
+    $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
 
     // ---
     let isEditing = false
@@ -277,8 +280,12 @@
     <div class="content">
         <div class="author">
             <span class="name {authorType}">{author}</span>
-            <span class="sub" title={date_time}>{relative_time}</span>
-            {#if is_bot && ($currentPreferences["show_model"] ?? false)}
+
+            {#if prefs_show_datetime}
+                <span class="sub" title={date_time}>{relative_time}</span>
+            {/if}
+
+            {#if is_bot && prefs_show_model}
                 {@const botmaker = $currentCharacter.data.creator}
                 <span class="sub">&middot;</span>
                 {#if id > 0}
@@ -287,8 +294,8 @@
                     <span class="sub">{botmaker ? `@${botmaker.toLowerCase()}` : "Unknown creator"}</span>
                 {/if}
             {/if}
+
             <span class="sub index"># {id+1}</span>
-            
         </div>
         
         {#if isEditing}

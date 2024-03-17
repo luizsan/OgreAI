@@ -1,10 +1,18 @@
 <script lang="ts" context="module">
     export const prefs = {
+
         content_width: {
             title: "Content width",
             description: "Controls the maximum width of chat, editing and settings screens in px.",
             type: "range", default: 900, min: 600, max: window.screen.availWidth, step: 10,
             disabled: () => document.body.classList.contains("portrait"),
+        },
+
+        show_datetime: {
+            title: "Show date & time",
+            description: "Toggle the display of date and time in chat messages.",
+            type: "checkbox", default: false,
+            disabled: () => false,
         },
 
         show_model: {
