@@ -195,7 +195,7 @@
     }
 
     .field input{
-        margin-left: 24px;
+        padding-left: 32px;
     }
 
 </style>
