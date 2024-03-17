@@ -52,11 +52,9 @@
         </div>
 
         <Preset
-            key={key}
             bind:elements={ $currentPresets[key] } 
-            content={ $currentProfile.persona } 
-            item={(v) => v.content } 
-            update={(v) => $currentProfile.persona = v }
+            bind:content={ $currentProfile.persona } 
+            key={key}
             resizable={true}
             rows={8}
         />

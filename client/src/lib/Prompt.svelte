@@ -49,6 +49,8 @@
 
     {#each Object.keys(custom_order) as key}
         {#if $defaultPrompt[key] && $defaultPrompt[key].editable && $currentSettingsAPI.prompt.find((e) => e.key == key)}
+            {@const item = $currentSettingsAPI.prompt.findIndex((e) => e.key == key)}
+
             <div class="section" on:change={saveSettings}>
                 <div>
                     <div class="title">{$defaultPrompt[key].label}</div>
@@ -56,11 +58,9 @@
                 </div>
   
                 <Preset
-                    bind:key={ key }
                     bind:elements={ $currentPresets[key] } 
-                    content={ $currentSettingsAPI.prompt.find((e) => e.key == key).content } 
-                    item={(v) => v.content } 
-                    update={(v) => $currentSettingsAPI.prompt.find((e) => e.key === key).content = v }
+                    bind:content={ $currentSettingsAPI.prompt[item].content }
+                    key={ key }
                     resizable={true}
                     rows={custom_order[key].rows ?? 4}
                 />

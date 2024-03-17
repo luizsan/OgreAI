@@ -1,5 +1,6 @@
 <script>
     import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, currentPresets, availableAPIModes, fetching } from "../State";
+    import Auth from "../components/Auth.svelte";
     import Accordion from "../components/Accordion.svelte";
     import Status from "../components/Status.svelte";
     import * as Server from "../modules/Server.svelte";
@@ -24,7 +25,13 @@
         });
 
         $currentSettingsAPI = $currentSettingsAPI;
+        $currentPresets = $currentPresets;
         $fetching = false;
+    }
+
+    function resetToDefault(key, entry){
+        $currentSettingsAPI[key] = entry.default;
+        saveSettings();
     }
 
     async function saveSettings(){
@@ -79,23 +86,11 @@
         <div class="title"><div class="inline">API Target <Status/></div></div>
         <div class="setting">
             <div class="section vertical">
-                {#if $currentPresets.api_auth.length > 0}
-                    <div class="section horizontal wrap">
-                        <select class="component" bind:value={presetElements["api_auth"]} on:change={setAPIAuth} style="flex: 1 1 auto">
-                            <option value={-1}>-- Select a preset --</option>
-                            {#each $currentPresets.api_auth as entry, i}
-                                <option value={i}>{entry.name ?? `Preset ${i}`}</option>
-                            {/each}
-                        </select>
-                        <button class="component normal" on:click={setAPIAuth}>Apply</button>
-                    </div>
-                {/if}
-                
-                <div class="component container group">
-                    <input type="text" class="component clear wide" placeholder="Insert API URL..." bind:value={$currentSettingsAPI.api_url} style="flex: 1 1 auto">
-                    <hr>
-                    <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={$currentSettingsAPI.api_auth} style="flex: 1 1 auto">
-                </div>
+                <Auth
+                    bind:elements={$currentPresets.api_auth}
+                    bind:url={$currentSettingsAPI.api_url}
+                    bind:auth={$currentSettingsAPI.api_auth}
+                />
                 <button class="component normal" on:click|preventDefault={Server.getAPIStatus}>Check Status</button>
             </div>
         </div>
@@ -145,7 +140,7 @@
 
                 {:else if entry.type == "range"}
                     <div class="input wide horizontal" >
-                        <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => $currentSettingsAPI[key] = entry.default}>{@html SVG.refresh}</button>
+                        <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => resetToDefault(key, entry)}>{@html SVG.refresh}</button>
                         <input type="number" class="component" style="padding-left: 40px" step={entry.step} bind:value={$currentSettingsAPI[key]}>
                         <input type="range" class="component" bind:value={$currentSettingsAPI[key]} min={entry.min} max={entry.max} step={entry.step}>
                     </div>
@@ -192,10 +187,6 @@
     .inline{
         display: flex;
         gap: 8px;
-    }
-
-    .group{
-        padding: 2px 8px;
     }
 
     .container{
