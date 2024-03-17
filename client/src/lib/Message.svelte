@@ -404,7 +404,6 @@
     .author{
         display: flex;
         align-items: baseline;
-        padding-bottom: 4px;
         flex-wrap: wrap;
         gap: 0px 6px;
     }
