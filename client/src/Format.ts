@@ -1,11 +1,16 @@
 import { marked } from "marked"
 
+const regex_quotes = /(?:&quot;|")([^"]+)(?:&quot;|")/gi
 export const marked_renderer = new marked.Renderer();
 marked_renderer.del = function(text : string){ return "~" + text + "~"; };
 marked_renderer.pre = function(text : string){ return text; };
 marked_renderer.code = function(text : string) {
     return '<pre><code>' + text + '</code></pre>';
 };
+
+marked_renderer.text = function(text : string){
+    return text.replace(regex_quotes, `<span class="quote">"$1"</span>`)
+}
 
 marked.setOptions({
     breaks: true,
