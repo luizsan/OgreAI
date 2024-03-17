@@ -4,6 +4,7 @@
   "type": "module",
   "version": "0.2.0",
   "scripts": {
+                      "dev": "nodemon index.js",
     "start": "node index.js",
     "autorun": "node index.js --autorun"
   },
@@ -20,5 +21,8 @@
     "png-chunks-encode": "^1.0.0",
     "png-chunks-extract": "^1.0.0",
     "sharp": "^0.32.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
