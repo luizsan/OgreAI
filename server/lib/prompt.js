@@ -39,7 +39,7 @@ export default class Prompt{
         persona: { 
             toggleable: true, editable: true, 
             label: "User persona",
-            description: "Describe yourself, the user, to the model.",
+            description: "How would you describe yourself to the AI? This description is inserted in the prompt.",
             default: ""
         },
         
