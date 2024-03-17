@@ -271,6 +271,11 @@
         }
     }
 
+    function closeChat(){
+        $currentChat = null;
+        $currentCharacter = null;
+    }
+
     function ChangeChatTitle(){
         let new_title = prompt("Insert the new chat title", $currentChat.title)
         if( new_title ){
@@ -351,11 +356,11 @@
                 {#if chatOptions}
                     <div class="options-list">
                         {#if $currentChat}
-                            <button class="options-item normal title" on:click={ChangeChatTitle}>{@html SVG.chat}<div><p class="subtitle">Current chat</p><p class="name">{$currentChat.title}</p></div></button>
+                        <button class="options-item normal title" on:click={ChangeChatTitle}>{@html SVG.chat}<div><p class="subtitle">Current chat</p><p class="name">{$currentChat.title}</p></div></button>
                         {/if}
-
-                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
                         <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
+                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
+                        <button class="options-item normal" on:click={closeChat}>{@html SVG.close}Close Chat</button>
                         <hr>
                         <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
                         <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
