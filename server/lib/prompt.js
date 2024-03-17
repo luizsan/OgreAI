@@ -96,7 +96,7 @@ export default class Prompt{
             if( !this.default[e.key].editable ){
                 e.content = undefined
             }else if( typeof e.content !== "string" ){
-                e.content = this.default[key].default
+                e.content = this.default[e.key].default
             }
         })
 
