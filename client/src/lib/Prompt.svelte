@@ -13,7 +13,7 @@
         // persona: { "rows": 4 },
     }
     
-    normal_order = normal_order.filter(item => item == "persona")
+    normal_order = normal_order.filter(item => item != "persona")
     normal_order = normal_order.filter(item => !Object.keys(custom_order).includes(item))
 
     async function saveSettings(){
