@@ -7,6 +7,7 @@
     import History from "./History.svelte";
     import Loading from '../components/Loading.svelte'
     import Message from './Message.svelte'
+    import Background from "./Background.svelte";
     import { ChatScroll, scroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
 
@@ -314,6 +315,10 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="container">
+    {#if $currentPreferences["enable_background"]}
+        <Background/>
+    {/if}
+
     <div class="chat">
 
         {#if !$history}

@@ -19,6 +19,7 @@
 
     function applyPreference(key, value){
         $currentPreferences[key] = value
+        $currentPreferences = $currentPreferences;
         Preferences.setPreference(key, value)
     }
 </script>

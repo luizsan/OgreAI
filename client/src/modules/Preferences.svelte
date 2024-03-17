@@ -1,6 +1,27 @@
 <script lang="ts" context="module">
     export const prefs = {
 
+        enable_background: {
+            title: "Enable background",
+            description: "Toggles using the character's image as background in chat.",
+            type: "checkbox", default: true,
+            disabled: () => false,
+        },
+
+        vertical_background: {
+            title: "Vertical background",
+            description: "Toggles the background orientation and position.",
+            type: "checkbox", default: true,
+            disabled: () => false,
+        },
+
+        background_opacity: {
+            title: "Background opacity",
+            description: "Controls the opacity of the background.",
+            type: "range", default: 0.5, min: 0.0, max: 1.0, step: 0.01,
+            disabled: () => false,
+        },
+
         content_width: {
             title: "Content width",
             description: "Controls the maximum width of chat, editing and settings screens in px.",
