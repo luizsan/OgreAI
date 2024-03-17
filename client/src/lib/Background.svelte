@@ -2,10 +2,11 @@
     import { localServer, currentCharacter, currentPreferences } from "../State";
 
     $: vertical = $currentPreferences["vertical_background"] ?? true;
+    $: coverage = ($currentPreferences["background_coverage"] ?? 0.5) * 100;
     $: opacity = $currentPreferences["background_opacity"] ?? 0.1;
 
-    $: width = vertical ? "100%" : ($currentPreferences["content_size"] ?? 900) + "px";
-    $: height = vertical ? "75%" : "100%"
+    $: width = vertical ? "100%" : `${coverage}%`;
+    $: height = vertical ? `${coverage}%` : "100%"
     $: position = vertical ? "top center" : "center left";
     $: rotation = vertical ? "0.5turn" : "0.25turn";
 

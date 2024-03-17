@@ -15,6 +15,13 @@
             disabled: () => false,
         },
 
+        background_coverage: {
+            title: "Background coverage",
+            description: "Controls how much percentage of the screen is covered by the background.",
+            type: "range", default: 0.5, min: 0.0, max: 1.0, step: 0.01,
+            disabled: () => false,
+        },
+
         background_opacity: {
             title: "Background opacity",
             description: "Controls the opacity of the background.",
