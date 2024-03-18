@@ -3,7 +3,7 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
 
-    export let value : boolean;
+    export let value : boolean = false;
     export let title : string = "";
     export let description : string = "";
 </script>
