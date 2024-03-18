@@ -5,6 +5,7 @@
     import Accordion from "../components/Accordion.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
     import Footer from "../components/Footer.svelte";
+    import Heading from "../components/Heading.svelte";
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -243,36 +244,24 @@
 
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
             <div class="section wide">
-                <div>
-                    <h3 class="title">Name</h3>
-                    <p class="explanation">The name of the character displayed in chat.</p>
-                </div>
+                <Heading title="Name" description="The name of the character displayed in chat."/>
                 <input type="text" class="component wide" bind:value={$editing.data.name}>
             </div>
 
             <Accordion name="General Information">
                 <div class="section wide">
-                    <div>
-                        <h3 class="title">Author</h3>
-                        <p class="explanation">The name of the creator.</p>
-                    </div>
+                    <Heading title="Author" description="The name of the creator."/>
                     <input type="text" class="component wide" placeholder="Unknown author" bind:value={$editing.data.creator}>
                 </div>
 
                 <div class="section wide">
-                    <div>
-                        <h3 class="title">Author's Notes</h3>
-                        <p class="explanation">General information about the character.</p>
-                    </div>
+                    <Heading title="Author's Notes" description="General information about the character."/>
                     <textarea class="component wide" rows=6 bind:value={$editing.data.creator_notes}></textarea>
                 </div>
             </Accordion>
 
             <div class="section wide greeting">
-                <div>
-                    <h3 class="title">Greeting</h3>
-                    <p class="explanation">The character will start a chat with this message.</p>
-                </div>
+                <Heading title="Greeting" description="The character will start a chat with this message."/>
                 <textarea class="component wide" rows=12 bind:value={$editing.data.first_mes}></textarea>
             </div>
 
@@ -290,60 +279,39 @@
             </Accordion>
 
             <div class="section wide description">
-                <div>
-                    <h3 class="title">Description</h3>
-                    <p class="explanation">Description of personality and other characteristics.</p>
-                </div>
+                <Heading title="Description" description="Description of personality and other characteristics."/>
                 <textarea class="component wide" rows=16 bind:value={$editing.data.description}></textarea>
             </div>
             
             <div class="section wide personality">
-                <div>
-                    <h3 class="title">Personality</h3>
-                    <p class="explanation">A brief description of the personality.</p>
-                </div>
+                <Heading title="Personality" description="A brief description of the personality."/>
                 <textarea class="component wide" rows=4 bind:value={$editing.data.personality}></textarea>
             </div>
             
             <div class="section wide scenario">
-                <div>
-                    <h3 class="title">Scenario</h3>
-                    <p class="explanation">Circumstances and context of the dialogue.</p>
-                </div>
+                <Heading title="Scenario" description="Circumstances and context of the dialogue."/>
                 <textarea class="component wide" rows=4 bind:value={$editing.data.scenario}></textarea>
             </div>
             
             <div class="section wide dialogue">
-                <div>
-                    <h3 class="title">Example dialogue</h3>
-                    <p class="explanation">Forms a personality more clearly.</p>
-                </div>
+                <Heading title="Example dialogue" description="Forms a personality more clearly."/>
                 <textarea class="component wide" rows=8 bind:value={$editing.data.mes_example}></textarea>
             </div>
 
             <Accordion name="Advanced Settings">
 
                 <div class="section wide">
-                    <div>
-                        <h3 class="title">Version</h3>
-                        <p class="explanation">The version of this character's iteration, if applicable.</p>
-                    </div>
+                    <Heading title="Version" description="The version of this character's iteration, if applicable."/>
                     <input type="text" class="component wide" bind:value={$editing.data.character_version}>
                 </div>
 
                 <div class="section wide">
-                    <div>
-                        <h3 class="title">System Prompt</h3>
-                        <p class="explanation">Overrides the base prompt defined by your global settings.</p>
-                    </div>
+                    <Heading title="System Prompt" description="Overrides the main prompt defined by your API settings."/>
                     <textarea class="component wide" rows=6 bind:value={$editing.data.system_prompt}></textarea>
                 </div>
 
                 <div class="section wide">
-                    <div>
-                        <h3 class="title">Post-History Instructions</h3>
-                        <p class="explanation">Also known as "jailbreak", overrides the sub prompt defined by your global settings.</p>
-                    </div>
+                    <Heading title="Post-History Instructions" description={`Also known as "jailbreak", overrides the jailbreak prompt defined by your API settings.`}/>
                     <textarea class="component wide" rows=6 bind:value={$editing.data.post_history_instructions}></textarea>
                 </div>
 
