@@ -122,6 +122,8 @@
                     />
 
                 {:else if entry.type == "list"}
+                    <div class="section">
+                    <Heading title={entry.title} description={entry.description}/>
                     <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit}>
                         {#each $currentSettingsAPI[key] as item, i}
                             <div class="section horizontal preset">
@@ -131,6 +133,7 @@
                         {/each}
                         <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
                     </Accordion>
+                    </div>
                 {/if}
 
             {/if}
