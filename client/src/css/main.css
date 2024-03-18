@@ -42,14 +42,3 @@ button {
     font-family: var( --default-font-face );
     width: fit-content;
 }
-
-input[type="number"]{
-    -moz-appearance: textfield;
-    appearance: textfield;
-    margin: 0; 
-}
-
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
-}

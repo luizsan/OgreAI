@@ -3,10 +3,12 @@
     import Auth from "../components/Auth.svelte";
     import Accordion from "../components/Accordion.svelte";
     import Status from "../components/Status.svelte";
+    import Slider from "../components/Slider.svelte";
+    import Checkbox from "../components/Checkbox.svelte";
+    import Dropdown from "../components/Dropdown.svelte";
+    import Heading from "../components/Heading.svelte";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
-
-    let presetElements = {}
 
     async function getSettings(){
         $fetching = true;
@@ -29,26 +31,10 @@
         $fetching = false;
     }
 
-    function resetToDefault(key, entry){
-        $currentSettingsAPI[key] = entry.default;
-        saveSettings();
-    }
-
     async function saveSettings(){
         const mode = $currentSettingsMain.api_mode
         await Server.request("/save_main_settings", { data: $currentSettingsMain })
         await Server.request("/save_api_settings", { api_mode: mode, data: $currentSettingsAPI })
-    }
-
-    function setAPIAuth(){
-        const index = presetElements["api_auth"]
-        if( index < 0 ) return;
-        $currentSettingsAPI.api_url = $currentPresets.api_auth[ index ].address
-        $currentSettingsAPI.api_auth = $currentPresets.api_auth[ index ].password
-        Server.request("/save_api_settings", { 
-            api_mode: $currentSettingsMain.api_mode, 
-            data: $currentSettingsMain 
-        })
     }
 
     function addListItem(key, item, limit = -1){
@@ -68,18 +54,11 @@
 
 
 <div class="content wide">
-    <div class="section">
-        <div class="title">API Mode</div>
-        <div class="setting">
-            <select class="component min" bind:value={$currentSettingsMain.api_mode} on:change={ async () => { 
-                await getSettings()
-                await saveSettings()
-            }}>
-                {#each $availableAPIModes as entry}
-                    <option value={entry.key}>{entry.title}</option>
-                {/each}
-            </select>
-        </div>
+    <div class="section" on:change={ async () => { 
+        await getSettings()
+        await saveSettings()
+    }}>
+        <Dropdown bind:value={$currentSettingsMain.api_mode} choices={$availableAPIModes} title="API Mode"/>
     </div>
 
     <div class="section" on:change={saveSettings}>
@@ -96,73 +75,54 @@
         </div>
     </div>
 
-<!-- <div></div> -->
-
     {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
     <div class="section" on:change={saveSettings}>
-        {#if entry && entry.type && entry.type !== "checkbox" }
-            <div>
-                <div class="title">{entry.title}</div>
-                <div class="explanation">{entry.description}</div>
-            </div>
-        {/if}
 
         <div class="setting vertical">
 
             {#if $currentSettingsAPI[key] !== undefined }
 
                 {#if entry.type == "text"}
-                <!-- {#if entry.type == "text"} -->
-                    <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
+                    <div class="section">
+                        <Heading title={entry.title} description={entry.description}/>
+                        <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
+                    </div>  
 
                 {:else if entry.type == "textarea"}
-                    <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
+                    <div class="section">
+                        <Heading title={entry.title} description={entry.description}/>
+                        <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
+                    </div>
 
                 {:else if entry.type == "select"}
-
-                    {#if key == "model"}
-                        <div class="component dropdown container min">
-                            <select class="component borderless min" bind:value={$currentSettingsAPI[key]}>
-                                {#each entry.choices as choice}
-                                    <option value={choice}>{choice}</option>
-                                {/each}
-                            </select>
-                            <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
-                        </div>
-                    {:else}
-                        <select class="component min" bind:value={$currentSettingsAPI[key]}>
-                            {#each entry.choices as choice}
-                                <option value={choice}>{choice}</option>
-                            {/each}
-                        </select>
-                    {/if}
+                    <Dropdown 
+                        bind:value={$currentSettingsAPI[key]} 
+                        choices={entry.choices} 
+                        editable={key == "model"} 
+                        title={entry.title} 
+                        description={entry.description}
+                    />
 
                 {:else if entry.type == "range"}
-                    <div class="input wide horizontal" >
-                        <button class="sub danger" title="Reset to default ({entry.default})" on:click={() => resetToDefault(key, entry)}>{@html SVG.refresh}</button>
-                        <input type="number" class="component" style="padding-left: 40px" step={entry.step} bind:value={$currentSettingsAPI[key]}>
-                        <input type="range" class="component" bind:value={$currentSettingsAPI[key]} min={entry.min} max={entry.max} step={entry.step}>
-                    </div>
-
+                    <Slider 
+                        bind:value={$currentSettingsAPI[key]} 
+                        original={entry.default} 
+                        min={entry.min} 
+                        max={entry.max} 
+                        step={entry.step} 
+                        title={entry.title} 
+                        description={entry.description}
+                    />
                 {:else if entry.type == "checkbox"}
-                    <div class="toggle wide vertical">
-                        <label>
-                            <input type="checkbox" class="component" bind:checked={$currentSettingsAPI[key]}>
-                        </label>
-                        <div>
-                            <div class="title">{entry.title}</div>
-                            <div class="explanation">{entry.description}</div>
-                        </div>
-
-                    </div>
+                    <Checkbox 
+                        bind:value={$currentSettingsAPI[key]} 
+                        title={entry.title} 
+                        description={entry.description}
+                    />
 
                 {:else if entry.type == "list"}
-                    <Accordion name={`List ${
-                        entry.limit && entry.limit > -1 ? 
-                        "(" + $currentSettingsAPI[key].length + " of " + entry.limit + ")" : 
-                        "(" + $currentSettingsAPI[key].length + ")"}`
-                    }>
+                    <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit}>
                         {#each $currentSettingsAPI[key] as item, i}
                             <div class="section horizontal preset">
                                 <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
@@ -189,10 +149,6 @@
         gap: 8px;
     }
 
-    .container{
-        padding: 2px;
-    }
-
     .content{
         display: flex;
         flex-direction: column;
@@ -200,41 +156,8 @@
         box-sizing: border-box;
     }
 
-    .input{
-        display: grid;
-        grid-template-columns: 128px auto;
-        gap: 16px;
-    }
-
-    .toggle{
-        display: grid;
-        grid-template-columns: 32px auto;
-        gap: 16px;
-    }
-
     .setting{
-        display: flex;
-        flex-direction: column;
         gap: 4px;
-    }
-
-    .sub{
-        position: absolute;
-        width: 32px;
-        height: 30px;
-        translate: 4px 0px;
-        background: #80808016;
-        z-index: 1;
-    }
-
-    .toggle input[type="checkbox"]{
-        translate: 0px 4px;
-    }
-
-    .sub :global(svg){
-        translate: 0px 1px;
-        width: 18px;
-        height: 18px;
     }
 
     .preset{

@@ -1,10 +1,12 @@
 <script lang="ts">
     import { slide } from "svelte/transition";
 
-    export let name = "";
-    export let open = false;
+    export let name : string = "";
+    export let open : boolean = false;
+    export let size : number = 0
+    export let limit : number = undefined
 
-    let element : HTMLElement;
+    let self : HTMLElement;
 
     function Toggle(){ 
         open = !open;
@@ -12,15 +14,23 @@
 
     function Scroll(){
         if( open ){
-            element.scrollIntoView({ block: "nearest", behavior: "smooth" })
+            self.scrollIntoView({ block: "nearest", behavior: "smooth" })
         }
     }
 
 </script>
 
-<div class="main" bind:this={element}>
+<div class="main" bind:this={self}>
     <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
-        <span class="label">{name}</span>
+        {#if name}
+            <span class="label">{name}</span>
+        {:else}
+            {#if limit && limit > -1}
+                <span class="label">{`List (${size} of ${limit})`}</span>
+            {:else}
+                <span class="label">{`List (${size})`}</span>
+            {/if}
+        {/if}
     </button>
 
     {#if open}
