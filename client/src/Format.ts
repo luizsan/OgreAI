@@ -17,15 +17,6 @@ marked.setOptions({
     renderer: marked_renderer,
 })
 
-export const date_options : Intl.DateTimeFormatOptions = {
-    "hour12": false,
-    "year": "numeric",
-    "month": "2-digit",
-    "day": "2-digit",
-    "hour": "2-digit",
-    "minute": "2-digit",
-}
-
 export function parseNames(text : string, user : string, bot : string){
     if(!text) return text;
     text = text.replaceAll("[NAME_IN_MESSAGE_REDACTED]", user)
@@ -38,13 +29,25 @@ export function parseNames(text : string, user : string, bot : string){
 
 export function relativeTime( datetime : Date ){
     const now = new Date();
-    const offset = now.getTimezoneOffset() / 60;
-    const target = new Date(new Date(datetime).getTime() + offset * 3600 * 1000 );
+    const target = new Date(datetime);
+    
     const date = target.toLocaleDateString()
     const time = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     const full = `${date} ${time}`
 
-    const difference = now.getTime() - target.getTime();
+    const time_a = new Date(
+        now.getFullYear(), 
+        now.getMonth(), 
+        now.getDate()
+    ).getTime()
+
+    const time_b = new Date(
+        target.getFullYear(), 
+        target.getMonth(), 
+        target.getDate()
+    ).getTime()
+
+    const difference = Math.abs(time_a - time_b);
     const seconds = Math.floor(difference / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
