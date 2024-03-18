@@ -15,7 +15,7 @@
     $: author = last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
 
     function getFormattedDate(timestamp : number) : string{
-        return new Date(timestamp).toLocaleString("ja-JP", Format.date_options)
+        return new Date(timestamp).toLocaleString()
     }
 
     async function selectHistory(){
