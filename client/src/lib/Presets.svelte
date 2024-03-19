@@ -30,7 +30,7 @@
 
 
 <div class="content wide">
-    <Accordion name="API Authentication">
+    <Accordion name="API Authentication" bind:size={$currentPresets.api_auth.length} showSize={true}>
         {#each $currentPresets.api_auth as item, i}
             <div class="preset" on:change={() => Server.request("/save_presets", { type: "api_auth", data: $currentPresets.api_auth })}>
                 <div class="controls">
@@ -48,7 +48,7 @@
     </Accordion>
     
     {#each prompt_categories as category}
-        <Accordion name={category.label}>
+        <Accordion name={category.label} bind:size={$currentPresets[category.key].length} showSize={true}>
             {#each $currentPresets[category.key] as item, i}
                 <div class="preset" on:change={() => Server.request("/save_presets", { type: category.key, data: $currentPresets[category.key] })}>
                     <div class="controls">

@@ -5,7 +5,10 @@
     export let open : boolean = false;
     export let size : number = 0
     export let limit : number = undefined
+    export let showSize : boolean = false;
 
+    $: label = `${name ? name : "List"}`;
+    
     let self : HTMLElement;
 
     function Toggle(){ 
@@ -22,13 +25,13 @@
 
 <div class="main" bind:this={self}>
     <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
-        {#if name}
-            <span class="label">{name}</span>
-        {:else}
+        <span class="label deselect">{label}</span>
+
+        {#if showSize}
             {#if limit && limit > -1}
-                <span class="label">{`List (${size} of ${limit})`}</span>
+                <span class="size deselect">{`(${size} of ${limit})`}</span>
             {:else}
-                <span class="label">{`List (${size})`}</span>
+                <span class="size deselect">{`(${size})`}</span>
             {/if}
         {/if}
     </button>
@@ -47,7 +50,10 @@
 
     .label{
         text-align: left;
-        width: 100%;
+    }
+
+    .size{
+        opacity: 0.33;
     }
 
     .accordion{

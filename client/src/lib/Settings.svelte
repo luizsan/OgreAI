@@ -124,7 +124,7 @@
                 {:else if entry.type == "list"}
                     <div class="section">
                     <Heading title={entry.title} description={entry.description}/>
-                    <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit}>
+                    <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
                         {#each $currentSettingsAPI[key] as item, i}
                             <div class="section horizontal preset">
                                 <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
