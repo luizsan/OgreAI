@@ -134,7 +134,13 @@
 
     async function CopyMessage(){
         SetPostActions(false)
-        await navigator.clipboard.writeText(current.text)
+        navigator.clipboard.writeText(current.text).then(function(){
+            alert('Text copied to clipboard!');
+        }).catch(function(err) {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy text to clipboard.\n' + err);
+        });
+
     }
 
     export function DeleteCandidate(){
@@ -316,7 +322,9 @@
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
                         {#if postActions}
                         <div class="actions">
-                            <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
+                            {#if navigator.clipboard}
+                                <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
+                            {/if}
                             <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
                             {#if id > 0}
                                 <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
@@ -426,7 +434,7 @@
         font-size: 0.8em;
         color: gray;
     }
-    
+
     .text :global(p){
         margin-bottom: 1em;
     }
@@ -487,7 +495,6 @@
         display: flex;
         flex-direction: row-reverse;
         justify-content: space-between;
-        
     }
     
     .msg:hover .extras, .msg:hover .swipes, .msg:hover .dots{
