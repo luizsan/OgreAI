@@ -32,7 +32,7 @@ class OpenAI{
         temperature: {
             title: "Temperature",
             description: "Randomness of sampling. Higher values can increase creativity, but make the output less meaningful. As the temperature approaches zero, the model will become deterministic and repetitive.",
-            type: "range", default: 0.5, min: 0, max: 2, step: 0.01,
+            type: "range", default: 0.5, min: 0, max: 1, step: 0.01,
         },
         
         frequency_penalty: {
