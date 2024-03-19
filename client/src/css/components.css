@@ -87,7 +87,11 @@ input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea
     transition-timing-function: ease;
 }
 
-input[type="text"], textarea.component{
+input[type="text"].component, input[type="number"].component, textarea.component{
+    min-height: 30px;
+}
+
+input[type="text"].component, textarea.component{
     font-size: 0.9em;
 }
 
@@ -96,6 +100,10 @@ textarea.component{
     overflow-x: hidden;
     overflow-y: scroll;
     resize: vertical;
+}
+
+input[type="checkbox"].component{
+    align-self: center;
 }
 
 select.component, input[type="checkbox"].component, input[type="radio"].component{
