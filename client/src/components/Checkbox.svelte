@@ -22,7 +22,11 @@
         gap: 16px;
     }
 
-    .toggle input[type="checkbox"]{
-        translate: 0px 4px;
+    label{
+        display: flex;
+    }
+
+    input[type="checkbox"]{
+        align-self: center;
     }
 </style>
