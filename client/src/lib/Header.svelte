@@ -55,6 +55,7 @@
         height: 100%;
         justify-content: center;
         width: 100%;
+        padding: 0px;
     }
 
     button :global(svg){
