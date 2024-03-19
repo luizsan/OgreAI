@@ -44,9 +44,19 @@
         }
     }
 
+    const confirmationMessage = 'Are you sure you want to leave this page?';
+
+    function confirmExit(e : BeforeUnloadEvent){
+        if(!$currentChat) return;
+        
+        e.preventDefault();
+        e.returnValue = "";
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
 </script>
 
-<svelte:window on:resize={Theme.updateRatio}/>
+<svelte:window on:resize={Theme.updateRatio} on:beforeunload={confirmExit}/>
 
 {#if $connected }
     <div class="fullscreen" use:swipe={{ timeframe: 300, minSwipeDistance: 100, touchAction: 'pan-y' }} on:swipe={swipeHandler} style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
