@@ -6,11 +6,12 @@
     export let value : boolean = false;
     export let title : string = "";
     export let description : string = "";
+    export let disabled = () => false;
 </script>
 
 <div class="toggle wide vertical">
     <label>
-        <input type="checkbox" class="component" bind:checked={value}>
+        <input type="checkbox" class="component" class:disabled={disabled()} disabled={disabled()} bind:checked={value}>
     </label>
     <Heading title={title} description={description}/>
 </div>
