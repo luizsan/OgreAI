@@ -71,6 +71,12 @@ class Anthropic{
             type: "checkbox", default: true,
         },
         
+        continue_message: {
+            title: "Continue Message",
+            description: "What to automatically send as a padding message when the last message in chat isn't from the user. Defaults to '(continue)' if empty.",
+            type: "text", default: "",
+        },
+
         stop_sequences: {
             title: "Stop Sequences",
             description: "Sequences that will cause the model to stop generating completion text.",
@@ -112,10 +118,35 @@ class Anthropic{
     static makePrompt( character, messages, user, settings, offset = 0 ){
         let list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
         list[0].role = "user"
-        if( list[1].role === "user"){
-            list.splice(1, 1)
-        }
         // list = list.filter(message => message.role && message.role !== "system")
+        list = Utils.mergeMessages(list)
+
+        const last = list.at(-1)
+
+        if( last.role === "assistant" ){
+            let prefill_prompt = Utils.getPrefillPrompt( settings )
+            let prefill_enabled = Utils.getFieldEnabled("prefill_prompt", settings )
+
+            let sub_prompt = Utils.getSubPrompt( character, settings )
+            let sub_enabled = Utils.getFieldEnabled("sub_prompt", settings )
+            
+            if( prefill_enabled && prefill_prompt ){
+                prefill_prompt = Utils.parseNames( prefill_prompt, user, character.data.name )
+                last.content = last.content.replaceAll(prefill_prompt, "")
+            }
+
+            let pad = { role: "user", content: settings.continue_message ? settings.continue_message : "(continue)" }
+            if( sub_enabled && sub_prompt ){
+                sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
+                pad.content += "\n" + sub_prompt
+            }
+
+            list.push(pad)
+
+            if( prefill_enabled && prefill_prompt ){
+                list.push({ role: "assistant", content: prefill_prompt })
+            }
+        }
         return list
     }
 

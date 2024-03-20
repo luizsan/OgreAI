@@ -8,18 +8,18 @@ export function parseNames(text, user, bot){
     return text
 }
 
-function getPromptField( key, settings ){
+export function getPromptField( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
     return item && item.content ? item.content : ""
 }
 
-function getFieldEnabled( key, settings ){
+export function getFieldEnabled( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
     if( item === undefined ) return undefined
     return item && item.enabled
 }
 
-function getMainPrompt( character, settings ){
+export function getMainPrompt( character, settings ){
     let result = getPromptField( "base_prompt", settings )
     if( character.data.system_prompt ){
         const override = character.data.system_prompt.replaceAll(/{{original}}/gmi, result)
@@ -29,7 +29,7 @@ function getMainPrompt( character, settings ){
     return result
 }
 
-function getSubPrompt( character, settings ){
+export function getSubPrompt( character, settings ){
     let result = getPromptField( "sub_prompt", settings )
     if( character.data.post_history_instructions ){
         const override = character.data.post_history_instructions.replaceAll(/{{original}}/gmi, result)
@@ -39,17 +39,17 @@ function getSubPrompt( character, settings ){
     return result
 }
 
-function getPrefillPrompt( _, settings ){
+export function getPrefillPrompt( settings ){
     let result = getPromptField( "prefill_prompt", settings )
     result = result.trim()
     return result
 }
 
-function getPersona( user ){
+export function getPersona( user ){
     return user.persona ?? ""
 }
 
-function getCharacterProperty( key, character, settings ){
+export function getCharacterProperty( key, character, settings ){
     let result = ""
     if( character.data[key] ){
         let prompt = getPromptField( key, settings )
@@ -104,7 +104,7 @@ export function makePrompt( tokenizer, character, messages, user, settings, offs
     sub_prompt = parseNames( sub_prompt, user, character.data.name )
     sub_prompt = sub_prompt.length > 0 ? "\n\n" + sub_prompt : ""
 
-    let prefill_prompt = getPrefillPrompt( character, settings )
+    let prefill_prompt = getPrefillPrompt( settings )
     prefill_prompt = parseNames( prefill_prompt, user, character.data.name )
     prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
@@ -179,11 +179,23 @@ export function messagesToString(messages, character, user, settings, separator 
     return str;
 }
 
+export function mergeMessages(messages) {
+    const merged = [];
+    messages.forEach((msg, index) => {
+        if (index === 0 || msg.role !== messages[index-1].role){
+            merged.push(msg);
+        } else {
+            merged[merged.length-1].content += "\n" + msg.content;
+        }
+    });
+    return merged;
+}
+
 export function getTokenConsumption( tokenizer, character, user, settings ){
     let _system = getMainPrompt( character, settings );
     const persona = getPersona( character, settings )
     const prompt_sub = getSubPrompt( character, settings );
-    const prompt_prefill = getPrefillPrompt( character, settings );
+    const prompt_prefill = getPrefillPrompt( settings );
 
     if( persona ){
         _system += "\n\n" + persona
