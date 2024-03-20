@@ -2,9 +2,9 @@
     import { sectionSettings, currentSettingsMain, currentSettingsAPI, tabSettings } from "../State";
     import Screen from "../components/Screen.svelte";
     import Footer from "../components/Footer.svelte";
-
     import Settings from "./Settings.svelte";
     import Prompt from "./Prompt.svelte";
+    import Lorebooks from "./Lorebooks.svelte";
     import Presets from "./Presets.svelte";
     import Formatting from "./Formatting.svelte";
     import User from "./User.svelte";
@@ -21,6 +21,11 @@
             title: "Prompt", 
             description: "Build the chat prompt for the current API mode.",
             icon: SVG.prompt, disabled: false 
+        },
+        {
+            title: "Lorebooks",
+            description: "Manage lorebooks.",
+            icon: SVG.book, disabled : false
         },
         {   
             title: "Presets", 
@@ -65,12 +70,14 @@
                 {:else if $tabSettings == 1}
                     <Prompt/>
                 {:else if $tabSettings == 2}
-                    <Presets/>
+                    <Lorebooks/>
                 {:else if $tabSettings == 3}
-                    <Formatting/>
+                    <Presets/>
                 {:else if $tabSettings == 4}
-                    <User/>
+                    <Formatting/>
                 {:else if $tabSettings == 5}
+                    <User/>
+                {:else if $tabSettings == 6}
                     <Customization/>
                 {/if}
             </div>

@@ -29,14 +29,19 @@ export const availableAPIModes = writable( [] )
 export const defaultSettingsAPI = writable( null )
 export const defaultPrompt = writable( null )
 
-// logic
+// storage
 export const currentSettingsMain = writable( null )
 export const currentSettingsAPI = writable( null )
 export const currentPresets = writable( null )
 export const currentProfile = writable( null )
+export const currentLorebooks = writable( [] )
+
+// logic
 export const currentCharacter = writable( null )
 export const currentCreate = writable( null )
 export const currentChat = writable( null )
+
+// customization
 export const currentTheme = writable( "" )
 export const currentPreferences = writable( {} )
 

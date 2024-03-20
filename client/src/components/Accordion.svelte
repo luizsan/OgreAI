@@ -1,6 +1,9 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { slide } from "svelte/transition";
 
+    const dispatch = createEventDispatcher();
+    
     export let name : string = "";
     export let open : boolean = false;
     export let size : number = 0
@@ -13,6 +16,7 @@
 
     function Toggle(){ 
         open = !open;
+        dispatch(open ? "open" : "close")
     }
 
     function Scroll(){
