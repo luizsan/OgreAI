@@ -26,7 +26,7 @@
                 </div>
                 <div class="fields" class:disabled={!rep.enabled}>
                     <input type="text" class="component wide" placeholder="Pattern" bind:value={rep.pattern} style="flex: 1 1 auto">
-                    <div class="separator normal">{@html SVG.arrow}</div>
+                    <div class="separator normal disabled">{@html SVG.arrow}</div>
                     <input type="text" class="component wide" placeholder="Replacement" bind:value={rep.replacement} style="flex: 1 1 auto">
                 </div>
                 <div class="controls">
@@ -84,12 +84,9 @@
 
     .separator :global(svg){
         transform: scaleX(-1);
-        translate: 0px -2px;
-    }
-
-    .component :global(svg){
-        width: 16px;
-        height: 16px;
+        translate: 1px 0px;
+        width: 100%;
+        height: 100%;
     }
 
 </style>

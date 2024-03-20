@@ -61,7 +61,5 @@
 
     .sub :global(svg){
         translate: 0px 1px;
-        width: 18px;
-        height: 18px;
     }
 </style>

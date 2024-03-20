@@ -278,11 +278,6 @@
         color: gray;
     }
 
-    .icon :global(svg), .cancel :global(svg){
-        width: 16px;
-        height: 16px;
-    }
-
     .cancel{
         display: flex;
         align-items: center;

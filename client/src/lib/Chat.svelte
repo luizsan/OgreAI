@@ -545,13 +545,6 @@
         width: 100%;
     }
 
-    .options-item :global(svg){
-        min-width: 16px;
-        min-height: 16px;
-        width: 16px;
-        height: 16px;
-    }
-
     .options-item:hover{
         background-color: hsl(0, 0%, 20%);
     }

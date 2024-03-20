@@ -42,3 +42,8 @@ button {
     font-family: var( --default-font-face );
     width: fit-content;
 }
+
+svg{
+    width: 16px;
+    height: 16px;
+}

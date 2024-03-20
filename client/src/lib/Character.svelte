@@ -168,8 +168,6 @@
     
     .favorite :global(svg){
         margin-top: 2px;
-        width: 16px;
-        height: 16px;
     }
 
 

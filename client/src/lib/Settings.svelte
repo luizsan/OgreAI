@@ -172,10 +172,4 @@
     .preset .component{
         padding: 6px;
     }
-
-    .component :global(svg){
-        width: 16px;
-        height: 16px;
-    }
-
 </style>

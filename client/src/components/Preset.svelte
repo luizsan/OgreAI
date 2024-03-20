@@ -164,11 +164,6 @@
         align-items: center;
         padding: 4px 16px;
     }
-
-    .controls button :global(svg){
-        width: 16px;
-        height: 16px;
-    }
     
     .controls button.disabled{
         opacity: 0.25;
