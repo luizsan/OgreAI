@@ -74,7 +74,7 @@ class Anthropic{
         continue_message: {
             title: "Continue Message",
             description: "What to automatically send as a padding message when the last message in chat isn't from the user. Defaults to '(continue)' if empty.",
-            type: "text", default: "",
+            type: "text", default: "", placeholder: "(continue)",
         },
 
         stop_sequences: {
