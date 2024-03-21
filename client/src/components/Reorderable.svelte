@@ -3,7 +3,6 @@
 
     export let list : Array<any> = []
     export let defaults : object = {}
-    export let presets : object = {}
     export let update = (v: any) => {}
 
     // reorderable
@@ -118,14 +117,6 @@
         list = list
         update(list)
     }
-
-    function getPresetsForKey(key: string){
-        if( !defaults[key] || !presets[key] ){
-            return []
-        }
-        return presets[key]
-    }
-
 </script>
 
 
