@@ -1,14 +1,17 @@
 <script>
     import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, currentPresets, availableAPIModes, fetching } from "../State";
-    import Auth from "../components/Auth.svelte";
     import Accordion from "../components/Accordion.svelte";
-    import Status from "../components/Status.svelte";
-    import Slider from "../components/Slider.svelte";
+    import Auth from "../components/Auth.svelte";
     import Checkbox from "../components/Checkbox.svelte";
     import Dropdown from "../components/Dropdown.svelte";
     import Heading from "../components/Heading.svelte";
+    import Loading from "../components/Loading.svelte";
+    import Slider from "../components/Slider.svelte";
+    import Status from "../components/Status.svelte";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
+
+    let loading = false;
 
     async function getSettings(){
         $fetching = true;
@@ -53,98 +56,103 @@
 </script>
 
 
-<div class="content wide">
-    <div class="section" on:change={ async () => { 
+<div class="content wide" class:disabled={loading}>
+    <div class="section" class:loading={loading} on:change={ async () => {
+        loading = true;
         await getSettings()
         await saveSettings()
+        loading = false;
     }}>
         <Dropdown bind:value={$currentSettingsMain.api_mode} choices={$availableAPIModes} title="API Mode"/>
     </div>
 
-    <div class="section" on:change={saveSettings}>
-        <div class="title"><div class="inline">API Target <Status/></div></div>
-        <div class="setting">
-            <div class="section vertical">
-                <Auth
-                    bind:elements={$currentPresets.api_auth}
-                    bind:url={$currentSettingsAPI.api_url}
-                    bind:auth={$currentSettingsAPI.api_auth}
-                />
-                <button class="component normal" on:click|preventDefault={Server.getAPIStatus}>Check Status</button>
+    {#if loading}
+        <div class="center">
+            <Loading width={24} height={24}/>
+        </div>
+    {:else}
+        <div class="section" on:change={saveSettings}>
+            <div class="title"><div class="inline">API Target <Status/></div></div>
+            <div class="setting">
+                <div class="section vertical">
+                    <Auth
+                        bind:elements={$currentPresets.api_auth}
+                        bind:url={$currentSettingsAPI.api_url}
+                        bind:auth={$currentSettingsAPI.api_auth}
+                    />
+                    <button class="component normal" on:click|preventDefault={Server.getAPIStatus}>Check Status</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    {#each Object.entries($defaultSettingsAPI) as [key, entry]}
+        {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
-    <div class="section" on:change={saveSettings}>
+        <div class="section" on:change={saveSettings}>
 
-        <div class="setting vertical">
+            <div class="setting vertical">
 
-            {#if $currentSettingsAPI[key] !== undefined }
+                {#if $currentSettingsAPI[key] !== undefined }
 
-                {#if entry.type == "text"}
-                    <div class="section">
+                    {#if entry.type == "text"}
+                        <div class="section">
+                            <Heading title={entry.title} description={entry.description}/>
+                            <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
+                        </div>  
+
+                    {:else if entry.type == "textarea"}
+                        <div class="section">
+                            <Heading title={entry.title} description={entry.description}/>
+                            <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
+                        </div>
+
+                    {:else if entry.type == "select"}
+                        <Dropdown 
+                            bind:value={$currentSettingsAPI[key]} 
+                            choices={entry.choices} 
+                            editable={key == "model"} 
+                            title={entry.title} 
+                            description={entry.description}
+                        />
+
+                    {:else if entry.type == "range"}
+                        <Slider 
+                            bind:value={$currentSettingsAPI[key]} 
+                            original={entry.default} 
+                            min={entry.min} 
+                            max={entry.max} 
+                            step={entry.step} 
+                            title={entry.title} 
+                            description={entry.description}
+                        />
+                    {:else if entry.type == "checkbox"}
+                        <Checkbox 
+                            bind:value={$currentSettingsAPI[key]} 
+                            title={entry.title} 
+                            description={entry.description}
+                        />
+
+                    {:else if entry.type == "list"}
+                        <div class="section">
                         <Heading title={entry.title} description={entry.description}/>
-                        <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
-                    </div>  
+                        <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
+                            {#each $currentSettingsAPI[key] as item, i}
+                                <div class="section horizontal preset">
+                                    <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
+                                    <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
+                                </div>
+                            {/each}
+                            <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
+                        </Accordion>
+                        </div>
+                    {/if}
 
-                {:else if entry.type == "textarea"}
-                    <div class="section">
-                        <Heading title={entry.title} description={entry.description}/>
-                        <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
-                    </div>
-
-                {:else if entry.type == "select"}
-                    <Dropdown 
-                        bind:value={$currentSettingsAPI[key]} 
-                        choices={entry.choices} 
-                        editable={key == "model"} 
-                        title={entry.title} 
-                        description={entry.description}
-                    />
-
-                {:else if entry.type == "range"}
-                    <Slider 
-                        bind:value={$currentSettingsAPI[key]} 
-                        original={entry.default} 
-                        min={entry.min} 
-                        max={entry.max} 
-                        step={entry.step} 
-                        title={entry.title} 
-                        description={entry.description}
-                    />
-                {:else if entry.type == "checkbox"}
-                    <Checkbox 
-                        bind:value={$currentSettingsAPI[key]} 
-                        title={entry.title} 
-                        description={entry.description}
-                    />
-
-                {:else if entry.type == "list"}
-                    <div class="section">
-                    <Heading title={entry.title} description={entry.description}/>
-                    <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
-                        {#each $currentSettingsAPI[key] as item, i}
-                            <div class="section horizontal preset">
-                                <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
-                                <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
-                            </div>
-                        {/each}
-                        <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
-                    </Accordion>
-                    </div>
                 {/if}
-
-            {/if}
-            
+                
+            </div>
         </div>
-    </div>
-
-    {/each}
-
+        {/each}
+    {/if}
 </div>
-
 
 <style>
     .inline{
@@ -157,6 +165,10 @@
         flex-direction: column;
         gap: 32px;
         box-sizing: border-box;
+    }
+
+    .loading{
+        opacity: 0.25;
     }
 
     .setting{
