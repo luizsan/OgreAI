@@ -126,7 +126,8 @@ button.component{
     border-radius: 3px;
     transition-duration: all 0.125s;
     display: flex;
-    align-items: center;
+    place-items: center;
+    place-content: center;
     min-height: 30px;
     gap: 4px;
 }

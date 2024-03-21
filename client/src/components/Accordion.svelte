@@ -64,6 +64,7 @@
         padding: 16px 16px;
         max-height: 32px;
         box-shadow: 0px 4px 8px 0px #00000030;
+        place-content: flex-start;
     }
 
     .accordion:before{
