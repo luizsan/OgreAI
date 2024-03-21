@@ -119,34 +119,28 @@ class Anthropic{
         let list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
         list[0].role = "user"
         // list = list.filter(message => message.role && message.role !== "system")
-        list = Utils.mergeMessages(list)
 
         const last = list.at(-1)
+        const penultimate = list.at(-2)
+        const insert_continue = last.role === penultimate.role && last.role === "assistant"
 
-        if( last.role === "assistant" ){
-            let prefill_prompt = Utils.getPrefillPrompt( settings )
-            let prefill_enabled = Utils.getFieldEnabled("prefill_prompt", settings )
-
+        if( insert_continue ){
             let sub_prompt = Utils.getSubPrompt( character, settings )
             let sub_enabled = Utils.getFieldEnabled("sub_prompt", settings )
-            
-            if( prefill_enabled && prefill_prompt ){
-                prefill_prompt = Utils.parseNames( prefill_prompt, user, character.data.name )
-                last.content = last.content.replaceAll(prefill_prompt, "")
+            let pad = { 
+                role: "user", 
+                content: settings.continue_message ? settings.continue_message : "(continue)" 
             }
 
-            let pad = { role: "user", content: settings.continue_message ? settings.continue_message : "(continue)" }
             if( sub_enabled && sub_prompt ){
                 sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
                 pad.content += "\n" + sub_prompt
             }
 
-            list.push(pad)
-
-            if( prefill_enabled && prefill_prompt ){
-                list.push({ role: "assistant", content: prefill_prompt })
-            }
+            list.splice(-1, 0, pad)
         }
+
+        list = Utils.mergeMessages(list)
         return list
     }
 
