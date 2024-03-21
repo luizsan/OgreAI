@@ -96,13 +96,13 @@
                     {#if entry.type == "text"}
                         <div class="section">
                             <Heading title={entry.title} description={entry.description}/>
-                            <input type="text" class="component" bind:value={$currentSettingsAPI[key]}>
+                            <input type="text" class="component" placeholder={entry.placeholder} bind:value={$currentSettingsAPI[key]}>
                         </div>  
 
                     {:else if entry.type == "textarea"}
                         <div class="section">
                             <Heading title={entry.title} description={entry.description}/>
-                            <textarea class="component wide" rows={8} bind:value={$currentSettingsAPI[key]}></textarea>
+                            <textarea class="component wide" rows={8} placeholder={entry.placeholder} bind:value={$currentSettingsAPI[key]}></textarea>
                         </div>
 
                     {:else if entry.type == "select"}
