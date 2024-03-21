@@ -2,8 +2,8 @@
     import { localServer, currentCharacter, currentPreferences } from "../State";
 
     $: vertical = $currentPreferences["vertical_background"] ?? true;
-    $: coverage = ($currentPreferences["background_coverage"] ?? 0.5) * 100;
-    $: opacity = $currentPreferences["background_opacity"] ?? 0.1;
+    $: coverage = ($currentPreferences["background_coverage"] ?? 50);
+    $: opacity = ($currentPreferences["background_opacity"] ?? 10) * 0.01;
 
     $: width = vertical ? "100%" : `${coverage}%`;
     $: height = vertical ? `${coverage}%` : "100%"
