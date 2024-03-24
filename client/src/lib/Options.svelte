@@ -10,6 +10,7 @@
     import User from "./User.svelte";
     import Customization from "./Customization.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
+    import { onMount } from "svelte";
 
     const tab_items = {
         settings: {   
@@ -49,6 +50,12 @@
         }
     }
 
+    onMount(() =>{
+        if(!$tabSettings){
+            $tabSettings = Object.keys(tab_items)[0]
+        }
+    })
+
     function setTab(s : string = ""){
         $tabSettings = s;
     }
@@ -77,6 +84,8 @@
                     <User/>
                 {:else if $tabSettings == "customization"}
                     <Customization/>
+                {:else}
+                    <Settings/>
                 {/if}
             </div>
             
