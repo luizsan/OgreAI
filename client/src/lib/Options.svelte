@@ -11,46 +11,46 @@
     import Customization from "./Customization.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
-    const tab_items = [
-        {   
+    const tab_items = {
+        settings: {   
             title: "Settings", 
             description: "Change API, connection and related settings.",
             icon: SVG.sliders, disabled: false 
         },
-        {   
+        prompt: {   
             title: "Prompt", 
             description: "Build the chat prompt for the current API mode.",
             icon: SVG.prompt, disabled: false 
         },
-        {
+        lorebooks: {
             title: "Lorebooks",
             description: "Manage lorebooks.",
             icon: SVG.book, disabled : false
         },
-        {   
+        presets: {   
             title: "Presets", 
             description: "Manage predefined settings to use across different API modes.",
-            icon: SVG.saved, disabled: false 
+            icon: SVG.saved, disabled: true 
         },
-        {   
+        formatting: {   
             title: "Formatting", 
             description: "Use regex to automatically format text when receiving replies.",
             icon: SVG.formatting, disabled: false 
         },
-        {   
+        user: {   
             title: "User", 
             description: "Customize the user's profile and preferences.",
             icon: SVG.user, disabled: false 
         },
-        {
+        customization: {
             title: "Customization",
             description: "Customize interface and visual preferences",
             icon: SVG.palette, disabled: false 
         }
-    ]
+    }
 
-    function setTab(id = -1){
-        $tabSettings = id;
+    function setTab(s : string = ""){
+        $tabSettings = s;
     }
 
 </script>
@@ -65,19 +65,17 @@
             </div>
 
             <div class="mid">
-                {#if $tabSettings == 0}
+                {#if $tabSettings == "settings"}
                     <Settings/>
-                {:else if $tabSettings == 1}
+                {:else if $tabSettings == "prompt"}
                     <Prompt/>
-                {:else if $tabSettings == 2}
+                {:else if $tabSettings == "lorebooks"}
                     <Lorebooks/>
-                {:else if $tabSettings == 3}
-                    <Presets/>
-                {:else if $tabSettings == 4}
+                {:else if $tabSettings == "formatting"}
                     <Formatting/>
-                {:else if $tabSettings == 5}
+                {:else if $tabSettings == "user"}
                     <User/>
-                {:else if $tabSettings == 6}
+                {:else if $tabSettings == "customization"}
                     <Customization/>
                 {/if}
             </div>
@@ -88,15 +86,16 @@
         </div>
 
         <div class="side section wrap">
-            {#each tab_items as item, i}
-                <button 
-                    class="tab accent"
-                    class:active={i == $tabSettings}
-                    class:disabled={i == $tabSettings} 
-                    disabled={item.disabled || i == $tabSettings} 
-                    on:click={() => setTab(i)}>{@html item.icon}
-                    <!-- {item.name} -->
-                </button>
+            {#each Object.keys(tab_items) as key}
+                {#if !tab_items[key].disabled}
+                    <button 
+                        class="tab accent"
+                        class:active={key == $tabSettings}
+                        class:disabled={key == $tabSettings} 
+                        disabled={tab_items[key].disabled || key == $tabSettings} 
+                        on:click={() => setTab(key)}>{@html tab_items[key].icon}
+                    </button>
+                {/if}
             {/each}
         </div>
 
