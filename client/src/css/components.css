@@ -9,7 +9,7 @@
     --scrollbar-bg: var( --component-bg-normal )
 }
 
-.component:focus, .component:focus-within, .component:focus-within *:is(input, select){
+.component:focus, .component:focus-within, .component:focus-within *:is(.cover, input, select){
     --scrollbar-bg: var( --component-bg-hover );
     background: var( --component-bg-hover );
     color: var( --component-color-hover );
@@ -126,6 +126,7 @@ button.component{
     border-radius: 3px;
     transition-duration: all 0.125s;
     display: flex;
+    white-space: nowrap;
     place-items: center;
     place-content: center;
     min-height: 30px;
@@ -139,7 +140,7 @@ button.component:hover{
 }
 
 .component.container{
-    padding: 2px;
+    padding: 0px;
 }
 
 .component.container *{
@@ -164,7 +165,7 @@ button.component:hover{
     height: 100%;
 }
 
-.component.dropdown input{
+.component.dropdown input, .component .cover{
     position: absolute;
     padding-right: 4px;
     width: calc( 100% - 22px );
@@ -236,6 +237,10 @@ button.component:hover{
 
 .wrap{
     flex-wrap: wrap;
+}
+
+.grow{
+    flex-grow: 1;
 }
 
 .tabs{

@@ -1,7 +1,7 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
 
-    export let value : any;
+    export let value : any = null;
     export let choices : Array<any>;
     export let editable : boolean = false;
 
@@ -28,3 +28,9 @@
         {/if}
     </div>
 </div>
+
+<style>
+    .container{
+        padding-right: 2px;
+    }
+</style>
