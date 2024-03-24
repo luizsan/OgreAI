@@ -86,7 +86,7 @@
             }
         }else{
             $sectionSettings = true;
-            $tabSettings = 3; // user
+            $tabSettings = "user"
         }
     }
     
