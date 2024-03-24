@@ -36,7 +36,6 @@
     }
     
     onMount(filterTags);
-    console.log(choices)
 </script>
 
 
