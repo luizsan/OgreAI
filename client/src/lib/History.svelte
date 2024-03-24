@@ -30,7 +30,7 @@
             $fetching = true;
             await Server.request("/delete_chat", { 
                 character: $currentCharacter, 
-                create_date: chat.create_date 
+                chat: chat,
             })
 
             await Server.getChats( $currentCharacter )

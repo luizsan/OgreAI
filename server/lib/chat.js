@@ -194,11 +194,9 @@ export default class Chat{
 
     }
 
-    static Delete( character, create_date ){
+    static Delete( chat ){
         try{
-            let filename = create_date + ".json";
-            let folder =  path.join(Chat.path, path.parse( character.temp.filepath ).name )
-            let target = path.join(folder, filename)
+            let target =  path.join( ".", chat.filepath )
             unlinkSync(target)
             return true
         }catch(error){
