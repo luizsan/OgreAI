@@ -17,6 +17,7 @@ import Profile from "./lib/profile.js"
 import Settings from "./lib/settings.js"
 import Presets from "./lib/presets.js"
 import Prompt from "./lib/prompt.js"
+import Lorebook from "./lib/lorebook.js"
 
 
 const __dirname = path.resolve("./")
@@ -215,12 +216,12 @@ app.post("/copy_chat", parser, function(request, response){
 })
 
 app.post("/delete_chat", parser, function(request, response){
-    let result = Chat.Delete( request.body.character, request.body.create_date )
+    let result = Chat.Delete( request.body.chat )
     response.send( result )
 })
 
 app.get("/new_character", parser, function(request, response){
-    response.send(new Character())    
+    response.send(new Character())
 })
 
 app.post("/save_character", upload.single("file"), function(request, response){
@@ -257,6 +258,34 @@ app.post("/delete_character", parser, function(request, response){
         console.error( chalk.red( error ))
         response.send( false )
     }
+})
+
+app.get("/get_lorebooks", parser, function(_, response){
+    response.send( Lorebook.GetAllLorebooks() )
+})
+
+app.post("/save_lorebook", parser, function(request, response){
+    if( !request.body || !request.body.book ){
+        response.status(500).send( false )
+    }else{
+        let book = request.body.book
+        const success = Lorebook.Save( book )
+        if( success ){
+            response.status(200).send( true )
+            return
+        }
+    }
+    response.status(500).send( false )
+})
+
+app.post("/delete_lorebook", parser, function(request, response){
+    if(!request.body || !request.body.book ){
+        response.status(500).send(false)
+    }else{
+        response.send( Lorebook.Delete(request.body.book ))
+        return
+    }
+    response.status(500).send(false)
 })
 
 app.get("/get_api_modes", parser, async function(_, response){
@@ -306,8 +335,7 @@ app.post("/generate", parser, async function(request, response){
                     response.end()
                     console.debug( chalk.blue("Finished message stream"))
                 }catch(error){
-                    console.error( chalk.red("Error in message stream:"))
-                    console.error( chalk.red(error))
+                    console.error( chalk.red("Error in message stream:\n" + error))
                 }
             }else{
                 result.text().then(raw => {
@@ -380,9 +408,4 @@ function ValidateAPIMode(api){
     }
     
     return true;
-}
-
-function IsSubfolder(parent, sub){
-    const relative = path.relative(parent, sub);
-    return !relative.startsWith('..') && !path.isAbsolute(relative);
 }

@@ -4,6 +4,7 @@
     import Accordion from "./Accordion.svelte";
     import Lore from "./Lore.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
+    import * as Server from "../modules/Server.svelte"
 
     export let book : ILorebook = { entries: [] } as ILorebook;
     let editingEntry : ILorebookEntry = null;
@@ -39,13 +40,13 @@
         console.log(`Removed ${i}`)
         console.log(book.entries)
     }
-
 </script>
 
 <div class="content">
+    
     <div class="section">
-        <input type="text" class="component" placeholder="Lorebook name" bind:value={book.name}>
-        <textarea class="component" placeholder="Lorebook description" rows={4} bind:value={book.description}></textarea>
+        <input type="text" class="component" placeholder="Insert lorebook name" bind:value={book.name}>
+        <textarea class="component" placeholder="Insert lorebook description" rows={4} bind:value={book.description}></textarea>
     </div>
 
     <div class="grid">
@@ -107,4 +108,9 @@
         height: 30px;
         flex-wrap: nowrap;
     }
+
+    input[type="number"]{
+        width: 100px;
+    }
+
 </style>

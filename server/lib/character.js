@@ -7,7 +7,6 @@ import PNGextract from 'png-chunks-extract';
 import PNGencode from 'png-chunks-encode';
 
 import * as Tavern from "../import/tavern.js"
-import * as Cards from 'character-card-utils'
 
 export default class Character{
     static path = "../user/characters/"

@@ -1,7 +1,6 @@
 <script context="module" lang="ts">
     import { get } from "svelte/store";
     import * as State from "../State";
-    
     let _heartbeat = null;
 
     export async function request( url : string, json = null ){
@@ -94,7 +93,8 @@
             request( "/get_api_settings", { api_mode: mode }),
             request( "/get_api_defaults", { api_mode: mode }),
             request( "/get_presets", {} ),
-            request( "/get_prompt" )
+            request( "/get_prompt" ),
+            request( "/get_lorebooks" ),
         ]
 
         await Promise.all(post_requests).then(async responses => {
@@ -102,6 +102,7 @@
             State.defaultSettingsAPI.set( responses[1] )
             State.currentPresets.set( responses[2] )
             State.defaultPrompt.set( responses[3] )
+            State.currentLorebooks.set( responses[4] )
             await getAPIStatus()
         }).catch((error) => {
             disconnect()

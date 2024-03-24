@@ -1,6 +1,7 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
     import Accordion from "./Accordion.svelte";
+    import Entry from "./Entry.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
     import Checkbox from "./Checkbox.svelte";
     import { createEventDispatcher } from "svelte";
@@ -16,7 +17,7 @@
         {   
             key: "keys", 
             label: "Primary keys", 
-            enabled: () => true
+            enabled: () => !entry.constant
         },
         {   
             key: "secondary_keys", 
@@ -56,21 +57,18 @@
     {#if open}
         <div class="top">
             <button class="component normal clear back" on:click={toggle}>{@html SVG.arrow}</button>
-            <div>
-                <p class="explanation">Currently editing</p>
-                <p class="title">{entry.name ?? "Lorebook entry"}</p>
-            </div>
+            <Heading title={entry.name ?? "Lorebook entry"} description="Currently editing" reverse={true} scale={1.2}/>
             <button class="component danger remove" on:click={remove}>{@html SVG.trashcan}</button>
         </div>
 
         <div class="section">
             <Heading title="Entry name"/>
-            <input type="text" class="component" placeholder="Entry name" bind:value={entry.name}/>
+            <input type="text" class="component" placeholder="Insert lore name" bind:value={entry.name}/>
         </div>
 
         <div class="section">
             <Heading title="Content" description="Description that will be inserted in the prompt."/>
-            <textarea class="component" rows={8} placeholder="Entry content" bind:value={entry.content}></textarea>
+            <textarea class="component" rows={6} placeholder="Insert lore content" bind:value={entry.content}></textarea>
         </div>
         
         <div class="grid">
@@ -106,20 +104,18 @@
         {/if}
 
         {#each keys_index as index }
-            {#if index.enabled}
+            {#if index.enabled()}
                 {@const target = entry[index.key]}
 
-                <Accordion name={index.label}>
+                <Accordion name={index.label} size={target.length} showSize={true}>
                     {#if target && target.length > 0 }
                         <div class="keys">
                             {#each target as key, i}
-                                <div class="key">
-                                    <button class="component danger remove" on:click={() => removeKeyFrom(target, i)}>{@html SVG.trashcan}</button>
-                                    <input type="text" class="component" placeholder="Insert key" bind:value={key}>
-                                </div>
+                                <Entry bind:value={key} placeholder="Insert key" on:remove={()=> removeKeyFrom(target, i)}/>
                             {/each}
                         </div>
                     {/if}
+
                     <div class="section horizontal">
                         <button class="component normal add" on:click={() => addKeyTo(target) }>{@html SVG.plus}Add key</button>
                         <button class="component danger add" on:click={() => clearKeys(target) }>{@html SVG.close}Clear keys</button>
@@ -176,13 +172,10 @@
         place-items: center;
         place-content: center;
     }
-
+    
     .entry{
         padding: 4px 8px;
-    }
-
-    .title{
-        font-size: 120%;
+        justify-content: flex-start;
     }
 
     .back :global(svg){
@@ -190,7 +183,7 @@
         height: 24px;
     }
 
-    .remove{
+    button.remove{
         width: 100%;
         height: fit-content;
         padding: 0px;
@@ -203,12 +196,6 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 12px 24px;
-    }
-
-    .key{
-        display: grid;
-        grid-template-columns: 32px auto;
-        gap: 8px;
     }
 
 </style>
