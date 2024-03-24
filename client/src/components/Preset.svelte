@@ -15,7 +15,7 @@
 
     let index : number = findEntryByContent(content)
     $: can_apply = elements && index > -1 && content != elements[index].content;
-
+    $: can_delete = elements && index > -1 && content == elements[index].content;
 
     function findEntryByContent(s : string){
         if(!elements) return -1
@@ -75,6 +75,17 @@
             refreshIndex()
         }
     }
+
+    function deletePreset(){
+        const ok = confirm(`Do you really want to delete preset '${elements[index].name}'?\nThis action cannot be undone.`)
+        if( ok ){
+            elements.splice(index, 1)
+            Server.request("/save_presets", { type: key, data: elements })
+            elements = elements
+            index = -1
+            clear()
+        }
+    }
 </script>
 
 
@@ -92,9 +103,13 @@
                 </div>
 
                 <div class="controls">
-                    <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={applyPreset}>{@html SVG.confirm} Apply</button>
+                    {#if can_apply}
+                        <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={applyPreset}>{@html SVG.confirm} Apply</button>
+                    {:else}
+                        <button class="component clear {can_delete ? "danger" : "normal disabled"}" title="Delete preset" disabled={!can_delete} on:click={deletePreset}>{@html SVG.trashcan} Delete</button>
+                    {/if}
                     <button class="component clear info" title="Save current" on:click={savePreset}>{@html SVG.save} Save</button>
-                    <button class="component clear danger" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
+                    <button class="component clear normal" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
                 </div>
             </div>
             
@@ -108,7 +123,9 @@
 
 <style>
     hr{
-        align-self: center;
+        position: absolute;
+        left: 50%;
+        translate: -50% 0px;
         width: calc( 100% - 20px );
         margin: 0px;
         border: none;
@@ -124,13 +141,15 @@
     }
 
     select{
+        padding: 8px 12px;
         height: 32px;
         width: 100%;
+        height: 36px;
     }
 
     textarea{
         margin: 0px;
-        padding: 8px;
+        padding: 8px 12px;
         font-size: 0.9em;
         resize: none;
     }
@@ -159,7 +178,7 @@
     }
 
     .controls button{
-        height: 32px;
+        height: 36px;
         display: flex;
         align-items: center;
         padding: 4px 16px;
