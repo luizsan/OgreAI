@@ -8,6 +8,12 @@ export default class Prompt{
             default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition."
         },
 
+        world_info: {
+            toggleable: true, editable: false,
+            label: "World info",
+            description: "Inserts information from globally enabled lorebooks.",
+        },
+
         description: { 
             toggleable: true, editable: true, 
             label: "Character description",

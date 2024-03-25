@@ -1,6 +1,6 @@
 <script lang="ts">
     import { AutoResize, resize } from "../utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList } from "../State";
+    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList, globalLorebooks } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
@@ -86,6 +86,7 @@
             messages: $currentChat.messages,
             user: $currentProfile.name,
             settings: $currentSettingsAPI,
+            books: $globalLorebooks,
             swipe: swipe,
         }
 
@@ -97,6 +98,7 @@
         }
 
         $busy = true;
+        console.debug( "Request:\n%o", body)
         let streaming = $currentSettingsAPI.stream;
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){

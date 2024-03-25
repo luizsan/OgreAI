@@ -24,6 +24,7 @@ export const chatList = writable( [] )
 export const deleteList = writable( [] )
 export const favoritesList = writable( [] )
 export const availableAPIModes = writable( [] )
+export const globalLorebooks = writable( [] )
 
 // defaults
 export const defaultSettingsAPI = writable( null )

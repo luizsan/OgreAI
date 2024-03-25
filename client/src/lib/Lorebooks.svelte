@@ -1,15 +1,14 @@
 <script lang="ts">
 
+    import { tick } from "svelte";
     import Heading from "../components/Heading.svelte"
     import Book from "../components/Book.svelte"
     import Loading from "../components/Loading.svelte";
-    import Lore from "../components/Lore.svelte"
     import Tags from "../components/Tags.svelte";
-    import * as SVG from "../utils/SVGCollection.svelte"
-    import { currentLorebooks } from "../State"
     import Search from "../components/Search.svelte";
+    import { currentLorebooks, globalLorebooks } from "../State"
+    import * as SVG from "../utils/SVGCollection.svelte"
     import * as Server from "../modules/Server.svelte";
-    import { tick } from "svelte";
 
 
     let editingBook : ILorebook = null;
@@ -77,6 +76,10 @@
         await Server.request("/save_lorebook", { book: editingBook })
     }
 
+    async function saveGlobals(){
+        await Server.request("/save_global_books", { books: $globalLorebooks })
+    } 
+
     function sortLorebooks(a,b){
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
@@ -84,12 +87,12 @@
         if (nameA > nameB) { return 1; }
         return 0;
     }
-
+    
 </script>
 
 <div class="content wide">
     
-    <div class="section">
+    <div class="section" on:change={saveGlobals}>
         <Heading
             title="Global Lorebooks"
             description={`These lorebooks are enabled globally for all chats and will be inserted in the prompt as 'World Info'.`}
@@ -97,6 +100,7 @@
 
         <Tags
             choices={$currentLorebooks}
+            bind:selected={$globalLorebooks}
             placeholder="Add lorebooks..."
             notFound="No lorebooks found matching search criteria"
             display={(v) => v.name}
@@ -153,10 +157,10 @@
                     <div class="books">
                         {#each searchResults as book}
                             <button class="component normal wide book ellipsis" on:click={() => editLorebook(book)}>
-                                <div class="background accent disabled">{@html SVG.book}</div>
+                                <div class="background normal disabled">{@html SVG.book}</div>
                                 <div class="title ellipsis">{book.name}</div>
                                 <div class="description">{book.description ? book.description : "No description"}</div>
-                                <div class="info">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
+                                <div class="info disabled">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
                             </button>
                         {/each}
                     </div>
@@ -258,7 +262,7 @@
 
     .book .background :global(svg){
         position: absolute;
-        right: 8px;
+        right: -4px;
         bottom: -8px;
         width: 72px;
         height: 72px;

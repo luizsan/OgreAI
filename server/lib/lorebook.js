@@ -4,6 +4,7 @@ import chalk from "chalk";
 
 export default class Lorebook{
     static path = "../user/lorebooks/"
+    static global = "../user/settings/books.json"
 
     constructor( name = ""){
         this.name = name

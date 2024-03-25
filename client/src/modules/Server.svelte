@@ -95,6 +95,7 @@
             request( "/get_presets", {} ),
             request( "/get_prompt" ),
             request( "/get_lorebooks" ),
+            request( "/get_global_books" ),
         ]
 
         await Promise.all(post_requests).then(async responses => {
@@ -103,6 +104,7 @@
             State.currentPresets.set( responses[2] )
             State.defaultPrompt.set( responses[3] )
             State.currentLorebooks.set( responses[4] )
+            State.globalLorebooks.set( responses[5] )
             await getAPIStatus()
         }).catch((error) => {
             disconnect()
@@ -154,6 +156,7 @@
             }
 
             console.debug(`Retrieved chats for ${character.data.name}`)
+            State.chatList.set( null )
             State.chatList.set( list )
             
             if( set_latest ){
@@ -168,6 +171,7 @@
                 }else{
                     latest_chat = await request( "/new_chat", { character: character });
                 }
+                State.currentChat.set(null);
                 State.currentChat.set(latest_chat);
                 console.debug(`Applied latest chat for ${character.data.name}`)
             }

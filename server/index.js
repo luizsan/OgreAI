@@ -288,6 +288,28 @@ app.post("/delete_lorebook", parser, function(request, response){
     response.status(500).send(false)
 })
 
+app.post("/save_global_books", parser, function(request, response){
+    if( request.body && request.body.books ){
+        SaveData( Lorebook.global, request.body.books )
+        response.send(true)
+        return
+    }
+    response.status(500).send(false)
+})
+
+app.get("/get_global_books", parser, function(_, response){
+    try{
+        let books = LoadData( Lorebook.global, [])
+        books.forEach(element => {
+            element = Lorebook.Validate(element)
+        });
+        response.status(200).send( books )
+    }catch(error){
+        console.error( chalk.red(error))
+    }
+    response.status(500).send(false)
+})
+
 app.get("/get_api_modes", parser, async function(_, response){
     response.send( API_LIST )
 })
@@ -309,14 +331,18 @@ app.post("/generate", parser, async function(request, response){
     let api = API_MODES[request.body.api_mode]
     if( api && api.generate ){
         
-        let char = request.body.character;
-        let messages = request.body.messages;
-        let user = request.body.user;
-        let settings = request.body.settings;
-        let swipe =  request.body.swipe;
-        let streaming = request.body.settings.stream;
+        const char = request.body.character;
+        const messages = request.body.messages;
+        const user = request.body.user;
+        const settings = request.body.settings;
+        const swipe = request.body.swipe;
+        const streaming = request.body.settings.stream;
+        const books = {
+            character: request.body.character.data.character_book ?? {},
+            global: request.body.books
+        }
 
-        let prompt = api.makePrompt( char, messages, user, settings, swipe ? 1 : 0 )
+        const prompt = api.makePrompt( char, messages, user, books, settings, swipe ? 1 : 0 )
         api.generate( char, prompt, user, settings, swipe ).then(async result => {
             if( streaming ){
                 try{

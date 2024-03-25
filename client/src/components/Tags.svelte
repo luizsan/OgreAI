@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import * as SVG from "../utils/SVGCollection.svelte"
 
+    let self : HTMLElement;
     const numDropdown : number = 5
 
     export let choices : Array<any> = [ "Apples", "Bananas", "Coconuts", "Durians", "Eggplants" ]
@@ -18,7 +19,7 @@
     
     function filterTags() {
         filtered = choices.filter(e => item(e) && item(e).toLowerCase().includes(inputText.toLowerCase()));
-        filtered = filtered.filter(e => !selected.includes(e))
+        filtered = filtered.filter(e => !selected.some((s) => item(e) == item(s)))
     }
     
     function addTag(tag : string) {
@@ -28,18 +29,20 @@
         selected = [...selected, tag];
         // inputText = "";
         filterTags();
+        self.dispatchEvent(new Event("change", { bubbles: true }))
     }
     
     function removeTag(index : number) {
         selected = selected.filter((_, i) => i !== index);
         filterTags()
+        self.dispatchEvent(new Event("change", { bubbles: true }))
     }
     
     onMount(filterTags);
 </script>
 
 
-<div class="section">
+<div class="section" bind:this={self}>
     <div class="component container input">
         <input type="text" class="component borderless wide" bind:value={inputText} on:input={filterTags} placeholder={placeholder}>
 
@@ -84,25 +87,6 @@
         padding: 0px 32px 0px 8px;
         height: 24px;
         border-radius: 3px;
-        cursor: pointer;
-    }
-
-    .candidate{
-        padding: 4px 16px;
-        font-size: 0.9em;
-        justify-content: left;
-        height: 24px;
-        gap: 8px;
-    }
-
-    .candidate :global(svg){
-        min-width: 16px;
-        min-height: 16px;
-    }
-
-    .empty{
-        font-style: italic;
-        color: gray;
     }
     
     .tag button{
@@ -120,6 +104,25 @@
     .tag :global(svg){
         width: 10px;
         height: 10px;
+    }
+
+
+    .candidate{
+        padding: 4px 16px;
+        font-size: 0.9em;
+        justify-content: left;
+        height: 24px;
+        gap: 8px;
+    }
+
+    .candidate :global(svg){
+        min-width: 16px;
+        min-height: 16px;
+    }
+
+    .empty{
+        font-style: italic;
+        color: gray;
     }
 
     .dropdown {

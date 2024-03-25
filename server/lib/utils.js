@@ -68,7 +68,7 @@ export function getCharacterProperty( key, character, settings ){
     return result
 }
 
-export function getSystemPrompt( character, user, settings ){
+export function getSystemPrompt( tokenizer, character, messages, user, books, settings ){
     let list = []
     let result = ""
     const skip = [ "messages", "sub_prompt", "prefill_prompt" ]
@@ -82,6 +82,8 @@ export function getSystemPrompt( character, user, settings ){
             list.push(getMainPrompt(character, settings))
         }else if( item.key === "persona" ){
             list.push(getPersona(user))
+        }else if( item.key === "world_info"){
+            list.push(getAllLoreEntries( tokenizer, books, character, user, messages ))
         }else{
             list.push(getCharacterProperty(item.key, character, settings))
         }
@@ -94,10 +96,10 @@ export function getSystemPrompt( character, user, settings ){
     return result
 }
 
-export function makePrompt( tokenizer, character, messages, user, settings, offset = 0 ){
+export function makePrompt( tokenizer, character, messages, user, books, settings, offset = 0 ){
     let prompt = []
 
-    let system = getSystemPrompt( character, user, settings)
+    let system = getSystemPrompt( tokenizer, character, messages, user, books, settings )
     prompt.push({ role: "system", content: system })
 
     let sub_prompt = getSubPrompt( character, settings )
@@ -189,6 +191,92 @@ export function mergeMessages(messages) {
         }
     });
     return merged;
+}
+
+export function findKeysInMessage(message, keys, case_sensitive = false) {
+    let index = message.index
+    let content = message.candidates[ index ].text
+
+    if( !content ){
+        return false
+    }
+    if (case_sensitive) {
+        return keys.some((key) => content.includes(key));
+    } else {
+        return keys.some((key) => content.toLowerCase().includes(key.toLowerCase()));
+    }
+}
+
+export function matchEntry(entry, message){
+    if( !entry.enabled || !entry.content )
+        return false;
+    if( entry.constant )
+        return true;
+
+    const has_primary_key = findKeysInMessage(message, entry.keys, entry.case_sensitive);
+    const has_secondary_key = findKeysInMessage(message, entry.secondary_keys, entry.case_sensitive);
+
+    if( has_primary_key ){
+        if( entry.selective ){
+            return has_secondary_key;
+        }
+        return true;
+    }
+    return false;
+}
+
+export function getAllLoreEntries(tokenizer, books, character, user, messages) {
+    if( !books || !books.global ){
+        return ""
+    }
+
+    let entries = []
+    books.global.forEach(book => {
+        entries.push( getEntriesFromBook( tokenizer, book, character, user, messages ))
+    })
+    return entries.join("\n")
+}
+
+export function getEntriesFromBook(tokenizer, book, character, user, messages) {
+    const scanned = messages.slice(-book.scan_depth);
+    const entries = [];
+
+    if( !book.entries ){
+        console.warning("Book has no entries!")
+        return ""
+    }
+
+    book.entries.forEach((entry) => {
+        scanned.some((message) => {
+            const match = matchEntry(entry, message)
+            if(match) {
+                entries.push(entry);
+            }
+            return match;
+        });
+    });
+
+    // use parseNames on each entry.content
+    entries.forEach(entry => entry.content = parseNames(entry.content, user, character.data.name));
+
+    // trim entries to fit book.token_budget
+    // entries with lower priority are discarded first
+    let tokens_used = 0;
+    entries.sort((a,b) => b.priority - a.priority);
+    for(let i = 0; i < entries.length; i++){
+        const entry = entries[i];
+        const tokens = tokenizer.getTokens(entry.content).length;
+        if(tokens_used + tokens <= book.token_budget){
+            tokens_used += tokens;
+        }else{
+            entries.splice(i, entries.length - i);
+            break;
+        }
+    }
+
+    // sort entries by insertion order
+    entries.sort((a,b) => a.insertion_order - b.insertion_order);
+    return entries.map((entry) => entry.content).join("\n\n");
 }
 
 export function getTokenConsumption( tokenizer, character, user, settings ){

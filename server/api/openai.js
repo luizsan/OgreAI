@@ -83,8 +83,8 @@ class OpenAI{
     }
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
-    static makePrompt( character, messages, user, settings, offset = 0 ){
-        return Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
+    static makePrompt( character, messages, user, books, settings, offset = 0 ){
+        return Utils.makePrompt( Tokenizer, character, messages, user, books, settings, offset )
     }
 
     // returns an object with the token breakdown for a character

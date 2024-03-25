@@ -10,22 +10,22 @@
     export let url : string = ""
     export let auth : string = ""
 
-    let index : number = findEntryByContent(url)
+    let index : number = findEntryByContent(url, auth)
     $: {
         if( elements ){
             refreshIndex()
         }
     }
-    $: can_apply = elements && index > -1 && url != elements[index].address;
-    $: can_delete = elements && index > -1 && url == elements[index].address;
+    $: can_apply = elements && index > -1 && (url != elements[index].address || auth != elements[index].password);
+    $: can_delete = elements && index > -1 && (url == elements[index].address && auth == elements[index].password);
 
-    function findEntryByContent(s : string){
+    function findEntryByContent(s : string, auth : string){
         if(!elements) return -1
-        return elements.findIndex((item) => item.address == s)
+        return elements.findIndex((item) => item.address == s && item.password == auth)
     }
 
     function refreshIndex(){
-        index = findEntryByContent(url)
+        index = findEntryByContent(url, auth)
     }
 
     function setPreset(i : number){

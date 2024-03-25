@@ -116,8 +116,8 @@ class Anthropic{
         }
     }
 
-    static makePrompt( character, messages, user, settings, offset = 0 ){
-        let list = Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
+    static makePrompt( character, messages, user, books, settings, offset = 0 ){
+        let list = Utils.makePrompt( Tokenizer, character, messages, user, books, settings, offset )
         list[0].role = "user"
         // list = list.filter(message => message.role && message.role !== "system")
 
