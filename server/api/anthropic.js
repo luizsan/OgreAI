@@ -18,6 +18,7 @@ class Anthropic{
             type: "select", default: "claude-v1.2", choices: [
                 "claude-3-opus-20240229",
                 "claude-3-sonnet-20240229",
+                "claude-3-haiku-20240307",
                 "claude-2",
                 "claude-v1",
                 "claude-v1-100k",
