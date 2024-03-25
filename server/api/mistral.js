@@ -14,7 +14,7 @@ class Mistral{
         model: {
             title: "Model",
             description: "ID of the model to use.",
-            type: "select", default: "mistral-small", choices: [ "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest" ]
+            type: "select", default: "mistral-small", choices: [ "open-mistral-7b", "open-mixtral-8x7b", "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest" ]
         },
 
         max_tokens: {
@@ -67,8 +67,8 @@ class Mistral{
     }
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
-    static makePrompt( character, messages, user, settings, offset = 0 ){
-        return Utils.makePrompt( Tokenizer, character, messages, user, settings, offset )
+    static makePrompt( character, messages, user, books, settings, offset = 0 ){
+        return Utils.makePrompt( Tokenizer, character, messages, user, books, settings, offset )
     }
 
     // returns an object with the token breakdown for a character
