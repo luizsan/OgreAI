@@ -182,7 +182,7 @@ class OpenAI{
             }
         }
     
-        const raw_text = this.__message_chunk + incoming_data
+        const raw_text = this.__message_chunk + ( incoming_data.includes(":") ? incoming_data : "")
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
             if(!line){
