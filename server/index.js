@@ -306,8 +306,8 @@ app.get("/get_global_books", parser, function(_, response){
         response.status(200).send( books )
     }catch(error){
         console.error( chalk.red(error))
+        response.status(500).send(false)
     }
-    response.status(500).send(false)
 })
 
 app.get("/get_api_modes", parser, async function(_, response){
@@ -328,28 +328,35 @@ app.get("/get_prompt", parser, function(_, response){
 })
 
 app.post("/generate", parser, async function(request, response){
+    if( !request.body || !request.body.api_mode ){
+        response.status(500).send({})
+    }
+
     let api = API_MODES[request.body.api_mode]
     if( api && api.generate ){
-        
-        const char = request.body.character;
-        const messages = request.body.messages;
-        const user = request.body.user;
-        const settings = request.body.settings;
-        const swipe = request.body.swipe;
-        const streaming = request.body.settings.stream;
-        const books = {
-            character: request.body.character.data.character_book ?? {},
-            global: request.body.books
+        const req = request.body;
+        const content = {
+            character: req.character,
+            chat: req.chat,
+            user: req.user,
+            settings: req.settings,
+            swipe: req.swipe,
+            streaming: req.settings.stream,
+            prompt: null,
+            books: {
+                character: req.character.data.character_book ?? {},
+                global: req.books
+            },
         }
 
-        const prompt = api.makePrompt( char, messages, user, books, settings, swipe ? 1 : 0 )
-        api.generate( char, prompt, user, settings, swipe ).then(async result => {
-            if( streaming ){
+        content.prompt = api.makePrompt( content, content.swipe ? 1 : 0 )
+        api.generate( content ).then(async result => {
+            if( content.streaming ){
                 try{
                     console.debug( chalk.blue("Streaming message..."))
                     const td = new TextDecoder();
                     for await (const message of result.body){
-                        let data = api.receiveStream( td.decode(message), swipe )
+                        let data = api.receiveStream( td.decode(message), content.swipe )
                         if( data && (data?.candidate?.text || data?.streaming?.text || data?.error)){
                             // console.debug( chalk.blue("%o"), data)
                             // the newline at the end is required as sometimes the stream 

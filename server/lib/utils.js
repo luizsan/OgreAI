@@ -10,13 +10,12 @@ export function parseNames(text, user, bot){
 
 export function getPromptField( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
-    return item && item.content ? item.content : ""
+    return item?.content ?? ""
 }
 
 export function getFieldEnabled( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
-    if( item === undefined ) return undefined
-    return item && item.enabled
+    return item?.enabled ?? false
 }
 
 export function getMainPrompt( character, settings ){
@@ -46,7 +45,7 @@ export function getPrefillPrompt( settings ){
 }
 
 export function getPersona( user ){
-    return user.persona ?? ""
+    return user?.persona ?? ""
 }
 
 export function getCharacterProperty( key, character, settings ){
@@ -68,46 +67,60 @@ export function getCharacterProperty( key, character, settings ){
     return result
 }
 
-export function getSystemPrompt( tokenizer, character, messages, user, books, settings ){
+export function getSystemPrompt( tokenizer, content ){
     let list = []
     let result = ""
     const skip = [ "messages", "sub_prompt", "prefill_prompt" ]
 
-    settings.prompt.forEach((item) => {
+    content.settings.prompt.forEach((item) => {
         if( !item.key ) return
         if( skip.includes( item.key )) return
+
+        // non-toggleable items don't carry the enable field
         if( item.enabled !== undefined && item.enabled === false ) return
 
-        if( item.key === "base_prompt" ){
-            list.push(getMainPrompt(character, settings))
-        }else if( item.key === "persona" ){
-            list.push(getPersona(user))
-        }else if( item.key === "world_info"){
-            list.push(getAllLoreEntries( tokenizer, books, character, user, messages ))
-        }else{
-            list.push(getCharacterProperty(item.key, character, settings))
+        switch(item.key){
+            case "base_prompt":
+                list.push( getMainPrompt(content.character, content.settings) )
+                break;
+            case "persona":
+                list.push( getPersona(content.user) )
+                break;
+            case "world_info":
+                list.push( getAllLoreEntries( tokenizer, content ) )
+                break;
+            default:
+                list.push( getCharacterProperty(item.key, content.character, content.settings) )
+                break;
         }
+
+        console.log("Added " + item.key)
     })
     
     list = list.filter((e) => e && e.length > 0)
     result = list.join("\n\n")
-    result = parseNames( result, user, character.data.name )
+    result = parseNames( result, content.user.name, content.character.data.name )
 
     return result
 }
 
-export function makePrompt( tokenizer, character, messages, user, books, settings, offset = 0 ){
+export function makePrompt( tokenizer, content, offset = 0 ){
+    const character = content.character;
+    const messages = content.chat.messages;
+    const user = content.user;
+    const settings = content.settings;
+
     let prompt = []
 
-    let system = getSystemPrompt( tokenizer, character, messages, user, books, settings )
+    let system = getSystemPrompt(tokenizer, content)
     prompt.push({ role: "system", content: system })
 
-    let sub_prompt = getSubPrompt( character, settings )
-    sub_prompt = parseNames( sub_prompt, user, character.data.name )
+    let sub_prompt = getSubPrompt(character, settings)
+    sub_prompt = parseNames(sub_prompt, user.name, character.data.name)
     sub_prompt = sub_prompt.length > 0 ? "\n\n" + sub_prompt : ""
 
-    let prefill_prompt = getPrefillPrompt( settings )
-    prefill_prompt = parseNames( prefill_prompt, user, character.data.name )
+    let prefill_prompt = getPrefillPrompt(settings)
+    prefill_prompt = parseNames(prefill_prompt, user.name, character.data.name)
     prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
     let tokens_system = tokenizer.getTokens(system).length;
@@ -116,39 +129,40 @@ export function makePrompt( tokenizer, character, messages, user, books, setting
     let injected_sub_prompt = false;
 
     const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
-    if( enabled_sub_prompt ){
+    if(enabled_sub_prompt){
         tokens_system += tokenizer.getTokens(sub_prompt).length
     }
 
     const enabled_prefill_prompt = getFieldEnabled("prefill_prompt", settings)
-    if( enabled_prefill_prompt ){
+    if(enabled_prefill_prompt){
         tokens_system += tokenizer.getTokens(prefill_prompt).length
     }
 
+    offset = Math.abs(offset)
     if( messages ){
-        for( let i = messages.length - 1 - Math.abs(offset); i >= 0; i--){
+        for( let i = messages.length - 1 - offset; i >= 0; i--){
             let role = messages[i].participant > -1 ? "assistant" : "user";
             let index = messages[i].index
-            let content = messages[i].candidates[ index ].text
-            content = parseNames(content, user, character.data.name )
+            let content = messages[i].candidates[index].text
+            content = parseNames(content, user.name, character.data.name)
             
-            if( enabled_sub_prompt && !injected_sub_prompt && role === "user" ){
+            if(enabled_sub_prompt && !injected_sub_prompt && role === "user"){
                 content += sub_prompt;
                 injected_sub_prompt = true;
             }
 
             let next_tokens = tokenizer.getTokens(content).length
-            if( tokens_system + tokens_messages + next_tokens > settings.context_size ){
+            if(tokens_system + tokens_messages + next_tokens > settings.context_size){
                 break;
             }
 
             tokens_messages += next_tokens
-            prompt.splice(1, 0, { role: role, content: content })
+            prompt.splice(1, 0, {role: role, content: content})
         }
     }
 
     if( enabled_prefill_prompt ){
-        prompt.push({ "role": "assistant", "content": prefill_prompt })
+        prompt.push({"role": "assistant", "content": prefill_prompt})
     }
 
     return prompt;
@@ -158,8 +172,8 @@ export function messagesToString(messages, character, user, settings, separator 
     let human_prefix = settings.human_prefix ? settings.human_prefix : "{{user}}"
     let assistant_prefix = settings.assistant_prefix ? settings.assistant_prefix : "{{char}}"
 
-    human_prefix = parseNames( human_prefix, user, character.data.name )
-    assistant_prefix = parseNames( assistant_prefix, user, character.data.name )
+    human_prefix = parseNames( human_prefix, user.name, character.data.name )
+    assistant_prefix = parseNames( assistant_prefix, user.name, character.data.name )
 
     let str = messages.map((msg) => {
         switch (msg.role) {
@@ -225,7 +239,17 @@ export function matchEntry(entry, message){
     return false;
 }
 
-export function getAllLoreEntries(tokenizer, books, character, user, messages) {
+export function getAllLoreEntries(tokenizer, content ) {
+    const books = content.books;
+    const character = content.character;
+    const user = content.user;
+    const messages = content.chat.messages;
+    const settings = content.settings;
+
+    if( !settings.prompt.find((item) => item.key === "world_info" )?.enabled  ){
+        return;
+    }
+
     if( !books || !books.global ){
         return ""
     }
@@ -257,7 +281,7 @@ export function getEntriesFromBook(tokenizer, book, character, user, messages) {
     });
 
     // use parseNames on each entry.content
-    entries.forEach(entry => entry.content = parseNames(entry.content, user, character.data.name));
+    entries.forEach(entry => entry.content = parseNames(entry.content, user.name, character.data.name));
 
     // trim entries to fit book.token_budget
     // entries with lower priority are discarded first
@@ -297,13 +321,13 @@ export function getTokenConsumption( tokenizer, character, user, settings ){
         _system += "\n\n" + prompt_prefill;
     }
 
-    _system = parseNames( _system, user, character.data.name )
+    _system = parseNames( _system, user.name, character.data.name )
 
-    const _description = parseNames( getCharacterProperty( "description", character, settings ), user, character.data.name )
-    const _personality = parseNames( getCharacterProperty( "personality", character, settings ), user, character.data.name )
-    const _scenario = parseNames( getCharacterProperty( "scenario", character, settings ), user, character.data.name )
-    const _dialogue = parseNames( getCharacterProperty( "mes_example", character, settings ), user, character.data.name )
-    const _greeting = parseNames( getCharacterProperty( "first_mes", character, settings ), user, character.data.name )
+    const _description = parseNames( getCharacterProperty( "description", character, settings ), user.name, character.data.name )
+    const _personality = parseNames( getCharacterProperty( "personality", character, settings ), user.name, character.data.name )
+    const _scenario = parseNames( getCharacterProperty( "scenario", character, settings ), user.name, character.data.name )
+    const _dialogue = parseNames( getCharacterProperty( "mes_example", character, settings ), user.name, character.data.name )
+    const _greeting = parseNames( getCharacterProperty( "first_mes", character, settings ), user.name, character.data.name )
 
     return {
         system: tokenizer.getTokens(_system).length,
@@ -316,15 +340,9 @@ export function getTokenConsumption( tokenizer, character, user, settings ){
 }
 
 export function sanitizeStopSequences(list, user, character){
-    if(!Array.isArray(list)){
-        list = []
-    }
-
-    for(let i = 0; i < list.length; i++){
-        list[i] = parseNames( list[i], user, character.data.name )
-    }
-
-    return list
+    if(!list || !Array.isArray(list)) 
+        return []
+    return list.map((item) => parseNames(item, user.name, character.data.name))
 }
 
 export default { 

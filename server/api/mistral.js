@@ -67,8 +67,8 @@ class Mistral{
     }
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
-    static makePrompt( character, messages, user, books, settings, offset = 0 ){
-        return Utils.makePrompt( Tokenizer, character, messages, user, books, settings, offset )
+    static makePrompt( content, offset = 0 ){
+        return Utils.makePrompt( Tokenizer, content, offset )
     }
 
     // returns an object with the token breakdown for a character
@@ -77,7 +77,10 @@ class Mistral{
     }
 
     // returns an output from the prompt that will be fed into receiveData
-    static async generate(character, prompt, user, settings){
+    static async generate( content ){
+        const settings = content.settings;
+        const prompt = content.prompt;
+
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
@@ -162,7 +165,7 @@ class Mistral{
             }
         }
     
-        const raw_text = this.__message_chunk + incoming_data
+        const raw_text = (this.__message_chunk ?? "") + incoming_data
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
             if(!line){

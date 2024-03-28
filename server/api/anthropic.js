@@ -116,8 +116,12 @@ class Anthropic{
         }
     }
 
-    static makePrompt( character, messages, user, books, settings, offset = 0 ){
-        let list = Utils.makePrompt( Tokenizer, character, messages, user, books, settings, offset )
+    static makePrompt( content, offset = 0 ){
+        const character = content.character;
+        const settings = content.settings;
+        const user = content.user.name;
+
+        let list = Utils.makePrompt( Tokenizer, content, offset )
         list[0].role = "user"
         // list = list.filter(message => message.role && message.role !== "system")
 
@@ -149,7 +153,12 @@ class Anthropic{
         return Utils.getTokenConsumption( Tokenizer, character, user, settings )
     }
 
-    static async generate(character, prompt, user, settings){
+    static async generate( content ){
+        const settings = content.settings;
+        const prompt = content.prompt;
+        const character = content.character;
+        const user = content.user;
+
         let outgoing_data = {
             model: settings.model,
             messages: prompt,
@@ -228,7 +237,7 @@ class Anthropic{
 
         
     
-        const raw_text = this.__message_chunk + incoming_data
+        const raw_text = (this.__message_chunk ?? "") + incoming_data
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
             if(!line) continue;

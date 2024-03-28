@@ -83,8 +83,8 @@
         let body = {
             api_mode: mode,
             character: $currentCharacter,
-            messages: $currentChat.messages,
-            user: $currentProfile.name,
+            chat: $currentChat,
+            user: $currentProfile,
             settings: $currentSettingsAPI,
             books: $globalLorebooks,
             swipe: swipe,
