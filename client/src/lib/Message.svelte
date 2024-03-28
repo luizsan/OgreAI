@@ -322,9 +322,7 @@
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
                         {#if postActions}
                         <div class="actions">
-                            {#if navigator.clipboard}
-                                <button class="copy info" title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
-                            {/if}
+                            <button class="copy {navigator.clipboard ? "info" : "normal"}" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
                             <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
                             {#if id > 0}
                                 <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
@@ -398,6 +396,11 @@
         border-color: rgb(255,72,72);
     }
 
+    .content{
+        display: flex;
+        flex-direction: column;
+    }
+
     .avatar{
         display: flex;
         align-items: start;
@@ -433,6 +436,10 @@
         font-weight: 400;
         font-size: 0.8em;
         color: gray;
+    }
+
+    .text{
+        flex-grow: 1;
     }
 
     .text :global(p){
@@ -588,6 +595,10 @@
         width: 40px;
         height: 36px;
         border-radius: 4px;
+    }
+
+    .actions button.disabled{
+        opacity: 0.5;
     }
 
     .actions button :global(svg){
