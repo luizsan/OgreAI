@@ -9,9 +9,9 @@
     export let disabled = () => false;
 </script>
 
-<div class="toggle wide vertical disabled">
+<div class="toggle wide vertical" class:disabled={disabled()}>
     <label>
-        <input type="checkbox" class="component" class:disabled={disabled()} disabled={disabled()} bind:checked={value}>
+        <input type="checkbox" class="component" disabled={disabled()} bind:checked={value}>
     </label>
     <Heading title={title} description={description}/>
 </div>
