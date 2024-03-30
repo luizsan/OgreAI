@@ -86,6 +86,8 @@ export default class Chat{
     static GetAllChats(character){
         let chats = []
         let target = path.join(Chat.path, path.parse( character.temp.filepath ).name, "/" )
+        target = target.replaceAll("\\", "/")
+        
         console.debug( chalk.blue( "Reading chats from " + chalk.blue(target)))
         if(existsSync(target)){
 
@@ -136,6 +138,7 @@ export default class Chat{
         let filename = chat.create_date + ".json";
         let folder =  path.join(Chat.path, path.parse( character.temp.filepath ).name )
         let target = path.join(folder, filename)
+        target = target.replaceAll("\\", "/")
     
         try{
             if(!existsSync(folder)){

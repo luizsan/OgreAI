@@ -139,6 +139,7 @@ export default class Character{
             fs.mkdirSync(target, { recursive: true })
         }
 
+        target = target.replaceAll("\\", "/")
         function ExploreDirectory( current_path ){
             const entries = fs.readdirSync( current_path )
             for (const entry of entries) {
@@ -164,6 +165,7 @@ export default class Character{
     }
 
     static ReadFromFile( filepath ){
+        filepath = filepath.replaceAll("\\", "/")
         try {
             sharp.cache(false);
             const stats = fs.statSync( filepath );

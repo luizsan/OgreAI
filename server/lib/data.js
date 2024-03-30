@@ -5,6 +5,7 @@ import chalk from "chalk";
 function SaveData(file_path, content){
     try{
         let target = join(file_path)
+        target = target.replaceAll("\\", "/")
         writeFileSync(target, JSON.stringify(content, null, 2))
         console.debug( chalk.green( `Saved file at ${target}` ))
     }catch(error){
@@ -17,8 +18,8 @@ function LoadData(file_path, defaults = {}){
     if( !existsSync(dir)){
         mkdirSync(dir, { recursive: true })
     }
-
     let target = join(file_path)
+    target = target.replaceAll("\\", "/")
     try {
         let content = readFileSync(target, "utf-8")
         let parsed = JSON.parse( content )

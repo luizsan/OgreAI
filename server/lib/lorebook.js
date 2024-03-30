@@ -33,6 +33,7 @@ export default class Lorebook{
     static GetAllLorebooks(){
         let books = []
         let target = path.join( ".", Lorebook.path )
+        target = target.replaceAll("\\", "/")
         console.debug( chalk.blue( "Reading lorebooks from " + chalk.blue(target)))
         if(!fs.existsSync(target)){
             fs.mkdirSync(target, { recursive: true });
@@ -42,13 +43,16 @@ export default class Lorebook{
         for(let i = 0; i < files.length; i++){
             try{
                 let filepath = path.join( target, files[i] )
+                filepath = filepath.replaceAll("\\", "/")
+                
                 let content = fs.readFileSync( filepath, "utf-8")
                 let parsed = JSON.parse( content )
                 if( parsed ){
                     parsed = Lorebook.Validate(parsed)
                 }
+                
                 parsed.temp = {}
-                parsed.temp.filepath = filepath
+                parsed.temp.filepath = path.basename( filepath )
                 books.push(parsed)
             }catch(error){
                 console.warn( chalk.yellow( error ))
@@ -64,9 +68,11 @@ export default class Lorebook{
             if( !target ){
                 target = (book.name ? `${book.name}-${new Date().getTime()}` : new Date().getTime())
                 target += ".json"
-                target = path.join(Lorebook.path, target)
             }
+            
+            target = path.join(Lorebook.path, target)
             target = target.toLowerCase().replaceAll(/\s+/gmi, "_")
+            target = target.replaceAll("\\", "/")
 
             if(!fs.existsSync(target)){
                 fs.mkdirSync( path.dirname(target), { recursive: true });
@@ -94,8 +100,8 @@ export default class Lorebook{
             if( !target ){
                 target = (book.name ? `${book.name}-${new Date().getTime()}` : new Date().getTime())
                 target += ".json"
-                target = path.join( Lorebook.path, target )
             }
+            target = path.join( Lorebook.path, target )
             target = target.toLowerCase().replaceAll(/\s+/gmi, "_")
             fs.unlinkSync(target)
             return true
