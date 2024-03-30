@@ -224,7 +224,7 @@ app.get("/new_character", parser, function(request, response){
     response.send(new Character())
 })
 
-app.post("/save_character", upload.single("file"), function(request, response){
+app.post("/save_character_image", upload.single("file"), function(request, response){
     const char = JSON.parse(request.body.character)
     let filepath = request.body.filepath
     let image = request.file ? request.file.buffer : null
@@ -242,6 +242,20 @@ app.post("/save_character", upload.single("file"), function(request, response){
 
     char.metadata.modified = Date.now()
     let result = Character.WriteToFile( char, filepath, image )
+    response.send( result )
+})
+
+app.post("/save_character", parser, function(request, response){
+    const char = request.body.character
+    let filepath = request.body.filepath || char.temp.filepath
+    if( !filepath.toLowerCase().startsWith( Character.path )){
+        filepath = path.join( Character.path, filepath )
+    }
+    if( !filepath.toLowerCase().endsWith(".png")){
+        filepath += ".png"
+    }
+    char.metadata.modified = Date.now()
+    let result = Character.WriteToFile( char, filepath, null )
     response.send( result )
 })
 
@@ -286,28 +300,6 @@ app.post("/delete_lorebook", parser, function(request, response){
         return
     }
     response.status(500).send(false)
-})
-
-app.post("/save_global_books", parser, function(request, response){
-    if( request.body && request.body.books ){
-        SaveData( Lorebook.global, request.body.books )
-        response.send(true)
-        return
-    }
-    response.status(500).send(false)
-})
-
-app.get("/get_global_books", parser, function(_, response){
-    try{
-        let books = LoadData( Lorebook.global, [])
-        books.forEach(element => {
-            element = Lorebook.Validate(element)
-        });
-        response.status(200).send( books )
-    }catch(error){
-        console.error( chalk.red(error))
-        response.status(500).send(false)
-    }
 })
 
 app.get("/get_api_modes", parser, async function(_, response){

@@ -13,6 +13,7 @@
     
     let self : HTMLElement;
 
+    $: title = entry.name || entry.comment || "New lorebook entry"
     $: keys_index = [
         {   
             key: "keys", 
@@ -47,8 +48,11 @@
     }
 
     function clearKeys(target : Array<string>){
-        target.splice(0, target.length)
-        entry = entry;
+        if( target.length > 0 ){
+            target.splice(0, target.length)
+            entry = entry;
+            self.dispatchEvent(new Event("change", { bubbles: true }))
+        }
     }
 </script>
 
@@ -57,8 +61,8 @@
     {#if open}
         <div class="top">
             <button class="component normal clear back" on:click={toggle}>{@html SVG.arrow}</button>
-            <Heading title={entry.name ?? "Lorebook entry"} description="Currently editing" reverse={true} scale={1.2}/>
-            <button class="component danger remove" on:click={remove}>{@html SVG.trashcan}</button>
+            <div class="grow"><Heading title={title} description="Currently editing" reverse={true} scale={1.2}/></div>
+            <button class="component danger remove" on:click={remove}>{@html SVG.trashcan} Delete</button>
         </div>
 
         <div class="section">
@@ -73,13 +77,13 @@
         
         <div class="grid">
             <div class="section">
-                <Heading title="Insertion order" description="Activated entries are sorted by this value. Lower values means it's inserted first."/>
-                <input type="number" class="component" bind:value={entry.insertion_order}/>
+                <Heading title="Priority" description="If the token budget of the lorebook is reached, a lower priority means the entry will be discarded first."/>
+                <input type="number" class="component" bind:value={entry.priority}/>
             </div>
 
             <div class="section">
-                <Heading title="Priority" description="If the token budget of the lorebook is reached, a lower priority means the entry will be discarded first."/>
-                <input type="number" class="component" bind:value={entry.priority}/>
+                <Heading title="Insertion order" description="Activated entries are sorted by this value. Lower values means it's inserted first."/>
+                <input type="number" class="component" bind:value={entry.insertion_order}/>
             </div>
         </div>
 
@@ -99,7 +103,7 @@
             <Checkbox 
                 bind:value={entry.case_sensitive} 
                 title="Case sensitive"
-                description="Turn this off to ignore uppercase or lowercase when searching for keys."
+                description="Defines whether or not to treat uppercase and lowercase letters as distinct when searching for keys."
             />
         {/if}
 
@@ -109,7 +113,7 @@
 
                 <Accordion name={index.label} size={target.length} showSize={true}>
                     {#if target && target.length > 0 }
-                        <div class="keys">
+                        <div class="section">
                             {#each target as key, i}
                                 <Entry bind:value={key} placeholder="Insert key" on:remove={()=> removeKeyFrom(target, i)}/>
                             {/each}
@@ -127,7 +131,9 @@
     {:else}
         <div class="section closed">
             <input type="checkbox" class="component" bind:checked={entry.enabled}>
-            <button class="component normal wide entry" on:click={toggle}>{entry.name ?? "New lorebook entry"}</button>
+            <button class="component normal wide entry ellipsis" on:click={toggle}>
+                <div class="ellipsis">{title}</div>
+            </button>
         </div>
 
     {/if}
@@ -150,6 +156,8 @@
         display: grid;
         grid-template-columns: 32px auto;
         gap: 4px;
+        overflow-x: hidden;
+        padding: 1px;
     }
 
     .closed input[type="checkbox"]{
@@ -159,12 +167,11 @@
 
     .top{
         display: grid;
-        grid-template-columns: 36px auto 32px;
+        grid-template-columns: 36px auto min-content;
         gap: 8px;
     }
 
     .top button{
-        padding: 0px;
         width: 100%;
         height: 100%;
         display: flex;
@@ -178,6 +185,10 @@
         justify-content: flex-start;
     }
 
+    .back{
+        padding: 0px;
+    }
+
     .back :global(svg){
         width: 24px;
         height: 24px;
@@ -186,16 +197,12 @@
     button.remove{
         width: 100%;
         height: fit-content;
-        padding: 0px;
         place-items: center;
         place-content: center;
     }
 
-    .keys{
+    input[type="number"]{
         width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px 24px;
     }
 
 </style>

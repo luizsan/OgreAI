@@ -1,6 +1,6 @@
 <script lang="ts">
     import { AutoResize, resize } from "../utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList, globalLorebooks } from "../State";
+    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList, currentLorebooks } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte"
@@ -78,6 +78,13 @@
         await GenerateMessage()
     }
 
+
+    function fetchLorebooks(){
+        return $currentSettingsMain.books?.map(
+            (entry : string) => $currentLorebooks.find(book => book.temp.filepath == entry)
+        ) ?? []
+    }
+
     export async function GenerateMessage(swipe = false){
         let mode = $currentSettingsMain.api_mode;
         let body = {
@@ -86,7 +93,7 @@
             chat: $currentChat,
             user: $currentProfile,
             settings: $currentSettingsAPI,
-            books: $globalLorebooks,
+            books: fetchLorebooks(),
             swipe: swipe,
         }
 

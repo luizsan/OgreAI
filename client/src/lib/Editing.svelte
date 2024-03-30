@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
+    import { characterList, creating, currentCharacter, currentChat, currentLorebooks, editing, fetching, localServer } from "../State";
     import Screen from "../components/Screen.svelte";
     import * as Server from "../modules/Server.svelte"
     import Accordion from "../components/Accordion.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
     import Footer from "../components/Footer.svelte";
     import Heading from "../components/Heading.svelte";
+    import Book from "../components/Book.svelte";
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -18,6 +19,8 @@
     let distribution = "";
 
     let avatar = "";
+
+    $: has_lorebook = $editing && typeof $editing.data.character_book === "object" && Object.keys($editing.data.character_book).length > 0
 
     $: {
         if( $editing ){
@@ -81,18 +84,20 @@
             formData.append("creating", "true" )
         }
 
-        await fetch( localServer + "/save_character", {
+        await fetch( localServer + "/save_character_image", {
             method: "POST",
             body: formData
         }).then( result => {
             result.json().then( async data => {
                 if( data ){
                     if( $creating ){
+                        
                         let created = $editing;
+                        $characterList.push(created)
+                        $characterList = $characterList;
+                        await Server.getCharacterList();
                         $editing = null;
                         $creating = false;
-                        await Server.getCharacterList();
-                        $characterList = $characterList;
                         alert("Successfully created character:\n" + created.data.name)
                     }else{
                         if( $editing && $editing.temp.avatar ){
@@ -104,15 +109,15 @@
                             $editing = edited;
 
                             // update item on list
+                            
                             for( let i = 0; i < $characterList.length; i++ ){
                                 if( $characterList[i].temp.filepath == $editing.temp.filepath){
                                     $characterList[i] = edited;
+                                    break;
                                 }
                             }
 
                             await refreshTokens();
-
-
                             refreshAvatar();
                             avatar = avatar;
                         }
@@ -132,8 +137,7 @@
             })
         })
 
-
-
+        console.log("Saved character: %o", $editing)
         $fetching = false
     }
 
@@ -208,6 +212,50 @@
         $editing.data.alternate_greetings.splice(id, 1)
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
     }
+
+    function createLorebook(){
+        if(!has_lorebook){
+            let filename = $editing.temp.filepath.split("/").pop()
+            filename = filename.split(".").shift()
+            filename += ".json"
+            
+            $editing.data.character_book = { 
+                name: `${$editing.data.name}'s Lorebook`, 
+                token_budget: 100,
+                recursive_scanning: false,
+                scan_depth: 5,
+                entries: [],
+                temp: { filepath: filename }
+            }
+
+            $editing = $editing;
+            ApplyChanges()
+        }
+    }
+    
+    async function installLorebook(){
+        if(has_lorebook && confirm("Are you sure you want to install this lorebook?\nIt will overwrite any existing lorebook for this character.")){
+            let filename = $editing.temp.filepath.split("/").pop()
+            filename = filename.split(".").shift()
+            filename += ".json"
+
+            let current = $editing.data.character_book
+            current.temp = { filepath: filename }
+
+            await Server.request("/save_lorebook", { book: current })
+            $currentLorebooks.push(current)
+            $currentLorebooks = $currentLorebooks;
+        }
+    }
+
+    function removeLorebook(){
+        if(has_lorebook && confirm("Are you sure you want to remove this lorebook?\nThis action cannot be undone.")){
+            $editing.data.character_book = null
+            $editing.data.character_book = {}
+            $editing = $editing;
+            ApplyChanges()
+        }
+    }
 </script>
 
 
@@ -219,7 +267,7 @@
                 <div class="avatar">
                     <img src={avatar} alt=""/>
                     <button class="upload" on:click={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
-                    <form action="/save_character" enctype="multipart/form-data" method="post">
+                    <form action="/save_character_image" enctype="multipart/form-data" method="post">
                         <input name="file" type="file" bind:this={uploadInput} bind:value={$editing.temp.avatar} on:change={SetUploadImage}>
                     </form>
                 </div>
@@ -314,6 +362,32 @@
                     <Heading title="Post-History Instructions" description={`Also known as "jailbreak", overrides the jailbreak prompt defined by your API settings.`}/>
                     <textarea class="component wide" rows=6 bind:value={$editing.data.post_history_instructions}></textarea>
                 </div>
+
+            </Accordion>
+
+            <Accordion name="Character Book">
+
+                <div class="section horizontal wide wrap">
+                    {#if has_lorebook}
+                        <button class="component confirm" on:click={installLorebook}>{@html SVG.download} Install</button>
+                        <button class="component danger" on:click={removeLorebook}>{@html SVG.trashcan} Delete</button>
+                    {:else}
+                        <button class="component confirm" on:click={createLorebook}>{@html SVG.plus} Create</button>
+                    {/if}
+
+                    <!-- <button class="component info" >{@html SVG.copy} Copy from local</button> -->
+                </div>
+
+
+                {#if has_lorebook}
+                    <Heading 
+                        title={$editing.data.character_book?.name ? $editing.data.character_book.name : "Embedded Lorebook"} 
+                        description={`This lorebook belongs to ${$editing.data.name}.`}
+                    />
+                    <Book bind:book={$editing.data.character_book}/>
+                {:else}
+                    <div class="empty">This character doesn't have an embedded lorebook. You can create a new one or copy from a local one.</div>
+                {/if}
 
             </Accordion>
 
@@ -496,6 +570,10 @@
     .top :global(svg){
         width: 24px;
         height: 24px;
+    }
+
+    .empty{
+        text-align: center;
     }
 
 </style>

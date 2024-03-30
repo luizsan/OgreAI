@@ -41,7 +41,13 @@ export default class Prompt{
             description: "How to insert the character's example messages in the prompt. Use {{original}} to apply the character's example messages field.",
             default: "Example messages:\n{{original}}"
         },
-        
+
+        character_book: {
+            toggleable: true, editable: false,
+            label: "Character book",
+            description: "Inserts information from the current character's embedded lorebook.",
+        },
+
         persona: { 
             toggleable: true, editable: true, 
             label: "User persona",
@@ -106,13 +112,18 @@ export default class Prompt{
             }
         })
 
+        // find "base_prompt" entry:
+        let insert_index = obj.find(e => e.key === "base_prompt")
+        insert_index = insert_index > -1 ? insert_index : 1
+
         Object.keys(this.default).forEach(key => {
             if (!obj.some((o) => o.key && o.key === key)) {
-                obj.push({ 
+                obj.splice(insert_index, 0, { 
                     key: key,
                     enabled: true,
                     content: this.default[key].editable ? this.default[key].default : undefined
                 });
+                insert_index += 1
             }
         })
 

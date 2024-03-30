@@ -9,7 +9,7 @@
     export let disabled = () => false;
 </script>
 
-<div class="toggle wide vertical">
+<div class="toggle wide vertical disabled">
     <label>
         <input type="checkbox" class="component" class:disabled={disabled()} disabled={disabled()} bind:checked={value}>
     </label>
@@ -29,5 +29,9 @@
 
     input[type="checkbox"]{
         align-self: center;
+    }
+
+    .disabled{
+        opacity: 0.33;
     }
 </style>

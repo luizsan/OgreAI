@@ -98,6 +98,7 @@ interface ILorebookEntry{
     insertion_order : number; // sort inserted entries by this value - lower = first
     case_sensitive? : boolean;
     name? : string;
+    comment? : string; // fallback to name field. Why is ST like this?
     priority? : number; // if token budget is reached, lower priority = discarded first
     selective? : boolean // requires a key from both `keys` and `secondary_keys`
     secondary_keys? : Array<string>;

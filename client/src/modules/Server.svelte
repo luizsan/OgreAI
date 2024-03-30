@@ -95,7 +95,6 @@
             request( "/get_presets", {} ),
             request( "/get_prompt" ),
             request( "/get_lorebooks" ),
-            request( "/get_global_books" ),
         ]
 
         await Promise.all(post_requests).then(async responses => {
@@ -104,7 +103,6 @@
             State.currentPresets.set( responses[2] )
             State.defaultPrompt.set( responses[3] )
             State.currentLorebooks.set( responses[4] )
-            State.globalLorebooks.set( responses[5] )
             await getAPIStatus()
         }).catch((error) => {
             disconnect()

@@ -16,6 +16,10 @@ export default class Settings{
         if( !obj.formatting.replace ){ 
             obj.formatting.replace = []
         }
+
+        if( !obj.books ){
+            obj.books = {}
+        }
     }
 
     static ValidateAPI(obj, api_mode){

@@ -87,7 +87,10 @@ export function getSystemPrompt( tokenizer, content ){
                 list.push( getPersona(content.user) )
                 break;
             case "world_info":
-                list.push( getAllLoreEntries( tokenizer, content ) )
+                list.push( getGlobalLoreEntries( tokenizer, content ) )
+                break;
+            case "character_book":
+                list.push( getEntriesFromBook(tokenizer, content.books.character, content ) )
                 break;
             default:
                 list.push( getCharacterProperty(item.key, content.character, content.settings) )
@@ -207,7 +210,7 @@ export function mergeMessages(messages) {
     return merged;
 }
 
-export function findKeysInMessage(message, keys, case_sensitive = false) {
+export function findKeysInMessage(keys, message, case_sensitive = false) {
     let index = message.index
     let content = message.candidates[ index ].text
 
@@ -221,17 +224,17 @@ export function findKeysInMessage(message, keys, case_sensitive = false) {
     }
 }
 
-export function matchEntry(entry, message){
+export function matchMessage(entry, message){
     if( !entry.enabled || !entry.content )
         return false;
     if( entry.constant )
         return true;
 
-    const has_primary_key = findKeysInMessage(message, entry.keys, entry.case_sensitive);
-    const has_secondary_key = findKeysInMessage(message, entry.secondary_keys, entry.case_sensitive);
+    const has_primary_key = findKeysInMessage(entry.keys, message, entry.case_sensitive);
+    const has_secondary_key = findKeysInMessage(entry.secondary_keys, message, entry.case_sensitive);
 
     if( has_primary_key ){
-        if( entry.selective ){
+        if( entry.selective && entry.secondary_keys?.length > 0 ){
             return has_secondary_key;
         }
         return true;
@@ -239,40 +242,36 @@ export function matchEntry(entry, message){
     return false;
 }
 
-export function getAllLoreEntries(tokenizer, content ) {
+export function getGlobalLoreEntries(tokenizer, content){
     const books = content.books;
-    const character = content.character;
-    const user = content.user;
-    const messages = content.chat.messages;
-    const settings = content.settings;
-
-    if( !settings.prompt.find((item) => item.key === "world_info" )?.enabled  ){
-        return;
-    }
-
-    if( !books || !books.global ){
+    if( !books ){
         return ""
     }
-
     let entries = []
-    books.global.forEach(book => {
-        entries.push( getEntriesFromBook( tokenizer, book, character, user, messages ))
+    books.global?.forEach(book => {
+        entries.push( getEntriesFromBook( tokenizer, book, content ))
     })
     return entries.join("\n")
 }
 
-export function getEntriesFromBook(tokenizer, book, character, user, messages) {
+export function getEntriesFromBook(tokenizer, book, content) {
+    const character = content.character;
+    const user = content.user;
+    const messages = content.chat.messages;
+
     const scanned = messages.slice(-book.scan_depth);
     const entries = [];
 
     if( !book.entries ){
-        console.warning("Book has no entries!")
+        console.warn("Book has no entries!")
         return ""
     }
 
+    console.log("Reading book " + book.name)
+
     book.entries.forEach((entry) => {
         scanned.some((message) => {
-            const match = matchEntry(entry, message)
+            const match = matchMessage(entry, message)
             if(match) {
                 entries.push(entry);
             }
@@ -300,7 +299,8 @@ export function getEntriesFromBook(tokenizer, book, character, user, messages) {
 
     // sort entries by insertion order
     entries.sort((a,b) => a.insertion_order - b.insertion_order);
-    return entries.map((entry) => entry.content).join("\n\n");
+    const result = entries.map((entry) => entry.content).join("\n\n");
+    return result
 }
 
 export function getTokenConsumption( tokenizer, character, user, settings ){

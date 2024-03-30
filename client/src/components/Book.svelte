@@ -4,7 +4,8 @@
     import Accordion from "./Accordion.svelte";
     import Lore from "./Lore.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
-    import * as Server from "../modules/Server.svelte"
+
+    let self : HTMLElement;
 
     export let book : ILorebook = { entries: [] } as ILorebook;
     let editingEntry : ILorebookEntry = null;
@@ -26,23 +27,25 @@
 
     function editEntry(entry : ILorebookEntry){
         editingEntry = entry;
-        console.log("editing")
     }
 
     function closeEntry(){
         editingEntry = null;
     }
 
-    function removeEntry(i : number){
-        book.entries.splice(i, 1)
-        book.entries = book.entries
-        closeEntry()
-        console.log(`Removed ${i}`)
-        console.log(book.entries)
+    async function removeEntry(i : number){
+        const ok = confirm("Are you sure you want to delete this entry?\nThis action cannot be undone.")
+        if( ok ){
+            book.entries.splice(i, 1)
+            book.entries = book.entries
+            self.dispatchEvent(new Event("change", { bubbles: true }))
+            closeEntry()
+        }
     }
+    
 </script>
 
-<div class="content">
+<div class="content" bind:this={self}>
     
     <div class="section">
         <input type="text" class="component" placeholder="Insert lorebook name" bind:value={book.name}>
@@ -61,12 +64,12 @@
         </div>
     </div>
 
-    <Checkbox bind:value={book.recursive_scanning} title="Recursive scanning" description="Whether entries can trigger other entries."/>
+    <Checkbox bind:value={book.recursive_scanning} title="Recursive scanning" description="Whether entries can trigger other entries. Not yet implemented." disabled={() => true}/>
 
     <div class="section">
         <Accordion name="Entries" size={book.entries.length} showSize={true} on:close={closeEntry}>
             {#if book.entries && book.entries.length > 0 }
-                <div class:entries={!editingEntry}>
+                <div class:section={!editingEntry}>
                     {#each book.entries as entry, i}
                         {#if !editingEntry || editingEntry == entry}
                             <Lore bind:entry={entry} on:open={() => editEntry(entry)} on:close={closeEntry} on:remove={() => removeEntry(i)}/>
@@ -97,20 +100,13 @@
         box-sizing: border-box;
     }
 
-    .entries{
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px 24px;
-    }
-
     .add{
         height: 30px;
         flex-wrap: nowrap;
     }
 
     input[type="number"]{
-        width: 100px;
+        width: 100%;
     }
 
 </style>

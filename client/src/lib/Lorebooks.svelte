@@ -1,18 +1,18 @@
 <script lang="ts">
-
-    import { tick } from "svelte";
+    import { tick, onMount } from "svelte";
     import Heading from "../components/Heading.svelte"
     import Book from "../components/Book.svelte"
     import Loading from "../components/Loading.svelte";
     import Tags from "../components/Tags.svelte";
     import Search from "../components/Search.svelte";
-    import { currentLorebooks, globalLorebooks } from "../State"
+    import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "../State"
     import * as SVG from "../utils/SVGCollection.svelte"
     import * as Server from "../modules/Server.svelte";
 
 
     let editingBook : ILorebook = null;
     let searchResults : Array<ILorebook> = [];
+    let selectedBooks : Array<ILorebook> = [];
     let loading : boolean = false;
 
     function createLorebook(){
@@ -47,6 +47,26 @@
         editingBook = null;
     }
 
+    async function applyLorebook(book : ILorebook){
+        if(!$currentCharacter){
+            return
+        }
+
+        const ok = confirm("Are you sure you want to apply this lorebook to the current character?\nAny existing lorebook embedded in the character will be overwritten.\nThis action cannot be undone.")
+        if( ok ){
+            let copy = JSON.parse(JSON.stringify(book))
+            $currentCharacter.data.character_book = copy;
+            $currentCharacter = $currentCharacter
+
+            if($editing){
+                $editing.data.character_book = copy
+                $editing = $editing
+            }
+
+            await Server.request("/save_character", { character: $currentCharacter })
+        }
+    }
+
     async function removeLorebook(book : ILorebook){
         const ok = confirm("Are you sure you want to delete this lorebook?\nThis action cannot be undone.")
         if( ok ){
@@ -66,18 +86,19 @@
             searchResults = $currentLorebooks
             searchResults.sort(sortLorebooks)
             searchResults = searchResults
+            updateSelected()
             loading = false;
         })
     }
 
     async function saveBook(){
         await tick()
-        console.log(editingBook)
         await Server.request("/save_lorebook", { book: editingBook })
     }
 
     async function saveGlobals(){
-        await Server.request("/save_global_books", { books: $globalLorebooks })
+        updateSelected()
+        await Server.request("/save_main_settings", { data: $currentSettingsMain })
     } 
 
     function sortLorebooks(a,b){
@@ -87,6 +108,24 @@
         if (nameA > nameB) { return 1; }
         return 0;
     }
+
+    function initializeSelected(){
+        selectedBooks = $currentSettingsMain.books.map(
+            (entry : string) => $currentLorebooks.find(book => book.temp.filepath == entry)
+        )
+        selectedBooks = selectedBooks.filter(item => item)
+    }
+
+    function updateSelected(){
+        const updated = selectedBooks.map((book : any) => book?.temp?.filepath ?? undefined)
+        $currentSettingsMain.books = updated.filter(item => item)
+        $currentSettingsMain = $currentSettingsMain;
+        return updated
+    }
+
+    onMount(() => {
+        initializeSelected()
+    })
     
 </script>
 
@@ -100,30 +139,37 @@
 
         <Tags
             choices={$currentLorebooks}
-            bind:selected={$globalLorebooks}
+            bind:selected={selectedBooks}
             placeholder="Add lorebooks..."
             notFound="No lorebooks found matching search criteria"
             display={(v) => v.name}
-            item={(v) => v.name}
+            item={(v) => v.temp.filepath}
         />
 
     </div>
 
-    <hr>
+    <hr class="component">
 
     {#if editingBook}
         <div class="content" on:change={saveBook}>
-            <div class="section top">
-                <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
-                <Heading 
-                    title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
-                    description="Currently editing" 
-                    reverse={true} 
-                    scale={1.2}
-                />
-                <button class="component danger remove" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan}</button>
+            <div class="section horizontal wide wrap">
+                <div class="top">
+                    <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
+                    <Heading 
+                        title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
+                        description="Currently editing" 
+                        reverse={true} 
+                        scale={1.2}
+                    />
+                </div>
+                
+                <div class="buttons">
+                    {#if $currentCharacter}
+                        <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Copy to character</button>
+                    {/if}
+                    <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
+                </div>
             </div>
-
             <Book book={editingBook}/>
         </div>
 
@@ -131,7 +177,7 @@
         <div class="section">
 
             <div class="section horizontal wide wrap">
-                <div class="grow"><Heading title="Collection" description="Manage your installed lorebooks"/></div>
+                <div class="grow"><Heading title="Local Collection" description="Create, delete and edit your installed lorebooks."/></div>
                 <div class="buttons">
                     <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create lorebook</button>
                     <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
@@ -176,10 +222,7 @@
 
 <style>
     hr{
-        opacity: 0.1;
-        width: 100%;
-        border: 1px dashed gray;
-        margin: 0px;
+        border-style: dashed;
     }
 
     .content{
@@ -191,18 +234,21 @@
 
     .top{
         display: grid;
-        grid-template-columns: 36px auto 32px;
+        grid-template-columns: 36px auto;
         gap: 8px;
     }
 
     .top button{
-        padding: 0px;
         width: 100%;
         height: 100%;
         display: flex;
         align-self: center;
         place-items: center;
         place-content: center;
+    }
+
+    .back{
+        padding: 0px;
     }
 
     .back :global(svg){
@@ -214,7 +260,7 @@
         display: flex;
         flex-wrap: wrap;
         flex-direction: row;
-        margin-right: auto;
+        margin-left: auto;
         gap: 8px;
     }
 
@@ -222,14 +268,6 @@
         margin-left:auto; 
         align-self: flex-end; 
         height: 30px;
-    }
-
-    button.remove{
-        width: 100%;
-        height: fit-content;
-        padding: 0px;
-        place-items: center;
-        place-content: center;
     }
 
     .loading{
@@ -272,10 +310,6 @@
         line-height: 1em;
         text-align: left;
         width: 100%;
-    }
-
-    .book .title{
-        font-size: 1.1em;
     }
 
     .book .description{
