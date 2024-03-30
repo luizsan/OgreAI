@@ -68,7 +68,7 @@
             <div class="top section">
                 <h1>{tab_items[$tabSettings].title}</h1>
                 <p class="explanation">{tab_items[$tabSettings].description}</p>
-                <hr>
+                <hr class="component">
             </div>
 
             <div class="mid">
@@ -89,12 +89,15 @@
                 {/if}
             </div>
             
-            <div class="bottom">
+            <div class="bottom grow">
                 <Footer/>
             </div>
         </div>
 
+    
         <div class="side section wrap">
+            <div class="dim disabled"/>
+
             {#each Object.keys(tab_items) as key}
                 {#if !tab_items[key].disabled}
                     <button 
@@ -119,11 +122,16 @@
         font-size: 40px;
     }
 
-    hr{
-        opacity: 0.1;
-        width: 100%;
+    .dim{
+        position: absolute;
+        right: 0px;
+        width: auto;
+        top: 0px;
+        height: 100vh;
         border: 1px solid gray;
-        margin-bottom: 0px;
+        background: black;
+        opacity: 0.1;
+        z-index: -1;
     }
 
     .tab{
@@ -150,12 +158,12 @@
         top: var( --header-size );
         gap: 0px;
         padding: 16px 0px;
-        width: 72px;
+        width: 64px;
         position: fixed;
     }
 
     .content{
-        padding: 24px 24px 0px 80px;
+        padding: 24px 24px 0px 88px;
         display: flex;
         flex-direction: column;
         position: relative;
@@ -166,7 +174,6 @@
 
     .bottom{
         display: flex;
-        flex-grow: 1;
     }
 
 </style>

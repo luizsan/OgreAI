@@ -58,6 +58,7 @@
                         step={entry.step} 
                         title={entry.title} 
                         description={entry.description}
+                        unit={entry.unit}
                     />
 
                 {:else if entry.type == "select"}

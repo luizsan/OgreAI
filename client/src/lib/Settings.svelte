@@ -85,6 +85,8 @@
             </div>
         </div>
 
+        <hr class="component">
+
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
         <div class="section" on:change={saveSettings}>
@@ -123,6 +125,7 @@
                             step={entry.step} 
                             title={entry.title} 
                             description={entry.description}
+                            unit={entry.unit}
                         />
                     {:else if entry.type == "checkbox"}
                         <Checkbox 
@@ -155,6 +158,10 @@
 </div>
 
 <style>
+    hr{
+        border-style: dashed;
+    }
+
     .inline{
         display: flex;
         gap: 8px;

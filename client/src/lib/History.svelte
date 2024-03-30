@@ -87,7 +87,7 @@
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
     
-    <hr>
+    <hr class="component">
     
     <div class="text">
         <div class="author">
@@ -99,13 +99,12 @@
         </div>
     </div>
     
-    <hr>
+    <hr class="component">
     
     <div class="buttons">
-        <button class="component svg danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
-        <button class="component svg info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
-        <span style="margin-left: auto"></span>
-        <button class="component normal right" on:click|stopPropagation={selectHistory}>Continue chat</button>
+        <button class="component svg danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan} Delete</button>
+        <button class="component svg info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy} Copy</button>
+        <button class="component normal right continue" on:click|stopPropagation={selectHistory}>{@html SVG.chat} Continue chat</button>
     </div>
 </div>
 
@@ -125,12 +124,6 @@
 
     :global(body.light) .base{
         background: #00000012;
-    }
-
-    hr{
-        width: 100%;
-        color: gray;
-        opacity: 0.1;
     }
 
     .title{
@@ -240,17 +233,20 @@
     }
 
     .buttons *{
+        min-width: 30px;
         margin: 0px;
     }
 
-    .svg{
-        width: 32px;
-        padding: 6px;
+    .right{
+        margin-left: auto
     }
 
-    .svg :global(svg){
-        width: 100%;
-        height: 100%;
+    .continue :global(svg){
+        transform: scaleX(-1);
+    }
+
+    .svg{
+        padding: 6px 12px;
     }
     
 </style>

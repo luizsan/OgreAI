@@ -11,6 +11,8 @@
     export let max : number = undefined
     export let step : number = undefined
 
+    export let unit : string = ""
+
     let self : HTMLElement;
 
     function reset(){
@@ -29,9 +31,12 @@
 <div class="section">
     <Heading title={title} description={description}/>
     <div class="input wide horizontal" bind:this={self}>
-        <input type="number" class="component no-spin" step={step} bind:value={value}>
+        <input type="number" class="component no-spin" class:padding={unit} step={step} bind:value={value}>
         <input type="range" class="component" bind:value={value} min={min} max={max} step={step}>
-        <button class="sub danger" title="Reset to default ({original})" on:click={reset}>{@html SVG.refresh}</button>
+        <button class="reset danger" title="Reset to default ({original})" on:click={reset}>{@html SVG.refresh}</button>
+        {#if unit}
+            <div class="unit disabled deselect">{unit}</div>
+        {/if}
     </div>
 </div>
 
@@ -43,15 +48,21 @@
 
     input[type="number"]{
         padding-left: 40px;
+        text-align: right;
+    }
+
+    input[type="number"].padding{
+        padding-right: 24px;
     }
 
     .input{
+        position: relative;
         display: grid;
         grid-template-columns: 128px auto;
         gap: 16px;
     }
 
-    .sub{
+    .reset{
         position: absolute;
         width: 32px;
         height: 30px;
@@ -59,7 +70,20 @@
         background: #80808016;
     }
 
-    .sub :global(svg){
+    .reset :global(svg){
         translate: 0px 1px;
+    }
+
+    .unit{
+        width: 20px;
+        font-size: 0.8em;
+        color: gray;
+        position: absolute;
+        left: -2px;
+        translate: calc( 128px - 100%) 0px;
+        height: 30px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
     }
 </style>

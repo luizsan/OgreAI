@@ -312,7 +312,7 @@
                 Ctrl+Enter to <span on:mousedown={ConfirmEdit} class="clickable info">Confirm</span>
             </div>
         {:else}
-            <div class="text">{@html displayText}</div>
+            <div class="text grow">{@html displayText}</div>
         {/if}
 
 
@@ -436,10 +436,6 @@
         font-weight: 400;
         font-size: 0.8em;
         color: gray;
-    }
-
-    .text{
-        flex-grow: 1;
     }
 
     .text :global(p){

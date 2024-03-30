@@ -120,11 +120,6 @@
         min-height: 16px;
     }
 
-    .empty{
-        font-style: italic;
-        color: gray;
-    }
-
     .dropdown {
         display: none;
         position: absolute;

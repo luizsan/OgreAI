@@ -18,21 +18,21 @@
         background_coverage: {
             title: "Background coverage",
             description: "Controls how much percentage of the screen is covered by the background.",
-            type: "range", default: 50, min: 0, max: 100, step: 1,
+            type: "range", default: 50, min: 0, max: 100, step: 1, unit: "%",
             disabled: () => false,
         },
 
         background_opacity: {
             title: "Background opacity",
             description: "Controls the opacity of the background.",
-            type: "range", default: 50, min: 0, max: 100, step: 1,
+            type: "range", default: 50, min: 0, max: 100, step: 1, unit: "%",
             disabled: () => false,
         },
 
         content_width: {
             title: "Content width",
-            description: "Controls the maximum width of chat, editing and settings screens in px.",
-            type: "range", default: 900, min: 600, max: window.screen.availWidth, step: 10,
+            description: "Controls the maximum width of chat, editing and settings screens.",
+            type: "range", default: 900, min: 600, max: window.screen.availWidth, step: 10, unit: "px",
             disabled: () => document.body.classList.contains("portrait"),
         },
 
