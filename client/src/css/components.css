@@ -124,7 +124,7 @@ button.component{
     outline-width: 1px;
     outline-style: solid;
     border-radius: 3px;
-    transition-duration: all 0.125s;
+    transition-duration: 0.125s;
     box-shadow: 0px 4px 2px 0px #00000030;
     display: flex;
     white-space: nowrap;
