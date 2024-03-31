@@ -110,9 +110,9 @@
 
         
         <div class="section horizontal wide wrap data">
-            <hr class="component">
             <button class="component" on:click={exportSettings}>{@html SVG.upload} Export Settings</button>
             <button class="component" on:click={importSettings}>{@html SVG.download} Import Settings</button>
+            <hr class="component">
         </div>
 
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}

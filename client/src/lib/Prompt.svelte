@@ -50,9 +50,9 @@
 <div class="content wide">
 
     <div class="section horizontal wide wrap data">
-        <hr class="component">
         <button class="component" on:click={exportPrompt}>{@html SVG.upload} Export Prompt</button>
         <button class="component" on:click={importPrompt}>{@html SVG.download} Import Prompt</button>
+        <hr class="component">
     </div>
 
     <div class="section">

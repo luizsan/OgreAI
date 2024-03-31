@@ -155,43 +155,21 @@
 </script>
 
 <div class="content wide">
-    
-    <div class="section" on:change={saveGlobals}>
-        <Heading
-            title="Global Lorebooks"
-            description={`These lorebooks are enabled globally for all chats and will be inserted in the prompt as 'World Info'.`}
-        />
-
-        <Tags
-            bind:choices={$currentLorebooks}
-            bind:selected={selectedBooks}
-            placeholder="Add lorebooks..."
-            notFound="No lorebooks found matching search criteria"
-            display={(v) => v.name}
-            item={(v) => v.temp?.filepath || v.name }
-        />
-
-    </div>
-
-    <div class="section horizontal wide wrap data">
-        <hr class="component">
-        {#if !editingBook}
-        <button class="component" on:click={importLorebook}>{@html SVG.download} Import Lorebook</button>
-        <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
-        {/if}
-    </div>
 
     {#if editingBook}
         <div class="content" on:change={saveBook}>
             <div class="section horizontal wide wrap">
                 <div class="top">
                     <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
-                    <Heading 
-                        title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
-                        description={editingBook.temp?.filepath || "Currently editing"}
-                        reverse={true} 
-                        scale={1.2}
-                    />
+                    <div>
+                        <Heading 
+                            title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
+                            description="Currently editing"
+                            reverse={true} 
+                            scale={1.2}
+                        />
+                        <div class="explanation">{editingBook.temp?.filepath}</div>
+                    </div>
                 </div>
                 
                 <div class="buttons">
@@ -202,16 +180,35 @@
                     <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
+    
             <Book bind:book={editingBook}/>
         </div>
 
     {:else}
-        <div class="section">
+        <div class="section" on:change={saveGlobals}>
+            <Heading
+                title="Global Lorebooks"
+                description={`These lorebooks are enabled globally for all chats and will be inserted in the prompt as 'World Info'.`}
+            />
 
+            <Tags
+                bind:choices={$currentLorebooks}
+                bind:selected={selectedBooks}
+                placeholder="Add lorebooks..."
+                notFound="No lorebooks found matching search criteria"
+                display={(v) => v.name}
+                item={(v) => v.temp?.filepath || v.name }
+            />
+        </div>
+
+        <hr class="component"/>
+
+        <div class="section" style="gap: 16px">
             <div class="section horizontal wide wrap">
                 <div class="grow"><Heading title="Local Collection" description="Create, delete and edit your installed lorebooks."/></div>
                 <div class="buttons">
-                    <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
+                    <button class="component" on:click={importLorebook}>{@html SVG.download} Import Lorebook</button>
+                    <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
                 </div>
             </div>
             
@@ -220,15 +217,17 @@
                     <Loading/>
                 </div>
             {:else}
-                <Search
-                    bind:elements={$currentLorebooks}
-                    bind:results={searchResults}
-                    placeholder="Search lorebooks..."
-                    item={(item) => item.name.toLowerCase()}
-                    sort={sortLorebooks}
-                />
+                <div class="section horizontal wide wrap">
+                    <Search
+                        bind:elements={$currentLorebooks}
+                        bind:results={searchResults}
+                        placeholder="Search lorebooks..."
+                        item={(item) => item.name.toLowerCase()}
+                        sort={sortLorebooks}
+                    />
+                    <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
+                </div>
 
-                <div style="height: 16px"/>
 
                 {#if searchResults && searchResults.length > 0}
                     <div class="books">
@@ -293,6 +292,7 @@
         flex-direction: row;
         margin-left: auto;
         gap: 8px;
+        place-content: center;
     }
 
     .buttons button{
@@ -357,18 +357,5 @@
         place-items: center;
         place-content: center;
         font-style: italic;
-    }
-
-    .data{
-        justify-content: flex-end; 
-        align-items: center;
-        height: 30px;
-        gap: 8px;
-    }
-
-    .data hr{
-        flex: 1 1 content; 
-        height: 0px;
-        margin: 0px 16px;
     }
 </style>

@@ -28,8 +28,8 @@
 </script>
 
 
-<div class="section">
-    <input type="text" class="component" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
+<div class="section grow">
+    <input type="text" class="component grow" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
     {#if search}
         <button class="normal icon cancel" on:click={clear}>{@html SVG.close}</button>
     {:else}
