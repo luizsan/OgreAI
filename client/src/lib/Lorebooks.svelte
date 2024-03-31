@@ -115,7 +115,6 @@
             (entry : string) => $currentLorebooks.find(book => book?.temp?.filepath == entry)
         )
         selectedBooks = selectedBooks.filter(item => item)
-        selectedBooks = selectedBooks
     }
 
     function updateSelected(){
@@ -144,9 +143,6 @@
             if(ok){
                 $currentLorebooks.push(imported)
                 $currentLorebooks = $currentLorebooks
-                searchResults = $currentLorebooks
-                searchResults.sort(sortLorebooks)
-                searchResults = searchResults
                 updateSelected()
             }
         })
@@ -181,7 +177,7 @@
         <hr class="component">
         {#if !editingBook}
         <button class="component" on:click={importLorebook}>{@html SVG.download} Import Lorebook</button>
-        <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create lorebook</button>
+        <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
         {/if}
     </div>
 
