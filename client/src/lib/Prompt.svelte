@@ -2,7 +2,9 @@
     import Accordion from "../components/Accordion.svelte"
     import Reorderable from "../components/Reorderable.svelte";
     import Preset from "../components/Preset.svelte";
+    import * as Data from "../modules/Data.svelte";
     import * as Server from "../modules/Server.svelte";
+    import * as SVG from "../utils/SVGCollection.svelte";
     import { defaultPrompt, currentPresets, currentSettingsMain, currentSettingsAPI } from "../State";
 
     let normal_order : Array<string> = Object.keys($defaultPrompt)
@@ -25,9 +27,33 @@
     function getPromptByKey(key : string){
         return $currentSettingsAPI.prompt.findIndex((e) => e.key == key)
     }
+
+    function exportPrompt(){
+        let exported = JSON.stringify($currentSettingsAPI.prompt, null, 2)
+        Data.download(exported, `exported_${$currentSettingsMain.api_mode}_prompt.json`)
+    }
+
+    function importPrompt(){
+        Data.upload(async (data) => {
+            let imported = JSON.parse(data)
+            if(!imported)
+                return
+            await Server.request("/validate_prompt", { prompt: imported }).then(valid => {
+                console.log(valid)
+                $currentSettingsAPI.prompt = valid;
+                $currentSettingsAPI = $currentSettingsAPI
+            })
+        })
+    }
 </script>
 
 <div class="content wide">
+
+    <div class="section horizontal wide wrap data">
+        <hr class="component">
+        <button class="component" on:click={exportPrompt}>{@html SVG.upload} Export Prompt</button>
+        <button class="component" on:click={importPrompt}>{@html SVG.download} Import Prompt</button>
+    </div>
 
     <div class="section">
         <div>
@@ -38,7 +64,6 @@
         <Reorderable 
             list={$currentSettingsAPI.prompt}
             defaults={$defaultPrompt}
-            presets={$currentPresets}
             update={(v) => {
                 $currentSettingsAPI.prompt = v
                 $currentSettingsAPI = $currentSettingsAPI
@@ -85,10 +110,26 @@
 
 
 <style>
+    hr{
+        border-style: dashed;
+    }
+    
     .content{
         display: flex;
         flex-direction: column;
         gap: 32px;
         box-sizing: border-box;
+    }
+
+    .data{
+        justify-content: flex-end; 
+        align-items: center;
+        gap: 8px;
+    }
+
+    .data hr{
+        flex: 1 1 content; 
+        height: 0px;
+        margin: 0px 16px;
     }
 </style>

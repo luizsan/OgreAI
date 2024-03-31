@@ -6,11 +6,13 @@
     import Tags from "../components/Tags.svelte";
     import Search from "../components/Search.svelte";
     import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "../State"
-    import * as SVG from "../utils/SVGCollection.svelte"
+    import * as Format from "../Format"
     import * as Server from "../modules/Server.svelte";
+    import * as Data from "../modules/Data.svelte"
+    import * as SVG from "../utils/SVGCollection.svelte"
 
 
-    let editingBook : ILorebook = null;
+    let editingBook : any = null;
     let searchResults : Array<ILorebook> = [];
     let selectedBooks : Array<ILorebook> = [];
     let loading : boolean = false;
@@ -28,8 +30,9 @@
     async function addLorebook(){
         let name = prompt("Choose a name for your new lorebook", "New lorebook")
         if( name ){
-            let book = createLorebook()
+            let book : any = createLorebook()
             book.name = name
+            book.temp = { filepath: `${Format.toFilename(book.name)}-${new Date().getTime()}.json` }
             let success = await Server.request("/save_lorebook", { book: book })
             if( success ){
                 $currentLorebooks.push(book)
@@ -57,12 +60,10 @@
             let copy = JSON.parse(JSON.stringify(book))
             $currentCharacter.data.character_book = copy;
             $currentCharacter = $currentCharacter
-
             if($editing){
                 $editing.data.character_book = copy
                 $editing = $editing
             }
-
             await Server.request("/save_character", { character: $currentCharacter })
         }
     }
@@ -73,6 +74,7 @@
             let result = await Server.request("/delete_lorebook", { book: book })
             if( result ){
                 await loadLorebooks();
+                await saveGlobals();
                 closeLorebook();
             }
         }
@@ -82,7 +84,6 @@
         loading = true;
         await Server.request("/get_lorebooks").then(data => {
             $currentLorebooks = data;
-            $currentLorebooks = $currentLorebooks
             searchResults = $currentLorebooks
             searchResults.sort(sortLorebooks)
             searchResults = searchResults
@@ -111,22 +112,50 @@
 
     function initializeSelected(){
         selectedBooks = $currentSettingsMain.books.map(
-            (entry : string) => $currentLorebooks.find(book => book.temp.filepath == entry)
+            (entry : string) => $currentLorebooks.find(book => book?.temp?.filepath == entry)
         )
         selectedBooks = selectedBooks.filter(item => item)
+        selectedBooks = selectedBooks
     }
 
     function updateSelected(){
         const updated = selectedBooks.map((book : any) => book?.temp?.filepath ?? undefined)
+        selectedBooks = selectedBooks
         $currentSettingsMain.books = updated.filter(item => item)
         $currentSettingsMain = $currentSettingsMain;
         return updated
     }
 
+    function exportLorebook(book){
+        let exported = JSON.stringify(book, null, 2)
+        let name = book.temp?.filepath || book.name || "exported_lorebook"
+        if( !name.endsWith(".json") ){
+            name += ".json"
+        }
+        Data.download(exported, `${name}`)
+    }
+
+    function importLorebook(){
+        Data.upload(async (data) => {
+            let imported = JSON.parse(data)
+            if(!imported)
+                return
+            let ok = await Server.request("/save_lorebook", { book: imported })
+            if(ok){
+                $currentLorebooks.push(imported)
+                $currentLorebooks = $currentLorebooks
+                searchResults = $currentLorebooks
+                searchResults.sort(sortLorebooks)
+                searchResults = searchResults
+                updateSelected()
+            }
+        })
+    }
+
     onMount(() => {
         initializeSelected()
     })
-    
+
 </script>
 
 <div class="content wide">
@@ -138,17 +167,23 @@
         />
 
         <Tags
-            choices={$currentLorebooks}
+            bind:choices={$currentLorebooks}
             bind:selected={selectedBooks}
             placeholder="Add lorebooks..."
             notFound="No lorebooks found matching search criteria"
             display={(v) => v.name}
-            item={(v) => v.temp.filepath}
+            item={(v) => v.temp?.filepath || v.name }
         />
 
     </div>
 
-    <hr class="component">
+    <div class="section horizontal wide wrap data">
+        <hr class="component">
+        {#if !editingBook}
+        <button class="component" on:click={importLorebook}>{@html SVG.download} Import Lorebook</button>
+        <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create lorebook</button>
+        {/if}
+    </div>
 
     {#if editingBook}
         <div class="content" on:change={saveBook}>
@@ -157,7 +192,7 @@
                     <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
                     <Heading 
                         title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
-                        description="Currently editing" 
+                        description={editingBook.temp?.filepath || "Currently editing"}
                         reverse={true} 
                         scale={1.2}
                     />
@@ -167,10 +202,11 @@
                     {#if $currentCharacter}
                         <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Copy to character</button>
                     {/if}
+                    <button class="component normal" on:click={() => exportLorebook(editingBook)}>{@html SVG.upload} Export</button>
                     <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
-            <Book book={editingBook}/>
+            <Book bind:book={editingBook}/>
         </div>
 
     {:else}
@@ -179,7 +215,6 @@
             <div class="section horizontal wide wrap">
                 <div class="grow"><Heading title="Local Collection" description="Create, delete and edit your installed lorebooks."/></div>
                 <div class="buttons">
-                    <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create lorebook</button>
                     <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
                 </div>
             </div>
@@ -326,5 +361,18 @@
         place-items: center;
         place-content: center;
         font-style: italic;
+    }
+
+    .data{
+        justify-content: flex-end; 
+        align-items: center;
+        height: 30px;
+        gap: 8px;
+    }
+
+    .data hr{
+        flex: 1 1 content; 
+        height: 0px;
+        margin: 0px 16px;
     }
 </style>

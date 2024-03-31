@@ -127,6 +127,11 @@ export default class Prompt{
             }
         })
 
+        const fixed_items = ["messages", "sub_prompt", "prefill_prompt"]
+        let sorted = obj.filter(e => !fixed_items.includes(e.key))
+        let fixed = obj.filter(e => fixed_items.includes(e.key))
+        
+        obj = [...sorted,...fixed]
         return obj;
     }
 

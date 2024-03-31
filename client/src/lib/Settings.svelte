@@ -8,6 +8,7 @@
     import Loading from "../components/Loading.svelte";
     import Slider from "../components/Slider.svelte";
     import Status from "../components/Status.svelte";
+    import * as Data from "../modules/Data.svelte";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
@@ -53,6 +54,28 @@
         $currentSettingsAPI[key] = $currentSettingsAPI[key];
         saveSettings()
     }
+
+    function exportSettings(){
+        let exported = JSON.stringify($currentSettingsAPI, (key, value) => {
+            if( key === "api_url" || key === "api_auth" ) return undefined;
+            if( key === "prompt" ) return undefined;
+            return value;
+        }, 2)
+        Data.download(exported, `exported_${$currentSettingsMain.api_mode}_settings.json`)
+    }
+
+    function importSettings(){
+        Data.upload((data) => {
+            let imported = JSON.parse(data)
+            if(!imported)
+                return
+            Object.keys(imported).forEach( key => {
+                $currentSettingsAPI[key] = imported[key]
+            })
+            $currentSettingsAPI = $currentSettingsAPI
+            
+        })
+    }
 </script>
 
 
@@ -85,14 +108,17 @@
             </div>
         </div>
 
-        <hr class="component">
+        
+        <div class="section horizontal wide wrap data">
+            <hr class="component">
+            <button class="component" on:click={exportSettings}>{@html SVG.upload} Export Settings</button>
+            <button class="component" on:click={importSettings}>{@html SVG.download} Import Settings</button>
+        </div>
 
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
         <div class="section" on:change={saveSettings}>
-
             <div class="setting vertical">
-
                 {#if $currentSettingsAPI[key] !== undefined }
 
                     {#if entry.type == "text"}
@@ -191,4 +217,17 @@
     .preset .component{
         padding: 6px;
     }
+
+    .data{
+        justify-content: flex-end; 
+        align-items: center;
+        gap: 8px;
+    }
+
+    .data hr{
+        flex: 1 1 content; 
+        height: 0px;
+        margin: 0px 16px;
+    }
+
 </style>

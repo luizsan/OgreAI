@@ -27,6 +27,10 @@ export function parseNames(text : string, user : string, bot : string){
     return text
 }
 
+export function toFilename(text : string){
+    return text.replace(/[^a-z0-9]/gi, '_');
+}
+
 export function relativeTime( datetime : Date ){
     const now = new Date();
     const target = new Date(datetime);

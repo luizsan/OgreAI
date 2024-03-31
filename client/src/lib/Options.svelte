@@ -5,7 +5,6 @@
     import Settings from "./Settings.svelte";
     import Prompt from "./Prompt.svelte";
     import Lorebooks from "./Lorebooks.svelte";
-    import Presets from "./Presets.svelte";
     import Formatting from "./Formatting.svelte";
     import User from "./User.svelte";
     import Customization from "./Customization.svelte";
@@ -129,8 +128,8 @@
         top: 0px;
         height: 100vh;
         border: 1px solid gray;
-        background: black;
-        opacity: 0.1;
+        background: none;
+        opacity: 0.05;
         z-index: -1;
     }
 

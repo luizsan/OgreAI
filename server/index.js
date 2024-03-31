@@ -319,6 +319,11 @@ app.get("/get_prompt", parser, function(_, response){
     response.send( Prompt.default )
 })
 
+app.post("/validate_prompt", parser, function(request, response){
+    let valid = Prompt.Validate( request.body.prompt )
+    response.status(200).send(valid)
+})
+
 app.post("/generate", parser, async function(request, response){
     if( !request.body || !request.body.api_mode ){
         response.status(500).send({})

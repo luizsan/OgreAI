@@ -17,7 +17,14 @@
     let inputText : string = "";
     let filtered = choices;
     
+    $: {
+        choices = choices;
+        selected = selected;
+        filterTags()
+    }
+
     function filterTags() {
+        selected = selected.filter(s => choices.some(c => item(c) == item(s)))
         filtered = choices.filter(e => item(e) && item(e).toLowerCase().includes(inputText.toLowerCase()));
         filtered = filtered.filter(e => !selected.some((s) => item(e) == item(s)))
     }
