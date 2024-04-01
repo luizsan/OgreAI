@@ -110,7 +110,7 @@
 
         
         <hr class="component">
-        
+
         <div class="section horizontal wide wrap">
             <button class="component" on:click={exportSettings}>{@html SVG.upload} Export Settings</button>
             <button class="component" on:click={importSettings}>{@html SVG.download} Import Settings</button>
@@ -218,17 +218,4 @@
     .preset .component{
         padding: 6px;
     }
-
-    .data{
-        justify-content: flex-end; 
-        align-items: center;
-        gap: 8px;
-    }
-
-    .data hr{
-        flex: 1 1 content; 
-        height: 0px;
-        margin: 0px 16px;
-    }
-
 </style>
