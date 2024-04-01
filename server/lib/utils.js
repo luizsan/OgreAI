@@ -126,19 +126,19 @@ export function makePrompt( tokenizer, content, offset = 0 ){
     prefill_prompt = parseNames(prefill_prompt, user.name, character.data.name)
     prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
-    let tokens_system = tokenizer.getTokens(system).length;
+    let tokens_system = tokenizer.getTokens(system);
     let tokens_messages = 0
     
     let injected_sub_prompt = false;
 
     const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
     if(enabled_sub_prompt){
-        tokens_system += tokenizer.getTokens(sub_prompt).length
+        tokens_system += tokenizer.getTokens(sub_prompt)
     }
 
     const enabled_prefill_prompt = getFieldEnabled("prefill_prompt", settings)
     if(enabled_prefill_prompt){
-        tokens_system += tokenizer.getTokens(prefill_prompt).length
+        tokens_system += tokenizer.getTokens(prefill_prompt)
     }
 
     offset = Math.abs(offset)
@@ -154,7 +154,7 @@ export function makePrompt( tokenizer, content, offset = 0 ){
                 injected_sub_prompt = true;
             }
 
-            let next_tokens = tokenizer.getTokens(content).length
+            let next_tokens = tokenizer.getTokens(content)
             if(tokens_system + tokens_messages + next_tokens > settings.context_size){
                 break;
             }
@@ -288,7 +288,7 @@ export function getEntriesFromBook(tokenizer, book, content) {
     entries.sort((a,b) => b.priority - a.priority);
     for(let i = 0; i < entries.length; i++){
         const entry = entries[i];
-        const tokens = tokenizer.getTokens(entry.content).length;
+        const tokens = tokenizer.getTokens(entry.content);
         if(tokens_used + tokens <= book.token_budget){
             tokens_used += tokens;
         }else{
@@ -330,12 +330,12 @@ export function getTokenConsumption( tokenizer, character, user, settings ){
     const _greeting = parseNames( getCharacterProperty( "first_mes", character, settings ), user.name, character.data.name )
 
     return {
-        system: tokenizer.getTokens(_system).length,
-        greeting: tokenizer.getTokens(_greeting).length,
-        description: tokenizer.getTokens(_description).length,
-        personality: tokenizer.getTokens(_personality).length,
-        scenario: tokenizer.getTokens(_scenario).length,
-        dialogue: tokenizer.getTokens(_dialogue).length,
+        system: tokenizer.getTokens(_system),
+        greeting: tokenizer.getTokens(_greeting),
+        description: tokenizer.getTokens(_description),
+        personality: tokenizer.getTokens(_personality),
+        scenario: tokenizer.getTokens(_scenario),
+        dialogue: tokenizer.getTokens(_dialogue),
     }
 }
 

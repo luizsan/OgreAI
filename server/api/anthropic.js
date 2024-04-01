@@ -1,7 +1,7 @@
 // required for calculating tokens correctly
 import OpenAI from "../api/openai.js"
 import * as Utils from "../lib/utils.js"
-import * as Tokenizer from "../tokenizer/gpt.js"
+import * as Tokenizer from "../tokenizer/anthropic.js"
 
 class Anthropic{
 

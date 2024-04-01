@@ -4,11 +4,12 @@
   "type": "module",
   "version": "0.2.0",
   "scripts": {
-                      "dev": "nodemon index.js",
+    "dev": "nodemon index.js",
     "start": "node index.js",
     "autorun": "node index.js --autorun"
   },
   "dependencies": {
+    "@anthropic-ai/tokenizer": "^0.0.4",
     "chalk": "^5.2.0",
     "character-card-utils": "^2.0.3",
     "cors": "^2.8.5",
