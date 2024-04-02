@@ -106,7 +106,7 @@
         }
 
         $busy = true;
-        console.debug( "Request:\n%o", body)
+        // console.debug( "Request:\n%o", body)
         let streaming = $currentSettingsAPI.stream;
         requestTime = new Date().getTime()
         await fetch( localServer + "/generate", options ).then(async response => {

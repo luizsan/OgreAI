@@ -25,7 +25,7 @@
 
         const response = await fetch(State.localServer + url, req);
         const data = await response.json();
-        console.log(`${State.localServer + url}:\n%o`, data)
+        // console.log(`${State.localServer + url}:\n%o`, data)
         return data;
     }
 

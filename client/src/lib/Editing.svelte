@@ -137,7 +137,7 @@
             })
         })
 
-        console.log("Saved character: %o", $editing)
+        // console.log("Saved character: %o", $editing)
         $fetching = false
     }
 
@@ -165,7 +165,7 @@
     async function refreshTokens(){
         let tokens = await Server.getCharacterTokens( $editing )
         $editing.temp.tokens = tokens;
-        console.log(tokens)
+        // console.log(tokens)
     }
 
     function SetUploadImage(){

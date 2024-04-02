@@ -153,7 +153,7 @@
         SetPostActions(false)
         if(window.confirm("Are you sure you want to delete this message?")){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
-            console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
+            // console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
 
             let num_candidates = $currentChat.messages[id].candidates.length;
             if( num_candidates < 1 ){

@@ -23,7 +23,7 @@
     });
 
     function swipeHandler(event : CustomEvent) {
-        console.log(event.detail.direction)
+        // console.log(event.detail.direction)
         switch(event.detail.direction){
             case "right":
                 if( !$sectionCharacters ){

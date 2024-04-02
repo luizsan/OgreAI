@@ -30,7 +30,7 @@
 
     function setPreset(i : number){
         if( i > -1 ){
-            console.log(elements.at(i))
+            // console.log(elements.at(i))
             url = elements.at(i).address;
             auth = elements.at(i).password
         }
