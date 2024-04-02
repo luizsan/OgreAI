@@ -71,7 +71,7 @@
             let existing_item = elements.find((item) => item.name == new_name)
             if( existing_item ){
                 existing_item.address = url
-                existing_item.auth = auth
+                existing_item.password = auth
             }else{
                 elements.push({ "name": new_name, "address": url, "password": auth })
             }
