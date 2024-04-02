@@ -69,7 +69,8 @@ export default class Chat{
                 let old_candidate = old_msg.candidates[c]
                 let new_candidate = {
                     timestamp: old_candidate.timestamp,
-                    text: old_candidate.text
+                    text: old_candidate.text,
+                    timer: old_candidate.timer || 0,
                 }
 
                 if( old_candidate.model ){

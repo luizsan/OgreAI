@@ -42,7 +42,7 @@
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
     $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
     $: model = current && current.model ? current.model : "Unknown model";
-    $: timer = current && current.timer ? (current.timer / 1000).toFixed(2) + "s" : "0.00s";
+    $: timer = current && current.timer ? (current.timer / 1000) : 0;
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
@@ -303,8 +303,9 @@
                 {/if}
             {/if}
 
-            {#if is_bot && prefs_show_timer}
-                <span class="sub">&middot; {timer}</span>
+            {#if id > 0 && is_bot && prefs_show_timer}
+                {@const digits = timer > 0 ? 2 : 0}
+                <span class="sub">({timer.toFixed(digits) + "s"})</span>
             {/if}
 
             <span class="sub index"># {id+1}</span>
