@@ -9,7 +9,7 @@
     import * as Format from '../Format';
     import { tick } from 'svelte';
 
-    let messageElement : HTMLElement;
+    let self : HTMLElement;
 
     export let id : number = -1
     export let generateSwipe = () => {}
@@ -127,7 +127,7 @@
         }else{
             $currentChat.messages[id].candidates[index].text = editedText;
             $currentChat = $currentChat;
-            messageElement.scrollIntoView({ block: "nearest" })
+            self.scrollIntoView({ block: "nearest" })
         }
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
@@ -270,13 +270,13 @@
     }
 
     function ScrollIntoView(){
-        messageElement.scrollIntoView({ block: "nearest" })
+        self.scrollIntoView({ block: "nearest" })
     }
 </script>
 
 <svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
-<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={messageElement}>
+<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={self}>
     
     <button class="avatar" on:click={EditCharacter}>
         <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
@@ -306,7 +306,7 @@
         
         {#if isEditing}
             <!-- svelte-ignore a11y-autofocus -->
-            <textarea class="editing" autofocus use:AutoResize={messageElement} bind:value={editedText}></textarea>
+            <textarea class="editing" autofocus use:AutoResize={self} bind:value={editedText}></textarea>
             <div class="instruction">
                 Escape to <span on:mousedown={CancelEditing} class="clickable info">Cancel</span>, 
                 Ctrl+Enter to <span on:mousedown={ConfirmEdit} class="clickable info">Confirm</span>
