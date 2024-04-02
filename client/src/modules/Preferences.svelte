@@ -11,7 +11,7 @@
         vertical_background: {
             title: "Vertical background",
             description: "Toggles the background orientation and position.",
-            type: "checkbox", default: true,
+            type: "checkbox", default: false,
             disabled: () => false,
         },
 
@@ -46,6 +46,13 @@
         show_model: {
             title: "Show model",
             description: "Toggle the display of the model used to generate the reply in chat.",
+            type: "checkbox", default: false,
+            disabled: () => false,
+        },
+
+        show_timer: {
+            title: "Show timer",
+            description: "Toggle the display of the time taken to generate the response for each message.",
             type: "checkbox", default: false,
             disabled: () => false,
         },

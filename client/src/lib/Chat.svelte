@@ -16,7 +16,8 @@
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
     let messagesDiv : HTMLElement;
-    let chatOptions = false;
+    let chatOptions : boolean = false;
+    let requestTime : number = 0;
 
     let abortController : AbortController = new AbortController()
     let abortSignal = abortController.signal;
@@ -107,6 +108,7 @@
         $busy = true;
         console.debug( "Request:\n%o", body)
         let streaming = $currentSettingsAPI.stream;
+        requestTime = new Date().getTime()
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough( new TextDecoderStream() );
@@ -116,6 +118,7 @@
 
                 function processText({ done, value }){
                     if(done || (value && value.done)){
+                        candidate.timer = new Date().getTime() - requestTime;
                         FormatCandidate(candidate)
                         $currentChat = $currentChat;
                         
@@ -140,6 +143,8 @@
                                 candidate.model = $currentSettingsAPI.model
                             }
                         }
+
+                        candidate.timer = new Date().getTime() - requestTime;
                         scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
@@ -178,6 +183,7 @@
         let candidate = {
             text: "",
             timestamp: Date.now(),
+            timer: Date.now() - requestTime,
             model: null,
             replace: false
         }
@@ -204,6 +210,7 @@
     function ReceiveMessage(incoming : IReply){
         console.debug($currentChat.messages)
         FormatCandidate(incoming.candidate)
+        incoming.candidate.timer = Date.now() - requestTime;
 
         if( incoming.swipe ){
             let last = $currentChat.messages.at(-1)

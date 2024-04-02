@@ -78,6 +78,7 @@ interface ICandidate{
     text : string;
     timestamp : number;
     model : string;
+    timer : number;
 }
 
 interface ILorebook{

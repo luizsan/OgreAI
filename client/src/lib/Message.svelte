@@ -42,14 +42,16 @@
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
     $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
     $: model = current && current.model ? current.model : "Unknown model";
+    $: timer = current && current.timer ? (current.timer / 1000).toFixed(2) + "s" : "0.00s";
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
     $: lockinput = !$currentChat || $fetching || $busy;
 
     // prefs
-    $: prefs_show_model = $currentPreferences["show_model"] ?? false
     $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
+    $: prefs_show_model = $currentPreferences["show_model"] ?? false
+    $: prefs_show_timer = $currentPreferences["show_timer"] ?? false
 
     // ---
     let isEditing = false
@@ -299,6 +301,10 @@
                 {:else}
                     <span class="sub">{botmaker ? `@${botmaker.toLowerCase()}` : "Unknown creator"}</span>
                 {/if}
+            {/if}
+
+            {#if is_bot && prefs_show_timer}
+                <span class="sub">&middot; {timer}</span>
             {/if}
 
             <span class="sub index"># {id+1}</span>
