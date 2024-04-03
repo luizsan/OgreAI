@@ -1,6 +1,6 @@
 // required for calculating tokens correctly
 import * as Utils from "../lib/utils.js"
-import * as Tokenizer from "../tokenizer/gpt.js"
+import * as Tokenizer from "../tokenizer/mistral.js"
 
 class Mistral{
 
