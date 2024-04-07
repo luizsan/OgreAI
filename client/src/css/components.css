@@ -119,7 +119,7 @@ input[type="checkbox"].component{
     height: 24px;
 }
 
-button.component{
+button.component, label.component{
     padding: 6px 20px;
     outline-width: 1px;
     outline-style: solid;
@@ -134,7 +134,7 @@ button.component{
     gap: 4px;
 }
 
-button.component:hover{
+button.component:hover, label:has(input[type="radio"]:checked).component{
     background: var( --component-bg-hover );
     border-color: var( --component-border-hover);
     outline-color: var( --component-border-hover );

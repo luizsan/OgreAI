@@ -1,14 +1,14 @@
 <script lang="ts">
     import Avatar from "../components/Avatar.svelte";
     import Heading from "../components/Heading.svelte";
-    import Dropdown from "../components/Dropdown.svelte";
     import Preset from "../components/Preset.svelte";
+    import Segmented from "../components/Segmented.svelte";
     import * as Server from "../modules/Server.svelte";
     import { currentProfile, currentPresets, defaultPrompt } from "../State";
 
     const key : string = "persona";
     const avatarStyles = [
-        { key: "round", title: "Round" },
+        { key: "round", title: "Circle" },
         { key: "square", title: "Square" },
         { key: "portrait", title: "Portrait" },
     ]
@@ -31,13 +31,19 @@
                 <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
             </div>
 
-            <Dropdown 
-                bind:value={$currentProfile.customization.avatarShape} 
-                choices={avatarStyles} 
-                title="Avatar Style" 
-                description="Define the avatar style in chat."
-                wide={true}
-            />
+            <div class="section">
+                <Heading 
+                    title="Avatar Shape" 
+                    description="Define the shape of the avatar in chat messages."
+                />
+
+                <Segmented
+                    bind:value={$currentProfile.customization.avatarShape}
+                    elements={avatarStyles}
+                    key={(e) => e.key}
+                    label={(e) => e.title}
+                />
+            </div>
         </div>
     </div>
 

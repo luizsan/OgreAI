@@ -1,4 +1,5 @@
 :root{
+    --selection-color: hsl(220, 100%, 50% );
     --default-font-color: hsl(0, 0%, 85%);
     --default-bg-color: hsl(210, 3%, 16%);
 
@@ -38,7 +39,7 @@
 
 ::selection, ::-moz-selection{
     color: white;
-    background: hsl(220, 100%, 50% );
+    background: var( --selection-color );
 }
 
 

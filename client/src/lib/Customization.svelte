@@ -1,9 +1,10 @@
 <script lang="ts">
     import * as Theme from "../modules/Theme.svelte";
     import * as Preferences from "../modules/Preferences.svelte";
-    import Slider from "../components/Slider.svelte";
-    import Dropdown from "../components/Dropdown.svelte";
     import Checkbox from "../components/Checkbox.svelte";
+    import Dropdown from "../components/Dropdown.svelte";
+    import Segmented from "../components/Segmented.svelte";
+    import Slider from "../components/Slider.svelte";
     import { currentTheme, currentPreferences } from "../State";
 
     let buffer = {}
@@ -35,12 +36,11 @@
         </div>
 
         <div class="section" on:change={() => Theme.setTheme($currentTheme)}>
-            {#each Object.keys(Theme.themes) as key}
-                <label class="min">
-                    <input type="radio" class="component" bind:group={$currentTheme} name="theme" value={key}>
-                    {Theme.themes[key].label}
-                </label>
-            {/each}
+            <Segmented 
+                bind:value={$currentTheme} 
+                elements={Object.keys(Theme.themes)}
+                label={(e) => Theme.themes[e].label}
+            />
         </div>
     </div>
 
