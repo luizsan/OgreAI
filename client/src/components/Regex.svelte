@@ -47,7 +47,7 @@
     <div class="row">
         <input type="checkbox" class="component" bind:checked={enabled}>
 
-        <Accordion name={name || pattern} bind:enabled={enabled}>
+        <Accordion name={name || pattern || "Text replacement"} bind:enabled={enabled}>
 
             <div class="section content" class:disabled={!enabled}>
                 <div class="section">
