@@ -1,12 +1,4 @@
-export function parseNames(text, user, bot){
-    if(!text) return text;
-    text = text.replaceAll(/(\[NAME_IN_MESSAGE_REDACTED\])/gmi, user)
-    text = text.replaceAll(/{{user}}/gmi, user)
-    text = text.replaceAll(/<user>/gmi, user)
-    text = text.replaceAll(/{{char}}/gmi, bot)
-    text = text.replaceAll(/<bot>/gmi, bot)
-    return text
-}
+import { parseNames } from "./format.mjs"
 
 export function getPromptField( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
@@ -345,11 +337,3 @@ export function sanitizeStopSequences(list, user, character){
         return []
     return list.map((item) => parseNames(item, user.name, character.data.name))
 }
-
-export default { 
-    parseNames, 
-    makePrompt, 
-    getTokenConsumption, 
-    messagesToString, 
-    sanitizeStopSequences 
-};

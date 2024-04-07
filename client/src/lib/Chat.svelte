@@ -10,7 +10,8 @@
     import Background from "./Background.svelte";
     import { ChatScroll, scroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
-
+    import * as Format from "../Format";
+    
     $: lockinput = !$currentChat || $fetching || $busy;
 
     let userMessage : string = ""
@@ -65,6 +66,7 @@
                     timestamp: Date.now(),
                 }]
             }
+            userMessage = Format.parseMacros(userMessage)
             $currentChat.messages.push(message)
             userMessage = "";
             await tick()
@@ -119,7 +121,8 @@
                 function processText({ done, value }){
                     if(done || (value && value.done)){
                         candidate.timer = new Date().getTime() - requestTime;
-                        FormatCandidate(candidate)
+                        candidate.text = Format.regexReplace(candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
+                        candidate.text = Format.parseMacros(candidate.text)
                         $currentChat = $currentChat;
                         
                         console.debug( "Received stream: %o", candidate )
@@ -209,7 +212,8 @@
 
     function ReceiveMessage(incoming : IReply){
         console.debug($currentChat.messages)
-        FormatCandidate(incoming.candidate)
+        incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
+        incoming.candidate.text = Format.parseMacros(incoming.candidate.text)
         incoming.candidate.timer = Date.now() - requestTime;
 
         if( incoming.swipe ){
@@ -229,23 +233,6 @@
         $currentChat = $currentChat;
         scroll( messagesDiv )
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
-    }
-
-    function FormatCandidate(candidate : ICandidate){
-        if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
-            $currentSettingsMain.formatting.replace.forEach((item : any) => {
-                if( !item || !item.enabled || !item.pattern )
-                    return
-
-                if( item.mode != "always" && item.mode != "on_reply" ){
-                    return
-                }
-
-                const regex = new RegExp(item.pattern, item.flags || "")
-                const replaced = candidate.text.replaceAll(regex, item.replacement ?? "")
-                candidate.text = replaced
-            })
-        }
     }
 
     async function RegenerateMessage(){

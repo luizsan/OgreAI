@@ -32,7 +32,7 @@
 
     // message
     $: displayText = current ? marked.parse(
-        Format.parseMacros(
+        Format.parseNames(
             current.text, 
             $currentProfile.name, 
             $currentCharacter.data.name
@@ -121,34 +121,14 @@
         ScrollIntoView()
     }
 
-    function FormatText(text : string){
-        let replaced = text
-        if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
-            $currentSettingsMain.formatting.replace.forEach((item : any) => {
-                if( !item || !item.enabled || !item.pattern )
-                    return
-
-                if( item.mode != "always" && item.mode != "on_edit" ){
-                    return
-                }
-
-                const regex = new RegExp(item.pattern, item.flags || "")
-                if( regex.test( replaced )){
-                    replaced = text.replaceAll(regex, item.replacement ?? "")
-                }
-            })
-        }
-        return replaced
-    }
-
-
     export function ConfirmEdit(){
         CancelEditing()
         editedText = editedText.trim()
         if( !editedText ){
             DeleteCandidate();
         }else{
-            editedText = FormatText(editedText)
+            editedText = Format.regexReplace(editedText, [ "on_edit" ], $currentSettingsMain.formatting.replace)
+            editedText = Format.randomReplace(editedText)
             $currentChat.messages[id].candidates[index].text = editedText;
             $currentChat = $currentChat;
             self.scrollIntoView({ block: "nearest" })

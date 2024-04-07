@@ -1,5 +1,6 @@
 // required for calculating tokens correctly
 import OpenAI from "../api/openai.js"
+import * as Format from "../lib/format.mjs"
 import * as Utils from "../lib/utils.js"
 import * as Tokenizer from "../tokenizer/claude.js"
 
@@ -138,7 +139,7 @@ class Anthropic{
             }
 
             if( sub_enabled && sub_prompt ){
-                sub_prompt = Utils.parseNames( sub_prompt, user, character.data.name )
+                sub_prompt = Format.parseNames( sub_prompt, user, character.data.name )
                 pad.content += "\n" + sub_prompt
             }
 

@@ -4,6 +4,7 @@ import chalk from "chalk"
 
 import * as CAI from "../import/cai.js"
 import * as Tavern from "../import/tavern.js"
+import * as Format from "../lib/format.mjs"
 
 export default class Chat{
     static path = "../user/chats/"
@@ -16,34 +17,33 @@ export default class Chat{
         this.last_interaction = timestamp
         this.messages = []
 
-        if( character ){
-            this.participants.push( character.data.name )
-            let first = {
-                participant: 0,
-                index: 0,
-                candidates: [ 
-                    {
-                        timestamp: Date.now(), 
-                        text: character.data.first_mes ? character.data.first_mes : "Hello, {{user}}!"
-                    },
-                ],
-            }
+        if( !character )
+            return
+    
+        this.participants.push( character.data.name )
 
-            if( character.data.alternate_greetings ){
-                for( let i = 0; i < character.data.alternate_greetings.length; i++ ){
-                    if( !character.data.alternate_greetings[i] ){ 
-                        continue 
-                    }
-
-                    first.candidates.push({
-                        timestamp: Date.now(),
-                        text: character.data.alternate_greetings[i]
-                    })
-                }
-            }
-
-            this.messages = [ first ]
+        let first = {
+            participant: 0,
+            index: 0,
+            candidates: [],
         }
+
+        let first_mes = character.data.first_mes ? character.data.first_mes : "Hello, {{user}}!"
+        let alt_mes = character.data.alternate_greetings ? character.data.alternate_greetings : []
+        let greetings = [first_mes].concat(alt_mes)
+
+        if( character.data.alternate_greetings ){
+            greetings.forEach(greeting => {
+                let candidate = {
+                    timestamp: Date.now(),
+                    text: greeting
+                }
+                candidate.text = Format.parseMacros(candidate.text)
+                first.candidates.push(candidate)
+            })
+        }
+
+        this.messages = [ first ]
     }
 
     SetFrom( chat ){
