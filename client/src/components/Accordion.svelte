@@ -9,6 +9,7 @@
     export let size : number = 0
     export let limit : number = undefined
     export let showSize : boolean = false;
+    export let enabled : boolean = true;
 
     $: label = `${name ? name : "List"}`;
     
@@ -27,7 +28,7 @@
 
 </script>
 
-<div class="main" bind:this={self}>
+<div class="main" bind:this={self} class:disabled={!enabled}>
     <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
         <span class="label deselect">{label}</span>
 
@@ -40,7 +41,7 @@
         {/if}
     </button>
 
-    {#if open}
+    {#if open && enabled}
         <div class="container" in:slide={{duration: 150}} on:introend={Scroll}>
             <slot/>
         </div>
@@ -58,6 +59,10 @@
 
     .size{
         opacity: 0.33;
+    }
+
+    .disabled{
+        opacity: 0.5;
     }
 
     .accordion{

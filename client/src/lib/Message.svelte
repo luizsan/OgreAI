@@ -2,7 +2,7 @@
     import { marked } from 'marked';
     import * as SVG from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
-    import { currentProfile, currentPreferences, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
+    import { currentProfile, currentPreferences, currentSettingsMain, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
     import * as Server from '../modules/Server.svelte';
@@ -32,7 +32,7 @@
 
     // message
     $: displayText = current ? marked.parse(
-        Format.parseNames(
+        Format.parseMacros(
             current.text, 
             $currentProfile.name, 
             $currentCharacter.data.name
@@ -121,12 +121,34 @@
         ScrollIntoView()
     }
 
+    function FormatText(text : string){
+        let replaced = text
+        if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
+            $currentSettingsMain.formatting.replace.forEach((item : any) => {
+                if( !item || !item.enabled || !item.pattern )
+                    return
+
+                if( item.mode != "always" && item.mode != "on_edit" ){
+                    return
+                }
+
+                const regex = new RegExp(item.pattern, item.flags || "")
+                if( regex.test( replaced )){
+                    replaced = text.replaceAll(regex, item.replacement ?? "")
+                }
+            })
+        }
+        return replaced
+    }
+
+
     export function ConfirmEdit(){
         CancelEditing()
         editedText = editedText.trim()
         if( !editedText ){
             DeleteCandidate();
         }else{
+            editedText = FormatText(editedText)
             $currentChat.messages[id].candidates[index].text = editedText;
             $currentChat = $currentChat;
             self.scrollIntoView({ block: "nearest" })

@@ -233,18 +233,18 @@
 
     function FormatCandidate(candidate : ICandidate){
         if($currentSettingsMain.formatting && $currentSettingsMain.formatting.replace){
-            for(let i = 0; i < $currentSettingsMain.formatting.replace.length; i++ ){
-                const item = $currentSettingsMain.formatting.replace[i]
-                if( !item.enabled ){
-                    continue
+            $currentSettingsMain.formatting.replace.forEach((item : any) => {
+                if( !item || !item.enabled || !item.pattern )
+                    return
+
+                if( item.mode != "always" && item.mode != "on_reply" ){
+                    return
                 }
-                if( !item.pattern ){
-                    continue
-                }
-                const regex = new RegExp(item.pattern, "gi")
+
+                const regex = new RegExp(item.pattern, item.flags || "")
                 const replaced = candidate.text.replaceAll(regex, item.replacement ?? "")
                 candidate.text = replaced
-            }
+            })
         }
     }
 

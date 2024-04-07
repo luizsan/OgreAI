@@ -34,7 +34,7 @@
         },
         formatting: {   
             title: "Formatting", 
-            description: "Use regex to automatically format text when receiving replies.",
+            description: "Use regular expressions to automatically format text in chat.",
             icon: SVG.formatting, disabled: false 
         },
         user: {   

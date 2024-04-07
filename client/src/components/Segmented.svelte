@@ -1,7 +1,7 @@
 <script lang="ts">
     export let elements : Array<any> = []
     // the selected element
-    export let value : any;
+    export let value : any = elements[0];
     // override to define the value of the selected element
     export let key = (element : any) => element;
     // override to define the label
@@ -14,7 +14,7 @@
     
     {#each elements as item}
         <label class="component deselect" class:wide={wide}>
-            <input type="radio" class="component deselect" name="group" bind:group={value} value={key(item)} checked={value == key(item)}>{label(item)}
+            <input type="radio" class="component deselect" bind:group={value} value={key(item)} checked={value == key(item)}>{label(item)}
         </label>
     {/each}
 
