@@ -19,19 +19,6 @@
 
 <div class="content wide" on:change={() => Server.request("/save_main_settings", { data: $currentSettingsMain })}>
     {#each $currentSettingsMain.formatting.replace as rep, i}
-        <!-- <div class="preset">
-            <div class="controls">
-                <input type="checkbox" class="component" bind:checked={rep.enabled}>
-            </div>
-            <div class="fields" class:disabled={!rep.enabled}>
-                <input type="text" class="component wide" placeholder="Pattern" bind:value={rep.pattern} style="flex: 1 1 auto">
-                <div class="separator normal disabled">{@html SVG.arrow}</div>
-                <input type="text" class="component wide" placeholder="Replacement" bind:value={rep.replacement} style="flex: 1 1 auto">
-            </div>
-            <div class="controls">
-                <button class="component danger" title="Remove" on:click={() => RemoveItem("replace", i)}>{@html SVG.trashcan}</button>
-            </div>
-        </div> -->
         <Regex 
             bind:name={rep.name}
             bind:enabled={rep.enabled}
@@ -42,9 +29,7 @@
             remove={() => RemoveItem("replace", i)}
         />
     {/each}
-    
     <button class="component normal" on:click={() => AddItem("replace")}>{@html SVG.plus}Add Text Replace</button>
-
 </div>
 
 
