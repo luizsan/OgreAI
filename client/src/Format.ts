@@ -51,7 +51,7 @@ export function regexReplace(text : string, modes : Array<string>, patterns : Ar
 
         const regex = new RegExp(item.pattern, item.flags || "")
         if( regex.test( replaced )){
-            replaced = text.replaceAll(regex, item.replacement ?? "")
+            replaced = replaced.replace(regex, item.replacement ?? "")
         }
     })
     return replaced
