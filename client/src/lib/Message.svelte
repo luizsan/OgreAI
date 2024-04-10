@@ -6,6 +6,7 @@
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
     import * as Server from '../modules/Server.svelte';
+    import { addThinkingBlocks } from '../utils/ThinkingBlock';
     import * as Format from '../Format';
     import { tick } from 'svelte';
 
@@ -31,13 +32,8 @@
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
 
     // message
-    $: displayText = current ? marked.parse(
-        Format.parseNames(
-            current.text, 
-            $currentProfile.name, 
-            $currentCharacter.data.name
-        ).replaceAll("<", "&lt;").replaceAll(">", "&gt;")
-    ) : ""
+    $: namedText = current ? Format.parseNames(current.text, $currentProfile.name, $currentCharacter.data.name) : ""
+    $: displayText = current ? marked.parse( namedText ) : ""
 
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
     $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
@@ -252,21 +248,21 @@
 
     function LastMessageShortcuts(event : KeyboardEvent){
         switch(event.key){
-            case "ArrowUp": 
+            case "ArrowUp":
+                event.preventDefault() 
                 StartEditing();
-                event.preventDefault()
                 break;
             case "ArrowLeft": 
-                SwipeMessage(-1);
                 event.preventDefault()
+                SwipeMessage(-1);
                 break;
             case "ArrowRight": 
-                SwipeMessage(1); 
                 event.preventDefault()
+                SwipeMessage(1); 
                 break;
             case "Delete": 
-                DeleteCandidate(); 
                 event.preventDefault()
+                DeleteCandidate(); 
                 break;
             default: 
                 break;
@@ -321,12 +317,12 @@
                 Ctrl+Enter to <span on:mousedown={ConfirmEdit} class="clickable info">Confirm</span>
             </div>
         {:else}
-            <div class="text grow">{@html displayText}</div>
+            <div class="text grow" use:addThinkingBlocks={{name: author, content: displayText}}>{@html displayText}</div>
         {/if}
 
 
         {#if !isEditing}
-            <div class="footer">
+            <div class="footer" class:hidden={isEditing}>
                 <button class="dots normal" use:clickOutside on:click={TogglePostActions} disabled={postActions} on:outclick={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
                         {#if postActions}
@@ -363,7 +359,6 @@
         <input class="toggle" type="checkbox" bind:checked={selected} on:input={SelectMessageSingle}>
     {/if}
 </div>
-
 
 <style>
     .msg{
@@ -457,20 +452,87 @@
 
     .text :global(code){
         color: orange;
-        background: hsl(285, 5%, 12%);
-        padding: 2px;
-        font-size: 85%;
+        white-space: pre-line;
+        font-size: 0.85em;
+        background: var( --code-bg-color );
+    }
+    
+    .text :global(.codeblock){
+        white-space: pre-wrap;
+        background: var( --code-bg-color );
+        border-radius: 6px;
+        padding: 6px 12px 10px 12px;
+        margin: 12px 0px;
+        line-height: 1.0em;
     }
     
     .text :global(pre){
-        white-space: pre-wrap;
         background: hsl(285, 5%, 12%);
-        padding: 8px;
-        border-radius: 6px;
     }
 
     .text :global(img){
         max-width: 100%;
+    }
+
+    .text :global(.quote){
+        font-style: italic;
+    }
+
+    .text :global(.thinking){
+        position: relative;
+        width: fit-content;
+        display: flex;
+        flex-direction: column;
+        place-items: flex-start;
+        text-align: start;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        margin: 8px 0px;
+        background: hsla(0, 0%, 100%, 0.1);
+        border: 1px dashed hsla(0, 0%, 100%, 0.25);
+        user-select: text;
+    }
+
+    .text :global(.thinking *){
+        text-align: start;
+        margin: 0px;
+    }
+
+    .text :global(.thinking ul){
+        margin: 0px;
+        padding-left: 20px;
+        line-height: 1.5em;
+    }
+
+    .text :global(.thinking svg){
+        width: 12px;
+        height: 12px;
+    }
+
+    .text :global(.thinking button){
+        inset: 0px;
+        padding: 0px;
+    }
+
+    .text :global(.thinking .heading){
+        color: var( --component-color-normal );
+        display: flex;
+        font-style: italic;
+        text-align: start;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .text :global(.thinking .content){
+        display: none;
+    }
+
+    .text :global(.thinking.active .content){
+        display: unset;
     }
 
     .editing{

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { characterList, creating, currentCharacter, currentChat, currentLorebooks, editing, fetching, localServer } from "../State";
+    import { characterList, creating, currentProfile, currentCharacter, currentChat, currentLorebooks, editing, fetching, localServer } from "../State";
     import Screen from "../components/Screen.svelte";
     import * as Server from "../modules/Server.svelte"
     import Accordion from "../components/Accordion.svelte";
@@ -7,6 +7,7 @@
     import Footer from "../components/Footer.svelte";
     import Heading from "../components/Heading.svelte";
     import Book from "../components/Book.svelte";
+    import * as Format from "../Format";
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -126,7 +127,10 @@
                             $currentChat.participants[0] = $currentCharacter.data.name
                             if( $currentChat.messages.length == 1 && $currentChat.messages[0].participant > -1 ){
                                 $currentChat.messages[0].candidates[0].text = $currentCharacter.data.first_mes;
+                                $currentChat.messages[0].candidates[0].text = Format.parseNames($currentChat.messages[0].candidates[0].text, $currentProfile.name ,$currentCharacter.data.name)
+                                $currentChat.messages[0].candidates[0].text = Format.parseMacros($currentChat.messages[0].candidates[0].text)
                                 $currentChat.messages[0].index = 0;
+
                                 $currentChat = $currentChat;
                             }
                         }
@@ -164,8 +168,9 @@
 
     async function refreshTokens(){
         let tokens = await Server.getCharacterTokens( $editing )
-        $editing.temp.tokens = tokens;
-        // console.log(tokens)
+        if( $editing ){
+            $editing.temp.tokens = tokens;
+        }
     }
 
     function SetUploadImage(){

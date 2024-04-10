@@ -2,17 +2,28 @@ import { marked } from "marked"
 
 const randomSplit = /[:|]+/gm
 const randomPattern = /{{random\s?\:+\s?([^}]+)}}/gi
-const quotePattern = /(?:&quot;|")([^"]+)(?:&quot;|")/gi
+const quotePattern = /(&quot;|")([^"]+)(\1)/gi
 
 export const marked_renderer = new marked.Renderer();
 marked_renderer.del = function(text : string){ return "~" + text + "~"; };
-marked_renderer.pre = function(text : string){ return text; };
+marked_renderer.list = function(text : string, ordered : boolean){
+    return ordered ? '<ol>' + text + '</ol>' : '<ul>' + text + '</ul>';
+}
+
+marked_renderer.listitem = function(text : string){
+    return '<li>' + text + '</li>';
+}
+
 marked_renderer.code = function(text : string) {
-    return '<pre><code>' + text + '</code></pre>';
+    text = text.replaceAll("&", "&gt;")
+    text = text.replaceAll("<", "&lt;")
+    text = text.replaceAll(">", "&gt;")
+    return '<div class="codeblock"><code>' + text + '</code></div>';
 };
 
 marked_renderer.text = function(text : string){
-    return text.replace(quotePattern, `<span class="quote">"$1"</span>`)
+    text = text.replace(quotePattern, `<span class="quote">"$2"</span>`)
+    return text;
 }
 
 marked.setOptions({

@@ -1,5 +1,7 @@
 :root{
     --selection-color: hsl(220, 100%, 50% );
+    --code-bg-color: hsl(285, 5%, 12%);
+
     --default-font-color: hsl(0, 0%, 85%);
     --default-bg-color: hsl(210, 3%, 16%);
 
