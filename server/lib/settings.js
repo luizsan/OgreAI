@@ -13,12 +13,12 @@ export default class Settings{
             obj.formatting = {}
         }
 
-        if( !obj.formatting.replace ){ 
-            obj.formatting.replace = []
+        if( !obj.formatting?.replace || !Array.isArray(obj.formatting?.replace)){ 
+            obj.formatting = { replace: [] }
         }
 
-        if( !obj.books ){
-            obj.books = {}
+        if( !obj.books || !Array.isArray(obj.books) ){
+            obj.books = []
         }
     }
 
