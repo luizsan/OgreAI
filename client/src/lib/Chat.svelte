@@ -306,11 +306,9 @@
 
         const condition = $currentPreferences["enter_sends_message"] ?? false
         if(event.key === "Enter" && (event.shiftKey !== condition)){
-            if(messageBox.selectionEnd === messageBox.value.length){
-                messageBox.blur()
-                SendMessage();
-                event.preventDefault()
-            }
+            messageBox.blur()
+            SendMessage();
+            event.preventDefault()
         }
     }
 </script>

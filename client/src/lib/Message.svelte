@@ -237,7 +237,8 @@
                 CancelEditing();
                 break;
             case "Enter":
-                if( event.ctrlKey ){
+                const condition = $currentPreferences["enter_sends_message"] ?? false
+                if(event.shiftKey !== condition){
                     ConfirmEdit()
                 }
                 break;
@@ -312,9 +313,8 @@
         {#if isEditing}
             <!-- svelte-ignore a11y-autofocus -->
             <textarea class="editing" autofocus use:AutoResize={self} bind:value={editedText}></textarea>
-            <div class="instruction">
-                Escape to <span on:mousedown={CancelEditing} class="clickable info">Cancel</span>, 
-                Ctrl+Enter to <span on:mousedown={ConfirmEdit} class="clickable info">Confirm</span>
+            <div class="instruction section horizontal wrap">
+                <button on:click={CancelEditing} class="component danger">Cancel</button> <button on:click={ConfirmEdit} class="component confirm">Confirm</button>
             </div>
         {:else}
             <div class="text grow" use:addThinkingBlocks={{name: author, content: displayText}}>{@html displayText}</div>
@@ -556,10 +556,6 @@
     .instruction{
         color: gray;
         font-size: 0.85em;
-    }
-
-    .instruction span.clickable{
-        cursor: pointer;
     }
 
     .footer{
