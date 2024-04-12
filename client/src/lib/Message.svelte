@@ -490,8 +490,9 @@
         padding: 10px 16px;
         border-radius: 6px;
         margin: 8px 0px;
-        background: hsla(0, 0%, 100%, 0.1);
-        border: 1px dashed hsla(0, 0%, 100%, 0.25);
+        color: var( --component-color-normal );
+        background: color-mix(in srgb, var( --component-color-normal ) 10%, transparent 100%);
+        border: 1px dashed color-mix(in srgb, var( --component-color-normal ) 25%, transparent 100%);
         user-select: text;
     }
 
@@ -517,7 +518,6 @@
     }
 
     .text :global(.thinking .heading){
-        color: var( --component-color-normal );
         display: flex;
         font-style: italic;
         text-align: start;
