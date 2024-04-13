@@ -11,7 +11,6 @@
   "dependencies": {
     "@anthropic-ai/tokenizer": "^0.0.4",
     "chalk": "^5.2.0",
-    "character-card-utils": "^2.0.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "js-tiktoken": "^1.0.10",
