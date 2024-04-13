@@ -6,10 +6,10 @@
     import Tags from "../components/Tags.svelte";
     import Search from "../components/Search.svelte";
     import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "../State"
-    import * as Format from "../Format"
     import * as Server from "../modules/Server.svelte";
     import * as Data from "../modules/Data.svelte"
     import * as SVG from "../utils/SVGCollection.svelte"
+    import * as Format from "@shared/format.mjs";
 
 
     let editingBook : any = null;

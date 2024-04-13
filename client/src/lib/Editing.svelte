@@ -7,7 +7,7 @@
     import Footer from "../components/Footer.svelte";
     import Heading from "../components/Heading.svelte";
     import Book from "../components/Book.svelte";
-    import * as Format from "../Format";
+    import * as Format from "@shared/format.mjs";
     
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -127,8 +127,8 @@
                             $currentChat.participants[0] = $currentCharacter.data.name
                             if( $currentChat.messages.length == 1 && $currentChat.messages[0].participant > -1 ){
                                 $currentChat.messages[0].candidates[0].text = $currentCharacter.data.first_mes;
+                                $currentChat.messages[0].candidates[0].text = Format.parseMacros($currentChat.messages[0].candidates[0].text, $currentChat)
                                 $currentChat.messages[0].candidates[0].text = Format.parseNames($currentChat.messages[0].candidates[0].text, $currentProfile.name ,$currentCharacter.data.name)
-                                $currentChat.messages[0].candidates[0].text = Format.parseMacros($currentChat.messages[0].candidates[0].text)
                                 $currentChat.messages[0].index = 0;
 
                                 $currentChat = $currentChat;

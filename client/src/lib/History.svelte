@@ -3,7 +3,7 @@
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from '../modules/Server.svelte';
-    import * as Format from '../Format'
+    import * as Format from "@shared/format.mjs";
     import { tick } from 'svelte';
 
     export let chat : IChat;

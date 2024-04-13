@@ -4,7 +4,7 @@ import chalk from "chalk"
 
 import * as CAI from "../import/cai.js"
 import * as Tavern from "../import/tavern.js"
-import * as Format from "../lib/format.mjs"
+import * as Format from "../../shared/format.mjs"
 
 export default class Chat{
     static path = "../user/chats/"

@@ -1,8 +1,8 @@
 // required for calculating tokens correctly
 import OpenAI from "../api/openai.js"
-import * as Format from "../lib/format.mjs"
 import * as Utils from "../lib/utils.js"
 import * as Tokenizer from "../tokenizer/claude.js"
+import * as Format from "../../shared/format.mjs"
 
 class Anthropic{
 

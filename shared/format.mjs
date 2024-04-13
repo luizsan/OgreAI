@@ -1,37 +1,13 @@
-import { marked } from "marked"
 
-const randomSplit = /[:|]+/gm
+const randomSplit = /[:]{2,}|[|]+/gm
 const randomPattern = /{{random\s?\:+\s?([^}]+)}}/gi
-const quotePattern = /(&quot;|")([^"]+)(\1)/gi
 
-export const marked_renderer = new marked.Renderer();
-marked_renderer.del = function(text : string){ return "~" + text + "~"; };
-marked_renderer.list = function(text : string, ordered : boolean){
-    return ordered ? '<ol>' + text + '</ol>' : '<ul>' + text + '</ul>';
-}
-
-marked_renderer.listitem = function(text : string){
-    return '<li>' + text + '</li>';
-}
-
-marked_renderer.code = function(text : string) {
-    text = text.replaceAll("&", "&gt;")
-    text = text.replaceAll("<", "&lt;")
-    text = text.replaceAll(">", "&gt;")
-    return '<div class="codeblock"><code>' + text + '</code></div>';
-};
-
-marked_renderer.text = function(text : string){
-    text = text.replace(quotePattern, `<span class="quote">"$2"</span>`)
-    return text;
-}
-
-marked.setOptions({
-    breaks: true,
-    renderer: marked_renderer,
-})
-
-export function parseNames(text : string, user : string, bot : string){
+/**
+ * @param {string} text
+ * @param {string} user
+ * @param {string} bot
+ */
+export function parseNames(text, user, bot){
     if(!text) return text;
     text = text.replace(/(\[NAME_IN_MESSAGE_REDACTED\])/gmi, user)
     text = text.replace(/{{user}}/gi, user)
@@ -41,18 +17,60 @@ export function parseNames(text : string, user : string, bot : string){
     return text
 }
 
-export function parseMacros(text : string){
+
+/**
+ * @param {string} text
+ * @param {IChat} chat
+ */
+export function parseMacros(text, chat){
     const date = new Date();
+    const idle = getIdleTime(chat)
     text = randomReplace(text)
     text = text.replace(/{{date}}/gi, date.toLocaleDateString());
     text = text.replace(/{{time}}/gi, date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     text = text.replace(/{{weekday}}/gi, date.toLocaleDateString("en-gb", { weekday: 'long' }));
+    text = text.replace(/{{idle_duration}}/gi, idle);
     return text
 }
 
-export function regexReplace(text : string, modes : Array<string>, patterns : Array<any>){
+/**
+ * @param {{ messages: IMessage[] }} chat
+ */
+export function getIdleTime(chat){
+    const last = chat.messages.length > 0 ? chat.messages.at(-1) : null
+    if( last && last.candidates.length > 0 ){
+        const candidate = last.candidates.at(last.index)
+        if( candidate ){
+            return relativeTime( candidate.timestamp, true )
+        }
+    }
+    return relativeTime( new Date(), true )
+}
+
+/**
+ * @param {string} text
+ */
+export function randomReplace(text){
+    text = text.replace(randomPattern, (_match, replace) => {
+        const list = replace.split(randomSplit).map((item) => item.trim()).filter((item) => item && item.length > 0);
+        if(list.length < 2){
+            return ''
+        }
+        const rng = Math.random()
+        const index = Math.floor(rng * list.length)
+        return list[index]
+    })
+    return text
+}
+
+/**
+ * @param {string} text
+ * @param {string | any[]} modes
+ * @param {any[]} patterns
+ */
+export function regexReplace(text, modes, patterns){
     let replaced = text
-    patterns.forEach((item : any) => {
+    patterns.forEach((item) => {
         if( !item || !item.enabled || !item.pattern )
             return
 
@@ -68,24 +86,17 @@ export function regexReplace(text : string, modes : Array<string>, patterns : Ar
     return replaced
 }
 
-export function randomReplace(text){
-    text = text.replace(randomPattern, (_match, replace) => {
-        const list = replace.split(randomSplit).map(item => item.trim()).filter(item => item && item.length > 0);
-        if(list.length < 2){
-            return ''
-        }
-        const rng = Math.random()
-        const index = Math.floor(rng * list.length)
-        return list[index]
-    })
-    return text
-}
-
-export function toFilename(text : string){
+/**
+ * @param {string} text
+ */
+export function toFilename(text){
     return text.replace(/[^a-z0-9]/gi, '_');
 }
 
-export function relativeTime( datetime : Date, precise : boolean = false ){
+/**
+ * @param {string | number | Date} datetime
+ */
+export function relativeTime( datetime, precise = false ){
     const now = new Date();
     const target = new Date(datetime);
     
@@ -93,17 +104,25 @@ export function relativeTime( datetime : Date, precise : boolean = false ){
     const time = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     const full = `${date} ${time}`
 
-    const time_a = new Date(
-        now.getFullYear(), 
-        now.getMonth(), 
-        now.getDate()
-    ).getTime()
+    let time_a;
+    let time_b;
+    
+    if( precise ){
+        time_a = now.getTime()
+        time_b = target.getTime()
+    }else{
+        time_a = new Date(
+            now.getFullYear(), 
+            now.getMonth(), 
+            now.getDate()
+        ).getTime()
 
-    const time_b = new Date(
-        target.getFullYear(), 
-        target.getMonth(), 
-        target.getDate()
-    ).getTime()
+        time_b = new Date(
+            target.getFullYear(), 
+            target.getMonth(), 
+            target.getDate()
+        ).getTime()
+    }
 
     const difference = Math.abs(time_a - time_b);
     const seconds = Math.floor(difference / 1000);
@@ -139,6 +158,4 @@ export function relativeTime( datetime : Date, precise : boolean = false ){
             return `Today at ${time}`
         }
     }
-
-
 }

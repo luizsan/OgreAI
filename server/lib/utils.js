@@ -1,4 +1,4 @@
-import { parseNames, parseMacros } from "./format.mjs"
+import { parseNames, parseMacros } from "../../shared/format.mjs"
 
 export function getPromptField( key, settings ){
     const item = settings.prompt.find((item) => item.key === key )
@@ -107,18 +107,18 @@ export function makePrompt( tokenizer, content, offset = 0 ){
     let prompt = []
 
     let system = getSystemPrompt(tokenizer, content)
+    system = parseMacros( system, content.chat )
     system = parseNames( system, content.user.name, content.character.data.name )
-    system = parseMacros( system )
     prompt.push({ role: "system", content: system })
 
     let sub_prompt = getSubPrompt(character, settings)
+    sub_prompt = parseMacros(sub_prompt, content.chat )
     sub_prompt = parseNames(sub_prompt, user.name, character.data.name)
-    sub_prompt = parseMacros(sub_prompt)
     sub_prompt = sub_prompt.length > 0 ? "\n\n" + sub_prompt : ""
 
     let prefill_prompt = getPrefillPrompt(settings)
+    prefill_prompt = parseMacros(prefill_prompt, content.chat )
     prefill_prompt = parseNames(prefill_prompt, user.name, character.data.name)
-    prefill_prompt = parseMacros(prefill_prompt)
     prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
     let tokens_system = tokenizer.getTokens(system, settings.model);

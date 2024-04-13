@@ -7,7 +7,7 @@
     import Avatar from '../components/Avatar.svelte';
     import * as Server from '../modules/Server.svelte';
     import { addThinkingBlocks } from '../utils/ThinkingBlock';
-    import * as Format from '../Format';
+    import * as Format from "@shared/format.mjs";
     import { tick } from 'svelte';
 
     let self : HTMLElement;
@@ -32,7 +32,8 @@
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
 
     // message
-    $: namedText = current ? Format.parseNames(current.text, $currentProfile.name, $currentCharacter.data.name) : ""
+    $: macroText = current ? Format.parseMacros(current.text, $currentChat) : ""
+    $: namedText = current ? Format.parseNames(macroText, $currentProfile.name, $currentCharacter.data.name) : ""
     $: displayText = current ? marked.parse( namedText ) : ""
 
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";

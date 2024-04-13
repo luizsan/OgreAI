@@ -10,7 +10,7 @@
     import Background from "./Background.svelte";
     import { ChatScroll, scroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
-    import * as Format from "../Format";
+    import * as Format from "@shared/format.mjs";
     
     $: lockinput = !$currentChat || $fetching || $busy;
 
@@ -66,7 +66,7 @@
                     timestamp: Date.now(),
                 }]
             }
-            userMessage = Format.parseMacros(userMessage)
+            userMessage = Format.parseMacros(userMessage, $currentChat)
             $currentChat.messages.push(message)
             userMessage = "";
             await tick()
@@ -122,7 +122,7 @@
                     if(done || (value && value.done)){
                         candidate.timer = new Date().getTime() - requestTime;
                         candidate.text = Format.regexReplace(candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
-                        candidate.text = Format.parseMacros(candidate.text)
+                        candidate.text = Format.parseMacros(candidate.text, $currentChat)
                         $currentChat = $currentChat;
                         
                         console.debug( "Received stream: %o", candidate )
@@ -213,7 +213,7 @@
     function ReceiveMessage(incoming : IReply){
         console.debug($currentChat.messages)
         incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
-        incoming.candidate.text = Format.parseMacros(incoming.candidate.text)
+        incoming.candidate.text = Format.parseMacros(incoming.candidate.text, $currentChat)
         incoming.candidate.timer = Date.now() - requestTime;
 
         if( incoming.swipe ){
