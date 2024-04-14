@@ -45,11 +45,11 @@
     transition-timing-function: ease;
 }
 
-.component:disabled{
+.component:disabled, .component.disabled{
     color: var( --component-color-disabled );
-    background: var( --component-bg-disabled );
     border-color: var( --component-border-disabled );
     outline-color: var( --component-border-disabled );
+    opacity: 0.5;
 }
 
 .component::placeholder{

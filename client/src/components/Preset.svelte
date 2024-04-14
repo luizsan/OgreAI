@@ -183,9 +183,4 @@
         align-items: center;
         padding: 4px 16px;
     }
-    
-    .controls button.disabled{
-        opacity: 0.25;
-    }
-
 </style>

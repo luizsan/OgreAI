@@ -189,10 +189,6 @@
         padding: 8px 16px;
     }
 
-    .controls button.disabled{
-        opacity: 0.25;
-    }
-
     .field .icon{
         position: absolute;
         width: 32px;
