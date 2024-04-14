@@ -2,18 +2,32 @@
     import { fetching, editing, favoritesList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "../modules/Server.svelte";
+    import { LazyLoad } from "../utils/LazyLoad";
 
     export let id : number = -1
     export let character : ICharacter | null = null
     export let label : boolean = false;
 
+    let loaded : boolean = false
+
     $: name = character.data.name
     $: avatar = character.temp.filepath
-    $: url = avatar ? localServer + "/" + encodeURIComponent(avatar.replace("../", "")).replace(/%2F/g, '/').replace(/%3A/g, ':') : ""
+    $: address = getImageAddress(avatar)
     $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
     $: favorited = $favoritesList.indexOf(filename) > -1
 
-     async function SelectCharacter(filepath : string){
+    $: url = `${address}?${character.metadata.modified}`
+
+    function getImageAddress(path){
+        if( !path )
+            return ""
+        path = encodeURIComponent(path.replace("../", ""))
+        path = path.replace(/%2F/g, '/')
+        path = path.replace(/%3A/g, ':')
+        return localServer + "/" + path
+    }
+
+    async function SelectCharacter(filepath : string){
         if( $fetching || $busy ){
             return;
         }
@@ -55,7 +69,7 @@
 
 <div class="container">
     <button class="main" on:click={() => SelectCharacter(avatar)}>
-        <div class="avatar" style="background-image: url({url}?{character.metadata.modified})"/>
+        <div class="avatar" style="background-image: url({loaded ? url : ""})" use:LazyLoad on:lazyload={() => loaded=true}/>
         {#if label}
             <div class="label">
                 <div class="name">{character.data.name}</div>

@@ -7,5 +7,6 @@ declare namespace svelte.JSX {
 		onoutclick?: (e: CustomEvent) => void
         onchatscroll?: (e: CustomEvent) => void
 		onstartedit?: (e: CustomEvent) => void
+		onlazyload?: (e: CustomEvent) => void
 	}
 }
