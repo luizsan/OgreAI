@@ -1,6 +1,12 @@
 import { writable } from "svelte/store"
 
-export const localServer = `${window.location.protocol}//${window.location.hostname}:${8000}`
+function getAddress(){
+    const params = new URLSearchParams(window.location.search)
+    const port = params.get("port") || 8000
+    return `${window.location.protocol}//${window.location.hostname}:${port}`
+}
+
+export const localServer = getAddress()
 
 // SERVER STATE
 // local server status
