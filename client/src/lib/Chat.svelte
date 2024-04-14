@@ -310,7 +310,7 @@
 
     <div class="chat">
         {#if !$history}
-            <div class="messages" class:noscroll={$busy} use:ChatScroll={{ chat: $currentChat }}>
+            <div class="messages" class:disabled={$busy} class:deselect={$busy} use:ChatScroll={{ chat: $currentChat }}>
                 {#if $currentChat != null}
                     {#each $currentChat.messages as _, i}
                         <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
@@ -581,9 +581,4 @@
     .bottom *{
         margin: 0px;
     }
-
-    .noscroll{
-        overflow-y: hidden;
-    }
-
 </style>
