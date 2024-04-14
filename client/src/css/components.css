@@ -79,7 +79,7 @@ input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea
     border-radius: 3px;
     box-shadow: 0px 4px 8px 0px #00000030;
     box-sizing: border-box;
-    padding: 8px;
+    padding: 4px 8px;
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
