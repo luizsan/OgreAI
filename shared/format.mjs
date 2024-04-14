@@ -37,7 +37,7 @@ export function parseMacros(text, chat){
  * @param {{ messages: IMessage[] }} chat
  */
 export function getIdleTime(chat){
-    const last = chat.messages.length > 0 ? chat.messages.at(-1) : null
+    const last = chat?.messages?.length || 0 > 0 ? chat.messages.at(-1) : null
     if( last && last.candidates.length > 0 ){
         const candidate = last.candidates.at(last.index)
         if( candidate ){
