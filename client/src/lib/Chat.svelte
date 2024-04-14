@@ -8,7 +8,7 @@
     import Loading from '../components/Loading.svelte'
     import Message from './Message.svelte'
     import Background from "./Background.svelte";
-    import { ChatScroll, scroll } from "../utils/ChatScroll";
+    import { ChatScroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
     import * as Format from "@shared/format.mjs";
     
@@ -16,17 +16,11 @@
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
-    let messagesDiv : HTMLElement;
     let chatOptions : boolean = false;
     let requestTime : number = 0;
 
     let abortController : AbortController = new AbortController()
     let abortSignal = abortController.signal;
-
-    onMount(async () => {
-        await tick()
-        scroll( messagesDiv );
-    })
 
     function ToggleChatOptions(){
         chatOptions = !chatOptions;
@@ -69,11 +63,10 @@
             userMessage = Format.parseMacros(userMessage, $currentChat)
             $currentChat.messages.push(message)
             userMessage = "";
-            await tick()
-            resize( messageBox );
-            scroll( messagesDiv )
             $currentChat = $currentChat;
             $currentChat.messages = $currentChat.messages;
+            await tick()
+            resize( messageBox );
         }
 
         console.debug( $currentChat.messages )
@@ -148,7 +141,6 @@
                         }
 
                         candidate.timer = new Date().getTime() - requestTime;
-                        scroll( messagesDiv )
                         $currentChat = $currentChat;
                     }
 
@@ -206,7 +198,6 @@
         }
         $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
-        scroll( messagesDiv )
         return candidate;
     }
 
@@ -231,7 +222,6 @@
         }
         $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
-        scroll( messagesDiv )
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
@@ -247,12 +237,10 @@
                 $currentChat.messages.at(-1).candidates.splice( index, 1 )
                 index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
                 $currentChat.messages.at(-1).index = index;
-                scroll( messagesDiv )
                 $currentChat = $currentChat;
                 await GenerateMessage(true);
             }else{
                 $currentChat.messages.pop()
-                scroll( messagesDiv )
                 $currentChat = $currentChat;
                 await GenerateMessage(false);
             }
@@ -321,9 +309,8 @@
     {/if}
 
     <div class="chat">
-
         {#if !$history}
-            <div class="messages" bind:this={messagesDiv} use:ChatScroll>
+            <div class="messages" class:noscroll={$busy} use:ChatScroll={{ chat: $currentChat }}>
                 {#if $currentChat != null}
                     {#each $currentChat.messages as _, i}
                         <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
@@ -593,6 +580,10 @@
 
     .bottom *{
         margin: 0px;
+    }
+
+    .noscroll{
+        overflow-y: hidden;
     }
 
 </style>

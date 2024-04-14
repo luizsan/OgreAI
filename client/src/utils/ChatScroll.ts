@@ -2,18 +2,23 @@ import { tick } from "svelte";
 
 export async function scroll(node : HTMLElement){
     await tick()
-    if( !node )
-        return;
-    node.scrollTo({ top: node.scrollHeight });
+    node?.scrollTo({ top: node.scrollHeight });
 }
 
-export function ChatScroll(node : HTMLElement) {
+export function ChatScroll(node : HTMLElement, options : any) {
     const scrollCallback = (_event : Event) => {
         scroll(node)
     }
 
     document.addEventListener("chatscroll", scrollCallback);
-    return { 
+    scroll(node)
+    
+    return {
+        update(options : any) {
+            if( options?.chat?.messages ){
+                scroll(node)
+            }
+        },
         destroy() {
 			document.removeEventListener("chatscroll", scrollCallback);
 		}

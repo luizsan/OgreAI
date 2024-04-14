@@ -313,7 +313,7 @@
         
         {#if isEditing}
             <!-- svelte-ignore a11y-autofocus -->
-            <textarea class="editing" autofocus use:AutoResize={self} bind:value={editedText}></textarea>
+            <textarea class="editing" autofocus use:AutoResize={{ container: self }} bind:value={editedText}></textarea>
             <div class="instruction section horizontal wrap">
                 <button on:click={CancelEditing} class="component danger">Cancel</button> <button on:click={ConfirmEdit} class="component confirm">Confirm</button>
             </div>
