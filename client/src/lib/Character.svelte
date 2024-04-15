@@ -112,6 +112,7 @@
         border-radius: 50%;
         border: 0px;
         box-shadow: 0px 0px 0px 0px transparent;
+        background-color: #00000040;
         filter: brightness(0.75);
         min-width: var( --avatar-size );
         min-height: var( --avatar-size );
