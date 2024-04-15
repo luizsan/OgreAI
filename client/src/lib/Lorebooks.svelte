@@ -207,7 +207,7 @@
             <div class="section horizontal wide wrap">
                 <div class="grow"><Heading title="Local Collection" description="Create, delete and edit your installed lorebooks."/></div>
                 <div class="buttons">
-                    <button class="component" on:click={importLorebook}>{@html SVG.download} Import Lorebook</button>
+                    <button class="component" on:click={importLorebook}>{@html SVG.download} Import</button>
                     <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
                 </div>
             </div>
