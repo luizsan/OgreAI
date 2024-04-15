@@ -54,18 +54,19 @@ interface IMessage{
 
 // incoming reply from model
 interface IReply{
-    swipe : boolean;
     candidate : ICandidate;
     participant : number;
-    replace : boolean;
+    swipe? : boolean;
+    replace? : boolean;
 }
 
 // "swipe"
 interface ICandidate{
     text : string;
-    timestamp : number;
-    model : string;
-    timer : number;
+    timestamp? : number;
+    model? : string;
+    timer? : number;
+    tokens? : any;
 }
 
 interface ILorebook{
