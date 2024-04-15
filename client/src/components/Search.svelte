@@ -9,15 +9,18 @@
     // assumes it's an Array of strings by default
     // override to access object fields
     export let item = (item : any) => item;
-    export let sort = (a : string | any, b : string | any) => 0;
+
+    // the condition to filter items
+    export let condition = (obj : any, arg : string) => obj.indexOf(arg) >- 1
+
+    // "post-process" the search results (can sort here)
+    export let after = (list : Array<any>) => list;
 
     $: results = update()
 
     function update(){
-        results = elements.filter((element) => item(element).indexOf(search) > -1)
-        if( sort ){
-            results = results.toSorted(sort)
-        }
+        results = elements.filter((element) => condition(item(element), search))
+        results = after(results)
         return results
     }
 
@@ -28,8 +31,8 @@
 </script>
 
 
-<div class="section grow">
-    <input type="text" class="component grow" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
+<div class="section wide">
+    <input type="text" class="component wide" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
     {#if search}
         <button class="normal icon cancel" on:click={clear}>{@html SVG.close}</button>
     {:else}
@@ -41,6 +44,7 @@
 <style>
     input[type="text"]{
         position: relative;
+        height: 30px;
         padding-left: 32px;
     }
 

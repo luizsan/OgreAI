@@ -67,9 +67,9 @@
     }
 </script>
 
-<div class="container">
+<div class="container" use:LazyLoad on:lazyload={() => loaded=true}>
     <button class="main" on:click={() => SelectCharacter(avatar)}>
-        <div class="avatar" style="background-image: url({loaded ? url : ""})" use:LazyLoad on:lazyload={() => loaded=true}/>
+        <div class="avatar" style="background-image: url({loaded ? url : ""})"/>
         {#if label}
             <div class="label">
                 <div class="name">{character.data.name}</div>
@@ -116,7 +116,7 @@
         min-height: var( --avatar-size );
         max-width: var( --avatar-size );
         max-height: var( --avatar-size );
-        outline: 1px solid white;
+        outline: 0px solid white;
         padding: 0px;
         transition: all 0.125s ease-out;
     }

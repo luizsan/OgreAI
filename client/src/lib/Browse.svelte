@@ -1,32 +1,62 @@
 <script lang="ts">
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile } from "../State";
     import Character from './Character.svelte'
+    import Search from '../components/Search.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "../modules/Server.svelte";
     import { clickOutside } from "../utils/ClickOutside";
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
-    let searchField : HTMLInputElement;
-    let searchResults : Array<ICharacter> = $characterList;
-    let sortField : HTMLSelectElement;
-    let sortMode : number = parseInt( window.localStorage.getItem("sort_mode"))
-    let exclusion : Array<HTMLElement>;
+    let searchResults : Array<ICharacter> = $characterList || []
+    let currentSortMode : string = window.localStorage.getItem("sort_mode")
 
-    let mainElement : HTMLElement;
-    let separatorElement : HTMLElement;
-    
+    let self : HTMLElement;
+    let exclusion : Array<HTMLElement>; // "click outside" excluded elements
+
     let pinned = false;
-    let scrolled = 0;
+    let separator : HTMLElement; // threshold to show "Back to top" button
+    let scrolled = 0; // amount of pixels scrolled so far
 
-    $: {
-        if( $characterList || $favoritesList ){
-            searchResults = UpdateList()
+    const sortModes = {
+        creation_date_new: {
+            label: "Creation date (newest)",
+            sort: (list : Array<ICharacter>) => {
+                list = list.sort((a,b) => b.metadata.created - a.metadata.created)
+            }
+        },
+        creation_date_old: {
+            label: "Creation date (oldest)",
+            sort: (list : Array<ICharacter>) => {
+                list = list.sort((a,b) => a.metadata.created - b.metadata.created)
+            }
+        },
+        alphabetical_ascending: {
+            label: "Alphabetical (ascending)",
+            sort: (list : Array<ICharacter>) => {
+                list = list.sort(sortByName)
+            }
+        },
+        alphabetical_descending: {
+            label: "Alphabetical (descending)",
+            sort: (list : Array<ICharacter>) => {
+                list = list.sort(sortByName)
+                list.reverse()
+            }
         }
     }
 
+    $: {
+        // reactively check for changes in $characterList and $favoritesList
+        // update the search results
+        if( $characterList || $favoritesList ){
+            searchResults = orderResults(searchResults)
+        }
+    }
+
+    $: size = searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length;
+
     onMount(() => {
-        sortField.selectedIndex = sortMode;
         exclusion = [document.getElementById("header")]
     })
     
@@ -54,10 +84,6 @@
         $sectionCharacters = false;
     }
 
-    function sortByCreateDate(a : ICharacter, b : ICharacter){
-        return b.metadata.created - a.metadata.created
-    }
-
     function sortByName(a : ICharacter, b : ICharacter){
         let nameA = a.data.name.toLowerCase()
         let nameB = b.data.name.toLowerCase()
@@ -74,74 +100,43 @@
         pinned = !pinned;
     }
 
-    function UpdateList(){
-        // search filter
-        if( !searchField || !searchField.value ){
-            searchResults = [...$characterList];
-        }else{
-            searchResults = [...$characterList].filter(character => {
-                return character.data.name.toLowerCase().indexOf(searchField.value.toLowerCase()) > -1;
-            })
+    function orderResults(list : Array<ICharacter>){
+        if(Object.keys(sortModes).includes(currentSortMode)){
+            list.sort(sortModes[currentSortMode].sort(list))
         }
-
-        // sort
-        if( sortMode === undefined || sortMode === null ){
-            sortMode = 0;
-        }
-
-        if( sortField ){
-            sortMode = sortField.selectedIndex;
-        }
-
-        switch(sortMode){
-            case 0: 
-                searchResults = searchResults.sort(sortByCreateDate); 
-                break;
-
-            case 1: 
-                searchResults = searchResults.sort(sortByCreateDate); 
-                searchResults = searchResults.reverse();
-                break;
-
-            case 2: 
-                searchResults = searchResults.sort(sortByName);    
-                break;
-
-            case 3: 
-                searchResults = searchResults.sort(sortByName);    
-                searchResults = searchResults.reverse();
-                break;
-
-            default: 
-                break;
-        }
-
-        window.localStorage.setItem("sort_mode", sortMode.toString() )
-
-        // favorites first
-        let a = searchResults.filter(item => $favoritesList.indexOf(item.temp.filepath.replaceAll("../user/characters/", "")) > -1)
-        let b = searchResults.filter(item => $favoritesList.indexOf(item.temp.filepath.replaceAll("../user/characters/", "")) < 0)
-        searchResults = [...a, ...b]
-        
-        return searchResults
+        list = getFavoritesFirst(list)
+        return list
     }
 
-    function ClearSearch(){
-        if(searchField){
-            searchField.value = "";
-            UpdateList();
-        }
+    function getFavoritesFirst(list : Array<ICharacter>){
+        let a = [] // fav
+        let b = [] // non-fav
+
+        list.forEach((char) => {
+            if($favoritesList.find((item) => item == char.temp.filepath.replaceAll("../user/characters/", ""))){
+                a.push(char)
+            }else{
+                b.push(char)
+            }
+        })
+
+        return a.concat(b)
     }
 
-    function RefreshScroll(){
-        scrolled = mainElement ? mainElement.scrollTop : -1; 
+    function changeSort(){
+        window.localStorage.setItem("sort_mode", currentSortMode)
+        searchResults = orderResults(searchResults)
     }
 
-    function BackToTop(){
-        if( !mainElement ){
+    function refreshScroll(){
+        scrolled = self ? self.scrollTop : -1; 
+    }
+
+    function backToTop(){
+        if( !self ){
             return
         }
-        mainElement.scrollTo({top: 0, behavior: "smooth"})
+        self.scrollTo({top: 0, behavior: "smooth"})
     }
 
 </script>
@@ -149,50 +144,60 @@
 
 <div class="main" class:active={$sectionCharacters} use:clickOutside={exclusion} on:outclick={Close}>
 
-    <div class="container" bind:this={mainElement} on:scroll={RefreshScroll}>
+    <div class="container" bind:this={self} on:scroll={refreshScroll}>
+
         <div class="section horizontal" style="justify-content: end">
             <button class="pin {pinned ? "info" : "unpin"}" on:click={togglePin}>{@html SVG.pin}</button>
         </div>
 
-        <div class="section horizontal">
-            <button class="component normal wide" title="New character" on:click={NewCharacter}>{@html SVG.add}New character</button>
-            <!-- <button class="system">{@html SVG.download}</button> -->
-            <button class="component normal wide" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload list</button>
+        <div class="section">
+            <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.plus}Create Character</button>
+
+            <div class="section horizontal">
+                <button class="component normal wide disabled" title="Import">{@html SVG.download}Import</button>
+                <button class="component normal wide" title="Reload" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload</button>
+            </div>
+        </div>
+        
+        <div/>
+        
+        <div class="section">
+            <div class="label explanation">Character List — {size}</div>
+            <div class="section horizontal wide select">
+                <select class="component wide" bind:value={currentSortMode} on:change={changeSort}>
+                    {#each Object.keys(sortModes) as key}
+                    <option value={key}>{sortModes[key].label}</option>
+                    {/each}
+                </select>
+                <div class="icon disabled">{@html SVG.sort}</div>
+
+            </div>
+            
+            <Search 
+                elements={$characterList}
+                bind:results={searchResults}
+                placeholder="Search characters..."
+                item={(char) => char.data.name}
+                condition={(obj, arg) => obj.toLowerCase().includes(arg.toLowerCase())}
+                after={(list) => orderResults(list)}
+            />
         </div>
     
-        <div class="section select">
-            <label for="sort" class="deselect">Sort order</label>
-            <select name="sort" class="component" on:change={UpdateList} bind:this={sortField}>
-                <option>Creation date (newest)</option>
-                <option>Creation date (oldest)</option>
-                <option>Alphabetical (ascending)</option>
-                <option>Alphabetical (descending)</option>
-            </select>
-            <div class="icon">{@html SVG.sort}</div>
+        <div class="separator" bind:this={separator}/>
+
+        <div class="section characters">
+            {#if searchResults && searchResults.length > 0}
+                {#each searchResults as char, i}
+                    <Character id={i} character={char} label={true} />
+                {/each}
+            {:else}
+                <p class="unavailable deselect">No characters available</p>
+            {/if}
         </div>
-    
-        <div class="search">
-            <input name="search" type="text" class="component" autocomplete="off" placeholder="Search characters..." bind:this={searchField} on:input={UpdateList}>
-            <div class="icon">{@html SVG.search}</div>
-        </div>
-
-        {#if searchField && searchField.value}
-            <button class="normal cancel" on:click={ClearSearch}>{@html SVG.close} Clear search results</button>
-        {/if}
-
-        <div class="separator" bind:this={separatorElement}/>
-
-        {#if searchResults && searchResults.length > 0}
-            {#each searchResults as char, i}
-                <Character id={i} character={char} label={true} />
-            {/each}
-        {:else}
-            <p class="unavailable deselect">No characters available</p>
-        {/if}
     </div>
 
-    {#if scrolled > separatorElement?.offsetTop}
-        <button class="component normal top" transition:fly={{duration: 250, y: -16, opacity: 0}} on:click={BackToTop}>Back to top</button>
+    {#if scrolled > separator?.offsetTop}
+        <button class="component normal back" transition:fly={{duration: 250, y: -16, opacity: 0}} on:click={backToTop}>Back to top</button>
     {/if}
 
 </div>
@@ -203,15 +208,10 @@
         box-sizing: border-box;
     }
 
-    input[type="text"]{
-        width: 100%;
-    }
-    
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
         background: hsl(210, 3%, 15%);
-        /* border-right: 1px solid hsl(0, 0%, 33%); */
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         top: var( --header-size );
@@ -220,8 +220,6 @@
         position: fixed;
         width: var( --side-width );
         max-width: 100%;
-
-        /* box-shadow: 4px 0px 4px 0px #00000040; */
 
         transition: translate 0.15s ease;
         translate: -100% 0 0;
@@ -234,56 +232,23 @@
         padding: 16px 20px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
         height: 100%;
-    }
-
-    .separator{
-        min-height: 8px;
     }
 
     .active{
         translate: 0 0 0;
     }
 
-    .component{
-        flex-direction: column;
-        justify-content: center;
-        font-size: 80%;
-    }
-
-    .component :global(svg){
-        width: 24px;
-        height: 24px;
-    }
-
-    .select, .search{
-        position: relative;
-        top: 0px;
-    }
-    
-    .select select, .search input[type="text"]{
-        padding-left: 32px;
-    }
-
     .icon{
         position: absolute;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        bottom: 0px;
-        left: 0px;
-        width: 40px;
-        height: 32px;
+        place-items: center;
+        top: 0px;
+        left: 12px;
+        width: 16px;
+        height: 100%;
         color: gray;
-    }
-
-    .cancel{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        gap: 8px;
     }
 
     .unpin{ color: hsl(0, 0%, 75%); }
@@ -301,15 +266,18 @@
         height: 20px;
     }
 
-    .select{
-        display: flex;
-        flex-direction: column;
+    .label{
+        font-weight: bold;
+        font-size: 0.75em;
     }
 
-    .select label{
-        font-size: 80%;
-        font-weight: bolder;
-        color: gray;
+    .select{
+        position: relative;
+    }
+
+    select{
+        position: relative;
+        padding-left: 32px;
     }
 
     .unavailable{
@@ -320,7 +288,7 @@
         opacity: 0.5;
     }
 
-    .top{
+    .back{
         position: fixed;
         top: 32px;
         left: 50%;
@@ -331,8 +299,12 @@
         box-shadow: 0px 5px 20px 15px hsla(210, 3%, 15%, 1);
     }
 
-    .top:after{
+    .back:after{
         content: "▲";
+    }
+
+    .characters{
+        gap: 12px;
     }
 
 </style>

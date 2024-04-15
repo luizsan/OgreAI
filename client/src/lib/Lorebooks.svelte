@@ -223,7 +223,7 @@
                         bind:results={searchResults}
                         placeholder="Search lorebooks..."
                         item={(item) => item.name.toLowerCase()}
-                        sort={sortLorebooks}
+                        after={(list) => list.toSorted(sortLorebooks)}
                     />
                     <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
                 </div>
