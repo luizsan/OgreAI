@@ -11,6 +11,7 @@
     import * as Data from "../modules/Data.svelte";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
+    import { Logo } from "../utils/SVGLogo.svelte";
 
     let loading = false;
 
@@ -86,7 +87,7 @@
         await saveSettings()
         loading = false;
     }}>
-        <Dropdown bind:value={$currentSettingsMain.api_mode} choices={$availableAPIModes} title="API Mode"/>
+        <Dropdown bind:value={$currentSettingsMain.api_mode} choices={$availableAPIModes} title="API Mode" icon={ Logo[$currentSettingsMain.api_mode] }/>
     </div>
 
     {#if loading}
