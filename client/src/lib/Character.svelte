@@ -91,6 +91,7 @@
         display: flex;
         flex-direction: row;
         gap: 16px;
+        padding: 8px 0px;
         font-family: var( --default-font-face );
         font-size: var( --default-font-size );
         width: 100%;

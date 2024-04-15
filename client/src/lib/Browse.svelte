@@ -304,7 +304,7 @@
     }
 
     .characters{
-        gap: 12px;
+        gap: 0px;
     }
 
 </style>
