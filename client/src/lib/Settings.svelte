@@ -11,7 +11,7 @@
     import * as Data from "../modules/Data.svelte";
     import * as Server from "../modules/Server.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
-    import { Logo } from "../utils/SVGLogo.svelte";
+    import * as Logo from "../utils/SVGLogo.svelte";
 
     let loading = false;
 
