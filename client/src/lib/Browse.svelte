@@ -113,7 +113,7 @@
         let b = [] // non-fav
 
         list.forEach((char) => {
-            if($favoritesList.find((item) => item == char.temp.filepath.replaceAll("../user/characters/", ""))){
+            if($favoritesList.find((item) => item == char.temp.filepath)){
                 a.push(char)
             }else{
                 b.push(char)

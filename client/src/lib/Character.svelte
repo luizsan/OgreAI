@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fetching, editing, favoritesList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
+    import { fetching, editing, favoritesList, characterList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "../modules/Server.svelte";
     import { LazyLoad } from "../utils/LazyLoad";
@@ -11,10 +11,10 @@
     let loaded : boolean = false
 
     $: name = character.data.name
-    $: avatar = character.temp.filepath
-    $: address = getImageAddress(avatar)
+    $: filepath = character.temp.filepath
+    $: address = getImageAddress(filepath)
     $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
-    $: favorited = $favoritesList.indexOf(filename) > -1
+    $: favorited = $favoritesList.indexOf(filepath) > -1
 
     $: url = `${address}?${character.metadata.modified}`
 
@@ -62,13 +62,13 @@
         }else{
             $favoritesList.push(s)
         }
-        $favoritesList = $favoritesList
+        $favoritesList = $favoritesList.filter((fav) => $characterList.find((char) => char.temp.filepath == fav))
         window.localStorage.setItem("favorites", JSON.stringify($favoritesList))
     }
 </script>
 
 <div class="container" use:LazyLoad on:lazyload={() => loaded=true}>
-    <button class="main" on:click={() => SelectCharacter(avatar)}>
+    <button class="main" on:click={() => SelectCharacter(filepath)}>
         <div class="avatar" style="background-image: url({loaded ? url : ""})"/>
         {#if label}
             <div class="label">
@@ -77,7 +77,7 @@
             </div>
             
         {/if}
-        <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filename)}>{@html SVG.star}</button>
+        <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
     </button>
 </div>
 
