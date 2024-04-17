@@ -10,6 +10,7 @@
     import { fade } from 'svelte/transition';
     import { swipe } from 'svelte-gestures';
     import { connected, currentTheme, currentPreferences, currentCharacter, currentChat, fetching, sectionCharacters } from '../State';
+    import { initializeMarked } from '../Marked';
     import Loading from '../components/Loading.svelte';
     import * as Preferences from '../modules/Preferences.svelte';
     import * as Theme from '../modules/Theme.svelte';
@@ -19,6 +20,7 @@
         Theme.updateRatio()
         $currentTheme = Theme.loadTheme()
         $currentPreferences = Preferences.loadAllPreferences()
+        initializeMarked()
         Server.initializeData()
     });
 
