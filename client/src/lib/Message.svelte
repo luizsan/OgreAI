@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { marked } from 'marked';
     import * as SVG from "../utils/SVGCollection.svelte"
     import { AutoResize } from '../utils/AutoResize';
     import { currentProfile, currentPreferences, currentSettingsMain, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '../State';
     import { clickOutside } from '../utils/ClickOutside';
     import Avatar from '../components/Avatar.svelte';
+    import Text from '../components/Text.svelte';
     import * as Server from '../modules/Server.svelte';
-    import { addThinkingBlocks } from '../utils/ThinkingBlock';
     import * as Format from "@shared/format.mjs";
     import { tick } from 'svelte';
 
@@ -30,11 +29,7 @@
     $: index = msg ? msg.index : 0;
     $: candidates = msg && msg.candidates ? msg.candidates : []
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
-
-    // message
-    $: macroText = current ? Format.parseMacros(current.text, $currentChat) : ""
-    $: namedText = current ? Format.parseNames(macroText, $currentProfile.name, $currentCharacter.data.name) : ""
-    $: displayText = current ? marked.parse( namedText ) : ""
+    $: displayText = current ? current.text : ""
 
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
     $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
@@ -318,7 +313,7 @@
                 <button on:click={CancelEditing} class="component danger">Cancel</button> <button on:click={ConfirmEdit} class="component confirm">Confirm</button>
             </div>
         {:else}
-            <div class="text grow" use:addThinkingBlocks={{name: author, content: displayText}}>{@html displayText}</div>
+            <Text author={author} content={displayText}/>
         {/if}
 
 
@@ -396,6 +391,10 @@
         border-color: rgb(135, 206, 235);
     }
 
+    .msg:hover .index{
+        visibility: visible;
+    }
+
     .msg.delete, .msg:hover.delete{
         background: rgba(255,64,64,0.1);
         border-color: rgb(255,72,72);
@@ -433,107 +432,10 @@
         visibility: hidden;
     }
 
-    .msg:hover .index{
-        visibility: visible;
-    }
-
     .sub{
         font-weight: 400;
         font-size: 0.8em;
         color: gray;
-    }
-
-    .text :global(p){
-        margin-bottom: 1em;
-    }
-
-    .text :global(em){
-        color: rgb(106, 135, 149);
-    }
-
-    .text :global(code){
-        color: orange;
-        white-space: pre-line;
-        font-size: 0.85em;
-        background: var( --code-bg-color );
-    }
-    
-    .text :global(.codeblock){
-        white-space: pre-wrap;
-        background: var( --code-bg-color );
-        border-radius: 6px;
-        padding: 6px 12px 10px 12px;
-        margin: 12px 0px;
-        line-height: 1.0em;
-    }
-    
-    .text :global(pre){
-        background: hsl(285, 5%, 12%);
-    }
-
-    .text :global(img){
-        max-width: 100%;
-    }
-
-    .text :global(.quote){
-        font-style: italic;
-    }
-
-    .text :global(.thinking){
-        position: relative;
-        width: fit-content;
-        display: flex;
-        flex-direction: column;
-        place-items: flex-start;
-        text-align: start;
-        align-items: center;
-        gap: 4px;
-        padding: 10px 16px;
-        border-radius: 6px;
-        margin: 8px 0px;
-        color: var( --component-color-normal );
-        background: color-mix(in srgb, var( --component-color-normal ) 10%, transparent 100%);
-        border: 1px dashed color-mix(in srgb, var( --component-color-normal ) 25%, transparent 100%);
-        user-select: text;
-    }
-
-    .text :global(.thinking *){
-        text-align: start;
-        margin: 0px;
-    }
-
-    .text :global(.thinking ul){
-        margin: 0px;
-        padding-left: 20px;
-        line-height: 1.5em;
-    }
-
-    .text :global(.thinking svg){
-        width: 12px;
-        height: 12px;
-    }
-
-    .text :global(.thinking button){
-        inset: 0px;
-        padding: 0px;
-    }
-
-    .text :global(.thinking .heading){
-        display: flex;
-        font-style: italic;
-        text-align: start;
-        flex-direction: row;
-        align-items: center;
-        gap: 4px;
-        width: 100%;
-    }
-
-    .text :global(.thinking .content){
-        display: none;
-    }
-
-    .text :global(.thinking.active .content){
-        display: unset;
     }
 
     .editing{
