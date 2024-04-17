@@ -27,7 +27,7 @@
         </select>
 
         {#if icon}
-            <div class="icon">
+            <div class="icon disabled">
                 {@html icon}
             </div>
         {/if}
