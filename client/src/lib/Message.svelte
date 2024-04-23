@@ -307,10 +307,14 @@
         </div>
         
         {#if isEditing}
-            <!-- svelte-ignore a11y-autofocus -->
-            <textarea class="editing" autofocus use:AutoResize={{ container: self }} bind:value={editedText}></textarea>
-            <div class="instruction section horizontal wrap">
-                <button on:click={CancelEditing} class="component danger">Cancel</button> <button on:click={ConfirmEdit} class="component confirm">Confirm</button>
+            <div class="section editing">
+                <p class="explanation">Editing message</p>
+                <!-- svelte-ignore a11y-autofocus -->
+                <textarea autofocus use:AutoResize={{ container: self }} bind:value={editedText}></textarea>
+                <div class="section horizontal wrap">
+                    <button on:click={CancelEditing} class="component borderless danger">{@html SVG.close} Cancel</button>
+                    <button on:click={ConfirmEdit} class="component borderless confirm">{@html SVG.confirm} Confirm</button>
+                </div>
             </div>
         {:else}
             <Text author={author} content={displayText}/>
@@ -439,28 +443,43 @@
         color: gray;
     }
 
-    .editing{
-        box-sizing: border-box;
-        width: 100%;
-        resize: none;
-        padding: 8px;
-    }
-    
-    textarea.editing{
-        border: none;
-        outline: none;
-        color: #D0D0D0;
+    .editing .explanation{
+        color: gray;
         font-size: 80%;
-        overflow-y: hidden;
-        background: #404040;
-        border-radius: 4px;
-        margin: 8px 0px;
+        font-weight: bolder;
+
     }
 
-    .instruction{
-        color: gray;
-        font-size: 0.85em;
+    .editing textarea{
+        box-sizing: border-box;
+        padding: 8px;
+        width: 100%;
+        resize: none;
+        border: none;
+        outline: none;
+        color: var( --code-text-color );
+        font-size: 80%;
+        overflow-y: hidden;
+        background: var( --code-bg-color );
+        border-radius: 4px;
+        margin: -4px 0px 0px 0px;
     }
+
+    .editing button{
+        font-size: 80%;
+        padding: 0px 16px;
+        min-height: 28px;
+    }
+
+    .editing button :global(svg){
+        width: 12px;
+        height: 12px;
+    }
+
+    .editing .horizontal{
+        place-content: flex-end;
+    }
+    
 
     .footer{
         height: 24px;

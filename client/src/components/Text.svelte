@@ -7,7 +7,7 @@
 
     export let content : string = ""
     export let author : string = ""
-    
+
     export let user : string = $currentProfile.name
     export let bot : string = $currentCharacter.data.name
     export let chat : IChat = $currentChat
@@ -53,7 +53,7 @@
     }
 
     .text :global(code){
-        color: orange;
+        color: var( --code-text-color );
         font-size: 0.85em;
         background: var( --code-bg-color );
     }
