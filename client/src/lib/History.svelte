@@ -115,17 +115,18 @@
 
 <style>
     .content{
-        background: color-mix(in srgb, black 30%, transparent );
+        background: color-mix(in srgb, #111 50%, transparent );
         border-radius: 8px;
         padding: 20px;
         display: flex;
         flex-direction: column;
         gap: 8px;
         text-align: left;
+        border-left: 2px solid #808080;
     }
 
     :global(body.light) .content{
-        background: color-mix(in srgb, white 30%, transparent );
+        background: color-mix(in srgb, #fff 50%, transparent );
     }
 
     .title{
@@ -202,7 +203,6 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
     }
     
     .message:not(.open){
