@@ -5,9 +5,9 @@
     --default-font-color: hsl(0, 0%, 85%);
     --default-bg-color: hsl(210, 3%, 16%);
 
-    --accent-color-dark: rgb(32, 72, 96);
-    --accent-color-normal: rgb(48, 128, 192);
-    --accent-color-light: rgb(96, 192, 220);
+    --accent-color-dark: rgb(34, 75, 71);
+    --accent-color-normal: rgb(34, 138, 124);
+    --accent-color-light: rgb(103, 252, 220);
 
     --component-color-normal: hsl(0, 0%, 75%);
     --component-color-hover: hsl(0, 0%, 100%);
