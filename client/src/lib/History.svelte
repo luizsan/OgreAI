@@ -5,10 +5,12 @@
     import * as Server from '../modules/Server.svelte';
     import * as Format from "@shared/format.mjs";
     import { tick } from 'svelte';
+    import Text from '../components/Text.svelte';
 
     export let chat : IChat;
     let titleField : HTMLInputElement
-    let editingTitle = false
+    let editingTitle : boolean = false
+    let open : boolean = false
 
     $: last = chat ? chat.messages.at(-1) : null;
     $: index = last ? last.index : 0;
@@ -71,105 +73,89 @@
 
 </script>
 
-<div class="base">
-    <div class="title">
-        <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
-        {#if editingTitle}
-            <!-- svelte-ignore a11y-autofocus -->
-            <input type="text" class="edit" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
-        {:else}
-            <span class="label">{chat.title}</span>
-        {/if}
-    </div>
+<div class="content">
+    <div class="section data">
+        <div class="title">
+            <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
+            {#if editingTitle}
+                <!-- svelte-ignore a11y-autofocus -->
+                <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
+            {:else}
+                <span class="label">{chat.title}</span>
+            {/if}
+        </div>
 
-    <div class="data">
-        <div class="sub normal disabled">{"Created:\n" + getFormattedDate(chat.create_date)}</div>
+        <div class="sub normal disabled">{`Created ${getFormattedDate(chat.create_date)} (${Format.relativeTime(chat.create_date, true).toLowerCase()})`}</div>
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
     
-    <hr class="component">
+    <hr class="component"/>
     
     <div class="text">
         <div class="author">
             <span class="name">{author}</span>
             <span class="timestamp sub">{getFormattedDate(last.candidates[index].timestamp)}</span>
         </div>
-        <div class="message disabled">
-            {@html Format.parseNames( marked.parse(last.candidates[index].text), $currentProfile.name, $currentCharacter.data.name)}
+
+        <div class="message disabled" class:open={open}>
+            <div class="contents">
+                <Text content={last.candidates[index].text} author={author} chat={chat}/>
+            </div>
         </div>
+
+        <button class="toggle" on:click={() => open = !open}/>
     </div>
-    
-    <hr class="component">
-    
+
     <div class="buttons">
-        <button class="component svg danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan} Delete</button>
-        <button class="component svg info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy} Copy</button>
-        <button class="component normal right continue" on:click|stopPropagation={selectHistory}>{@html SVG.chat} Continue chat</button>
+        <button class="component left danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
+        <button class="component left info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
+        <button class="component right normal continue" on:click|stopPropagation={selectHistory}>{@html SVG.chat} Continue chat</button>
     </div>
 </div>
 
 <style>
-    .base{
-        background: #00000024;
-        display: flex;
-        flex-direction: column;
-        grid-template-columns: 200px auto;
-        box-sizing: border-box;
-        margin: 4px 8px;
+    .content{
+        background: color-mix(in srgb, black 30%, transparent );
         border-radius: 8px;
         padding: 20px;
-        gap: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
         text-align: left;
     }
 
-    :global(body.light) .base{
-        background: #00000012;
+    :global(body.light) .content{
+        background: color-mix(in srgb, white 30%, transparent );
     }
 
     .title{
-        display: flex;
+        display: grid;
+        gap: 4px;
+        grid-template-columns: 24px 1fr;
         flex-direction: row;
         justify-content: left;
-        gap: 8px;
         height: 24px;
         font-weight: bolder;
-        align-items: flex-start;
-        font-family: var( --default-font-face );
+        align-items: center;
         position: relative;
+        margin-left: -4px;
     }
 
     .title button{
-        width: 24px;
-        height: 24px;
-        margin: 0px;
+        width: 100%;
+        height: 100%;
         padding: 0px;
-        position: absolute;
-        left: -4px;
-        top: 1px;
+        translate: 0px 2px;
     }
 
     .title :global(svg){
         width: 20px;
         height: 20px;
-        padding: 0px;
     }
 
-    .label{
-        margin: 0px;
-        margin-top: 2px;
-        margin-left: 24px;
-    }
-    
     .edit{
         width: 100%;
         height: 24px;
-        resize: none;
-        margin-left: 24px;
-    }
-
-    input[type="text"].edit{
-        border: none;
-        outline: none;
         color: #D0D0D0;
         font-size: 80%;
         background: #000000C0;
@@ -194,59 +180,55 @@
     }
     
     .timestamp{
-        opacity: 0.5;
+        color: gray;
     }
 
     .data{
-        display: flex;
-        flex-direction: column;
+        gap: 0px;
+    }
+
+    .toggle{
+        position: absolute;
+        inset: 0px;
+        width: 100%;
     }
 
     .text{
+        position: relative;
         font-size: 90%;
-        font-family: var( --default-font-face );
-        text-align: left;
     }
 
-    .message :global(p):not(:last-child){
-        margin-bottom: 1em;
-    }
-
-    .message :global(code){
-        color: orange;
-        background: hsl(285, 5%, 12%);
-        padding: 2px;
-        font-size: 85%;
+    .message{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
     }
     
-    .message :global(pre){
-        white-space: pre-wrap;
-        background: hsl(285, 5%, 12%);
-        padding: 8px;
-        border-radius: 6px;
+    .message:not(.open){
+        overflow-y: hidden;
+        max-height: 120px;
+        mask-image: linear-gradient(180deg, black 50%, transparent );;
     }
 
     .buttons{
         margin-top: auto;
         display: flex;
-        gap: 4px;
-    }
-
-    .buttons *{
-        min-width: 30px;
-        margin: 0px;
-    }
-
-    .right{
-        margin-left: auto
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
     .continue :global(svg){
         transform: scaleX(-1);
     }
 
-    .svg{
-        padding: 6px 12px;
+    .left{
+        width: 32px;
+        padding: 0px;
+    }
+
+    .right{
+        margin-left: auto;
     }
     
 </style>

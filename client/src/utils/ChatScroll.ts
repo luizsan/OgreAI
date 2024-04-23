@@ -5,7 +5,7 @@ export async function scroll(node : HTMLElement){
     node?.scrollTo({ top: node.scrollHeight });
 }
 
-export function ChatScroll(node : HTMLElement, options : any) {
+export function ChatScroll(node : HTMLElement) {
     const scrollCallback = (_event : Event) => {
         scroll(node)
     }
@@ -14,11 +14,6 @@ export function ChatScroll(node : HTMLElement, options : any) {
     scroll(node)
     
     return {
-        update(options : any) {
-            if( options?.chat?.messages ){
-                scroll(node)
-            }
-        },
         destroy() {
 			document.removeEventListener("chatscroll", scrollCallback);
 		}

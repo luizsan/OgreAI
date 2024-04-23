@@ -104,6 +104,8 @@
         // console.debug( "Request:\n%o", body)
         let streaming = $currentSettingsAPI.stream;
         requestTime = new Date().getTime()
+        await tick()
+        document.dispatchEvent(new CustomEvent("chatscroll"))
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough( new TextDecoderStream() );
@@ -119,28 +121,38 @@
                         $currentChat = $currentChat;
                         
                         console.debug( "Received stream: %o", candidate )
+                        document.dispatchEvent(new CustomEvent("chatscroll"))
                         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
                         return;
                     }
 
                     const lines = value.split('\n').filter((line: string) => line.trim() !== '');
                     for( const line of lines ){
-                        const obj = JSON.parse(line)
-                        if( obj.streaming ){
-                            candidate.timestamp = obj.streaming.timestamp
-                            if( obj.replace ){
-                                candidate.text = obj.streaming.text
-                            }else{
-                                candidate.text += obj.streaming.text
+                        try{
+                            const obj = JSON.parse(line)
+                            if( obj.streaming ){
+                                candidate.timestamp = obj.streaming.timestamp
+                                if( obj.replace ){
+                                    candidate.text = obj.streaming.text
+                                }else{
+                                    candidate.text += obj.streaming.text
+                                }
+                                if( obj.streaming.model ){
+                                    candidate.model = obj.streaming.model
+                                }else if( $currentSettingsAPI.model ){
+                                    candidate.model = $currentSettingsAPI.model
+                                }
                             }
-                            if( obj.streaming.model ){
-                                candidate.model = obj.streaming.model
-                            }else if( $currentSettingsAPI.model ){
-                                candidate.model = $currentSettingsAPI.model
+                        }catch(error){
+                            if(error instanceof SyntaxError){
+                                console.error("SyntaxError: Failed to parse chunk: %s", line)
+                            }else{
+                                console.error(error)
                             }
                         }
 
                         candidate.timer = new Date().getTime() - requestTime;
+                        document.dispatchEvent(new CustomEvent("chatscroll"))
                         $currentChat = $currentChat;
                     }
 
@@ -160,7 +172,11 @@
                 })
             }
         }).catch(error => {
-            console.error(error)
+            if( error instanceof DOMException ){
+                console.log("Message aborted.")
+            }else{
+                console.error(error)
+            }
         })
 
         $busy = false;
@@ -222,6 +238,7 @@
         }
         $currentChat.last_interaction = Date.now()
         $currentChat = $currentChat;
+        document.dispatchEvent(new CustomEvent("chatscroll"))
         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
@@ -310,7 +327,7 @@
 
     <div class="chat">
         {#if !$history}
-            <div class="messages" class:disabled={$busy} class:deselect={$busy} use:ChatScroll={{ chat: $currentChat }}>
+            <div class="messages" class:disabled={$busy} class:deselect={$busy} use:ChatScroll>
                 {#if $currentChat != null}
                     {#each $currentChat.messages as _, i}
                         <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
@@ -319,7 +336,7 @@
             </div>
         {:else}
             {#if $chatList != null && $chatList.length > 0}
-                <div class="messages">
+                <div class="history">
                     {#each $chatList as chat}
                         <History chat={chat}/>
                     {/each}
@@ -423,6 +440,17 @@
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 8px 0px 4px 0px;
+    }
+
+    .history{
+        display:flex;
+        flex-direction: column;
+        gap: 16px;
+        box-sizing: border-box;
+        margin: 0px var(--chat-padding);
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding: 8px 6px 8px 0px;
     }
 
     .input{

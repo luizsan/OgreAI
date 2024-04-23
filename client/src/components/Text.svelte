@@ -7,14 +7,19 @@
 
     export let content : string = ""
     export let author : string = ""
+    
+    export let user : string = $currentProfile.name
+    export let bot : string = $currentCharacter.data.name
+    export let chat : IChat = $currentChat
+
     let displayText = ""
     
     $: {
         if( content ){
             displayText = DOMPurify.sanitize( displayText )
             displayText = marked.parse(content)
-            displayText = Format.parseMacros( displayText, $currentChat)
-            displayText = Format.parseNames( displayText, $currentProfile.name, $currentCharacter.data.name )
+            displayText = Format.parseMacros( displayText, chat )
+            displayText = Format.parseNames( displayText, user, bot )
         }else{
             displayText = ""
         }
@@ -32,6 +37,10 @@
         margin-bottom: 1em;
         white-space: pre-wrap;
         gap: 1em;
+    }
+
+    .text :global(h1), .text :global(h2), .text :global(h3), .text :global(h4), .text :global(h5), .text :global(h6){
+        line-height: 1em;
     }
 
     .text :global(*){

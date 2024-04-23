@@ -105,7 +105,7 @@
     }
 
     async function StartEditing(){
-        document.body.dispatchEvent(new CustomEvent("startedit"))
+        document.body.dispatchEvent(new Event("startedit"))
         editedText = current.text;
         isEditing = true
         await tick()
@@ -403,6 +403,7 @@
     .content{
         display: flex;
         flex-direction: column;
+        gap: 4px;
     }
 
     .avatar{
