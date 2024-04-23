@@ -3,7 +3,7 @@
 
     export let list : Array<any> = []
     export let defaults : object = {}
-    export let update = (v: any) => {}
+    export let after = () => {}
 
     // reorderable
     let container : HTMLElement;
@@ -115,7 +115,7 @@
         const picked_item = list.splice(picked_index, 1)[0]
         list.splice(marker_index, 0, picked_item)
         list = list
-        update(list)
+        after()
     }
 </script>
 
@@ -153,7 +153,7 @@
 
                     <div class="center">
                         {#if defaults[item.key].toggleable}
-                        <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={() => update(list)} on:mousedown|preventDefault>
+                            <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
                         {/if}
                     </div>
                     

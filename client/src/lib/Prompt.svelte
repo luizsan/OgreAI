@@ -62,13 +62,9 @@
         </div>
 
         <Reorderable 
-            list={$currentSettingsAPI.prompt}
+            bind:list={$currentSettingsAPI.prompt}
             defaults={$defaultPrompt}
-            update={(v) => {
-                $currentSettingsAPI.prompt = v
-                $currentSettingsAPI = $currentSettingsAPI
-                saveSettings()
-            }}
+            after={saveSettings}
         />
     </div>
 
