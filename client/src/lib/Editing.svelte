@@ -20,6 +20,7 @@
     let distribution = "";
 
     let avatar = "";
+    let countingTokens : boolean = false;
 
     $: has_lorebook = $editing && typeof $editing.data.character_book === "object" && Object.keys($editing.data.character_book).length > 0
 
@@ -167,9 +168,14 @@
     }
 
     async function refreshTokens(){
-        let tokens = await Server.getCharacterTokens( $editing )
-        if( $editing ){
-            $editing.temp.tokens = tokens;
+        if( $editing && !countingTokens){
+            countingTokens = true
+            await Server.getCharacterTokens( $editing ).then( data => {
+                $editing.temp.tokens = data;
+            }).catch(error => {
+                console.log(error)
+            })
+            countingTokens = false
         }
     }
 
@@ -280,8 +286,14 @@
                 <div>
                     <p class="explanation">Currently editing</p>
                     <h1 class="title" style="font-size: 120%">{$editing.data.name}</h1>
+
                     <div class="tokens" title={breakdown.join("\n")}>
-                        <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
+                        {#if countingTokens}
+                            <div class="label">Counting tokens...</div>
+                        {:else}
+                            <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
+                        {/if}
+                        
                         <div class="meter" style="grid-template-columns:{distribution}">
                             {#each Object.keys(tokens) as type}
                                 <div class={type}></div>
