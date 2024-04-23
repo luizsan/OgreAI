@@ -15,6 +15,8 @@
     $: last = chat ? chat.messages.at(-1) : null;
     $: index = last ? last.index : 0;
     $: author = last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
+    $: created = chat.create_date || 0
+    $: modified = last ? last.candidates[index].timestamp : 0
 
     function getFormattedDate(timestamp : number) : string{
         return new Date(timestamp).toLocaleString()
@@ -85,7 +87,7 @@
             {/if}
         </div>
 
-        <div class="sub normal disabled">{`Created ${getFormattedDate(chat.create_date)} (${Format.relativeTime(chat.create_date, true).toLowerCase()})`}</div>
+        <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
     
@@ -94,7 +96,7 @@
     <div class="text">
         <div class="author">
             <span class="name">{author}</span>
-            <span class="timestamp sub">{getFormattedDate(last.candidates[index].timestamp)}</span>
+            <span class="timestamp">{`${getFormattedDate(modified)} (${Format.relativeTime(modified, true).toLowerCase()})`}</span>
         </div>
 
         <div class="message disabled" class:open={open}>
@@ -182,6 +184,7 @@
     
     .timestamp{
         color: gray;
+        font-size: 85%;
     }
 
     .data{
