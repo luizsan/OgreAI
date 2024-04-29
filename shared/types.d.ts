@@ -43,6 +43,7 @@ interface IChat{
     create_date : number;
     last_interaction : number;
     messages : Array<IMessage>;
+    filepath? : string;
 }
 
 // message entry in chat
