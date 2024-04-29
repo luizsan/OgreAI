@@ -317,7 +317,13 @@
                 </div>
             </div>
         {:else}
-            <Text author={author} content={displayText}/>
+            <Text 
+                author={author} 
+                content={displayText} 
+                user={$currentProfile.name} 
+                bot={$currentCharacter.data.name} 
+                chat={$currentChat}
+            />
         {/if}
 
 

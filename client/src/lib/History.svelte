@@ -87,6 +87,7 @@
             {/if}
         </div>
 
+        <div class="sub explanation disabled">{chat.filepath.replaceAll("../user/", "")}</div>
         <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
@@ -101,7 +102,12 @@
 
         <div class="message disabled" class:open={open}>
             <div class="contents">
-                <Text content={last.candidates[index].text} author={author} chat={chat}/>
+                <Text 
+                    content={last.candidates[index].text} 
+                    author={author}
+                    user={$currentProfile.name}
+                    bot={$currentCharacter.data.name}
+                    chat={chat}/>
             </div>
         </div>
 
@@ -179,7 +185,7 @@
     }
 
     .sub{
-        font-size: 80%;
+        font-size: 0.8em;
     }
     
     .timestamp{

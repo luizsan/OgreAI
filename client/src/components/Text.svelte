@@ -8,9 +8,9 @@
     export let content : string = ""
     export let author : string = ""
 
-    export let user : string = $currentProfile.name
-    export let bot : string = $currentCharacter.data.name
-    export let chat : IChat = $currentChat
+    export let user : string
+    export let bot : string
+    export let chat : IChat
 
     let displayText = ""
     
