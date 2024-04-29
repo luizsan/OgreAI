@@ -106,7 +106,7 @@ export default class Chat{
                         
                         let new_chat = new Chat()
                         new_chat.SetFrom( parsed )
-                        new_chat.filepath = filepath
+                        new_chat.filepath = filepath.replaceAll("\\", "/" )
                         chats.push( new_chat )
                         
                     }else if(files[i].toLowerCase().endsWith('.jsonl')){
@@ -117,7 +117,7 @@ export default class Chat{
                         if( parsed ){
                             let new_chat = new Chat()
                             new_chat.SetFrom( parsed )
-                            new_chat.filepath = filepath
+                            new_chat.filepath = filepath.replaceAll("\\", "/" )
                             chats.push( new_chat )
                         }
                     }
