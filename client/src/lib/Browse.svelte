@@ -84,6 +84,13 @@
         $sectionCharacters = false;
     }
 
+    async function reloadCharacterList(){
+        await Server.getCharacterList()
+        searchResults = []
+        searchResults = $characterList
+
+    }
+
     function sortByName(a : ICharacter, b : ICharacter){
         let nameA = a.data.name.toLowerCase()
         let nameB = b.data.name.toLowerCase()
@@ -155,7 +162,7 @@
 
             <div class="section horizontal">
                 <button class="component normal wide disabled" title="Import">{@html SVG.download}Import</button>
-                <button class="component normal wide" title="Reload" on:click={Server.getCharacterList}>{@html SVG.refresh}Reload</button>
+                <button class="component normal wide" title="Reload" on:click={reloadCharacterList}>{@html SVG.refresh}Reload</button>
             </div>
         </div>
         
