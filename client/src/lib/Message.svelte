@@ -345,9 +345,10 @@
                 
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
-                        <button class="left normal" title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
+     
+                        <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
-                        <button class="right normal" title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
+                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
                     </div>
 
                    <div class="extras">
