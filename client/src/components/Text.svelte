@@ -35,7 +35,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 1em;
-        white-space: pre-wrap;
+        white-space: normal;
         gap: 1em;
     }
 
@@ -93,7 +93,7 @@
     .text :global(.thinking:first-child){
         margin-top: 8px;
     }
-
+    
     .text :global(.thinking ul){
         margin: 0px;
         padding-left: 2em;
