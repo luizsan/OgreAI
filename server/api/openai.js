@@ -7,6 +7,7 @@ class OpenAI{
     // display name
     static API_NAME = "OpenAI"
     static API_ADDRESS = "https://api.openai.com/"
+    static API_VERSION = "2024-02-01"
 
     // settings for this API
     // types: text, textarea, select (dropdown), range (slider), checkbox
@@ -108,8 +109,6 @@ class OpenAI{
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
-
-            logit_bias: settings.logit_bias ? JSON.parse(settings.logit_bias) ?? {} : {},
             stream: settings.stream,
         };
     
@@ -126,7 +125,7 @@ class OpenAI{
         // console.debug(`Sending prompt to ${outgoing_data.model}...`)
 
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
-        return fetch( url + "/v1/chat/completions", options )
+        return fetch( url + "/v1/chat/completions?api-version=" + this.API_VERSION, options )
     }
 
     // processes a single message from the model's output
