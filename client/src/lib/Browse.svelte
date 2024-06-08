@@ -8,16 +8,6 @@
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
-    let searchResults : Array<ICharacter> = $characterList || []
-    let currentSortMode : string = window.localStorage.getItem("sort_mode")
-
-    let self : HTMLElement;
-    let exclusion : Array<HTMLElement>; // "click outside" excluded elements
-
-    let pinned = false;
-    let separator : HTMLElement; // threshold to show "Back to top" button
-    let scrolled = 0; // amount of pixels scrolled so far
-
     const sortModes = {
         creation_date_new: {
             label: "Creation date (newest)",
@@ -45,6 +35,16 @@
             }
         }
     }
+
+    let searchResults : Array<ICharacter> = $characterList || []
+    let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
+
+    let self : HTMLElement;
+    let exclusion : Array<HTMLElement>; // "click outside" excluded elements
+
+    let pinned = false;
+    let separator : HTMLElement; // threshold to show "Back to top" button
+    let scrolled = 0; // amount of pixels scrolled so far
 
     $: {
         // reactively check for changes in $characterList and $favoritesList
