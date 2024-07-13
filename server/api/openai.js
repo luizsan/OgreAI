@@ -22,26 +22,26 @@ class OpenAI{
             title: "Max Length",
             description: "Number of tokens to generate in a reply. A higher amount of tokens takes longer to generate.",
             type: "range", default: 128, min: 8, max: 512, step: 8,
-        },  
-        
+        },
+
         context_size: {
             title: "Context Size",
             description: "Number of context tokens to submit to the AI for sampling. Make sure this is higher than Output Length. Higher values increase VRAM/RAM usage.",
             type: "range", default: 1024, min: 128, max: 16384, step: 8,
         },
-        
+
         temperature: {
             title: "Temperature",
             description: "Randomness of sampling. Higher values can increase creativity, but make the output less meaningful. As the temperature approaches zero, the model will become deterministic and repetitive.",
             type: "range", default: 0.5, min: 0, max: 1, step: 0.01,
         },
-        
+
         frequency_penalty: {
             title: "Frequency Penalty",
             description: "How much to penalize new tokens based on their existing frequency in the text so far. Decreases the model's likelihood to repeat the same line verbatim.",
             type: "range", default: 0, min: -2, max: 2, step: 0.01,
         },
-        
+
         presence_penalty: {
             title: "Presence Penalty",
             description: "How much to penalize new tokens based on whether they appear in the text so far. Increases the model's likelihood to talk about new topics.",
@@ -53,7 +53,7 @@ class OpenAI{
             description: "Used to discard unlikely text in the sampling process. Lower values will make the output more predictable, but also repetitive. Put this value on 1 to disable its effect.",
             type: "range", default: 0.9, min: 0, max: 1, step: 0.01,
         },
-        
+
         stream: {
             title: "Stream",
             description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
@@ -88,9 +88,17 @@ class OpenAI{
         return Utils.makePrompt( Tokenizer, content, offset )
     }
 
+    static getTokenizer(){
+        return Tokenizer
+    }
+
+    static getMessageTokens( message, character, user, settings ){
+        return Utils.getMessageTokens( Tokenizer, message, character, user, settings )
+    }
+
     // returns an object with the token breakdown for a character
-    static getTokenConsumption( character, user, settings ){
-        return Utils.getTokenConsumption( Tokenizer, character, user, settings )
+    static getCharacterTokens( character, user, settings ){
+        return Utils.getCharacterTokens( Tokenizer, character, user, settings )
     }
 
     // returns an output from the prompt that will be fed into receiveData
@@ -111,7 +119,7 @@ class OpenAI{
             top_p: parseFloat(settings.top_p),
             stream: settings.stream,
         };
-    
+
         let options = {
             method: "POST",
             headers: {
@@ -185,7 +193,7 @@ class OpenAI{
                 timestamp: Date.now()
             }
         }
-    
+
         const raw_text = (this.__message_chunk || "") + ( incoming_data.includes(":") ? incoming_data : "")
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){

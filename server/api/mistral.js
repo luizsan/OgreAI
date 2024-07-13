@@ -6,7 +6,7 @@ class Mistral{
 
     // display name
     static API_NAME = "Mistral"
-    static API_ADDRESS = "https://api.mistral.ai/"    
+    static API_ADDRESS = "https://api.mistral.ai/"
 
     // settings for this API
     // types: text, textarea, select (dropdown), range (slider), checkbox
@@ -21,14 +21,14 @@ class Mistral{
             title: "Max Tokens",
             description: "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length.",
             type: "range", default: 128, min: 8, max: 1024, step: 8,
-        },  
-        
+        },
+
         context_size: {
             title: "Context Size",
             description: "Model context size.",
             type: "range", default: 1024, min: 128, max: 32768, step: 8,
         },
-        
+
         temperature: {
             title: "Temperature",
             description: "What sampling temperature to use, between 0.0 and 1.0. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
@@ -40,7 +40,7 @@ class Mistral{
             description: "Nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.",
             type: "range", default: 1.0, min: 0.0, max: 1.0, step: 0.01,
         },
-        
+
         stream: {
             title: "Stream",
             description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
@@ -71,9 +71,17 @@ class Mistral{
         return Utils.makePrompt( Tokenizer, content, offset )
     }
 
+    static getTokenizer(){
+        return Tokenizer
+    }
+
+    static getMessageTokens( message, character, user, settings ){
+        return Utils.getMessageTokens( Tokenizer, message, character, user, settings )
+    }
+
     // returns an object with the token breakdown for a character
-    static getTokenConsumption( character, user, settings ){
-        return Utils.getTokenConsumption( Tokenizer, character, user, settings )
+    static getCharacterTokens( character, user, settings ){
+        return Utils.getCharacterTokens( Tokenizer, character, user, settings )
     }
 
     // returns an output from the prompt that will be fed into receiveData
@@ -90,7 +98,7 @@ class Mistral{
             safe_prompt: settings.safe_prompt,
             stream: settings.stream,
         };
-    
+
         let options = {
             method: "POST",
             headers: {
@@ -164,7 +172,7 @@ class Mistral{
                 timestamp: Date.now()
             }
         }
-    
+
         const raw_text = (this.__message_chunk || "") + incoming_data
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){

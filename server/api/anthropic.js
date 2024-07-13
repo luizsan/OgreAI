@@ -34,7 +34,7 @@ class Anthropic{
                 "claude-v1.0",
                 "claude-instant-v1.1",
                 "claude-instant-v1.1-100k",
-                "claude-instant-v1.0" 
+                "claude-instant-v1.0"
             ]
         },
 
@@ -42,14 +42,14 @@ class Anthropic{
             title: "Max Length",
             description: "The maximum number of tokens to generate before stopping. Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.",
             type: "range", default: 250, min: 10, max: 1200, step: 10,
-        }, 
+        },
 
         context_size: {
             title: "Context Size",
             description: "Number of context tokens to submit to the AI for sampling.",
             type: "range", default: 100000, min: 120, max: 100000, step: 10,
         },
-        
+
         temperature: {
             title: "Temperature",
             description: "Amount of randomness injected into the response. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
@@ -73,7 +73,7 @@ class Anthropic{
             description: "Whether to incrementally stream the response using server-sent events.",
             type: "checkbox", default: true,
         },
-        
+
         continue_message: {
             title: "Continue Message",
             description: "What to automatically send as a padding message when the last message in chat isn't from the user. Defaults to '(continue)' if empty.",
@@ -93,8 +93,8 @@ class Anthropic{
 
     // getStatus must return a boolean
     static async getStatus(settings){
-        const options = { 
-            method: "POST",           
+        const options = {
+            method: "POST",
             headers: {
                 'accept': 'application/json',
                 'anthropic-version': '2023-06-01',
@@ -134,9 +134,9 @@ class Anthropic{
         if( insert_continue ){
             let sub_prompt = Utils.getSubPrompt( character, settings )
             let sub_enabled = Utils.getFieldEnabled("sub_prompt", settings )
-            let pad = { 
-                role: "user", 
-                content: settings.continue_message ? settings.continue_message : "(continue)" 
+            let pad = {
+                role: "user",
+                content: settings.continue_message ? settings.continue_message : "(continue)"
             }
 
             if( sub_enabled && sub_prompt ){
@@ -151,8 +151,16 @@ class Anthropic{
         return list
     }
 
-    static getTokenConsumption( character, user, settings ){
-        return Utils.getTokenConsumption( Tokenizer, character, user, settings )
+    static getTokenizer(){
+        return Tokenizer
+    }
+
+    static getMessageTokens( message, character, user, settings ){
+        return Utils.getMessageTokens( Tokenizer, message, character, user, settings )
+    }
+
+    static getCharacterTokens( character, user, settings ){
+        return Utils.getCharacterTokens( Tokenizer, character, user, settings )
     }
 
     static async generate( content ){
@@ -172,7 +180,7 @@ class Anthropic{
             top_k: parseFloat(settings.top_k),
             stream: settings.stream,
         };
-    
+
         let options = {
             method: "POST",
             headers: {
@@ -183,7 +191,7 @@ class Anthropic{
             },
             body: JSON.stringify(outgoing_data)
         }
-    
+
         console.debug("Sending prompt %o", outgoing_data)
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return fetch( url + "/v1/messages", options )
@@ -237,8 +245,8 @@ class Anthropic{
             }
         }
 
-        
-    
+
+
         const raw_text = (this.__message_chunk || "") + incoming_data
         const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
         for( const line of lines ){
@@ -251,19 +259,19 @@ class Anthropic{
 
             try {
                 const parsed = JSON.parse(obj);
-        
+
                 if (parsed.delta && parsed.delta.stop_reason) {
                     message.done = true;
                     break;
                 }
-                
+
                 if( parsed.type && parsed.type === "message_start" ){
                     if( parsed.message && parsed.message.model ){
                         message.streaming.model = parsed.message.model
                         continue
                     }
                 }
-                
+
                 if( parsed.type !== "content_block_delta" ) continue;
 
                 const text = parsed.delta.text;

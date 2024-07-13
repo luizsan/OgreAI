@@ -13,11 +13,11 @@
 
     export let id : number = -1
     export let generateSwipe = () => {}
-    
+
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
     $: is_bot = msg ? msg.participant > -1 : false;
-    
+
     $: first = id === 0;
     $: last = id === $currentChat.messages.length - 1;
 
@@ -83,7 +83,7 @@
             $tabSettings = "user"
         }
     }
-    
+
     function SetPostActions(b : boolean){
         // small hack to allow deletion via action buttons and keyboard event
         if(this){
@@ -110,7 +110,7 @@
         isEditing = true
         await tick()
         SetPostActions(false)
-        ScrollIntoView()
+        self.scrollIntoView({ block: "nearest" })
     }
 
     export function ConfirmEdit(){
@@ -122,6 +122,7 @@
             editedText = Format.regexReplace(editedText, [ "on_edit" ], $currentSettingsMain.formatting.replace)
             editedText = Format.randomReplace(editedText)
             $currentChat.messages[id].candidates[index].text = editedText;
+            $currentChat.messages[id].candidates[index].tokens = {}
             $currentChat = $currentChat;
             self.scrollIntoView({ block: "nearest" })
         }
@@ -143,7 +144,7 @@
         if( first ){
             return;
         }
-        
+
         SetPostActions(false)
         if(window.confirm("Are you sure you want to delete this message?")){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
@@ -183,7 +184,7 @@
             }
         }
     }
-    
+
     function SelectMessageBatch(){
         if( !$deleting ){
             return
@@ -195,7 +196,7 @@
         }
         $deleteList.sort()
     }
-    
+
     function SelectMessageSingle(){
         if( !$deleting ){
             return
@@ -212,14 +213,14 @@
 
     function Shortcuts(event : KeyboardEvent){
         if( lockinput ) return;
-        
+
         let activeElement = document.activeElement;
 
         if( isEditing ){
             EditingShortcuts(event)
             return
         }
-        
+
         if( last ){
             if( activeElement.nodeName !== "INPUT" && activeElement.nodeName !== "TEXTAREA" ){
                 LastMessageShortcuts(event)
@@ -246,35 +247,31 @@
     function LastMessageShortcuts(event : KeyboardEvent){
         switch(event.key){
             case "ArrowUp":
-                event.preventDefault() 
+                event.preventDefault()
                 StartEditing();
                 break;
-            case "ArrowLeft": 
+            case "ArrowLeft":
                 event.preventDefault()
                 SwipeMessage(-1);
                 break;
-            case "ArrowRight": 
+            case "ArrowRight":
                 event.preventDefault()
-                SwipeMessage(1); 
+                SwipeMessage(1);
                 break;
-            case "Delete": 
+            case "Delete":
                 event.preventDefault()
-                DeleteCandidate(); 
+                DeleteCandidate();
                 break;
-            default: 
+            default:
                 break;
         }
-    }
-
-    function ScrollIntoView(){
-        self.scrollIntoView({ block: "nearest" })
     }
 </script>
 
 <svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={self}>
-    
+
     <button class="avatar" on:click={EditCharacter}>
         <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
     </button>
@@ -305,7 +302,7 @@
 
             <span class="sub index"># {id+1}</span>
         </div>
-        
+
         {#if isEditing}
             <div class="section editing">
                 <p class="explanation">Editing message</p>
@@ -317,11 +314,11 @@
                 </div>
             </div>
         {:else}
-            <Text 
-                author={author} 
-                content={displayText} 
-                user={$currentProfile.name} 
-                bot={$currentCharacter.data.name} 
+            <Text
+                author={author}
+                content={displayText}
+                user={$currentProfile.name}
+                bot={$currentCharacter.data.name}
                 chat={$currentChat}
             />
         {/if}
@@ -342,10 +339,10 @@
                         </div>
                     {/if}
                 </button>
-                
+
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
-     
+
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
                         <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
@@ -369,7 +366,7 @@
 
 <style>
     .msg{
-        position: relative; 
+        position: relative;
         min-width: 50%;
         margin: 4px;
         scroll-margin: 8px;
@@ -381,7 +378,7 @@
         gap: 12px;
         word-break: break-word;
     }
-    
+
     .msg:first-child{
         margin-top: auto;
     }
@@ -486,7 +483,7 @@
     .editing .horizontal{
         place-content: flex-end;
     }
-    
+
 
     .footer{
         height: 24px;
@@ -496,7 +493,7 @@
         flex-direction: row-reverse;
         justify-content: space-between;
     }
-    
+
     .msg:hover .extras, .msg:hover .swipes, .msg:hover .dots{
         visibility: visible;
     }
@@ -507,7 +504,7 @@
         display: flex;
         align-items: center;
     }
-    
+
 
     .swipes{
         display: flex;

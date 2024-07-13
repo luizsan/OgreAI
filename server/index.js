@@ -27,7 +27,7 @@ const _buildPath = path.join(__dirname, '../build').replace(/\\/g, '/');
 
 const _modulePath = "./api/"
 const app = express()
-const port = 8000
+const port = 12480
 const parser = express.json({ limit: "100mb" })
 const upload = multer()
 
@@ -49,7 +49,7 @@ app.use('/user', express.static(_userPath, { fallthrough: false, index: false,  
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
 app.use('/', express.static(_buildPath, { maxAge: -1  }));
 
-// startup 
+// startup
 await LoadAPIModes()
 
 if( fs.existsSync(_buildPath) ){
@@ -180,7 +180,20 @@ app.post("/get_character", parser, function(request, response){
 
 app.post("/get_character_tokens", parser, function(request, response){
     let api = API_MODES[ request.body.api_mode ]
-    let tokens = api.getTokenConsumption( request.body.character, request.body.user, request.body.settings )
+    let tokens = api.getCharacterTokens( request.body.character, request.body.user, request.body.settings )
+    response.send(tokens)
+})
+
+app.post("/get_message_tokens", parser, function(request, response){
+    let api = API_MODES[ request.body.api_mode ]
+    let tokens = request.body.messages.map(message => {
+        return api.getMessageTokens(
+            message,
+            request.body.character,
+            request.body.user,
+            request.body.settings
+        )
+    })
     response.send(tokens)
 })
 
@@ -231,7 +244,7 @@ app.post("/save_character_image", upload.single("file"), function(request, respo
     if( request.body.creating && !image ){
         image = fs.readFileSync( path.join( __dirname, "../img/bot_default.png" ))
     }
-    
+
     if( !filepath.toLowerCase().startsWith( Character.path )){
         filepath = path.join( Character.path, filepath )
     }
@@ -356,8 +369,8 @@ app.post("/generate", parser, async function(request, response){
                         let data = api.receiveStream( td.decode(message), content.swipe )
                         if( data && (data?.candidate?.text || data?.streaming?.text || data?.error)){
                             // console.debug( chalk.blue("%o"), data)
-                            // the newline at the end is required as sometimes the stream 
-                            // can lag and the client will clump chunks together, so it's 
+                            // the newline at the end is required as sometimes the stream
+                            // can lag and the client will clump chunks together, so it's
                             // easier to separate them by lines instead.
                             response.write(JSON.stringify(data) + "\n")
                         }
@@ -369,7 +382,7 @@ app.post("/generate", parser, async function(request, response){
                 }
             }else{
                 result.text().then(raw => {
-                    let data = api.receiveData( raw, swipe )     
+                    let data = api.receiveData( raw, swipe )
                     console.debug(chalk.blue("Received message"))
                     response.send(data);
                 })
@@ -395,7 +408,7 @@ async function LoadAPIModes(){
             let filepath = path.join("file://", __dirname, _modulePath, files[i] ).replaceAll("\\", "/");
             let target = path.basename( files[i], ".js" )
             let api = await import(filepath).then((module) => module.default);
-            
+
             if( !ValidateAPIMode(api) ){
                 console.warn( chalk.yellow( `Could not load API module "${target}": Invalid export, missing function or missing field` ))
                 continue
@@ -422,9 +435,9 @@ function ValidateAPIMode(api){
     const check = [
         "API_NAME",
         "API_ADDRESS",
-        "API_SETTINGS", 
-        "getStatus", 
-        "getTokenConsumption",
+        "API_SETTINGS",
+        "getStatus",
+        "getCharacterTokens",
         "makePrompt",
         "generate",
         "receiveData"
@@ -436,6 +449,6 @@ function ValidateAPIMode(api){
             return false;
         }
     }
-    
+
     return true;
 }

@@ -11,7 +11,7 @@
     import { ChatScroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
     import * as Format from "@shared/format.mjs";
-    
+
     $: lockinput = !$currentChat || $fetching || $busy;
 
     let userMessage : string = ""
@@ -81,8 +81,45 @@
         ) ?? []
     }
 
+    // select messages without cached tokens
+    function getNonCachedMessages(model : string){
+        let targetMessages : Array<IMessage> = $currentChat.messages.filter((message : IMessage) => {
+            const candidate = message.candidates[message.index]
+            if( !candidate.tokens ) return true
+            if( !candidate.tokens[model] ) return true
+            return false
+        })
+        return targetMessages
+    }
+
+    async function cacheMessageTokens(){
+        const mode : string = $currentSettingsMain.api_mode;
+        const model = $currentSettingsAPI.model;
+
+        let messagesToCache = getNonCachedMessages(model);
+        let tokenCache = await Server.request( "/get_message_tokens", {
+            api_mode: mode,
+            messages: messagesToCache,
+            user: $currentProfile,
+            character: $currentCharacter,
+            settings: $currentSettingsAPI
+        })
+
+        // apply array of cached tokens to messages
+        messagesToCache.forEach((message : IMessage, index : number) => {
+            const candidate = message.candidates[message.index]
+            if( !candidate.tokens ){
+                candidate.tokens = {}
+            }
+            candidate.tokens[model] = tokenCache[index]
+        })
+
+        console.log(`Cached tokens for ${messagesToCache.length} messages.`)
+        console.log($currentChat.messages)
+    }
+
     export async function GenerateMessage(swipe = false){
-        let mode = $currentSettingsMain.api_mode;
+        const mode = $currentSettingsMain.api_mode;
         let body = {
             api_mode: mode,
             character: $currentCharacter,
@@ -106,6 +143,9 @@
         requestTime = new Date().getTime()
         await tick()
         document.dispatchEvent(new CustomEvent("chatscroll"))
+
+        await cacheMessageTokens()
+
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough( new TextDecoderStream() );
@@ -119,7 +159,7 @@
                         candidate.text = Format.regexReplace(candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
                         candidate.text = Format.parseMacros(candidate.text, $currentChat)
                         $currentChat = $currentChat;
-                        
+
                         console.debug( "Received stream: %o", candidate )
                         document.dispatchEvent(new CustomEvent("chatscroll"))
                         Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
@@ -244,7 +284,7 @@
 
     async function RegenerateMessage(){
         if( lockinput ) return;
-        
+
         chatOptions = false;
         let last = $currentChat.messages.at(-1)
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
@@ -299,14 +339,14 @@
         }
 
         if( lockinput ) return;
-        
+
         if(event.ctrlKey){
             if(event.key === " "){
                 RegenerateMessage()
                 event.preventDefault()
             }
         }
-        
+
         if( document.activeElement !== messageBox ) return;
 
         const condition = $currentPreferences["enter_sends_message"] ?? false
@@ -376,11 +416,11 @@
                         <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
                     </div>
                 {/if}
-                
+
                 </div>
 
                 <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
-                
+
                 {#if $busy}
                     <Loading/>
                 {:else}

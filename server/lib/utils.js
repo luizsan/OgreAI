@@ -91,7 +91,7 @@ export function getSystemPrompt( tokenizer, content ){
 
         console.log("Added " + item.key)
     })
-    
+
     list = list.filter((e) => e && e.length > 0)
     result = list.join("\n\n")
 
@@ -123,7 +123,7 @@ export function makePrompt( tokenizer, content, offset = 0 ){
 
     let tokens_system = tokenizer.getTokens(system, settings.model);
     let tokens_messages = 0
-    
+
     let injected_sub_prompt = false;
 
     const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
@@ -141,15 +141,22 @@ export function makePrompt( tokenizer, content, offset = 0 ){
         for( let i = messages.length - 1 - offset; i >= 0; i--){
             let role = messages[i].participant > -1 ? "assistant" : "user";
             let index = messages[i].index
-            let content = messages[i].candidates[index].text
+            let candidate = messages[i].candidates[index]
+            let content = candidate.text
             content = parseNames(content, user.name, character.data.name)
-            
+
             if(enabled_sub_prompt && !injected_sub_prompt && role === "user"){
                 content += sub_prompt;
                 injected_sub_prompt = true;
             }
 
-            let next_tokens = tokenizer.getTokens(content, settings.model)
+            let next_tokens = 0;
+            if( candidate.tokens && candidate.tokens[settings.model] && typeof candidate.tokens[settings.model] === "number" ){
+                next_tokens = candidate.tokens[settings.model]
+            }else{
+                next_tokens = tokenizer.getTokens(content, settings.model)
+            }
+
             if(tokens_system + tokens_messages + next_tokens > settings.context_size){
                 break;
             }
@@ -183,7 +190,7 @@ export function messagesToString(messages, character, user, settings, separator 
 
             case "system":
                 // leave control to main prompt
-                return msg.content 
+                return msg.content
 
             default:
                 return
@@ -299,7 +306,7 @@ export function getEntriesFromBook(tokenizer, book, content) {
     return result
 }
 
-export function getTokenConsumption( tokenizer, character, user, settings ){
+export function getCharacterTokens( tokenizer, character, user, settings ){
     let _system = getMainPrompt( character, settings );
     const persona = getPersona( character, settings )
     const prompt_sub = getSubPrompt( character, settings );
@@ -335,8 +342,14 @@ export function getTokenConsumption( tokenizer, character, user, settings ){
     }
 }
 
+export function getMessageTokens( tokenizer, message, character, user, settings ){
+    const candidate = message.candidates[message.index]
+    let text = parseNames( candidate.text, user.name, character.data.name )
+    return tokenizer.getTokens( text, settings.model )
+}
+
 export function sanitizeStopSequences(list, user, character){
-    if(!list || !Array.isArray(list)) 
+    if(!list || !Array.isArray(list))
         return []
     return list.map((item) => parseNames(item, user.name, character.data.name))
 }
