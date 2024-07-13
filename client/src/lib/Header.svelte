@@ -1,5 +1,5 @@
 <script>
-    import { editing, sectionCharacters, sectionSettings, tabSettings } from "../State";
+    import { currentCharacter, currentChat, editing, sectionCharacters, sectionSettings, tabSettings } from "../State";
     import { menu, settings } from "../utils/SVGCollection.svelte"
 
     function ToggleSidebar(){
@@ -16,18 +16,23 @@
         if( $sectionSettings ){
             $tabSettings = $tabSettings;
         }
-        
+
         if( $sectionSettings && $sectionCharacters ){
             $sectionCharacters = false;
             $editing = null;
         }
+    }
+
+    function CloseChat(){
+        $currentChat = null
+        $currentCharacter = null
     }
 </script>
 
 
 <header id="header">
     <button class="normal" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
-    <div class="title deselect">OGRE</div>
+    <button class="clear" on:click|stopPropagation={CloseChat}><div class="title deselect">OGRE</div></button>
     <button class="normal" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
 </header>
 
@@ -54,7 +59,7 @@
         display: flex;
         height: 100%;
         justify-content: center;
-        width: 100%;
+        min-width: 180px;
         padding: 0px;
     }
 
@@ -79,16 +84,16 @@
         translate: 0px 1px 0;
         transition: all 0.2s ease;
     }
-    
+
     .title:hover{
         translate: 1em 0px 0;
     }
-    
+
     .title:hover::before{
         opacity: 1;
         translate: -3em 0px 0;
     }
-    
+
     .title::after{
         content: "AI";
         font-weight: 800;
