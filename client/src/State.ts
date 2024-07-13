@@ -2,7 +2,7 @@ import { writable } from "svelte/store"
 
 function getAddress(){
     const params = new URLSearchParams(window.location.search)
-    const port = params.get("port") || 8000
+    const port = params.get("port") || 12480
     return `${window.location.protocol}//${window.location.hostname}:${port}`
 }
 
