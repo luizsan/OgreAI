@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile } from "../State";
+    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain } from "../State";
     import Character from './Character.svelte'
     import Search from '../components/Search.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
@@ -8,35 +8,51 @@
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
+    const path_prefix : string = "../user/characters/";
     const sortModes = {
         creation_date_new: {
             label: "Creation date (newest)",
-            sort: (list : Array<ICharacter>) => {
-                list = list.sort((a,b) => b.metadata.created - a.metadata.created)
+            order: (list : Array<ICharacter>) => {
+                list.sort((a,b) => b.metadata.created - a.metadata.created)
+                return list
             }
         },
         creation_date_old: {
             label: "Creation date (oldest)",
-            sort: (list : Array<ICharacter>) => {
-                list = list.sort((a,b) => a.metadata.created - b.metadata.created)
+            order: (list : Array<ICharacter>) => {
+                list.sort((a,b) => a.metadata.created - b.metadata.created)
+                return list
             }
         },
         alphabetical_ascending: {
             label: "Alphabetical (ascending)",
-            sort: (list : Array<ICharacter>) => {
-                list = list.sort(sortByName)
+            order: (list : Array<ICharacter>) => {
+                list.sort(sortByName)
+                return list
             }
         },
         alphabetical_descending: {
             label: "Alphabetical (descending)",
-            sort: (list : Array<ICharacter>) => {
-                list = list.sort(sortByName)
+            order: (list : Array<ICharacter>) => {
+                list.sort(sortByName)
                 list.reverse()
+                return list
+            }
+        },
+        recently_chatted: {
+            label: "Recently chatted",
+            order: (list : Array<ICharacter>) => {
+                let recent_list : Array<ICharacter> = $currentSettingsMain.recents.map((path : string) => $characterList.find((char : ICharacter) => {
+                    return char.temp.filepath == path_prefix + path;
+                }));
+                recent_list = recent_list.filter((item : ICharacter) => item && list.includes(item))
+                recent_list.reverse()
+                return recent_list
             }
         }
     }
 
-    let searchResults : Array<ICharacter> = $characterList || []
+    let searchResults : Array<ICharacter> = Array.from($characterList) || []
     let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
 
     let self : HTMLElement;
@@ -59,7 +75,7 @@
     onMount(() => {
         exclusion = [document.getElementById("header")]
     })
-    
+
     async function NewCharacter(){
         $fetching = true;
         await Server.request( "/new_character" ).then(data => {
@@ -94,13 +110,13 @@
     function sortByName(a : ICharacter, b : ICharacter){
         let nameA = a.data.name.toLowerCase()
         let nameB = b.data.name.toLowerCase()
-        if( nameA < nameB ){ 
-            return -1 
-        }else if( nameA > nameB ){ 
-            return 1 
-        }else{ 
+        if( nameA < nameB ){
+            return -1
+        }else if( nameA > nameB ){
+            return 1
+        }else{
             return 0
-        } 
+        }
     }
 
     function togglePin(){
@@ -109,9 +125,10 @@
 
     function orderResults(list : Array<ICharacter>){
         if(Object.keys(sortModes).includes(currentSortMode)){
-            list.sort(sortModes[currentSortMode].sort(list))
+            list = sortModes[currentSortMode].order(list)
         }
         list = getFavoritesFirst(list)
+        console.log(list)
         return list
     }
 
@@ -132,11 +149,12 @@
 
     function changeSort(){
         window.localStorage.setItem("sort_mode", currentSortMode)
+        searchResults = Array.from($characterList)
         searchResults = orderResults(searchResults)
     }
 
     function refreshScroll(){
-        scrolled = self ? self.scrollTop : -1; 
+        scrolled = self ? self.scrollTop : -1;
     }
 
     function backToTop(){
@@ -165,9 +183,9 @@
                 <button class="component normal wide" title="Reload" on:click={reloadCharacterList}>{@html SVG.refresh}Reload</button>
             </div>
         </div>
-        
+
         <div/>
-        
+
         <div class="section">
             <div class="label explanation">Character List — {size}</div>
             <div class="section horizontal wide select">
@@ -179,8 +197,8 @@
                 <div class="icon disabled">{@html SVG.sort}</div>
 
             </div>
-            
-            <Search 
+
+            <Search
                 elements={$characterList}
                 bind:results={searchResults}
                 placeholder="Search characters..."
@@ -189,7 +207,7 @@
                 after={(list) => orderResults(list)}
             />
         </div>
-    
+
         <div class="separator" bind:this={separator}/>
 
         <div class="section characters">

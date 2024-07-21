@@ -66,9 +66,9 @@
 
         load_last_chat: {
             title: "Auto-load last chat",
-            description: "Automatically loads the latest chat for the latest character interacted with.",
-            type: "checkbox", default: false,
-            disabled: () => true,
+            description: "Automatically loads the latest chat you interacted with at the start of the application.",
+            type: "checkbox", default: true,
+            disabled: () => false,
         },
     }
 
@@ -90,7 +90,7 @@
             }else if(parseFloat(value)){
                 value = parseFloat(value)
             }
-    
+
             obj[key] = value !== null && value !== undefined ? value : prefs[key].default;
             setPreference(key, obj[key])
         });

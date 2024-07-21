@@ -74,6 +74,23 @@
         await GenerateMessage()
     }
 
+    // adds a character to the recents list, or move it to the bottom if it already exists
+    async function addToRecentCharacters(character : ICharacter){
+        // parse the recents list if it exists in local storage
+        const path : string = character.temp.filepath.replaceAll("../user/characters/", "")
+        if( !$currentSettingsMain.recents || !Array.isArray( $currentSettingsMain.recents )){
+            $currentSettingsMain.recents = []
+        }
+        if ( $currentSettingsMain.recents.at(-1) === path ){
+            return
+        }
+        const index = $currentSettingsMain.recents.findIndex((item : string) => item === path)
+        if( index > -1 ){
+            $currentSettingsMain.recents.splice(index, 1)
+        }
+        $currentSettingsMain.recents.push(path)
+        await Server.request("/save_main_settings", { data: $currentSettingsMain })
+    }
 
     function fetchLorebooks(){
         return $currentSettingsMain.books?.map(
@@ -144,6 +161,7 @@
         await tick()
         document.dispatchEvent(new CustomEvent("chatscroll"))
 
+        await addToRecentCharacters($currentCharacter)
         await cacheMessageTokens()
 
         await fetch( localServer + "/generate", options ).then(async response => {

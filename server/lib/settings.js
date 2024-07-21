@@ -13,12 +13,16 @@ export default class Settings{
             obj.formatting = {}
         }
 
-        if( !obj.formatting?.replace || !Array.isArray(obj.formatting?.replace)){ 
+        if( !obj.formatting?.replace || !Array.isArray(obj.formatting?.replace)){
             obj.formatting = { replace: [] }
         }
 
         if( !obj.books || !Array.isArray(obj.books) ){
             obj.books = []
+        }
+
+        if( !obj.recents ){
+            obj.recents = []
         }
     }
 
@@ -26,7 +30,7 @@ export default class Settings{
         if( !obj.api_url ){
             obj.api_url = ""
         }
-        
+
         if( !obj.api_auth ){
             obj.api_auth = ""
         }
