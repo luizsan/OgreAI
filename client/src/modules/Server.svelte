@@ -5,11 +5,11 @@
 
     export async function request( url : string, json = null ){
         let req : RequestInit;
-        const headers = { 
-            "Content-Type": "application/json", 
+        const headers = {
+            "Content-Type": "application/json",
             "Cache-Control": "no-cache"
         }
-        
+
         if( json ){
             req = {
                 method: "POST",
@@ -25,7 +25,6 @@
 
         const response = await fetch(State.localServer + url, req);
         const data = await response.json();
-        // console.log(`${State.localServer + url}:\n%o`, data)
         return data;
     }
 
@@ -42,7 +41,7 @@
             disconnect()
         })
     }
-    
+
     export async function disconnect(){
         State.connected.set(false)
         if( _heartbeat != null ){
@@ -73,19 +72,19 @@
             State.currentProfile.set( responses[1] )
             State.currentSettingsMain.set( responses[2] )
             getStatus()
-            
+
         }).catch(error => {
             State.characterList.set( [] )
             State.availableAPIModes.set( [] )
             disconnect()
             console.error(error)
         })
-        
+
         await getCharacterList()
 
         let favs = JSON.parse(window.localStorage.getItem("favorites"))
         State.favoritesList.set( favs ? favs : [] )
-        
+
 
         const settings = get( State.currentSettingsMain )
         const mode = settings.api_mode
@@ -143,39 +142,35 @@
     }
 
     export async function getChats(character : ICharacter, set_latest = false){
-        await request( "/get_chats", { character: character }).then(async (data) => {
-            let latest_time = 0;
-            let latest_chat = null;
-            let list = []
+        let list = await request( "/get_chats", { character: character });
+        let latest_time = 0;
+        let latest_chat = null;
 
-            if( data && data.length > 0 ){
-                list = data;
-                list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
-            }
+        if( list && list.length > 0 ){
+            list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
+        }
 
-            console.debug(`Retrieved chats for ${character.data.name}`)
-            State.chatList.set( null )
-            State.chatList.set( list )
-            
-            if( set_latest ){
-                if( list.length > 0 ){
-                    for(let i = 0; i < data.length; i++){
-                        let chat = data[i]
-                        if( chat.last_interaction > latest_time && chat.messages.length > 0 ){
-                            latest_time = chat.last_interaction;
-                            latest_chat = chat;
-                        }
+        console.debug(`Retrieved chats for ${character.data.name}`)
+        State.chatList.set( null )
+        State.chatList.set( list )
+
+        if( set_latest ){
+            if( list.length > 0 ){
+                list.forEach((chat : IChat) => {
+                    if( chat.last_interaction > latest_time && chat.messages.length > 0 ){
+                        latest_time = chat.last_interaction;
+                        latest_chat = chat;
                     }
-                }else{
-                    latest_chat = await request( "/new_chat", { character: character });
-                }
-                State.currentChat.set(null);
-                State.currentChat.set(latest_chat);
-                console.debug(`Applied latest chat for ${character.data.name}`)
+                })
+            }else{
+                latest_chat = await request( "/new_chat", { character: character });
             }
-        })
+            State.currentChat.set(null);
+            State.currentChat.set(latest_chat);
+            console.debug(`Applied latest chat for ${character.data.name}`)
+        }
     }
-    
+
     export async function newChat(){
         const character = get( State.currentCharacter )
         if( !character ){
@@ -193,11 +188,11 @@
         let settings_main = get( State.currentSettingsMain )
         let settings_api = get( State.currentSettingsAPI )
         let profile = get( State.currentProfile )
-        let body = { 
-            api_mode: settings_main.api_mode, 
-            character: character, 
-            user: profile.name, 
-            settings: settings_api 
+        let body = {
+            api_mode: settings_main.api_mode,
+            character: character,
+            user: profile.name,
+            settings: settings_api
         }
 
         return request( "/get_character_tokens", body )
