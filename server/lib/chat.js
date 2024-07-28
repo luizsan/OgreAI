@@ -19,7 +19,7 @@ export default class Chat{
 
         if( !character )
             return
-    
+
         this.participants.push( character.data.name )
 
         let first = {
@@ -77,6 +77,11 @@ export default class Chat{
                     new_candidate.model = old_candidate.model
                 }
 
+                if( old_candidate.tokens ){
+                    new_candidate.tokens = old_candidate.tokens
+                }
+
+                old_candidate.replace = undefined
                 new_msg.candidates.push( new_candidate )
             }
 
@@ -88,7 +93,7 @@ export default class Chat{
         let chats = []
         let target = path.join(Chat.path, path.parse( character.temp.filepath ).name, "/" )
         target = target.replaceAll("\\", "/")
-        
+
         console.debug( chalk.blue( "Reading chats from " + chalk.blue(target)))
         if(existsSync(target)){
 
@@ -103,12 +108,12 @@ export default class Chat{
                         if(parsed.messages < 1){
                             continue;
                         }
-                        
+
                         let new_chat = new Chat()
                         new_chat.SetFrom( parsed )
                         new_chat.filepath = filepath.replaceAll("\\", "/" )
                         chats.push( new_chat )
-                        
+
                     }else if(files[i].toLowerCase().endsWith('.jsonl')){
                         // TAVERN
                         let filepath = path.join( target, files[i] )
@@ -135,28 +140,28 @@ export default class Chat{
     static Save( chat, character ){
         if( !character ) return;
         if( !character.data.name ) return;
-    
+
         let filename = chat.create_date + ".json";
         let folder =  path.join(Chat.path, path.parse( character.temp.filepath ).name )
         let target = path.join(folder, filename)
         target = target.replaceAll("\\", "/")
-    
+
         try{
             if(!existsSync(folder)){
                 mkdirSync(folder, { recursive: true });
             }
-    
-            let json = JSON.stringify(chat, function(key, value){ 
+
+            let json = JSON.stringify(chat, function(key, value){
                 return key != "dom" ? value : undefined;
             });
-    
+
             writeFileSync(target, json);
             console.debug( chalk.blue( `Saved chat at ${target}` ))
             return true
         }catch(error){
             console.warn( chalk.yellow( `Could not save chat at ${target}\n${error}` ))
         }
-        
+
         return false
     }
 
@@ -181,7 +186,7 @@ export default class Chat{
 
     static ImportCAI( character, file ){
         if( !character ) return;
-        
+
         try{
             let content = readFileSync( file, "utf-8")
             let json = JSON.parse( content )
@@ -191,7 +196,7 @@ export default class Chat{
                 let new_chat = new Chat( character )
                 new_chat.SetFrom( chats[i] )
                 new_chat.Save( character )
-            } 
+            }
         }catch(error){
             console.warn("Error trying to import Character.AI chat:\n" + error.message)
         }

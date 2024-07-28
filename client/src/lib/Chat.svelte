@@ -254,7 +254,6 @@
             timestamp: Date.now(),
             timer: Date.now() - requestTime,
             model: null,
-            replace: false
         }
 
         if( swipe ){
