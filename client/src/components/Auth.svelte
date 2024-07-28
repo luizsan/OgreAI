@@ -110,7 +110,7 @@
 
                 <div class="controls">
                     {#if can_apply}
-                        <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={applyPreset}>{@html SVG.confirm} Apply</button>
+                        <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={applyPreset}>{@html SVG.refresh} Revert</button>
                     {:else}
                         <button class="component clear {can_delete ? "danger" : "normal disabled"}" title="Delete preset" disabled={!can_delete} on:click={deletePreset}>{@html SVG.trashcan} Delete</button>
                     {/if}
@@ -118,7 +118,7 @@
                     <button class="component clear normal" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
                 </div>
             </div>
-            
+
             <hr>
         {/if}
 
