@@ -21,20 +21,9 @@ class Anthropic{
                 "claude-3-opus-20240229",
                 "claude-3-sonnet-20240229",
                 "claude-3-haiku-20240307",
-                "claude-2",
-                "claude-v1",
-                "claude-v1-100k",
-                "claude-instant-v1",
-                "claude-instant-v1-100k",
                 "claude-2.1",
                 "claude-2.0",
-                "claude-v1.3",
-                "claude-v1.3-100k",
-                "claude-v1.2",
-                "claude-v1.0",
-                "claude-instant-v1.1",
-                "claude-instant-v1.1-100k",
-                "claude-instant-v1.0"
+                "claude-instant-1.2"
             ]
         },
 
@@ -257,9 +246,10 @@ class Anthropic{
             if(!obj || obj === "") continue;
             if(obj.startsWith(":")) continue;
 
-            try {
-                const parsed = JSON.parse(obj);
+            let parsed = null
 
+            try {
+                parsed = JSON.parse(obj);
                 if (parsed.delta && parsed.delta.stop_reason) {
                     message.done = true;
                     break;
@@ -292,8 +282,8 @@ class Anthropic{
                     console.log(obj)
                     console.error(error);
                 }
-                if(obj.error){
-                    return obj;
+                if(parsed?.error){
+                    return parsed.error;
                 }
             }
         }

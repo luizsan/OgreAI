@@ -15,7 +15,16 @@ class OpenAI{
         model: {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
-            type: "select", default: "gpt-3.5-turbo", choices: [ "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", "gpt-4-turbo", "gpt-4o" ]
+            type: "select", default: "gpt-3.5-turbo", choices: [
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4-turbo",
+                "gpt-4-turbo-preview",
+                "gpt-4-32k",
+                "gpt-4",
+                "gpt-3.5-turbo-16k",
+                "gpt-3.5-turbo",
+            ]
         },
 
         max_length: {
@@ -212,8 +221,9 @@ class OpenAI{
                 continue
             }
 
+            let parsed = null
             try {
-                const parsed = JSON.parse(obj);
+                parsed = JSON.parse(obj);
                 const text = parsed.choices[0].delta.content;
                 message.streaming.model = parsed.model || undefined
                 if( text ){
@@ -231,8 +241,8 @@ class OpenAI{
                     console.log(obj)
                     console.error(error);
                 }
-                if(obj.error){
-                    return obj;
+                if(parsed?.error){
+                    return parsed.error;
                 }
             }
         }

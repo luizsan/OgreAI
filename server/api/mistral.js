@@ -14,7 +14,14 @@ class Mistral{
         model: {
             title: "Model",
             description: "ID of the model to use.",
-            type: "select", default: "mistral-small", choices: [ "open-mistral-7b", "open-mixtral-8x7b", "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest" ]
+            type: "select", default: "mistral-small", choices: [
+                "mistral-large-latest",
+                "mistral-medium-latest",
+                "mistral-small-latest",
+                "open-mixtral-8x22b",
+                "open-mixtral-8x7b",
+                "open-mistral-7b",
+            ]
         },
 
         max_tokens: {
@@ -191,9 +198,12 @@ class Mistral{
                 continue
             }
 
+            let parsed = null
+
             try {
-                const parsed = JSON.parse(obj);
-                const text = parsed.choices[0].delta.content;
+                parsed = JSON.parse(obj);
+                const choice = parsed.choices[0]
+                const text = choice.delta?.content || choice.message?.content
                 message.streaming.model = parsed.model || undefined
                 if( text ){
                     if( this.__message_chunk ){
@@ -210,8 +220,8 @@ class Mistral{
                     console.log(obj)
                     console.error(error);
                 }
-                if(obj.error){
-                    return obj;
+                if(parsed?.error){
+                    return parsed.error;
                 }
             }
         }
