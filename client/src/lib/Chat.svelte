@@ -188,6 +188,12 @@
                     for( const line of lines ){
                         try{
                             const obj = JSON.parse(line)
+                            if( obj.error ){
+                                candidate.timer = new Date().getTime() - requestTime;
+                                candidate.text = obj.error?.message || obj.error
+                                alert(obj.error?.message)
+                            }
+
                             if( obj.streaming ){
                                 candidate.timestamp = obj.streaming.timestamp
                                 if( obj.replace ){

@@ -190,6 +190,10 @@ class Anthropic{
         let incoming_json = ""
         try{
             incoming_json = JSON.parse(incoming_data);
+            if(incoming_json?.error){
+                return incoming_json;
+            }
+
             if( incoming_json.content ){
                 console.debug(incoming_json.model)
                 let message = {
@@ -214,8 +218,9 @@ class Anthropic{
                 this.#__message_chunk += incoming_data
                 return null;
             }else{
-                this.__message_chunk = ""
+                console.log(incoming_data)
                 console.error(error)
+                this.__message_chunk = ""
                 return error
             }
         }
@@ -250,6 +255,10 @@ class Anthropic{
 
             try {
                 parsed = JSON.parse(obj);
+                if(parsed?.error){
+                    return parsed;
+                }
+
                 if (parsed.delta && parsed.delta.stop_reason) {
                     message.done = true;
                     break;
@@ -267,23 +276,15 @@ class Anthropic{
                 const text = parsed.delta.text;
 
                 if( text ){
-                    // if( this.__message_chunk ){
-                    //     console.log("CORRECTED: " + obj)
-                    // }
                     message.streaming.text += text;
-                    // console.log(obj)
                     this.__message_chunk = "";
                 }
             }catch(error){
                 if(error instanceof SyntaxError){
-                    // console.log("PARSE ERROR: " + obj)
                     this.__message_chunk = obj
                 }else{
                     console.log(obj)
                     console.error(error);
-                }
-                if(parsed?.error){
-                    return parsed.error;
                 }
             }
         }

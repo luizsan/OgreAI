@@ -130,6 +130,10 @@ class Mistral{
         let incoming_json = ""
         try{
             incoming_json = JSON.parse(incoming_data);
+            if(incoming_json?.error){
+                return incoming_json;
+            }
+
             if( incoming_json.choices ){
                 console.debug(incoming_json.model)
                 let message = {
@@ -154,8 +158,9 @@ class Mistral{
                 this.#__message_chunk += incoming_data
                 return null;
             }else{
-                this.__message_chunk = ""
+                console.log(incoming_data)
                 console.error(error)
+                this.__message_chunk = ""
                 return error
             }
         }
@@ -202,26 +207,23 @@ class Mistral{
 
             try {
                 parsed = JSON.parse(obj);
+                if(parsed?.error){
+                    return parsed;
+                }
+
                 const choice = parsed.choices[0]
                 const text = choice.delta?.content || choice.message?.content
                 message.streaming.model = parsed.model || undefined
                 if( text ){
-                    if( this.__message_chunk ){
-                        console.log("CORRECTED: " + obj)
-                    }
                     message.streaming.text += text;
                     this.__message_chunk = "";
                 }
             }catch(error){
                 if(error instanceof SyntaxError){
-                    console.log("PARSE ERROR: " + obj)
                     this.__message_chunk = obj
                 }else{
-                    console.log(obj)
+                    console.log(obj);
                     console.error(error);
-                }
-                if(parsed?.error){
-                    return parsed.error;
                 }
             }
         }
