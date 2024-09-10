@@ -1,6 +1,6 @@
 import { marked } from "marked"
 
-const quotePattern = /(&quot;|")([^"]+)(\1)/gi
+const quotePattern = /(&quot;|")([^"]+?)(\1)/gi
 
 export function initializeMarked(){
     const marked_renderer = new marked.Renderer();
@@ -14,7 +14,7 @@ export function initializeMarked(){
         text = text.replace(quotePattern, `<span class="quote">"$2"</span>`)
         return text;
     }
-    
+
     marked.setOptions({
         breaks: true,
         renderer: marked_renderer,
