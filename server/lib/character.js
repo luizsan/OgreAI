@@ -10,7 +10,7 @@ import * as Tavern from "../import/tavern.js"
 
 export default class Character{
     static path = "../user/characters/"
-    
+
     constructor(){
         this.Reset();
     }
@@ -103,7 +103,7 @@ export default class Character{
         }else{
             let timestamp_created = json.created ?? json.create_date ?? this.temp.filecreated ?? Date.now()
             let timestamp_modified = json.last_changed ?? this.temp.filemodified ?? timestamp_created
-            
+
             if(typeof( timestamp_created ) === "string"){
                 // not unix time, but some other bullshit format
                 if( timestamp_created.indexOf("@") > -1 ){
@@ -117,13 +117,13 @@ export default class Character{
                 this.metadata.modified = parseInt( json.last_changed ?? timestamp_modified )
             }
         }
-            
+
         // ensure the timestamp has the correct number of digits
         let size_created = this.metadata.created.toString().length
         if( size_created < 13 ){
             this.metadata.created *= 10 ** ( 13 - size_created )
         }
-        
+
         let size_modified = this.metadata.modified.toString().length
         if( size_modified < 13 ){
             this.metadata.modified *= 10 ** ( 13 - size_modified )
@@ -150,7 +150,7 @@ export default class Character{
                 } else if (stats.isFile()) {
                     if(!full_path.toLowerCase().endsWith('.png')){
                         continue;
-                    }   
+                    }
                     let char = Character.ReadFromFile( full_path )
                     if( char ){
                         list.push( char )
@@ -176,16 +176,21 @@ export default class Character{
             }).map(function (chunk) {
                 return PNGtext.decode(chunk.data);
             });
-    
+
             let _base64 = Buffer.from(_tEXtChunks[0].text, 'base64').toString('utf8');
             let _json = JSON.parse(_base64);
             let _char = new Character();
             _char.temp.filecreated = parseInt( stats.ctimeMs )
             _char.temp.filemodified = parseInt( stats.mtimeMs )
+
+            if( _char.temp.filecreated > _char.temp.filemodified ){
+                _char.temp.filecreated = _char.temp.filemodified
+            }
+
             _char.temp.filepath = filepath.replaceAll("\\", "/");
             _char.Parse( _json )
             return _char;
-            
+
         }catch (error){
             if (error instanceof SyntaxError) {
                 console.warn( chalk.yellow( `${filepath} is not valid JSON!` ));
@@ -210,11 +215,11 @@ export default class Character{
             for (let c of _tEXtChunks) {
                 _chunks.splice(_chunks.indexOf(c), 1);
             }
-            
-            let _data = JSON.stringify(character, function(key, value){ 
+
+            let _data = JSON.stringify(character, function(key, value){
                 return key != "temp" ? value : undefined;
             });
-            
+
             var _base64 = Buffer.from(_data, 'utf8').toString('base64');
             _chunks.splice(-1, 0, PNGtext.encode("chara", _base64));
             fs.writeFileSync( filepath, new Buffer.from(PNGencode(_chunks)));
