@@ -11,6 +11,7 @@
     import { ChatScroll } from "../utils/ChatScroll";
     import { onMount, tick } from "svelte";
     import * as Format from "@shared/format.mjs";
+    import * as Logo from "../utils/SVGLogo.svelte";
 
     $: lockinput = !$currentChat || $fetching || $busy;
 
@@ -445,11 +446,22 @@
                 {/if}
             </div>
 
-            {#if $busy}
-                <button class="abort danger side" on:click={AbortMessage}>Abort Message {@html SVG.stop}</button>
-            {/if}
-        {/if}
+            <div class="under">
+                <div class="api deselect">
+                    {#if $currentSettingsAPI?.model}
+                        {@html Logo[$currentSettingsMain.api_mode]}{$currentSettingsAPI.model}
+                    {:else}
+                        No API Selected
+                    {/if}
+                </div>
+                <div>
+                    {#if $busy}
+                        <button class="abort danger side" on:click={AbortMessage}>Abort Message {@html SVG.stop}</button>
+                    {/if}
+                </div>
+            </div>
 
+        {/if}
     </div>
 </div>
 
@@ -514,7 +526,7 @@
         --scrollbar-bg: var( --input-bg-normal );
 
         align-items: center;
-        border-radius: 5px;
+        border-radius: 6px;
         background: var( --input-bg-normal );
         border: var( --input-border-normal );
         outline: var( --input-outline-normal );
@@ -569,12 +581,12 @@
 
     .abort{
         width: fit-content;
-        height: min-content;
+        height: 100%;
         position: absolute;
-        right: 20px;;
-        bottom: 8px;
+        right: 24px;
         gap: 4px;
         font-size: 75%;
+        padding: 0px;
     }
 
     .abort :global(svg){
@@ -666,4 +678,28 @@
     .bottom *{
         margin: 0px;
     }
+
+    .under{
+        position: absolute;
+        bottom: 6px;
+        left: 0px;
+        right: 0px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding: 0px 24px;
+    }
+
+    .api{
+        display: flex;
+        gap: 8px;
+        font-size: 70%;
+        align-items: center;
+        opacity: 0.25;
+    }
+
+    .api :global(svg){
+        width: 12px;
+        height: 12px;
+    }
+
 </style>
