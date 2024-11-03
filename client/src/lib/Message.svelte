@@ -173,6 +173,9 @@
             $fetching = true;
             let branch = JSON.parse( JSON.stringify( $currentChat ))
             branch.messages = branch.messages.slice(0, id + 1)
+            let last = branch.messages.at(-1)
+            last.candidates = [last.candidates[last.index]];
+            last.index = 0
 
             let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch, name: new_name })
             if( result ){
