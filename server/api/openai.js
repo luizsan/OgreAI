@@ -77,8 +77,8 @@ class OpenAI{
 
         logit_bias: {
             title: "Logit Bias",
-            description: "Modify the likelihood of specified tokens appearing in the completion. Only change this if you know what you're doing.",
-            type: "textarea", default: "",
+            description: "Modify the likelihood of specified tokens appearing in the completion.",
+            type: "dictionary", value: "number", default: [],
         }
     }
 
@@ -121,11 +121,12 @@ class OpenAI{
             model: settings.model,
             messages: prompt,
             stop: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
-            max_tokens: parseInt(settings.max_length),
+            max_completion_tokens: parseInt(settings.max_length),
             frequency_penalty: parseFloat(settings.frequency_penalty),
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
+            logit_bias: this.buildLogitBias(settings.model, settings.logit_bias),
             stream: settings.stream,
         };
 
@@ -143,6 +144,43 @@ class OpenAI{
 
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return fetch( url + "/v1/chat/completions?api-version=" + this.API_VERSION, options )
+    }
+
+    static buildLogitBias(model, bias){
+        let logit_bias = {}
+        // validate bias as an object with keys and values
+        if( !Array.isArray(bias) )
+            return null
+
+        bias.forEach(pair => {
+            // validate pair as an object with key and value properties
+            if( typeof pair !== "object" || !pair.key || !pair.value )
+                return
+
+            let key = pair.key
+            let val = parseInt(pair.value)
+            if( isNaN(val) )
+                return
+
+            if( val < -100 ){ val = -100 }
+            if( val > 100 ){ val = 100 }
+
+            // check if key is an int or parseable as one
+            let token_id = parseInt(key)
+            if( !isNaN(token_id) ){
+                logit_bias[token_id] = val
+            }else{
+                var parsed_keys = Tokenizer.getTokens(key, model)
+                if( parsed_keys.length > 0 ){
+                    parsed_keys.forEach(id => {
+                        logit_bias[parseInt(id)] = val
+                    })
+                }
+            }
+        })
+        return logit_bias
+
+        return null
     }
 
     // processes a single message from the model's output

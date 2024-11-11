@@ -121,19 +121,19 @@ export function makePrompt( tokenizer, content, offset = 0 ){
     prefill_prompt = parseNames(prefill_prompt, user.name, character.data.name)
     prefill_prompt = prefill_prompt.length > 0 ? prefill_prompt : ""
 
-    let tokens_system = tokenizer.getTokens(system, settings.model);
+    let tokens_system = tokenizer.getTokenCount(system, settings.model);
     let tokens_messages = 0
 
     let injected_sub_prompt = false;
 
     const enabled_sub_prompt = getFieldEnabled("sub_prompt", settings)
     if(enabled_sub_prompt){
-        tokens_system += tokenizer.getTokens(sub_prompt, settings.model)
+        tokens_system += tokenizer.getTokenCount(sub_prompt, settings.model)
     }
 
     const enabled_prefill_prompt = getFieldEnabled("prefill_prompt", settings)
     if(enabled_prefill_prompt){
-        tokens_system += tokenizer.getTokens(prefill_prompt, settings.model)
+        tokens_system += tokenizer.getTokenCount(prefill_prompt, settings.model)
     }
 
     offset = Math.abs(offset)
@@ -154,7 +154,7 @@ export function makePrompt( tokenizer, content, offset = 0 ){
             if( candidate.tokens && candidate.tokens[settings.model] && typeof candidate.tokens[settings.model] === "number" ){
                 next_tokens = candidate.tokens[settings.model]
             }else{
-                next_tokens = tokenizer.getTokens(content, settings.model)
+                next_tokens = tokenizer.getTokenCount(content, settings.model)
             }
 
             if(tokens_system + tokens_messages + next_tokens > settings.context_size){
@@ -291,7 +291,7 @@ export function getEntriesFromBook(tokenizer, book, content) {
     entries.sort((a,b) => b.priority - a.priority);
     for(let i = 0; i < entries.length; i++){
         const entry = entries[i];
-        const tokens = tokenizer.getTokens(entry.content, settings.model);
+        const tokens = tokenizer.getTokenCount(entry.content, settings.model);
         if(tokens_used + tokens <= book.token_budget){
             tokens_used += tokens;
         }else{
@@ -333,19 +333,19 @@ export function getCharacterTokens( tokenizer, character, user, settings ){
     const _greeting = parseNames( getCharacterProperty( "first_mes", character, settings ), user.name, character.data.name )
 
     return {
-        system: tokenizer.getTokens(_system, settings.model),
-        greeting: tokenizer.getTokens(_greeting, settings.model),
-        description: tokenizer.getTokens(_description, settings.model),
-        personality: tokenizer.getTokens(_personality, settings.model),
-        scenario: tokenizer.getTokens(_scenario, settings.model),
-        dialogue: tokenizer.getTokens(_dialogue, settings.model),
+        system: tokenizer.getTokenCount(_system, settings.model),
+        greeting: tokenizer.getTokenCount(_greeting, settings.model),
+        description: tokenizer.getTokenCount(_description, settings.model),
+        personality: tokenizer.getTokenCount(_personality, settings.model),
+        scenario: tokenizer.getTokenCount(_scenario, settings.model),
+        dialogue: tokenizer.getTokenCount(_dialogue, settings.model),
     }
 }
 
 export function getMessageTokens( tokenizer, message, character, user, settings ){
     const candidate = message.candidates[message.index]
     let text = parseNames( candidate.text, user.name, character.data.name )
-    return tokenizer.getTokens( text, settings.model )
+    return tokenizer.getTokenCount( text, settings.model )
 }
 
 export function sanitizeStopSequences(list, user, character){

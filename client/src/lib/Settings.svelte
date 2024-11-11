@@ -74,7 +74,7 @@
                 $currentSettingsAPI[key] = imported[key]
             })
             $currentSettingsAPI = $currentSettingsAPI
-            
+
         })
     }
 </script>
@@ -109,7 +109,7 @@
             </div>
         </div>
 
-        
+
         <hr class="component">
 
         <div class="section horizontal wide wrap">
@@ -127,7 +127,7 @@
                         <div class="section">
                             <Heading title={entry.title} description={entry.description}/>
                             <input type="text" class="component" placeholder={entry.placeholder} bind:value={$currentSettingsAPI[key]}>
-                        </div>  
+                        </div>
 
                     {:else if entry.type == "textarea"}
                         <div class="section">
@@ -136,29 +136,29 @@
                         </div>
 
                     {:else if entry.type == "select"}
-                        <Dropdown 
-                            bind:value={$currentSettingsAPI[key]} 
-                            choices={entry.choices} 
-                            editable={key == "model"} 
-                            title={entry.title} 
+                        <Dropdown
+                            bind:value={$currentSettingsAPI[key]}
+                            choices={entry.choices}
+                            editable={key == "model"}
+                            title={entry.title}
                             description={entry.description}
                         />
 
                     {:else if entry.type == "range"}
-                        <Slider 
-                            bind:value={$currentSettingsAPI[key]} 
-                            original={entry.default} 
-                            min={entry.min} 
-                            max={entry.max} 
-                            step={entry.step} 
-                            title={entry.title} 
+                        <Slider
+                            bind:value={$currentSettingsAPI[key]}
+                            original={entry.default}
+                            min={entry.min}
+                            max={entry.max}
+                            step={entry.step}
+                            title={entry.title}
                             description={entry.description}
                             unit={entry.unit}
                         />
                     {:else if entry.type == "checkbox"}
-                        <Checkbox 
-                            bind:value={$currentSettingsAPI[key]} 
-                            title={entry.title} 
+                        <Checkbox
+                            bind:value={$currentSettingsAPI[key]}
+                            title={entry.title}
                             description={entry.description}
                         />
 
@@ -175,10 +175,32 @@
                             <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
                         </Accordion>
                         </div>
+
+                    {:else if entry.type == "dictionary"}
+                        <div class="section">
+                        <Heading title={entry.title} description={entry.description}/>
+                        <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
+                            {#each $currentSettingsAPI[key] as item, i}
+                                <div class="section horizontal dictionary">
+                                    <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
+                                    <input type="text" class="component wide" placeholder="Empty item" bind:value={item.key}>
+                                    <div class="separator disabled">{@html SVG.arrow}</div>
+                                    {#if entry.value == "number"}
+                                        <input type="number" class="component wide" placeholder="Empty value" bind:value={item.value}>
+                                    {:else}
+                                        <input type="text" class="component wide" placeholder="Empty value" bind:value={item.value}>
+                                    {/if}
+                                </div>
+                            {/each}
+                            <button class="component normal" on:click={() => addListItem(key, { "key": "", "value": 0}, entry.limit)}>{@html SVG.plus}Add</button>
+                        </Accordion>
+                        </div>
+
+
                     {/if}
 
                 {/if}
-                
+
             </div>
         </div>
         {/each}
@@ -215,8 +237,28 @@
         grid-template-columns: 32px auto;
         gap: 4px;
     }
-    
-    .preset .component{
+
+    .dictionary{
+        display: grid;
+        grid-template-columns: 32px auto 20px auto;
+        gap: 4px;
+    }
+
+    .preset .component, .dictionary .component{
         padding: 6px;
+    }
+
+    .separator{
+        width: 100%;
+        height: 24px;
+        display: flex;
+    }
+
+
+    .separator :global(svg){
+        transform: scaleX(-1);
+        translate: 1px 2px;
+        width: 100%;
+        height: 100%;
     }
 </style>
