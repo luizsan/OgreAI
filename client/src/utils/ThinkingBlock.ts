@@ -1,7 +1,7 @@
 import { marked } from 'marked';
 import * as SVG from "./SVGCollection.svelte"
 
-const thinkingPattern = /(?<!<\/?code>\s*)(?<!\`{1,3})<(thinking)>([\s\S]*?)<\/(\1)>/gi
+const thinkingPattern = /<(thinking)>([\s\S]*?)<\/(\1)>/gi
 
 export function addThinkingBlocks(node : Element, options : any){
     const thinkingReplacement = `
