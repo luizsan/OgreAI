@@ -226,7 +226,7 @@ class Anthropic{
         }
     }
 
-    static receiveStream( incoming_data, swipe, replace = false ){
+    static receiveStream( incoming_data, swipe = false, replace = false ){
         let message = {
             done: false,
             participant: 0,

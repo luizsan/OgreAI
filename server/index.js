@@ -366,7 +366,7 @@ app.post("/generate", parser, async function(request, response){
                     console.debug( chalk.blue("Streaming message..."))
                     const td = new TextDecoder();
                     for await (const message of result.body){
-                        let data = api.receiveStream( td.decode(message), content.swipe )
+                        let data = api.receiveStream( td.decode(message), content.swipe ?? false )
                         if( data && (data?.candidate?.text || data?.streaming?.text || data?.error)){
                             // console.debug( chalk.blue("%o"), data)
                             // the newline at the end is required as sometimes the stream
@@ -382,7 +382,7 @@ app.post("/generate", parser, async function(request, response){
                 }
             }else{
                 result.text().then(raw => {
-                    let data = api.receiveData( raw, swipe )
+                    let data = api.receiveData( raw, content.swipe )
                     console.debug(chalk.blue("Received message"))
                     response.send(data);
                 })

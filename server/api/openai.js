@@ -233,7 +233,7 @@ class OpenAI{
     // - swipe: true or false
     // - replace: replace the message contents or keep adding
     // - streaming: { text, timestamp, model }
-    static receiveStream( incoming_data, swipe, replace = false ){
+    static receiveStream( incoming_data, swipe = false, replace = false ){
         let message = {
             done: false,
             participant: 0,
