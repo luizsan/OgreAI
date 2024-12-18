@@ -50,7 +50,7 @@ class Gemini{
         top_k: {
             title: "top_k",
             description: "The maximum number of tokens to consider when sampling. Gemini models use Top-p (nucleus) sampling or a combination of Top-k and nucleus sampling. Top-k sampling considers the set of topK most probable tokens. Models running with nucleus sampling don't allow topK setting.",
-            type: "range", default: 0, min: 0, max: 100, step: 1,
+            type: "range", default: 20, min: 1, max: 40, step: 1,
         },
 
         presence_penalty: {
