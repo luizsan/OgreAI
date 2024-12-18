@@ -246,8 +246,12 @@ class Gemini{
             let parsed = null
             try {
                 parsed = JSON.parse(obj);
-                if(parsed?.error){
+                if(parsed?.error ){
                     return parsed;
+                }
+
+                if(parsed.promptFeedback){
+                    return { error: parsed.promptFeedback.blockReason, model: parsed.modelVersion };
                 }
 
                 const text = parsed.candidates[0].content.parts[0].text;
