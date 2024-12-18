@@ -449,7 +449,10 @@
             <div class="under">
                 <div class="api deselect">
                     {#if $currentSettingsAPI?.model}
-                        {@html Logo[$currentSettingsMain.api_mode]}{$currentSettingsAPI.model}
+                        {#if Logo[$currentSettingsMain.api_mode]}
+                            {@html Logo[$currentSettingsMain.api_mode]}
+                        {/if}
+                        {$currentSettingsAPI.model}
                     {:else}
                         No API Selected
                     {/if}
