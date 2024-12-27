@@ -191,7 +191,8 @@
                             const obj = JSON.parse(line)
                             if( obj.error ){
                                 candidate.timer = new Date().getTime() - requestTime;
-                                candidate.text = obj.error?.message || obj.error
+                                candidate.text += "\n\n" + obj.error?.message || obj.error
+                                candidate.text = candidate.text.trim()
                                 alert(obj.error?.message)
                             }
 
@@ -202,10 +203,12 @@
                                 }else{
                                     candidate.text += obj.streaming.text
                                 }
-                                if( obj.streaming.model ){
-                                    candidate.model = obj.streaming.model
-                                }else if( $currentSettingsAPI.model ){
-                                    candidate.model = $currentSettingsAPI.model
+                                if( !candidate.model ){
+                                    if( obj.streaming.model ){
+                                        candidate.model = obj.streaming.model
+                                    }else if( $currentSettingsAPI.model ){
+                                        candidate.model = $currentSettingsAPI.model
+                                    }
                                 }
                             }
                         }catch(error){
