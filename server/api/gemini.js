@@ -125,6 +125,8 @@ class Gemini{
             model: settings.model,
             stream: settings.stream,
             contents: prompt,
+            // contents: prompt.slice(1),
+            // systemInstruction: prompt[0],
             safetySettings: [
                 { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
                 { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
@@ -173,7 +175,15 @@ class Gemini{
                 return incoming_json;
             }
 
+            if(incoming_json.promptFeedback){
+                return { error: { type: incoming_json.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
+            }
+
             if( incoming_json.candidates ){
+                if( incoming_json.candidates[0]?.finishReason === "PROHIBITED_CONTENT" ){
+                    return { error: { type: "PROHIBITED_CONTENT", message: "PROHIBITED_CONTENT" }}
+                }
+
                 console.debug(incoming_json.modelVersion)
                 let message = {
                     participant: 0,
@@ -251,7 +261,11 @@ class Gemini{
                 }
 
                 if(parsed.promptFeedback){
-                    return { error: parsed.promptFeedback.blockReason, model: parsed.modelVersion };
+                    return { error: { type: parsed.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
+                }
+
+                if(parsed.candidates[0]?.finishReason === "PROHIBITED_CONTENT" ){
+                    return { error: { type: "PROHIBITED_CONTENT", message: "PROHIBITED_CONTENT" }}
                 }
 
                 const text = parsed.candidates[0].content.parts[0].text;
