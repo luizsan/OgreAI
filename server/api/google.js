@@ -2,10 +2,18 @@
 import * as Utils from "../lib/utils.js"
 import * as Tokenizer from "../tokenizer/gpt.js"
 
-class Gemini{
+const SAFETY_SETTINGS = [
+    { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "OFF" },
+    { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "OFF" },
+    { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "OFF" },
+    { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "OFF" },
+    { "category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "OFF" },
+]
+
+class Google{
 
     // display name
-    static API_NAME = "Gemini"
+    static API_NAME = "Google"
     static API_ADDRESS = "https://generativelanguage.googleapis.com/"
 
     // settings for this API
@@ -127,13 +135,7 @@ class Gemini{
             contents: prompt,
             // contents: prompt.slice(1),
             // systemInstruction: prompt[0],
-            safetySettings: [
-                { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
-                { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
-                { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
-                { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" },
-                { "category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_NONE" },
-            ],
+            safetySettings: SAFETY_SETTINGS,
             generationConfig: {
                 maxOutputTokens: parseInt(settings.max_tokens),
                 temperature: parseFloat(settings.temperature),
@@ -167,30 +169,38 @@ class Gemini{
     // - swipe: true or false
     // - candidate: { text, timestamp, model }
     static receiveData( incoming_data, swipe = false ){
-        let incoming_json = ""
         console.log(incoming_data)
+        let parsed = JSON.parse(incoming_data);
         try{
-            incoming_json = JSON.parse(incoming_data);
-            if(incoming_json?.error){
-                return incoming_json;
+            if(parsed?.error){
+                return parsed;
             }
 
-            if(incoming_json.promptFeedback){
-                return { error: { type: incoming_json.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
+            if(parsed.promptFeedback){
+                return { error: { type: parsed.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
             }
 
-            if( incoming_json.candidates ){
-                if( incoming_json.candidates[0]?.finishReason === "PROHIBITED_CONTENT" ){
-                    return { error: { type: "PROHIBITED_CONTENT", message: "PROHIBITED_CONTENT" }}
+            if( parsed.candidates ){
+
+                if( parsed.candidates[0]?.finishReason ){
+                    const reason = parsed.candidates[0].finishReason
+                    if ( reason !== "STOP" )
+                        return { error: { type: reason, message: reason }}
                 }
 
-                console.debug(incoming_json.modelVersion)
+                if(parsed.choices && parsed.choices[0].delta?.content){
+                    const err = parsed.choices[0].delta.content;
+                    message.streaming.model = parsed.model ?? undefined
+                    return { error: { type: "Proxy Error", message: err }}
+                }
+
+                console.debug(parsed.modelVersion)
                 let message = {
                     participant: 0,
                     swipe: swipe,
                     candidate: {
-                        model: incoming_json.modelVersion || undefined,
-                        text: incoming_json.candidates[0].content.parts[0].text,
+                        model: parsed.modelVersion || undefined,
+                        text: parsed.candidates[0].content.parts[0].text,
                         timestamp: Date.now(),
                     }
                 }
@@ -198,7 +208,7 @@ class Gemini{
                 return message;
             }else{
                 this.__message_chunk = ""
-                return incoming_json;
+                return parsed;
             }
         }catch(error){
             // catch incomplete json responses
@@ -264,8 +274,16 @@ class Gemini{
                     return { error: { type: parsed.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
                 }
 
-                if(parsed.candidates[0]?.finishReason === "PROHIBITED_CONTENT" ){
-                    return { error: { type: "PROHIBITED_CONTENT", message: "PROHIBITED_CONTENT" }}
+                if(parsed.choices && parsed.choices[0].delta?.content){
+                    const err = parsed.choices[0].delta.content;
+                    message.streaming.model = parsed.model ?? undefined
+                    return { error: { type: "Proxy Error", message: err }}
+                }
+
+                if(parsed.candidates[0]?.finishReason ){
+                    const reason = parsed.candidates[0].finishReason
+                    if( reason !== "STOP" )
+                        return { error: { type: reason, message: reason }}
                 }
 
                 const text = parsed.candidates[0].content.parts[0].text;
@@ -288,4 +306,4 @@ class Gemini{
     }
 }
 
-export default Gemini
+export default Google
