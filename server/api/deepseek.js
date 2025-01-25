@@ -4,7 +4,7 @@ import OpenAI from "../api/openai.js"
 
 class DeepSeek{
     static API_NAME = "DeepSeek"
-    static API_ADDRESS = "https://api.deepseek.com/"
+    static API_ADDRESS = "https://api.deepseek.com/beta"
 
     static API_SETTINGS = {
         model: {
@@ -77,7 +77,16 @@ class DeepSeek{
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
     static makePrompt( content, offset = 0 ){
-        return Utils.makePrompt( Tokenizer, content, offset )
+        let list = Utils.makePrompt( Tokenizer, content, offset )
+        if( list.length > 1 && list[1].role === "assistant" ){
+            list[1].role = "system"
+            list = Utils.mergeMessages(list)
+        }
+        let last = list.at(-1)
+        if( last.role === "assistant" ){
+            last.prefix = true
+        }
+        return list
     }
 
     static getTokenizer(){
