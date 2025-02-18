@@ -179,8 +179,6 @@ class OpenAI{
             }
         })
         return logit_bias
-
-        return null
     }
 
     // processes a single message from the model's output

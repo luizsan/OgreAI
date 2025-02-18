@@ -136,12 +136,120 @@ class DeepSeek{
         return fetch( url + "/chat/completions?api-version=" + this.API_VERSION, options )
     }
 
+// processes a single message from the model's output
+    // - participant: 0
+    // - swipe: true or false
+    // - candidate: { text, timestamp, model }
     static receiveData( incoming_data, swipe = false ){
-        return OpenAI.receiveData( incoming_data, swipe )
+        let incoming_json = ""
+        try{
+            incoming_json = JSON.parse(incoming_data);
+            if(incoming_json?.error){
+                return incoming_json;
+            }
+
+            if( incoming_json.choices ){
+                console.debug(incoming_json.model)
+                const choice = incoming_json.choices[0].message
+                const text = choice.content
+                let message = {
+                    participant: 0,
+                    swipe: swipe,
+                    candidate: {
+                        model: incoming_json.model || undefined,
+                        text: text,
+                        timestamp: Date.now(),
+                    }
+                }
+                this.__message_chunk = ""
+                return message;
+            }else{
+                this.__message_chunk = ""
+                return incoming_json;
+            }
+        }catch(error){
+            // catch incomplete json responses
+            if(error instanceof SyntaxError){
+                console.error("JSON Syntax error")
+                this.#__message_chunk += incoming_data
+                return null;
+            }else{
+                console.log(incoming_data)
+                console.error(error)
+                this.__message_chunk = ""
+                return error
+            }
+        }
     }
 
+    // if the API supports streams, must return a JSON
+    // - done: if the stream has finished
+    // - participant: 0
+    // - swipe: true or false
+    // - replace: replace the message contents or keep adding
+    // - streaming: { text, timestamp, model }
     static receiveStream( incoming_data, swipe = false, replace = false ){
-        return OpenAI.receiveStream( incoming_data, swipe, replace )
+        let message = {
+            done: false,
+            participant: 0,
+            swipe: swipe,
+            replace: replace,
+            streaming: {
+                text: "",
+                reasoning: "",
+                model: undefined,
+                timestamp: Date.now()
+            }
+        }
+
+        const raw_text = (this.__message_chunk || "") + ( incoming_data.includes(":") ? incoming_data : "")
+        const lines = raw_text.replace(/data: /gm, '\n').split('\n').filter(line => line.trim() !== '');
+        for( const line of lines ){
+            if(!line){
+                continue;
+            }
+            const obj = line.replace(/data: /gm, '')
+
+            if (obj === '[DONE]') {
+                message.done = true;
+                break;
+            }
+
+            if( obj.startsWith(":") ){
+                continue
+            }
+
+            let parsed = null
+            try {
+                parsed = JSON.parse(obj);
+                if(parsed?.error){
+                    return parsed;
+                }
+
+
+                const delta = parsed.choices[0].delta;
+                const reasoning = delta.reasoning_content
+                const content = delta.content;
+                message.streaming.model = parsed.model || undefined
+
+                if( reasoning ){
+                    message.streaming.reasoning += reasoning
+                }
+                if( content ){
+                    message.streaming.text += content;
+                    this.__message_chunk = "";
+                }
+            }catch(error){
+                if(error instanceof SyntaxError){
+                    this.__message_chunk = obj
+                }else{
+                    console.log(obj)
+                    console.error(error);
+                }
+            }
+        }
+
+        return message;
     }
 
 }

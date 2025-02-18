@@ -5,16 +5,26 @@
     import { addThinkingBlocks } from "../utils/ThinkingBlock";
     import * as Format from "@shared/format.mjs";
 
-    export let content : string = ""
     export let author : string = ""
+    export let content : string = ""
+    export let reasoning : string = ""
 
     export let user : string
     export let bot : string
     export let chat : IChat
 
+    let displayReasoning = ""
     let displayText = ""
-    
+
     $: {
+        if( reasoning ){
+            displayReasoning = DOMPurify.sanitize( displayReasoning )
+            displayReasoning = marked.parse(reasoning)
+            displayReasoning = `<thinking>${displayReasoning}</thinking>`
+        }else{
+            displayReasoning = ""
+        }
+
         if( content ){
             displayText = DOMPurify.sanitize( displayText )
             displayText = marked.parse(content)
@@ -26,8 +36,10 @@
     }
 </script>
 
-
-<div class="text grow" use:addThinkingBlocks={{name: author, content: displayText}}>{@html displayText}</div>
+{#if displayReasoning}
+    <div class="text grow" use:addThinkingBlocks={{name: `Reasoning`, content: displayReasoning}}>{@html displayReasoning}</div>
+{/if}
+<div class="text grow" use:addThinkingBlocks={{name: `${author}'s thoughts`, content: displayText}}>{@html displayText}</div>
 
 
 <style>
@@ -57,7 +69,7 @@
         font-size: 0.85em;
         background: var( --code-bg-color );
     }
-    
+
     .text :global(pre){
         background: hsl(285, 5%, 12%);
         white-space: pre-wrap;
@@ -89,11 +101,11 @@
         border: 1px dashed color-mix(in srgb, var( --component-color-normal ) 25%, transparent 100%);
         user-select: text;
     }
-    
+
     .text :global(.thinking:first-child){
         margin-top: 8px;
     }
-    
+
     .text :global(.thinking ul){
         margin: 0px;
         padding-left: 2em;

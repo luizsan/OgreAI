@@ -197,12 +197,28 @@
                             }
 
                             if( obj.streaming ){
+
                                 candidate.timestamp = obj.streaming.timestamp
-                                if( obj.replace ){
-                                    candidate.text = obj.streaming.text
-                                }else{
-                                    candidate.text += obj.streaming.text
+
+                                // reasoning
+                                if( obj.streaming.reasoning ){
+                                    if( obj.replace ){
+                                        candidate.reasoning = obj.streaming.reasoning
+                                    }else{
+                                        candidate.reasoning += obj.streaming.reasoning
+                                    }
                                 }
+
+                                // text
+                                if( obj.streaming.text ){
+                                    if( obj.replace ){
+                                        candidate.text = obj.streaming.text
+                                    }else{
+                                        candidate.text += obj.streaming.text
+                                    }
+                                }
+
+                                // model
                                 if( !candidate.model ){
                                     if( obj.streaming.model ){
                                         candidate.model = obj.streaming.model
@@ -261,6 +277,7 @@
     function ReceiveStream(swipe = false) : ICandidate{
         let candidate = {
             text: "",
+            reasoning: "",
             timestamp: Date.now(),
             timer: Date.now() - requestTime,
             model: null,

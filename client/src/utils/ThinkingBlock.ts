@@ -6,7 +6,7 @@ const thinkingPattern = /<(thinking)>([\s\S]*?)<\/(\1)>/gi
 export function addThinkingBlocks(node : Element, options : any){
     const thinkingReplacement = `
         <button class="thinking">
-            <div class="heading">${SVG.chat} ${options.name}'s thoughts</div>
+            <div class="heading">${SVG.chat} ${options.name}</div>
             <div class="content">$2</div>
         </button>`
 

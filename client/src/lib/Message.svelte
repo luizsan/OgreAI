@@ -29,6 +29,7 @@
     $: index = msg ? msg.index : 0;
     $: candidates = msg && msg.candidates ? msg.candidates : []
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
+    $: displayReasoning = current ? current.reasoning : ""
     $: displayText = current ? current.text : ""
 
     $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
@@ -320,6 +321,7 @@
             <Text
                 author={author}
                 content={displayText}
+                reasoning={displayReasoning}
                 user={$currentProfile.name}
                 bot={$currentCharacter.data.name}
                 chat={$currentChat}

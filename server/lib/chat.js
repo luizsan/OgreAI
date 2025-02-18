@@ -70,6 +70,7 @@ export default class Chat{
                 let new_candidate = {
                     timestamp: old_candidate.timestamp,
                     text: old_candidate.text,
+                    reasoning: old_candidate.reasoning ?? undefined,
                     timer: old_candidate.timer || 0,
                 }
 

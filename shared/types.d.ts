@@ -64,6 +64,7 @@ interface IReply{
 // "swipe"
 interface ICandidate{
     text : string;
+    reasoning? : string;
     timestamp? : number;
     model? : string;
     timer? : number;
