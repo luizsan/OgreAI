@@ -2,7 +2,8 @@
 # 192.168.*.*
 #
 # to allow all IPs (not recommended):
-# *.*.*.* 
+# *.*.*.*
 
-# whitelist:
+# whitelist
+192.168.*.*
 127.0.0.1
