@@ -1,8 +1,7 @@
 <script lang="ts">
     import { marked } from 'marked';
     import DOMPurify from 'dompurify';
-    import { currentChat, currentProfile, currentCharacter } from "../State";
-    import { addThinkingBlocks } from "../utils/ThinkingBlock";
+    import { addToggleableBlocks } from "../utils/ToggleableBlock";
     import * as Format from "@shared/format.mjs";
 
     export let author : string = ""
@@ -37,9 +36,9 @@
 </script>
 
 {#if displayReasoning}
-    <div class="text grow" use:addThinkingBlocks={{name: `Reasoning`, content: displayReasoning}}>{@html displayReasoning}</div>
+    <div class="text grow" use:addToggleableBlocks={{name: `Reasoning`, content: displayReasoning}}>{@html displayReasoning}</div>
 {/if}
-<div class="text grow" use:addThinkingBlocks={{name: `${author}'s thoughts`, content: displayText}}>{@html displayText}</div>
+<div class="text grow" use:addToggleableBlocks={{name: `${author}'s thoughts`, content: displayText}}>{@html displayText}</div>
 
 
 <style>

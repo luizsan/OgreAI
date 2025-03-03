@@ -1,21 +1,19 @@
 import { marked } from 'marked';
 import * as SVG from "./SVGCollection.svelte"
 
-const thinkingPattern = /<(thinking)>([\s\S]*?)<\/(\1)>/gi
+const keys = ["thinking", "think"]
+const pattern = /<(thinking)>([\s\S]*?)<\/(\1)>/gi
 
-export function addThinkingBlocks(node : Element, options : any){
-    const thinkingReplacement = `
-        <button class="thinking">
-            <div class="heading">${SVG.chat} ${options.name}</div>
-            <div class="content">$2</div>
-        </button>`
-
-    function parseThinking(){
-        node.innerHTML = node.innerHTML.replace(thinkingPattern, thinkingReplacement)
-        let content = node.querySelector(".content")
-        if( content ){
-            content.innerHTML = marked.parse(content.innerHTML)
-        }
+export function addToggleableBlocks(node : Element, options : any){
+    function parseBlocks(){
+        node.innerHTML = node.innerHTML.replace(pattern, (match, tag, content) => {
+            if ( keys.includes(tag) ){
+               return `<button class="thinking">
+                    <div class="heading">${SVG.chat} ${options.name}</div>
+                    <div class="content">${marked.parse(content)}</div>
+                </button>`
+            }
+        })
 
         const elements = node.querySelectorAll("button")
         elements?.forEach(element => {
@@ -28,11 +26,11 @@ export function addThinkingBlocks(node : Element, options : any){
         element.classList.toggle("active")
     }
 
-    parseThinking()
+    parseBlocks()
 
     return{
         update(options : any){
-            parseThinking()
+            parseBlocks()
         },
 
         destroy() {
