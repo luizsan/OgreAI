@@ -16,6 +16,9 @@ class OpenAI{
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
             type: "select", default: "gpt-3.5-turbo", choices: [
+                "gpt-4.1",
+                "gpt-4.1-mini",
+                "gpt-4.1-nano",
                 "gpt-4o",
                 "gpt-4o-mini",
                 "gpt-4-turbo",
