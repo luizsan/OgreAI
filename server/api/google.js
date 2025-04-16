@@ -14,7 +14,7 @@ class Google{
 
     // display name
     static API_NAME = "Google"
-    static API_ADDRESS = "https://generativelanguage.googleapis.com/"
+    static API_ADDRESS = "https://generativelanguage.googleapis.com"
 
     // settings for this API
     // types: text, textarea, select (dropdown), range (slider), checkbox
@@ -76,7 +76,7 @@ class Google{
         stream: {
             title: "Stream",
             description: "Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available.",
-            type: "checkbox", default: true,
+            type: "checkbox", default: true, disabled: true
         },
 
         stop_sequences: {
@@ -100,8 +100,8 @@ class Google{
 
     // returns an array of objects in this case but can anything that the model accepts as a prompt
     static makePrompt( content, offset = 0 ){
-        const messages_list = Utils.makePrompt( Tokenizer, content, offset )
-        return messages_list.map((message) => {
+        let messages_list = Utils.makePrompt( Tokenizer, content, offset )
+        messages_list = messages_list.map((message) => {
             return {
                 "role": message.role.replaceAll("system", "model").replaceAll("assistant", "model"),
                 "parts": [
@@ -109,6 +109,11 @@ class Google{
                 ]
             }
         })
+        let last = messages_list.at(-1)
+        if( last.role !== "user" ){
+            messages_list.push({ "role": "user", "parts": [{ "text": "(continue)" }] })
+        }
+        return messages_list
     }
 
     static getTokenizer(){
@@ -131,7 +136,7 @@ class Google{
 
         let outgoing_data = {
             model: settings.model,
-            stream: settings.stream,
+            // stream: settings.stream,
             contents: prompt,
             // contents: prompt.slice(1),
             // systemInstruction: prompt[0],
@@ -141,8 +146,8 @@ class Google{
                 temperature: parseFloat(settings.temperature),
                 topP: parseFloat(settings.top_p),
                 topK: parseFloat(settings.top_k),
-                presencePenalty: parseFloat(settings.presence_penalty),
-                frequencyPenalty: parseFloat(settings.frequency_penalty),
+                // presencePenalty: parseFloat(settings.presence_penalty),
+                // frequencyPenalty: parseFloat(settings.frequency_penalty),
                 stopSequences: Utils.sanitizeStopSequences(settings.stop_sequences, content.user, content.character),
             },
         };
@@ -151,7 +156,7 @@ class Google{
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + settings.api_auth,
+                // 'Authorization': 'Bearer ' + settings.api_auth,
             },
             body: JSON.stringify(outgoing_data)
         }
@@ -161,7 +166,8 @@ class Google{
 
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         const mode = settings.stream ? "streamGenerateContent" : "generateContent"
-        return fetch( `${url}/v1beta/models/${settings.model}:${mode}?key=${settings.api_key}`, options )
+        console.log(`${url}/v1beta/models/${settings.model}:${mode}?key=${settings.api_auth}`)
+        return fetch( `${url}/v1beta/models/${settings.model}:${mode}?key=${settings.api_auth}`, options )
     }
 
     // processes a single message from the model's output
@@ -180,8 +186,9 @@ class Google{
                 return { error: { type: parsed.promptFeedback.blockReason, message: "PROHIBITED_CONTENT" }};
             }
 
+            console.log("trying to parse candidates")
             if( parsed.candidates ){
-
+                console.log("parsed candidates")
                 if( parsed.candidates[0]?.finishReason ){
                     const reason = parsed.candidates[0].finishReason
                     if ( reason !== "STOP" )
@@ -195,12 +202,14 @@ class Google{
                 }
 
                 console.debug(parsed.modelVersion)
+                let txt = parsed.candidates[0].content.parts[0].text
+                console.log(txt)
                 let message = {
                     participant: 0,
                     swipe: swipe,
                     candidate: {
                         model: parsed.modelVersion || undefined,
-                        text: parsed.candidates[0].content.parts[0].text,
+                        text: txt,
                         timestamp: Date.now(),
                     }
                 }
