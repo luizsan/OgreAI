@@ -26,7 +26,7 @@
         }
 
         Object.keys( $defaultSettingsAPI ).forEach( key => {
-            if( !$currentSettingsAPI[key] ){
+            if( $currentSettingsAPI[key] === undefined || typeof $currentSettingsAPI[key] !== typeof $defaultSettingsAPI[key].default ){
                 $currentSettingsAPI[key] = $defaultSettingsAPI[key].default
             }
         });
@@ -121,7 +121,7 @@
 
         <div class="section" on:change={saveSettings}>
             <div class="setting vertical">
-                {#if $currentSettingsAPI[key] !== undefined }
+                {#if $currentSettingsAPI[key] !== undefined && !$defaultSettingsAPI[key].disabled }
 
                     {#if entry.type == "text"}
                         <div class="section">
