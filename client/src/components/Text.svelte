@@ -82,6 +82,11 @@
         max-width: 100%;
     }
 
+    .text :global(blockquote){
+        border-left: 4px solid var( --default-font-color );
+        padding-left: 1em;
+    }
+
     .text :global(.quote){
         font-style: italic;
     }
@@ -99,10 +104,6 @@
         background: color-mix(in srgb, var( --component-color-normal ) 10%, transparent 100%);
         border: 1px dashed color-mix(in srgb, var( --component-color-normal ) 25%, transparent 100%);
         user-select: text;
-    }
-
-    .text :global(.thinking:first-child){
-        margin-top: 8px;
     }
 
     .text :global(.thinking ul){
