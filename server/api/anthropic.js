@@ -62,6 +62,12 @@ class Anthropic{
             type: "checkbox", default: true,
         },
 
+        caching: {
+            title: "Prompt Caching",
+            description: "Prompt caching is a powerful feature that optimizes your API usage by allowing resuming from specific prefixes in your prompts. This approach significantly reduces processing time and costs for repetitive tasks or prompts with consistent elements. This feature can affect the quality of the response.",
+            type: "checkbox", default: true,
+        },
+
         continue_message: {
             title: "Continue Message",
             description: "What to automatically send as a padding message when the last message in chat isn't from the user. Defaults to '(continue)' if empty.",
@@ -159,7 +165,11 @@ class Anthropic{
 
         let outgoing_data = {
             model: settings.model,
-            messages: prompt,
+            system: [{
+                type: "text",
+                text: JSON.stringify(prompt),
+                cache_control: { type: "ephemeral" }
+            }],
             // system: Utils.getSystemPrompt(character, user, settings),
             stop_sequences: Utils.sanitizeStopSequences(settings.stop_sequences, user, character),
             max_tokens: parseInt(settings.max_tokens),
@@ -168,6 +178,19 @@ class Anthropic{
             top_k: parseFloat(settings.top_k),
             stream: settings.stream,
         };
+
+        if( settings.caching ){
+            let last = prompt.at(-1)
+            let rest = prompt.slice(0, -1)
+            outgoing_data.system = [{
+                type: "text",
+                text: JSON.stringify(rest),
+                cache_control: { type: "ephemeral" }
+            }]
+            outgoing_data.messages = [ last ]
+        }else{
+            outgoing_data.messages = prompt
+        }
 
         let options = {
             method: "POST",
