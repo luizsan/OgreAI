@@ -410,6 +410,9 @@ async function LoadAPIModes(){
     for( let i = 0; i < files.length; i++ ){
         try{
             let filepath = path.join("file://", __dirname, _modulePath, files[i] ).replaceAll("\\", "/");
+            if( filepath.startsWith("./")){
+                filepath = filepath.replace("./", "")
+            }
             let target = path.basename( files[i], ".js" )
             let api = await import(filepath).then((module) => module.default);
 
