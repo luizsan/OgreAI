@@ -23,6 +23,7 @@ class Google{
             title: "Model",
             description: "ID of the model to use.",
             type: "select", default: "gemini-1.5-flash", choices: [
+                "gemini-2.5-pro-exp-03-25",
                 "gemini-2.0-flash-exp",
                 "gemini-1.5-flash",
                 "gemini-1.5-flash-8b",
