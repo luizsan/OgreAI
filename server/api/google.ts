@@ -1,4 +1,4 @@
-import API from "../types/api.ts"
+import API from "../core/api.ts"
 import * as Tokenizer from "../tokenizer/gpt.ts"
 import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js"
 import { buildPrompt } from "../lib/prompt.ts"

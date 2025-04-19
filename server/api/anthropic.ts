@@ -1,4 +1,4 @@
-import API from "../types/api.ts"
+import API from "../core/api.ts"
 import * as Tokenizer from "../tokenizer/anthropic.ts"
 import * as Format from "../../shared/format.mjs"
 import { buildPrompt, squashPrompt } from "../lib/prompt.ts"

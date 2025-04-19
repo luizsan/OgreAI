@@ -6,9 +6,7 @@ import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
 
-// types
-import API from "./types/api.ts"
-
+import API from "./core/api.ts"
 import Security from "./core/security.ts"
 import Character from "./lib/character.js"
 import Chat from "./lib/chat.js"
@@ -21,6 +19,11 @@ import Lorebook from "./lib/lorebook.js"
 import { LoadData, SaveData } from "./lib/data.ts"
 import { IError, IReply, ISettings } from "../shared/types.js";
 
+const server_config: any = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+if( !server_config ){
+    console.error( chalk.red( "Failed to load server config" ) )
+    process.exit(1)
+}
 
 const __dirname: string = path.resolve("./")
 const _userPath: string = path.join(__dirname, '../user').replace(/\\/g, '/');
@@ -30,7 +33,7 @@ const _modulePath: string = "./api/"
 
 const app = express()
 const parser = express.json({ limit: "100mb" })
-const port: number = 12480;
+const port: number = server_config.port || 12480;
 const upload = multer();
 
 var API_MODES: Record<string, API> = {}
@@ -142,7 +145,7 @@ app.post("/get_presets", parser, async function(request, response){
         response.send(obj);
     } else {
         const filepath = path.join(Presets.path, `${request.body.type}.json`);
-        response.send(LoadData(filepath));
+        response.send( await LoadData(filepath));
     }
 })
 
@@ -183,17 +186,14 @@ app.post("/get_character_tokens", parser, function(request, response){
 })
 
 app.post("/get_message_tokens", parser, function(request, response){
-    // let api = API_MODES[ request.body.api_mode ]
-    // let tokens = request.body.messages.map(message => {
-    //     return api.getMessageTokens(
-    //         message,
-    //         request.body.character,
-    //         request.body.user,
-    //         request.body.settings
-    //     )
-    // })
-    // response.send(tokens)
-    response.send(0)
+    let api = API_MODES[ request.body.api_mode ]
+    let tokens = request.body.messages.map(message => {
+        return api.getTokenCount(
+            message.candidates[message.index].text,
+            request.body.settings.model
+        )
+    })
+    response.send(tokens)
 })
 
 app.post("/get_chats", parser, function(request, response){

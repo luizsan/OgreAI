@@ -10,7 +10,7 @@ import type {
     ICandidate
 } from "../../shared/types.d.ts";
 
-import API from "../types/api.ts";
+import API from "../core/api.ts";
 import { parseMacros, parseNames } from "../../shared/format.mjs";
 import chalk from "chalk";
 

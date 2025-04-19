@@ -1,5 +1,5 @@
 // imports the base class, required for all API modes
-import API from "../types/api.ts";
+import API from "../core/api.ts";
 
 // imports type constraints
 import type {

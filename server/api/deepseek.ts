@@ -1,4 +1,4 @@
-import API from "../types/api.ts";
+import API from "../core/api.ts";
 import * as Utils from "../lib/utils.js"
 import * as Tokenizer from "../tokenizer/gpt.js"
 import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js";
