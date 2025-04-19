@@ -1,5 +1,14 @@
+// user
+export interface IUser{
+    name : string;
+    avatar : string;
+    persona : string;
+    customization : Record<string, any>;
+    temp : any;
+}
+
 // character
-interface ICharacter{
+export interface ICharacter{
     spec : string;
     spec_version : string;
     data : ICharacterBaseV2;
@@ -8,7 +17,7 @@ interface ICharacter{
 }
 
 // character v2 spec
-interface ICharacterBaseV2{
+export interface ICharacterBaseV2{
     // v1
     name : string;
     description : string;
@@ -31,13 +40,13 @@ interface ICharacterBaseV2{
 }
 
 // ogre "exclusive"
-interface ICharacterMetadata{
+export interface ICharacterMetadata{
     created : number;
     modified : number;
 }
 
 // chat
-interface IChat{
+export interface IChat{
     title : string;
     participants : Array<string>;
     create_date : number;
@@ -47,31 +56,37 @@ interface IChat{
 }
 
 // message entry in chat
-interface IMessage{
+export interface IMessage{
     participant : number;
     index : number;
     candidates : Array<ICandidate>;
 }
 
 // incoming reply from model
-interface IReply{
-    candidate : ICandidate;
+export interface IReply{
+    done? : boolean;
     participant : number;
     swipe? : boolean;
     replace? : boolean;
+    candidate : ICandidate;
+}
+
+// when the reply blows up
+export interface IError{
+    error: { type?: string, message: string };
 }
 
 // "swipe"
-interface ICandidate{
+export interface ICandidate{
     text : string;
     reasoning? : string;
     timestamp? : number;
     model? : string;
     timer? : number;
-    tokens? : any;
+    tokens? : Record<string, number>;
 }
 
-interface ILorebook{
+export interface ILorebook{
     name? : string;
     description? : string;
     scan_depth? : number; // check for tokens in the latest x messages
@@ -81,7 +96,7 @@ interface ILorebook{
     extensions : any;
 }
 
-interface ILorebookEntry{
+export interface ILorebookEntry{
     keys : Array<string>;
     content : string;
     extensions : any;
@@ -94,4 +109,35 @@ interface ILorebookEntry{
     selective? : boolean // requires a key from both `keys` and `secondary_keys`
     secondary_keys? : Array<string>;
     constant? : boolean; // is always inserted?
+}
+
+export interface IGenerationData{
+    character : ICharacter;
+    chat: IChat;
+    user : IUser;
+    settings : ISettings;
+    prompt : any;
+    swipe?: boolean;
+    streaming?: boolean;
+    books?: Record<string, ILorebook>;
+}
+
+export interface ISettings{
+    api_mode: string;
+    model : string;
+    formatting?: Record<string, any>;
+    prompt: Array<IPromptConfig>;
+}
+
+export interface IPromptEntry{
+    role: string;
+    content: string;
+    prefix?: boolean;
+}
+
+export interface IPromptConfig{
+    key: string;
+    enabled?: boolean;
+    allow_override?: boolean;
+    content?: string;
 }

@@ -26,7 +26,7 @@ export default class Settings{
         }
     }
 
-    static ValidateAPI(obj, api_mode){
+    static ValidateAPI(obj, api_settings){
         if( !obj.api_url ){
             obj.api_url = ""
         }
@@ -35,9 +35,9 @@ export default class Settings{
             obj.api_auth = ""
         }
 
-        Object.keys( api_mode.API_SETTINGS ).forEach(key => {
+        Object.entries( api_settings ).forEach(key => {
             if( !(key in obj) ){
-                obj[key] = api_mode.API_SETTINGS[key].default
+                obj[key] = api_settings[key].default
             }
         })
 

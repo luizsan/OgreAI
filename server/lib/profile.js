@@ -6,20 +6,20 @@ export default class Profile{
     }
 
     static Validate(obj){
-        if( !obj.name ){ 
-            obj.name = "You" 
+        if( !obj.name ){
+            obj.name = "You"
         }
 
-        if( !obj.persona ){ 
-            obj.persona = "" 
+        if( !obj.persona ){
+            obj.persona = ""
         }
 
-        if( !obj.avatar ){ 
-            obj.avatar = "" 
+        if( !obj.avatar ){
+            obj.avatar = ""
         }
 
-        if( !obj.customization ){ 
-            obj.customization = {} 
+        if( !obj.customization ){
+            obj.customization = {}
         }
     }
 }
