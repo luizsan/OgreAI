@@ -196,32 +196,32 @@
                                 alert(obj.error?.message)
                             }
 
-                            if( obj.streaming ){
+                            if( obj.candidate ){
 
-                                candidate.timestamp = obj.streaming.timestamp
+                                candidate.timestamp = obj.candidate.timestamp
 
                                 // reasoning
-                                if( obj.streaming.reasoning ){
+                                if( obj.candidate.reasoning ){
                                     if( obj.replace ){
-                                        candidate.reasoning = obj.streaming.reasoning
+                                        candidate.reasoning = obj.candidate.reasoning
                                     }else{
-                                        candidate.reasoning += obj.streaming.reasoning
+                                        candidate.reasoning += obj.candidate.reasoning
                                     }
                                 }
 
                                 // text
-                                if( obj.streaming.text ){
+                                if( obj.candidate.text ){
                                     if( obj.replace ){
-                                        candidate.text = obj.streaming.text
+                                        candidate.text = obj.candidate.text
                                     }else{
-                                        candidate.text += obj.streaming.text
+                                        candidate.text += obj.candidate.text
                                     }
                                 }
 
                                 // model
                                 if( !candidate.model ){
-                                    if( obj.streaming.model ){
-                                        candidate.model = obj.streaming.model
+                                    if( obj.candidate.model ){
+                                        candidate.model = obj.candidate.model
                                     }else if( $currentSettingsAPI.model ){
                                         candidate.model = $currentSettingsAPI.model
                                     }
