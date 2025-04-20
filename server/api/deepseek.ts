@@ -9,7 +9,7 @@ import { build } from "bun";
 export default class DeepSeek extends API {
     API_NAME = "DeepSeek";
     API_VERSION = "1.0";
-    API_ADDRESS = "https://api.deepseek.com/beta";
+    API_ADDRESS = "https://api.deepseek.com";
     API_SETTINGS = {
         model: {
             title: "Model",
@@ -124,7 +124,7 @@ export default class DeepSeek extends API {
         }
 
         const url: string = settings.api_url ? settings.api_url : this.API_ADDRESS
-        const target: string = `${url}/v1/chat/completions`
+        const target: string = `${url}/chat/completions`
         console.debug(`Sending prompt\n > ${target}\n\n%o`, outgoing_data)
         return await fetch(target, options)
     }

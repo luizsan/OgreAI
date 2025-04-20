@@ -85,7 +85,7 @@ export default class Google extends API{
     }
 
     async getStatus(settings: { api_auth: string, api_url?: string; }): Promise<boolean> {
-        const options = { method: "POST", headers:{ "ContentType":"application/json", "Authorization":"Bearer " + settings.api_auth }}
+        const options = { method: "GET", headers:{ "ContentType":"application/json" }}
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         return await fetch( `${url}/v1beta/models?key=${settings.api_auth}`, options ).then((response) => response.ok)
     }
