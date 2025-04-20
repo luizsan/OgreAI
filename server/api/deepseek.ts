@@ -1,6 +1,6 @@
 import API from "../core/api.ts";
 import * as Utils from "../lib/utils.js"
-import * as Tokenizer from "../tokenizer/gpt.js"
+import * as Tokenizer from "../tokenizer/gpt.ts"
 import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js";
 import { squashPrompt, buildPrompt } from "../lib/prompt.ts";
 import { build } from "bun";
@@ -81,12 +81,6 @@ export default class DeepSeek extends API {
 
     makePrompt(data: IGenerationData, offset?: number ): any {
         let list = buildPrompt( this, data, offset )
-        list = list.map((item) => {
-            return {
-                role: item.role === "developer" ? "system" : item.role,
-                content: item.content
-            }
-        })
         if( list.length > 1 && list[1].role === "assistant" ){
             list[1].role = "system"
             list = squashPrompt(list)

@@ -8,6 +8,7 @@ import type {
     ICharacter,
     ISettings,
     IGenerationData,
+    IPromptEntry,
 } from "../../shared/types.d.ts";
 
 // imports the prompt builder
@@ -109,7 +110,15 @@ export default class OpenAI extends API {
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
-        return squashPrompt(buildPrompt( this, data, offset ))
+        let list: Array<IPromptEntry> = squashPrompt(buildPrompt( this, data, offset ))
+        list = squashPrompt(list)
+        list = list.map((item) => {
+            return {
+                role: item.role.replaceAll("system", "developer"),
+                content: item.content
+            }
+        })
+        return list
     }
 
     buildLogitBias(bias: any, model?: string): Map<number, number> {

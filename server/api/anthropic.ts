@@ -98,21 +98,18 @@ export default class Anthropic extends API {
         // const character = data.character;
         // const settings = data.settings;
         // const user = data.user.name;
-
         let list = buildPrompt( this, data, offset )
+        list = squashPrompt(list)
         list = list.map((item) => {
             return {
-                role: item.role === "developer" ? "user" : item.role,
+                role: item.role.replaceAll("system", "user"),
                 content: item.content
             }
         })
-
         // const last = list.at(-1)
         // const penultimate = list.at(-2)
         // const insert_continue = last.role === penultimate.role && last.role === "assistant"
         // todo: insert (continue)
-
-        list = squashPrompt(list)
         return list
     }
 

@@ -34,12 +34,11 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 break;
             case "persona":
                 if ( user?.persona?.trim().length > 0 ){
-                    prompt_entries.push({ role: "developer", content: user.persona })
+                    prompt_entries.push({ role: "system", content: user.persona })
                 }
                 break;
             case "messages":
                 var list: Array<IPromptEntry> = getMessages(api, data, offset)
-                console.log(list)
                 if( list.length > 0 ){
                     prompt_entries = prompt_entries.concat(list)
                 }
@@ -54,7 +53,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 }
                 break;
             case "custom":
-                var entry: IPromptEntry = { role: "developer", content: item.content }
+                var entry: IPromptEntry = { role: "system", content: item.content }
                 entry.content = parseMacros(entry.content, data.chat )
                 entry.content = parseNames(entry.content, data.user.name, data.character.data.name )
                 prompt_entries.push(entry)
@@ -62,7 +61,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 break;
         }
 
-        console.log(chalk.blue(` > ${item.key}`))
+        console.log(chalk.cyan(chalk.bold( " > ")) + chalk.blue(item.key))
     })
     console.log("")
     return prompt_entries
@@ -70,7 +69,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
 
 // Retrieves a character property
 export function getCharacterProperty(config: IPromptConfig, data: IGenerationData): IPromptEntry{
-    let entry: IPromptEntry = { role: "developer", content: "" }
+    let entry: IPromptEntry = { role: "system", content: "" }
     entry.content = config.content
     if ( config.content.includes("{{original}}") && data.character.data[config.key] ){
         entry.content = entry.content.replaceAll( /{{original}}/gmi, data.character.data[config.key] )
@@ -86,7 +85,7 @@ export function getCharacterProperty(config: IPromptConfig, data: IGenerationDat
 
 // Retrieves the main prompt from the character or the prompt config if the character doesn't have one
 function getMainPrompt(config: IPromptConfig, data: IGenerationData) : IPromptEntry{
-    var entry: IPromptEntry = { role: "developer", content: "" }
+    var entry: IPromptEntry = { role: "system", content: "" }
     if( data.character.data.system_prompt && config.allow_override ){
         entry.content = data.character.data.system_prompt
         entry.content = entry.content.replaceAll(/{{original}}/gmi, config.content)

@@ -101,7 +101,6 @@ export default class Google extends API{
             return {
                 "role": message.role.
                     replaceAll("system", "user").
-                    replaceAll("developer", "user").
                     replaceAll("assistant", "model"),
                 "parts": [{ "text": message.content }]
             }

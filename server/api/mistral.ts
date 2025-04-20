@@ -1,7 +1,7 @@
 import API from "../core/api.ts"
 import * as Tokenizer from "../tokenizer/mistral.ts"
-import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js"
-import { buildPrompt } from "../lib/prompt.ts"
+import { IError, IGenerationData, IPromptEntry, IReply, ISettings } from "../../shared/types.js"
+import { buildPrompt, squashPrompt } from "../lib/prompt.ts"
 
 
 export default class Mistral extends API{
@@ -70,7 +70,9 @@ export default class Mistral extends API{
     }
 
     makePrompt(data: IGenerationData, offset?: number) {
-        return buildPrompt(this, data, offset)
+        let list: Array<IPromptEntry> = buildPrompt(this, data, offset)
+        list = squashPrompt(list)
+        return list
     }
 
     async generate(data: IGenerationData): Promise<any>{
@@ -109,6 +111,9 @@ export default class Mistral extends API{
             if (parsed.error){
                 return parsed
             }
+            if (parsed.detail ){
+                return { error: { message: parsed.detail[0]?.msg, type: parsed.detail[0]?.type }}
+            }
             const message: string = parsed.choices[0]?.message?.content;
             if (message){
                 reply.done = true;
@@ -136,7 +141,11 @@ export default class Mistral extends API{
                 if (parsed.error){
                     return parsed
                 }
-                const delta: string = parsed.choices[0]?.delta?.content || parsed.choices[0]?.message?.content;
+                if (parsed.detail ){
+                    return { error: { message: parsed.detail[0]?.msg, type: parsed.detail[0]?.type }}
+                }
+                console.log(line)
+                const delta: string = parsed.choices[0]?.delta?.content ?? parsed.choices[0]?.message?.content;
                 if (delta){
                     reply.candidate.text += delta;
                     reply.candidate.model = parsed.model ?? undefined
