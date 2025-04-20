@@ -8,7 +8,7 @@ import mime from "mime";
 
 import API from "./core/api.ts"
 import Security from "./core/security.ts"
-import Character from "./lib/character.js"
+import Character from "./lib/character.ts"
 import Chat from "./lib/chat.js"
 
 import Profile from "./lib/profile.js"
@@ -16,7 +16,7 @@ import Settings from "./lib/settings.js"
 import Presets from "./lib/presets.js"
 import Prompt from "./lib/prompt.js"
 import Lorebook from "./lib/lorebook.js"
-import { LoadData, SaveData } from "./lib/data.ts"
+import { Initialize, LoadData, SaveData } from "./core/config.ts"
 import { IError, IReply, ISettings } from "../shared/types.js";
 
 const server_config: any = JSON.parse(fs.readFileSync('config.json', 'utf8'));
@@ -40,6 +40,8 @@ var API_MODES: Record<string, API> = {}
 var API_LIST: Array<{ key: string, title: string }> = []
 
 
+// Initialize()
+
 app.use(Security.whitelist)
 app.use(cors())
 
@@ -52,10 +54,10 @@ app.use(express.static('public', {
 }));
 
 // Static files from the user directory served without any checks
-app.use('/user/characters', express.static(_userPath + '/characters', { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/', express.static(_buildPath, { maxAge: -1  }));
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
 app.use('/public', express.static("./public", { fallthrough: false, index: false, maxAge: -1  }));
-app.use('/', express.static(_buildPath, { maxAge: -1  }));
+app.use('/user/characters', express.static(_userPath + '/characters', { fallthrough: false, index: false,  maxAge: -1  }));
 
 app.get("/status", parser, function(_, response){
     response.sendStatus(200)
@@ -233,7 +235,7 @@ app.post("/delete_chat", parser, function(request, response){
 })
 
 app.get("/new_character", parser, function(request, response){
-    response.send(new Character())
+    response.send(Character.create())
 })
 
 app.post("/save_character_image", upload.single("file"), function(request, response){

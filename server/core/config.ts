@@ -1,5 +1,37 @@
+import fs from "fs";
 import { join } from "path";
 import chalk from "chalk";
+
+export interface IServerConfig{
+    port: number
+    paths: {
+        api: string
+        img: string
+        user: string
+        public: string
+        characters: string
+    }
+}
+
+export function Initialize(): void{
+    const config: IServerConfig = {
+        port: 12480,
+        paths: {
+            api: "./api",
+            img: "./img",
+            user: "./user",
+            public: "./public",
+            characters: "../user/characters"
+        }
+    }
+
+    Object.keys(config.paths).forEach(key => {
+        // check if folder exists
+        console.log(key)
+        console.log(fs.existsSync(config.paths[key]))
+        console.log("")
+    })
+}
 
 export async function SaveData(filepath: string, content: any): Promise<boolean> {
     try {

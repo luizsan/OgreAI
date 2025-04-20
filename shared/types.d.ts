@@ -13,7 +13,12 @@ export interface ICharacter{
     spec_version : string;
     data : ICharacterBaseV2;
     metadata : ICharacterMetadata;
-    temp : any;
+    temp : {
+        filepath : string;
+        avatar : string;
+        filecreated? : number;
+        filemodified? : number;
+    };
 }
 
 // character v2 spec
@@ -41,8 +46,15 @@ export interface ICharacterBaseV2{
 
 // ogre "exclusive"
 export interface ICharacterMetadata{
-    created : number;
-    modified : number;
+    created? : number;
+    modified? : number;
+    version? : number;
+    source? : string;
+    tool? : {
+        name : string;
+        version : string;
+        url : string;
+    }
 }
 
 // chat
