@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import path from "path"
-import sharp from "sharp";
 import chalk from "chalk";
 import PNGtext from 'png-chunk-text';
 import PNGextract from 'png-chunks-extract';
@@ -167,7 +166,6 @@ export default class Character{
     static ReadFromFile( filepath ){
         filepath = filepath.replaceAll("\\", "/")
         try {
-            sharp.cache(false);
             const stats = fs.statSync( filepath );
             const _buffer = fs.readFileSync( filepath );
             const _chunks = PNGextract(_buffer);
@@ -204,13 +202,11 @@ export default class Character{
 
     static async WriteToFile( character, filepath, buffer ){
         try {
-            sharp.cache(false);
             if( !buffer ){
                 buffer = fs.readFileSync( filepath )
             }
 
-            let _image = await sharp(buffer).toFormat('png').toBuffer();
-            let _chunks = PNGextract(_image);
+            let _chunks = PNGextract(buffer);
             let _tEXtChunks = _chunks.filter(c => c.name === 'tEXt');
             for (let c of _tEXtChunks) {
                 _chunks.splice(_chunks.indexOf(c), 1);
