@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 
 let _loaded = false;
 let list: string[] = [];
-const filepath = "../whitelist.txt";
+const filepath = "./whitelist.txt";
 
 function load(): void {
     if (fs.existsSync(filepath)) {

@@ -24,7 +24,7 @@
         path = encodeURIComponent(path.replace("../", ""))
         path = path.replace(/%2F/g, '/')
         path = path.replace(/%3A/g, ':')
-        return localServer + "/" + path
+        return localServer + "/user/characters/" + path
     }
 
     async function SelectCharacter(filepath : string){
@@ -41,7 +41,7 @@
         }
 
         $fetching = true;
-        await Server.getCharacter(filepath);
+        await Server.getCharacter( filepath );
         await Server.getChats( $currentCharacter, true )
         $history = false;
         $deleting = false;
@@ -50,7 +50,7 @@
         let tokens = await Server.getCharacterTokens( $currentCharacter );
         $currentCharacter.temp.tokens = tokens
         $currentCharacter = $currentCharacter
-        
+
         console.debug(`Selected character ${name} (ID: ${id})`)
         $fetching = false;
     }
@@ -75,7 +75,7 @@
                 <div class="name">{character.data.name}</div>
                 <div class="sub">{filename}</div>
             </div>
-            
+
         {/if}
         <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
     </button>
@@ -122,7 +122,7 @@
         padding: 0px;
         transition: all 0.125s ease-out;
     }
-    
+
     .main:hover .avatar{
         box-shadow: 0px 0px 8px 2px #ffffff80;
         filter: brightness(1);
@@ -140,14 +140,14 @@
 
         margin-right: 40px;
     }
-    
+
     .name{
         overflow: hidden;
         text-overflow: ellipsis;
         font-weight: bolder;
         color: hsl(0, 0%, 85%);
     }
-    
+
     .sub{
         /* direction: rtl; */
         overflow: hidden;
@@ -165,7 +165,7 @@
     .main:hover .sub{
         color: var( --accent-color-light );
     }
-    
+
     .favorite{
         position: absolute;
         top: 0px;
@@ -174,14 +174,14 @@
         height: 100%;
         opacity: 0.15;
         filter: grayscale(0.666666);
-        
+
     }
-    
+
     .checked{
         opacity: 1;
         filter:grayscale(0);
     }
-    
+
     .favorite :global(svg){
         margin-top: 2px;
     }

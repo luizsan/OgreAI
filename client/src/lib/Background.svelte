@@ -11,7 +11,7 @@
     $: rotation = vertical ? "0.5turn" : "0.25turn";
 
     $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
-    $: backgroundPath = localServer + "/" + uri.replace("../", "") + "?" + new Date().getTime();
+    $: backgroundPath = localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime();
 
     const opacity_ratio : number = 0.25
 </script>

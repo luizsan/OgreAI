@@ -19,10 +19,9 @@
   },
   "private": true,
   "scripts": {
-    "dev": "nodemon index.js",
-    "bun": "bun run index.js",
-    "start": "node index.js",
-    "autorun": "node index.js --autorun"
+    "run": "bun run index.ts",
+    "build": "bun build --compile --target=bun ./index.ts ./api/**.*",
+    "compile": "bun run build.ts"
   },
   "type": "module",
   "module": "index.ts",

@@ -8,7 +8,6 @@ import * as Tavern from "../import/tavern.js";
 import { ICharacter } from "../../shared/types.js";
 
 export default class Character {
-    static path: string = "../user/characters/";
 
     static create() : ICharacter {
         return {
@@ -81,9 +80,9 @@ export default class Character {
         character.metadata.modified = adjustSize(character.metadata.modified);
     }
 
-    static LoadFromDirectory(directoryPath: string): Character[] {
+    static LoadFromDirectory(dir: string): Character[] {
         const list: Character[] = [];
-        const target = path.join(directoryPath).replace(/\\/g, "/");
+        const target = path.join(dir).replace(/\\/g, "/");
         if (!fs.existsSync(target)) {
             fs.mkdirSync(target, { recursive: true });
         }
@@ -96,8 +95,10 @@ export default class Character {
                 if (stats.isDirectory()) {
                     exploreDirectory(fullPath);
                 } else if (stats.isFile() && fullPath.toLowerCase().endsWith('.png')) {
-                    const char = Character.ReadFromFile(fullPath);
+                    const char: ICharacter = Character.ReadFromFile(fullPath);
                     if (char) {
+                        const relative_path = path.relative(dir, fullPath).replaceAll("\\", "/");
+                        char.temp.filepath = relative_path
                         list.push(char);
                     }
                 }
@@ -109,7 +110,7 @@ export default class Character {
         return list;
     }
 
-    static ReadFromFile(filepath: string): Character | null {
+    static ReadFromFile(filepath: string): ICharacter | null {
         filepath = filepath.replace(/\\/g, "/");
         try {
             const stats = fs.statSync(filepath);
@@ -129,8 +130,6 @@ export default class Character {
             if (character) {
                 character.metadata = character.metadata ?? {}
                 character.temp = character.temp ?? { filepath: "", avatar: "" }
-
-                character.temp.filepath = filepath.replaceAll("\\", "/");
                 character.temp.filecreated = stats.ctimeMs
                 character.temp.filemodified = stats.mtimeMs
                 if( character.temp.filecreated > character.temp.filemodified ){

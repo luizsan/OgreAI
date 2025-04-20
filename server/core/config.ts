@@ -5,32 +5,27 @@ import chalk from "chalk";
 export interface IServerConfig{
     port: number
     paths: {
-        api: string
-        img: string
         user: string
-        public: string
-        characters: string
     }
 }
 
-export function Initialize(): void{
-    const config: IServerConfig = {
+export async function Initialize(): Promise<IServerConfig>{
+    let config: IServerConfig = {
         port: 12480,
         paths: {
-            api: "./api",
-            img: "./img",
             user: "./user",
-            public: "./public",
-            characters: "../user/characters"
         }
     }
-
-    Object.keys(config.paths).forEach(key => {
-        // check if folder exists
-        console.log(key)
-        console.log(fs.existsSync(config.paths[key]))
-        console.log("")
-    })
+    // check if config file exists at root folder
+    if (fs.existsSync("./config.json")){
+        config = await LoadData("./config.json", config)
+    }else{
+        await SaveData("./config.json", config)
+    }
+    if( !fs.existsSync(config.paths?.user ?? "./user") ){
+        fs.mkdirSync(config.paths?.user ?? "./user", { recursive: true });
+    }
+    return config
 }
 
 export async function SaveData(filepath: string, content: any): Promise<boolean> {

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { currentProfile, localServer } from '../State';
+    import type { ICharacter } from '@shared/types';
 
     export let is_bot : boolean
     export let size : number = 56
@@ -26,7 +27,7 @@
                     unit = "px"
                     ratio = 1;
                     break;
-                    
+
                 case "portrait":
                     roundness = 5;
                     unit = "px"
@@ -43,9 +44,9 @@
 
         w = size;
         h = size * ( ratio >= 1 ? ratio : (1.0 / ratio ));
-        
+
         if(is_bot && character){
-            img = localServer + "/" + character.temp.filepath.replace("../", "")
+            img = localServer + "/user/characters/" + character.temp.filepath.replace("../", "")
             append = is_bot ? "?" + character.metadata.modified : "";
         }else{
             img = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;

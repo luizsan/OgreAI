@@ -6,40 +6,59 @@ import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
 
+// import API classes
 import API from "./core/api.ts"
+// ---
+import Anthropic from "./api/anthropic.ts"
+import DeepSeek from "./api/deepseek.ts"
+import Google from "./api/google.ts"
+import Mistral from "./api/mistral.ts"
+import OpenAI from "./api/openai.ts"
+
 import Security from "./core/security.ts"
 import Character from "./lib/character.ts"
-import Chat from "./lib/chat.js"
+import Chat from "./lib/chat.ts"
 
 import Profile from "./lib/profile.js"
 import Settings from "./lib/settings.ts"
-import Presets from "./lib/presets.js"
+import Presets from "./lib/presets.ts"
 import Lorebook from "./lib/lorebook.js"
-import { Initialize, LoadData, SaveData } from "./core/config.ts"
+import { Initialize, IServerConfig, LoadData, SaveData } from "./core/config.ts"
 import { IError, IReply, ISettings } from "../shared/types.js";
 
-const server_config: any = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-if( !server_config ){
-    console.error( chalk.red( "Failed to load server config" ) )
-    process.exit(1)
-}
+const server_config: IServerConfig = await Initialize()
 
 const __dirname: string = path.resolve("./")
-const _userPath: string = path.join(__dirname, '../user').replace(/\\/g, '/');
+const _userPath: string = path.join(__dirname, server_config.paths.user, "/").replace(/\\/g, '/');
 const _imgPath: string = path.join(__dirname, '../img').replace(/\\/g, '/');
 const _buildPath: string = path.join(__dirname, '../build').replace(/\\/g, '/');
-const _modulePath: string = "./api/"
+
+const path_dir: Record<string, string> = {
+    user: path.join(_userPath, "/").replace(/\\/g, '/'),
+    avatar: path.join(_userPath, "/avatar/").replace(/\\/g, '/'),
+    characters: path.join(_userPath, "/characters/").replace(/\\/g, '/'),
+    chats: path.join(_userPath, "/chats/").replace(/\\/g, '/'),
+    lorebooks: path.join(_userPath, "/lorebooks/").replace(/\\/g, '/'),
+    presets: path.join(_userPath, "/presets/").replace(/\\/g, '/'),
+    settings: path.join(_userPath, "/settings/").replace(/\\/g, '/'),
+}
 
 const app = express()
 const parser = express.json({ limit: "100mb" })
 const port: number = server_config.port || 12480;
 const upload = multer();
 
-var API_MODES: Record<string, API> = {}
+var API_MODES: Record<string, API> = {
+    "anthropic": new Anthropic(),
+    "deepseek": new DeepSeek(),
+    "google": new Google(),
+    "mistral": new Mistral(),
+    "openai": new OpenAI(),
+}
+
 var API_LIST: Array<{ key: string, title: string }> = []
 
-
-// Initialize()
+LoadAPIModes()
 
 app.use(Security.whitelist)
 app.use(cors())
@@ -55,8 +74,8 @@ app.use(express.static('public', {
 // Static files from the user directory served without any checks
 app.use('/', express.static(_buildPath, { maxAge: -1  }));
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
-app.use('/public', express.static("./public", { fallthrough: false, index: false, maxAge: -1  }));
-app.use('/user/characters', express.static(_userPath + '/characters', { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/user/avatar', express.static(path_dir.avatar, { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/user/characters', express.static(path_dir.characters, { fallthrough: false, index: false,  maxAge: -1  }));
 
 app.get("/status", parser, function(_, response){
     response.sendStatus(200)
@@ -69,7 +88,7 @@ app.get("/get_profile", parser, async function(_, response){
 })
 
 app.get("/get_main_settings", parser, async function(_, response){
-    const filepath = path.join(Settings.path, Settings.file)
+    const filepath = path.join(path_dir.settings, "main.json")
     let settings = await LoadData(filepath)
     Settings.ValidateMain(settings, Object.keys(API_MODES))
     response.send( settings )
@@ -78,7 +97,7 @@ app.get("/get_main_settings", parser, async function(_, response){
 app.post("/get_api_settings", parser, async function(request, response){
     try{
         const mode: string = request.body.api_mode
-        const filepath: string = path.join(Settings.path, mode, Settings.file )
+        const filepath: string = path.join(path_dir.settings, mode, "main.json")
         let settings: ISettings = await LoadData(filepath, {})
         // TODO: revalidate with TS
         // Settings.ValidateAPI(settings, API_MODES[mode].API_SETTINGS )
@@ -119,7 +138,7 @@ app.post("/save_profile", parser, async function(request, response){
 })
 
 app.post("/save_main_settings", parser, async function(request, response){
-    const filepath = path.join(Settings.path, Settings.file)
+    const filepath = path.join(path_dir.settings, "main.json")
     await SaveData( filepath, request.body.data )
     response.send(true)
 })
@@ -131,7 +150,7 @@ app.post("/save_api_settings", parser, async function(request, response){
     }
 
     const mode = request.body.api_mode
-    const filepath = path.join(Settings.path, mode, Settings.file )
+    const filepath = path.join(path_dir.settings, mode, "main.json")
     await SaveData( filepath, request.body.data )
     response.send(true)
 })
@@ -140,12 +159,12 @@ app.post("/get_presets", parser, async function(request, response){
     if (!request.body?.type || !Presets.categories.includes(request.body.type)) {
         const obj: Record<string, any[]> = {};
         Presets.categories.forEach(async type => {
-            const filepath = path.join(Presets.path, `${type}.json`);
+            const filepath = path.join(path_dir.presets, `${type}.json`);
             obj[type] = await LoadData(filepath, []);
         });
         response.send(obj);
     } else {
-        const filepath = path.join(Presets.path, `${request.body.type}.json`);
+        const filepath = path.join(path_dir.presets, `${request.body.type}.json`);
         response.send( await LoadData(filepath));
     }
 })
@@ -157,22 +176,26 @@ app.post("/save_presets", parser, async function(request, response){
     }
 
     const type = request.body.type
-    const filepath = path.join(Presets.path, type + ".json")
+    const filepath = path.join(path_dir.presets, type + ".json")
     await SaveData( filepath, request.body.data )
     response.send(true)
 })
 
 
 app.get("/get_characters", parser, function(_, response){
-    console.debug( chalk.blue( `Fetching characters from ${Character.path}` ))
-    let list = Character.LoadFromDirectory(Character.path)
+    let dir: string = path.join( _userPath, "characters" ).replaceAll("\\", "/");
+    console.debug( chalk.blue( `Fetching characters from ${dir}` ))
+    let list = Character.LoadFromDirectory(dir)
     response.send(list)
 });
 
 app.post("/get_character", parser, function(request, response){
     let filepath = request.body.filepath
     console.debug( chalk.blue( `Reading character from ${ filepath }` ))
-    let character = Character.ReadFromFile( filepath )
+    let character = Character.ReadFromFile( path.join( path_dir.characters, filepath ))
+    if( character ){
+        character.temp.filepath = filepath
+    }
     response.send(character)
 });
 
@@ -198,21 +221,21 @@ app.post("/get_message_tokens", parser, function(request, response){
 })
 
 app.post("/get_chats", parser, function(request, response){
-    let chats = Chat.GetAllChats(request.body.character)
+    let chats = Chat.GetAllChats(request.body.character, path_dir.chats )
     if( !chats ){ chats = [] }
     response.send(chats)
 });
 
 app.post("/new_chat", parser, function(request, response){
     try{
-        response.send(new Chat(request.body.character))
+        response.send(Chat.create(request.body.character))
     }catch(error){
         console.error( chalk.red( error ))
     }
 })
 
 app.post("/save_chat", parser, function(request, response){
-    let result = Chat.Save( request.body.chat, request.body.character )
+    let result = Chat.Save( request.body.chat, request.body.character, path_dir.chats )
     response.send( result )
 })
 
@@ -224,7 +247,7 @@ app.post("/copy_chat", parser, function(request, response){
     copy.create_date = now;
     copy.last_interaction = now;
 
-    let result = Chat.Save( copy, request.body.character )
+    let result = Chat.Save( copy, request.body.character, path_dir.chats )
     response.send( result )
 })
 
@@ -239,13 +262,11 @@ app.get("/new_character", parser, function(request, response){
 
 app.post("/save_character_image", upload.single("file"), function(request, response){
     const char = JSON.parse(request.body.character)
-    let filepath = request.body.filepath
     let image = request.file ? request.file.buffer : null
+    let filepath = request.body.filepath
+    filepath = path.join( path_dir.characters, filepath )
     if( request.body.creating && !image ){
         image = fs.readFileSync( path.join( __dirname, "../img/bot_default.png" ))
-    }
-    if( !filepath.toLowerCase().startsWith( Character.path )){
-        filepath = path.join( Character.path, filepath )
     }
     if( !filepath.toLowerCase().endsWith(".png")){
         filepath += ".png"
@@ -258,9 +279,7 @@ app.post("/save_character_image", upload.single("file"), function(request, respo
 app.post("/save_character", parser, function(request, response){
     const char = request.body.character
     let filepath = request.body.filepath || char.temp.filepath
-    if( !filepath.toLowerCase().startsWith( Character.path )){
-        filepath = path.join( Character.path, filepath )
-    }
+    filepath = path.join( path_dir.characters, filepath )
     if( !filepath.toLowerCase().endsWith(".png")){
         filepath += ".png"
     }
@@ -271,8 +290,9 @@ app.post("/save_character", parser, function(request, response){
 
 app.post("/delete_character", parser, function(request, response){
     let filepath = request.body.filepath
-    if( !filepath.toLowerCase().startsWith( Character.path )){
-        filepath = path.join( Character.path, filepath )
+    const dir: string = path.join( _userPath, "characters" )
+    if( !filepath.toLowerCase().startsWith( dir )){
+        filepath = path.join( dir, filepath )
     }
     try{
         fs.unlinkSync(filepath)
@@ -285,7 +305,7 @@ app.post("/delete_character", parser, function(request, response){
 })
 
 app.get("/get_lorebooks", parser, function(_, response){
-    response.send( Lorebook.GetAllLorebooks() )
+    response.send( Lorebook.GetAllLorebooks(path_dir.lorebooks) )
 })
 
 app.post("/save_lorebook", parser, function(request, response){
@@ -293,7 +313,7 @@ app.post("/save_lorebook", parser, function(request, response){
         response.status(500).send( false )
     }else{
         let book = request.body.book
-        const success = Lorebook.Save( book )
+        const success = Lorebook.Save( book, path_dir.lorebooks )
         if( success ){
             response.status(200).send( true )
             return
@@ -405,27 +425,13 @@ app.post("/generate", parser, async function(request, response){
 // ==============================================================================================
 
 async function LoadAPIModes(){
-    API_MODES = {}
-    API_LIST = []
-    let files: string[] = fs.readdirSync(_modulePath)
-    for( let i = 0; i < files.length; i++ ){
-        let filepath: string = (_modulePath + files[i] ).replaceAll("\\", "/");
-        let basename: string = files[i].substring(0, files[i].lastIndexOf(".")) || files[i]
-        try{
-            let APIClass: any = await import(filepath).then((m) => m.default);
-            if(!(APIClass.prototype instanceof API)){
-                throw new Error(`"${filepath}" is not a valid API class.`)
-            }
-            API_MODES[basename] = new APIClass()
-            API_LIST.push({
-                key: basename,
-                title: API_MODES[basename].API_NAME
-            })
-            console.debug( chalk.green( `✅ Loaded "${basename}" API module`))
-        }catch(error: any){
-            console.error( chalk.red(`❌ ${error}`))
+    console.log("---")
+    Object.entries(API_MODES).forEach(([key, api]) => {
+        if( api instanceof API ){
+            console.debug( chalk.green( `✅ API module "${api.API_NAME}" enabled`))
+            API_LIST.push({ key: key, title: api.API_NAME })
         }
-    }
+    })
     if (API_LIST.length > 0) {
         console.debug( "---")
         console.debug( chalk.green( `Loaded ${API_LIST.length} API module(s)`))
@@ -436,8 +442,6 @@ async function LoadAPIModes(){
 // ==============================================================================================
 // Execution
 // ==============================================================================================
-
-await LoadAPIModes()
 
 // Start the server
 app.listen(port, () => {

@@ -1,10 +1,6 @@
 import { IAPISettings } from "../core/api.ts"
-import Prompt from "./prompt.ts"
 
 export default class Settings{
-    static path = "../user/settings/"
-    static file = "main.json"
-
     static default_prompt_order = {
         base_prompt: {
             toggleable: false, editable: true,

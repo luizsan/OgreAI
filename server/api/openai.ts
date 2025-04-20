@@ -116,8 +116,9 @@ export default class OpenAI extends API {
         const logit_bias = new Map<number, number>()
         if( !Array.isArray(bias) )
             return null
-        bias.forEach(([k, v]) => {
-            let value: number = parseInt(v)
+        bias.forEach((pair) => {
+            const k: string | number = pair.key
+            let value: number = parseInt(pair.value)
             value = Math.max(-100, Math.min(100, value))
 
             if( typeof k === "number" && !isNaN(k) ){

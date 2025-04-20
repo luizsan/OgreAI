@@ -91,9 +91,9 @@ export interface IError{
 // "swipe"
 export interface ICandidate{
     text : string;
-    reasoning? : string;
-    timestamp? : number;
+    timestamp : number;
     model? : string;
+    reasoning? : string;
     timer? : number;
     tokens? : Record<string, number>;
 }

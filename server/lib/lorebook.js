@@ -3,9 +3,6 @@ import path from "path"
 import chalk from "chalk";
 
 export default class Lorebook{
-    static path = "../user/lorebooks/"
-    static global = "../user/settings/books.json"
-
     constructor( name = ""){
         this.name = name
         this.description = ""
@@ -30,9 +27,9 @@ export default class Lorebook{
         return schema
     }
 
-    static GetAllLorebooks(){
+    static GetAllLorebooks(dir){
         let books = []
-        let target = path.join( ".", Lorebook.path )
+        let target = path.join( ".", dir )
         target = target.replaceAll("\\", "/")
         console.debug( chalk.blue( "Reading lorebooks from " + chalk.blue(target)))
         if(!fs.existsSync(target)){
@@ -44,13 +41,13 @@ export default class Lorebook{
             try{
                 let filepath = path.join( target, files[i] )
                 filepath = filepath.replaceAll("\\", "/")
-                
+
                 let content = fs.readFileSync( filepath, "utf-8")
                 let parsed = JSON.parse( content )
                 if( parsed ){
                     parsed = Lorebook.Validate(parsed)
                 }
-                
+
                 parsed.temp = {}
                 parsed.temp.filepath = path.basename( filepath )
                 books.push(parsed)
@@ -62,15 +59,15 @@ export default class Lorebook{
         return books
     }
 
-    static Save( book ){
+    static Save( book, dir ){
         try{
             let target = book.temp && book.temp.filepath ? book.temp.filepath : undefined
             if( !target ){
                 target = (book.name ? `${book.name}-${new Date().getTime()}` : new Date().getTime())
                 target += ".json"
             }
-            
-            target = path.join(Lorebook.path, target)
+
+            target = path.join(dir, target)
             target = target.toLowerCase().replaceAll(/\s+/gmi, "_")
             target = target.replaceAll("\\", "/")
 
@@ -79,10 +76,10 @@ export default class Lorebook{
             }
 
             book = Lorebook.Validate(book)
-            let json = JSON.stringify(book, function(key, value){ 
+            let json = JSON.stringify(book, function(key, value){
                 return key != "temp" ? value : undefined;
             });
-            
+
             fs.writeFileSync(target, json)
             console.debug( chalk.blue( `Saved lorebook at ${target}` ))
             return true
@@ -101,7 +98,6 @@ export default class Lorebook{
                 target = (book.name ? `${book.name}-${new Date().getTime()}` : new Date().getTime())
                 target += ".json"
             }
-            target = path.join( Lorebook.path, target )
             target = target.toLowerCase().replaceAll(/\s+/gmi, "_")
             fs.unlinkSync(target)
             return true

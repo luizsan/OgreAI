@@ -23,7 +23,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     let prompt_entries: Array<IPromptEntry> = []
     settings.prompt.forEach((item: IPromptConfig) => {
         if( !item.key ) return
-        if( item.enabled !== undefined && item.enabled === false ) return
+        if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
 
         switch(item.key){
             case "base_prompt":
@@ -39,6 +39,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 break;
             case "messages":
                 var list: Array<IPromptEntry> = getMessages(api, data, offset)
+                console.log(list)
                 if( list.length > 0 ){
                     prompt_entries = prompt_entries.concat(list)
                 }
@@ -125,7 +126,7 @@ function getPrefillPrompt(config: IPromptConfig, data: IGenerationData) : IPromp
 
 // Retrieves the messages from the chat history and formats them for the prompt, injecting the jailbreak prompt and prefill
 function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromptEntry>{
-    var messages: Array<IMessage> = data.chat.messages.slice(0, -offset);
+    var messages: Array<IMessage> = data.chat.messages.slice(0, data.chat.messages.length - offset);
     const settings: ISettings & Record<string,any> = data.settings;
 
     let entries: Array<IPromptEntry> = messages.map((message: IMessage) => {

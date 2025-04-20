@@ -1,7 +1,7 @@
 import API from "../core/api.ts"
 import * as Tokenizer from "../tokenizer/gpt.ts"
 import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js"
-import { buildPrompt } from "../lib/prompt.ts"
+import { buildPrompt, squashPrompt } from "../lib/prompt.ts"
 
 const SAFETY_SETTINGS = [
     { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "OFF" },
@@ -96,6 +96,7 @@ export default class Google extends API{
 
     makePrompt(data: IGenerationData, offset?: number): any {
         let list: Array<any> = buildPrompt( this, data, offset )
+        list = squashPrompt(list, "\n\n")
         list = list.map((message) => {
             return {
                 "role": message.role.
@@ -105,6 +106,7 @@ export default class Google extends API{
                 "parts": [{ "text": message.content }]
             }
         })
+
         let last = list.at(-1)
         if( last.role !== "user" ){
             list.push({ "role": "user", "parts": [{ "text": "(continue)" }] })
@@ -175,7 +177,6 @@ export default class Google extends API{
         var reply: IReply = this.createReply(swipe, replace)
         const lines: string[] = this.cleanIncomingStream(raw)
         for (const line of lines) {
-            console.log(line)
             if (line.startsWith(":")) continue;
             if (line === '[DONE]') {
                 reply.done = true;
