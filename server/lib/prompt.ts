@@ -19,28 +19,34 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     const user: IUser = data.user;
     const settings: ISettings & Record<string,any> = data.settings;
 
+
+    console.debug( "---" )
     console.debug( "Building prompt" )
     let prompt_entries: Array<IPromptEntry> = []
     settings.prompt.forEach((item: IPromptConfig) => {
         if( !item.key ) return
         if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
+        let added: boolean = false
 
         switch(item.key){
             case "base_prompt":
                 var entry: IPromptEntry = getMainPrompt(item, data)
                 if ( entry.content.length > 0 ){
                     prompt_entries.push(entry)
+                    added = true
                 }
                 break;
             case "persona":
                 if ( user?.persona?.trim().length > 0 ){
                     prompt_entries.push({ role: "system", content: user.persona })
+                    added = true
                 }
                 break;
             case "messages":
                 var list: Array<IPromptEntry> = getMessages(api, data, offset)
                 if( list.length > 0 ){
                     prompt_entries = prompt_entries.concat(list)
+                    added = true
                 }
                 break;
             case "description":
@@ -50,6 +56,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 var entry: IPromptEntry = getCharacterProperty(item, data)
                 if ( entry.content ){
                     prompt_entries.push(entry)
+                    added = true
                 }
                 break;
             case "custom":
@@ -57,13 +64,17 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 entry.content = parseMacros(entry.content, data.chat )
                 entry.content = parseNames(entry.content, data.user.name, data.character.data.name )
                 prompt_entries.push(entry)
+                added = true
             default:
                 break;
         }
-
-        console.log(chalk.cyan(chalk.bold( " > ")) + chalk.blue(item.key))
+        if( added ){
+            console.debug(chalk.cyan(chalk.bold( " + ")) + chalk.blue(item.key))
+        }else{
+            console.debug(chalk.gray(chalk.bold( " - " ) + item.key))
+        }
     })
-    console.log("")
+    console.debug("---")
     return prompt_entries
 }
 
