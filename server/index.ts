@@ -12,9 +12,8 @@ import Character from "./lib/character.ts"
 import Chat from "./lib/chat.js"
 
 import Profile from "./lib/profile.js"
-import Settings from "./lib/settings.js"
+import Settings from "./lib/settings.ts"
 import Presets from "./lib/presets.js"
-import Prompt from "./lib/prompt.js"
 import Lorebook from "./lib/lorebook.js"
 import { Initialize, LoadData, SaveData } from "./core/config.ts"
 import { IError, IReply, ISettings } from "../shared/types.js";
@@ -328,11 +327,11 @@ app.post("/get_api_defaults", parser, function(request, response){
 })
 
 app.get("/get_prompt", parser, function(_, response){
-    response.send( Prompt.default )
+    response.send( Settings.default_prompt_order )
 })
 
 app.post("/validate_prompt", parser, function(request, response){
-    let valid = Prompt.Validate( request.body.prompt )
+    let valid = Settings.ValidatePrompt( request.body.prompt )
     response.status(200).send(valid)
 })
 

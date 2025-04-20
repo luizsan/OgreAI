@@ -187,3 +187,5 @@ export function squashPrompt(messages: Array<IPromptEntry>, separator = "\n\n"):
     });
     return merged;
 }
+
+export default { buildPrompt }

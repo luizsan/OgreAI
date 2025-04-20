@@ -32,38 +32,36 @@ export default class Character {
                 character_book: undefined,
                 extensions: {},
             },
-            metadata: {},
-            temp: { filepath: "", avatar: "" },
+            metadata: {
+                created: Date.now(),
+                modified: Date.now(),
+                version: 1,
+                source: null,
+                tool: {
+                    name: "OgreAI",
+                    version: "2.0.0",
+                    url: "https://github.com/luizsan/OgreAI"
+                }
+            },
+            temp: {
+                filepath: "",
+                avatar: ""
+            },
         }
     }
 
     static parseCharacterV1(json: any): ICharacter {
-        const character: ICharacter = {
-            spec: "chara_card_v1",
-            spec_version: "1.0",
-            data: {
-                author: json.author ?? "",
-                name: json.name ?? "",
-                description: json.description ?? "",
-                personality: json.personality ?? "",
-                scenario: json.scenario ?? "",
-                first_mes: json.greeting ?? json.first_mes ?? "",
-                mes_example: json.dialogue ?? json.mes_example ?? "",
-
-                creator_notes: "",
-                creator: json.author ?? "",
-                character_version: "",
-                system_prompt: "",
-                post_history_instructions: "",
-                alternate_greetings: [],
-                tags: [],
-
-                character_book: undefined,
-                extensions: {},
-            },
-            metadata: json.metadata ?? {},
-            temp: json.temp ?? { filepath: "", avatar: "" },
-        };
+        const character: ICharacter = this.create()
+        character.spec = "chara_card_v1"
+        character.spec_version = "1.0"
+        character.data.name = json.name ?? ""
+        character.data.description = json.description ?? ""
+        character.data.personality = json.personality ?? ""
+        character.data.scenario = json.scenario ?? ""
+        character.data.first_mes = json.greeting ?? json.first_mes ?? ""
+        character.data.mes_example = json.dialogue ?? json.mes_example ?? ""
+        character.data.author = json.author ?? ""
+        character.data.creator = json.author ?? ""
         return character
     }
 
