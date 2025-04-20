@@ -15,8 +15,7 @@
     "open": "^9.1.0",
     "png-chunk-text": "^1.0.0",
     "png-chunks-encode": "^1.0.0",
-    "png-chunks-extract": "^1.0.0",
-    "sharp": "^0.34.1"
+    "png-chunks-extract": "^1.0.0"
   },
   "private": true,
   "scripts": {
