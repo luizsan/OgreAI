@@ -8,7 +8,7 @@
     import Heading from "../components/Heading.svelte";
     import Book from "../components/Book.svelte";
     import * as Format from "@shared/format.mjs";
-    
+
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
 
@@ -28,7 +28,7 @@
         if( $editing ){
             if( $editing.temp.tokens ){
                 tokens = $editing.temp.tokens
-            
+
                 permanent = 0;
                 total = 0;
                 percent = {};
@@ -42,7 +42,7 @@
                             permanent += tokens[key]
                         }
                     });
-                    
+
                     breakdown.push( `${total} Total tokens\n` )
                     Object.keys(tokens).forEach( key => {
                         let k = key.charAt(0).toUpperCase() + key.slice(1)
@@ -93,7 +93,7 @@
             result.json().then( async data => {
                 if( data ){
                     if( $creating ){
-                        
+
                         let created = $editing;
                         $characterList.push(created)
                         $characterList = $characterList;
@@ -103,15 +103,15 @@
                         alert("Successfully created character:\n" + created.data.name)
                     }else{
                         if( $editing && $editing.temp.avatar ){
-                            let edited = await Server.request("/get_character", { 
-                                filepath: $editing.temp.filepath 
+                            let edited = await Server.request("/get_character", {
+                                filepath: $editing.temp.filepath
                             });
 
                             $currentCharacter = edited;
                             $editing = edited;
 
                             // update item on list
-                            
+
                             for( let i = 0; i < $characterList.length; i++ ){
                                 if( $characterList[i].temp.filepath == $editing.temp.filepath){
                                     $characterList[i] = edited;
@@ -156,7 +156,7 @@
             let result = await Server.request("/delete_character", {
                 filepath: $editing.temp.filepath
             })
-            
+
             if( result ){
                 await Server.getCharacterList();
                 if( $currentCharacter == $editing ){
@@ -202,7 +202,14 @@
     }
 
     function Close(){
-        $editing = null;
+        if( $creating ){
+            const ok = confirm("You have unsaved changes!\nAre you sure you want to exit? You will lose this character forever!")
+            if ( ok ){
+                $editing = null;
+            }
+        }else{
+            $editing = null;
+        }
     }
 
     function OpenImage(){
@@ -213,12 +220,12 @@
         $editing.data.alternate_greetings.push("Hello, {{user}}!")
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
     }
-    
+
     function DuplicateGreeting(id : number, item : string){
         $editing.data.alternate_greetings.splice(id, 0, item)
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
     }
-    
+
     function RemoveGreeting(id : number){
         $editing.data.alternate_greetings.splice(id, 1)
         $editing.data.alternate_greetings = $editing.data.alternate_greetings;
@@ -229,9 +236,9 @@
             let filename = $editing.temp.filepath.split("/").pop()
             filename = filename.split(".").shift()
             filename += ".json"
-            
-            $editing.data.character_book = { 
-                name: `${$editing.data.name}'s Lorebook`, 
+
+            $editing.data.character_book = {
+                name: `${$editing.data.name}'s Lorebook`,
                 token_budget: 100,
                 recursive_scanning: false,
                 scan_depth: 5,
@@ -243,7 +250,7 @@
             ApplyChanges()
         }
     }
-    
+
     async function installLorebook(){
         if(has_lorebook && confirm("Are you sure you want to install this lorebook?\nIt will overwrite any existing lorebook for this character.")){
             let filename = $editing.temp.filepath.split("/").pop()
@@ -293,7 +300,7 @@
                         {:else}
                             <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
                         {/if}
-                        
+
                         <div class="meter" style="grid-template-columns:{distribution}">
                             {#each Object.keys(tokens) as type}
                                 <div class={type}></div>
@@ -347,17 +354,17 @@
                 <Heading title="Description" description="Description of personality and other characteristics."/>
                 <textarea class="component wide" rows=16 bind:value={$editing.data.description}></textarea>
             </div>
-            
+
             <div class="section wide personality">
                 <Heading title="Personality" description="A brief description of the personality."/>
                 <textarea class="component wide" rows=4 bind:value={$editing.data.personality}></textarea>
             </div>
-            
+
             <div class="section wide scenario">
                 <Heading title="Scenario" description="Circumstances and context of the dialogue."/>
                 <textarea class="component wide" rows=4 bind:value={$editing.data.scenario}></textarea>
             </div>
-            
+
             <div class="section wide dialogue">
                 <Heading title="Example dialogue" description="Forms a personality more clearly."/>
                 <textarea class="component wide" rows=8 bind:value={$editing.data.mes_example}></textarea>
@@ -397,8 +404,8 @@
 
 
                 {#if has_lorebook}
-                    <Heading 
-                        title={$editing.data.character_book?.name ? $editing.data.character_book.name : "Embedded Lorebook"} 
+                    <Heading
+                        title={$editing.data.character_book?.name ? $editing.data.character_book.name : "Embedded Lorebook"}
                         description={`This lorebook belongs to ${$editing.data.name}.`}
                     />
                     <Book bind:book={$editing.data.character_book}/>
@@ -446,7 +453,7 @@
         border-radius: 50%;
         pointer-events: none;
         object-fit: cover;
-        
+
     }
 
     .avatar button{
@@ -461,7 +468,7 @@
         color: white;
         outline: 1px solid white;
     }
-    
+
     .avatar button:hover{
         opacity: 1;
     }
@@ -507,7 +514,7 @@
         gap: 16px;
         grid-template-columns: min-content auto;
     }
-    
+
     .bottom{
         display: flex;
         height: fit-content;
@@ -553,7 +560,7 @@
     .meter .personality{ background: mediumspringgreen; }
     .meter .scenario{ background: gold; }
     .meter .dialogue{ background: tomato; }
-    
+
     .meter div{ margin-right: 2px; }
 
     .greeting textarea{ border-left-color: hotpink; }
