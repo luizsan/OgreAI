@@ -1,4 +1,13 @@
 import { writable } from "svelte/store"
+import type {
+    ISettings,
+    IAPISettings,
+    ICharacter,
+    IChat,
+    IPromptConfig,
+    IUser,
+    ILorebook
+} from "@shared/types"
 
 function getAddress(){
     const params = new URLSearchParams(window.location.search)
@@ -10,50 +19,72 @@ export const localServer = getAddress()
 
 // SERVER STATE
 // local server status
-export const connected = writable( false ) 
+export const connected = writable<boolean>( false )
 // target api status
-export const api = writable( false )
+export const api = writable<boolean>( false )
 // waiting for api reply
-export const busy = writable( false ) 
+export const busy = writable<boolean>( false )
 // waiting for server fetch
-export const fetching = writable( false )
+export const fetching = writable<boolean>( false )
 
-// client state
-export const editing = writable( null )
-export const creating = writable( false )
-export const deleting = writable( false )
-export const history = writable( false )
+// CLIENT STATE
+// current character being edited
+export const editing = writable<ICharacter>( null )
+// whether a character is being created
+export const creating = writable<boolean>( false )
+// toggles the state of batch deleting messages in chat
+export const deleting = writable<boolean>( false )
+// toggles the state of viewing chat history
+export const history = writable<boolean>( false )
 
-// lists 
-export const characterList = writable( [] )
-export const chatList = writable( [] )
-export const deleteList = writable( [] )
-export const favoritesList = writable( [] )
-export const availableAPIModes = writable( [] )
+// LISTS
+// stores the global list of characters
+export const characterList = writable< Array<ICharacter> >( [] )
+// stores the list of chats for the current character
+export const chatList = writable< Array<IChat> >( [] )
+// stores the list of messages indices to be deleted
+export const deleteList = writable< Array<number> >( [] )
+// stores the list of favorite characters by filepath
+export const favoritesList = writable< Array<string> >( [] )
+// stores the list of available API modes by title
+export const availableAPIModes = writable< Array<string> >( [] )
 
-// defaults
-export const defaultSettingsAPI = writable( null )
-export const defaultPrompt = writable( null )
+// DEFAULTS
+// default schema for the selected API settings
+export const defaultSettingsAPI = writable< Record<string, IAPISettings> >( null )
+// default prompt order schema
+export const defaultPrompt = writable< Record<string, IPromptConfig> >( null )
 
-// storage
-export const currentSettingsMain = writable( null )
-export const currentSettingsAPI = writable( null )
-export const currentPresets = writable( null )
-export const currentProfile = writable( null )
-export const currentLorebooks = writable( [] )
+// STORAGE
+// current overall settings
+export const currentSettingsMain = writable<ISettings>( null )
+// current API-specific settings
+export const currentSettingsAPI = writable< Record<string,any> >( null )
+// current prompt presets
+export const currentPresets = writable< Record<string, any[]> >( null )
+// current user profile
+export const currentProfile = writable<IUser>( null )
+// list of global lorebooks
+export const currentLorebooks = writable< Array<ILorebook> >( [] )
 
-// logic
-export const currentCharacter = writable( null )
-export const currentCreate = writable( null )
-export const currentChat = writable( null )
+// USER SELECTION
+// currently selected character
+export const currentCharacter = writable<ICharacter>( null )
+// currently selected chat
+export const currentChat = writable<IChat>( null )
 
-// customization
-export const currentTheme = writable( "" )
-export const currentPreferences = writable( {} )
+// CUSTOMIZATION
+// currently selected theme (dark or light)
+export const currentTheme = writable<string>( "" )
+// customization data
+export const currentPreferences = writable< Record<string, any> >( {} )
 
-// toggle elements
-export const sectionCharacters = writable( false )
-export const sectionEditing = writable( false )
-export const sectionSettings = writable( false )
-export const tabSettings = writable( "" )
+// VIEWS
+// toggles the state of the sidebar
+export const sectionCharacters = writable<boolean>( false )
+// toggles the state of the settings screen
+export const sectionSettings = writable<boolean>( false )
+// stores the state of the current settings tab
+export const tabSettings = writable<string>( "" )
+// stores the state of the current character tab (not yet implemented)
 export const tabEditing = writable( 0 )
