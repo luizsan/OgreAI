@@ -62,6 +62,12 @@ export default class DeepSeek extends API {
             type: "checkbox", default: true,
         },
 
+        beta: {
+            title: "Beta",
+            description: "If set, the API will use beta features. Beta features are not stable and may change in the future.",
+            type: "checkbox", default: false,
+        },
+
         stop: {
             title: "Stop Sequences",
             description: "Up to 16 sequences where the API will stop generating further tokens.",
@@ -81,14 +87,29 @@ export default class DeepSeek extends API {
 
     makePrompt(data: IGenerationData, offset?: number ): any {
         let list = buildPrompt( this, data, offset )
-        if( list.length > 1 && list[1].role === "assistant" ){
-            list[1].role = "system"
+
+        // reasoner-specific rules
+        if( data.settings.model.endsWith("-reasoner")){
+            // deepseek-reasoner does not support successive user or assistant messages
             list = squashPrompt(list)
+
+            // The first message (except the system message) of deepseek-reasoner must be a user message
+            let index = list.findIndex((item) => item.role !== "system")
+            if( list[index].role === "assistant" ){
+                list.splice(index, 0, { role: "user", content: "(start)" })
+            }
+
+            // The last message of deepseek-reasoner must be a user message, or an assistant message with prefix mode on
+            let last = list.at(-1)
+            if( last.role === "assistant" ){
+                if( data.settings?.["beta"] ){
+                    last.prefix = true
+                }else{
+                    list.push({ role: "user", content: "(continue)" })
+                }
+            }
         }
-        let last = list.at(-1)
-        if( last.role === "assistant" ){
-            last.prefix = true
-        }
+
         return list
     }
 
@@ -118,7 +139,7 @@ export default class DeepSeek extends API {
         }
 
         const url: string = settings.api_url ? settings.api_url : this.API_ADDRESS
-        const target: string = `${url}/chat/completions`
+        const target: string = `${url}/${settings.beta ? "beta" : "chat"}/completions`
         console.debug(`Sending prompt\n > ${target}\n\n%o`, outgoing_data)
         return await fetch(target, options)
     }

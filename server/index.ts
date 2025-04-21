@@ -6,25 +6,26 @@ import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
 
-// import API classes
+// core modules
 import API from "./core/api.ts"
-// ---
+import Security from "./core/security.ts"
+import { Initialize, IServerConfig, LoadData, SaveData } from "./core/config.ts"
+
+// API modules
 import Anthropic from "./api/anthropic.ts"
 import DeepSeek from "./api/deepseek.ts"
 import Google from "./api/google.ts"
 import Mistral from "./api/mistral.ts"
 import OpenAI from "./api/openai.ts"
 
-import Security from "./core/security.ts"
+// data modules
 import Character from "./lib/character.ts"
 import Chat from "./lib/chat.ts"
-
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Presets from "./lib/presets.ts"
 import Lorebook from "./lib/lorebook.ts"
-import { Initialize, IServerConfig, LoadData, SaveData } from "./core/config.ts"
-import { IError, IReply, ISettings, IUser } from "../shared/types.js";
+import type { IError, IReply, ISettings, IUser } from "../shared/types.d.ts";
 
 const server_config: IServerConfig = await Initialize()
 
@@ -100,8 +101,7 @@ app.post("/get_api_settings", parser, async function(request, response){
         const mode: string = request.body.api_mode
         const filepath: string = path.join(path_dir.settings, mode, "main.json")
         let settings: ISettings = await LoadData(filepath, {})
-        // TODO: revalidate with TS
-        // Settings.ValidateAPI(settings, API_MODES[mode].API_SETTINGS )
+        Settings.ValidateAPI(settings, API_MODES[mode].API_SETTINGS )
         response.send(settings)
     }catch(error){
         console.error(error)

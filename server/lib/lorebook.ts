@@ -104,9 +104,12 @@ export default class Lorebook{
         const user = data.user;
         const messages = data.chat.messages;
         const settings = data.settings;
+        const entries_triggered = [];
+        if( !book ){
+            return entries_triggered
+        }
 
         const messages_scanned = book.scan_depth > 0 ? messages.slice(-book.scan_depth) : []
-        const entries_triggered = [];
 
         book.entries.forEach((entry) => {
             if( !entry.content ){
