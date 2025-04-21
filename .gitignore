@@ -1,16 +1,43 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+output
+dist
+dist-ssr
+*.tgz
+*.local
+
+# code coverage
+coverage
+*.lcov
+
 # Logs
 logs
 *.log
+_.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
-node_modules
-dist
-dist-ssr
-*.local
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
 
 # Editor directories and files
 .vscode/*
@@ -27,3 +54,6 @@ dist-ssr
 .unused
 build
 user
+
+# Finder (MacOS) folder config
+.DS_Store

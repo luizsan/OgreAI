@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [svelte()],
   base: "./",
   build: {
-    outDir: "../build",
+    outDir: "../output/html",
     emptyOutDir: true,
     rollupOptions: {
       input: {

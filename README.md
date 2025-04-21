@@ -1,17 +1,12 @@
 # OgreAI
-A clean and modular AI chatbot client
+Light, fast, easy to use and bloat-free interface for AI chatbots.
 
 ![](https://raw.githubusercontent.com/luizsan/OgreAI/main/docs/img/sample_chat.png)
 
-### Features
- - Light, fast, easy to use and bloat-free interface
- - Creating and editing characters' names, description and other attributes
- - Editing, regenerating, "swiping" and streaming messages
- - Creating, renaming, duplicating and deleting chats
- - Scriptable modular API, doesn't need to rewrite source code to implement new API accessibility
- - Refresh characters and user data without reloading the page
-
 # Requirements
+### Server
+ - [Bun 1.2.10 or higher](https://bun.sh/)
+### Client
  - [Node.js 18.16.0 or higher](https://nodejs.org/)
 
 ### Recommended
@@ -19,44 +14,45 @@ A clean and modular AI chatbot client
  - Any git client
 
 # How to use
-If you just want to run the project or has no idea what you're doing, just execute `open_normal.bat` and wait. This will build the project page and start the server automatically.
+If you have no idea what you're doing and just want to run the project, execute the `build.bat` file at the project root folder and wait until it finishes building. After that, run `ogreai.exe` in the output folder.
+
+Your content will be located inside the `user` folder.
 
 # Development
-Execute `open_dev.bat` to start a dev environment of the project. To do it manually, follow the steps below.
+Run `install.bat` to install the necessary dependencies quickly, without building the project.
 
-## Installation
-Run `npm install` on both client and server folders, like this:
+To do it manually:
 ```sh
 cd client
 npm install
 cd ../server
-npm install
+bun install
 ```
 
 ## Running
-To start the server, use:
-```sh
-cd server
-npm run start
+To start a server
 ```
-To run the dev version of the client, use:
-```sh
-cd client
+bun run index.ts
+```
+
+To run the dev version of the client
+```
 npm run dev
-```
-or if you want it to be accessible on the network:
-```sh
-cd client
-npm run host
 ```
 
 ## Building
-Building is not neccessary if you're using the development environment, but the server will try to open the `build` folder.
-```sh
-cd client
-npm run build
+Building is not neccessary if you're using the development environment.
+
+Building the server
+```
+bun build --compile --target=bun index.ts
 ```
 
-# To-do
- - Customize chat colors and background
- - Settings presets
+Building the client
+```
+vite build
+```
+
+# Planned features
+ - Customizable chat colors
+ - Group chats

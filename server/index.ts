@@ -23,7 +23,6 @@ import Character from "./lib/character.ts"
 import Chat from "./lib/chat.ts"
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
-import Presets from "./lib/presets.ts"
 import Lorebook from "./lib/lorebook.ts"
 import type { IError, IReply, ISettings, IUser } from "../shared/types.d.ts";
 
@@ -32,7 +31,7 @@ const server_config: IServerConfig = await Initialize()
 const __dirname: string = path.resolve("./")
 const _userPath: string = path.join(__dirname, server_config.paths.user, "/").replace(/\\/g, '/');
 const _imgPath: string = path.join(__dirname, './img/').replace(/\\/g, '/');
-const _buildPath: string = path.join(__dirname, '../build/').replace(/\\/g, '/');
+const _htmlPath: string = path.join(__dirname, './html/').replace(/\\/g, '/');
 
 const path_dir: Record<string, string> = {
     user: path.join(_userPath, "/").replace(/\\/g, '/'),
@@ -73,7 +72,7 @@ app.use(express.static('public', {
 }));
 
 // Static files from the user directory served without any checks
-app.use('/', express.static(_buildPath, { maxAge: -1  }));
+app.use('/', express.static(_htmlPath, { maxAge: -1  }));
 app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
 app.use('/user/avatar', express.static(path_dir.avatar, { fallthrough: false, index: false,  maxAge: -1  }));
 app.use('/user/characters', express.static(path_dir.characters, { fallthrough: false, index: false,  maxAge: -1  }));
