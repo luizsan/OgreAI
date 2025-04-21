@@ -196,7 +196,7 @@
         if( $creating && $editing.temp.avatar ){
             avatar = $editing.temp.avatar;
         }else{
-            avatar = `${localServer + "/" + $editing.temp.filepath.replace("../", "")}?${$editing.metadata.modified}`
+            avatar = `${localServer + "/user/characters/" + $editing.temp.filepath}?${$editing.metadata.modified}`
             avatar = avatar.replaceAll("\\", "/")
         }
     }

@@ -7,18 +7,20 @@ import type {
     IUser,
     IPromptConfig,
     IPromptEntry,
-    ICandidate
+    ICandidate,
+    ILorebookEntry
 } from "../../shared/types.d.ts";
 
 import API from "../core/api.ts";
+import Lorebook from "./lorebook.ts";
 import { parseMacros, parseNames } from "../../shared/format.mjs";
 import chalk from "chalk";
 
 
 export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     const user: IUser = data.user;
+    const character: ICharacter = data.character;
     const settings: ISettings & Record<string,any> = data.settings;
-
 
     console.debug( "---" )
     console.debug( "Building prompt" )
@@ -30,9 +32,9 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
 
         switch(item.key){
             case "base_prompt":
-                var entry: IPromptEntry = getMainPrompt(item, data)
-                if ( entry.content.length > 0 ){
-                    prompt_entries.push(entry)
+                const entry_main_prompt: IPromptEntry = getMainPrompt(item, data)
+                if ( entry_main_prompt.content.length > 0 ){
+                    prompt_entries.push(entry_main_prompt)
                     added = true
                 }
                 break;
@@ -42,28 +44,42 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
-            case "messages":
-                var list: Array<IPromptEntry> = getMessages(api, data, offset)
-                if( list.length > 0 ){
-                    prompt_entries = prompt_entries.concat(list)
-                    added = true
-                }
-                break;
             case "description":
             case "personality":
             case "scenario":
             case "mes_example":
-                var entry: IPromptEntry = getCharacterProperty(item, data)
-                if ( entry.content ){
-                    prompt_entries.push(entry)
+                const entry_property: IPromptEntry = getCharacterProperty(item, data)
+                if ( entry_property.content ){
+                    prompt_entries.push(entry_property)
+                    added = true
+                }
+                break;
+            case "messages":
+                const messages_list: Array<IPromptEntry> = getMessages(api, data, offset)
+                if( messages_list.length > 0 ){
+                    prompt_entries = prompt_entries.concat(messages_list)
+                    added = true
+                }
+                break;
+            case "world_info":
+                const world_entries: Array<ILorebookEntry> = Lorebook.getGlobalLoreEntries(api, data)
+                if( world_entries.length > 0 ){
+                    prompt_entries.push({ role: "system", content: Lorebook.squashEntries(world_entries) })
+                    added = true
+                }
+                break;
+            case "character_book":
+                const character_entries: Array<ILorebookEntry> = Lorebook.getEntriesFromBook(api, character.data.character_book, data)
+                if( character_entries.length > 0 ){
+                    prompt_entries.push({ role: "system", content: Lorebook.squashEntries(character_entries) })
                     added = true
                 }
                 break;
             case "custom":
-                var entry: IPromptEntry = { role: "system", content: item.content }
-                entry.content = parseMacros(entry.content, data.chat )
-                entry.content = parseNames(entry.content, data.user.name, data.character.data.name )
-                prompt_entries.push(entry)
+                const custom_entry: IPromptEntry = { role: "system", content: item.content }
+                custom_entry.content = parseMacros(custom_entry.content, data.chat )
+                custom_entry.content = parseNames(custom_entry.content, data.user.name, data.character.data.name )
+                prompt_entries.push(custom_entry)
                 added = true
             default:
                 break;
@@ -198,5 +214,25 @@ export function squashPrompt(messages: Array<IPromptEntry>, separator = "\n\n"):
     });
     return merged;
 }
+
+export function stringifyPrompt(messages: Array<IPromptEntry>,
+    human_prefix: string, assistant_prefix: string, separator = "\n\n"): string{
+    // ---
+    let str = messages.map((msg) => {
+        switch (msg.role) {
+            case "assistant":
+                return `${assistant_prefix}: ${msg.content}`;
+            case "user":
+                return `${human_prefix}: ${msg.content}`;
+            case "system":
+                // leave control to main prompt
+                return msg.content
+            default:
+                return
+        }
+    }).join(separator);
+    return str;
+}
+
 
 export default { buildPrompt }

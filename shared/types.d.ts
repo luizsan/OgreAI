@@ -4,7 +4,7 @@ export interface IUser{
     avatar : string;
     persona : string;
     customization : Record<string, any>;
-    temp : any;
+    temp?: any;
 }
 
 // character
@@ -106,6 +106,7 @@ export interface ILorebook{
     recursive_scanning? : boolean; // entries can trigger other entries
     entries : Array<ILorebookEntry>;
     extensions : any;
+    temp?: any;
 }
 
 export interface ILorebookEntry{
@@ -131,7 +132,7 @@ export interface IGenerationData{
     prompt : any;
     swipe?: boolean;
     streaming?: boolean;
-    books?: Record<string, ILorebook>;
+    books?: Array<ILorebook>;
 }
 
 export interface ISettings{

@@ -19,12 +19,12 @@ import Security from "./core/security.ts"
 import Character from "./lib/character.ts"
 import Chat from "./lib/chat.ts"
 
-import Profile from "./lib/profile.js"
+import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Presets from "./lib/presets.ts"
-import Lorebook from "./lib/lorebook.js"
+import Lorebook from "./lib/lorebook.ts"
 import { Initialize, IServerConfig, LoadData, SaveData } from "./core/config.ts"
-import { IError, IReply, ISettings } from "../shared/types.js";
+import { IError, IReply, ISettings, IUser } from "../shared/types.js";
 
 const server_config: IServerConfig = await Initialize()
 
@@ -82,9 +82,10 @@ app.get("/status", parser, function(_, response){
 })
 
 app.get("/get_profile", parser, async function(_, response){
-    let profile = await LoadData(Profile.path, new Profile())
-    Profile.Validate(profile)
-    response.send( profile )
+    let user_default: IUser = Profile.create()
+    let user_profile = await LoadData( path.join(path_dir.user, "profile.json"), user_default)
+    Profile.Validate(user_profile, user_default)
+    response.send( user_profile )
 })
 
 app.get("/get_main_settings", parser, async function(_, response){
@@ -133,14 +134,17 @@ app.post("/get_api_status", parser, async function(request, response){
 })
 
 app.post("/save_profile", parser, async function(request, response){
-    await SaveData( Profile.path, request.body )
-    response.send(true)
+    let user_default: IUser = Profile.create()
+    let user_profile = request.body
+    Profile.Validate(user_profile, user_default)
+    const ok = await SaveData( path.join(path_dir.user, "profile.json"), user_profile )
+    response.send(ok)
 })
 
 app.post("/save_main_settings", parser, async function(request, response){
     const filepath = path.join(path_dir.settings, "main.json")
-    await SaveData( filepath, request.body.data )
-    response.send(true)
+    const ok = await SaveData( filepath, request.body.data )
+    response.send(ok)
 })
 
 app.post("/save_api_settings", parser, async function(request, response){
@@ -151,8 +155,8 @@ app.post("/save_api_settings", parser, async function(request, response){
 
     const mode = request.body.api_mode
     const filepath = path.join(path_dir.settings, mode, "main.json")
-    await SaveData( filepath, request.body.data )
-    response.send(true)
+    const ok = await SaveData( filepath, request.body.data )
+    response.send(ok)
 })
 
 app.post("/get_presets", parser, async function(request, response){
@@ -177,8 +181,8 @@ app.post("/save_presets", parser, async function(request, response){
 
     const type = request.body.type
     const filepath = path.join(path_dir.presets, type + ".json")
-    await SaveData( filepath, request.body.data )
-    response.send(true)
+    const ok = await SaveData( filepath, request.body.data )
+    response.send(ok)
 })
 
 
@@ -323,11 +327,14 @@ app.post("/save_lorebook", parser, function(request, response){
 })
 
 app.post("/delete_lorebook", parser, function(request, response){
-    if(!request.body || !request.body.book ){
-        response.status(500).send(false)
-    }else{
-        response.send( Lorebook.Delete(request.body.book ))
+    try{
+        let filepath = request.body.book?.temp?.filepath
+        filepath = path.join( path_dir.lorebooks, filepath )
+        fs.unlinkSync( filepath )
+        response.status(200).send(true)
         return
+    }catch(error: any){
+        console.error(error)
     }
     response.status(500).send(false)
 })
@@ -363,7 +370,7 @@ app.post("/generate", parser, async function(request, response){
     let api = API_MODES[request.body.api_mode]
     if( api && api.generate ){
         const req = request.body;
-        const content = {
+        const data = {
             character: req.character,
             chat: req.chat,
             user: req.user,
@@ -371,26 +378,24 @@ app.post("/generate", parser, async function(request, response){
             swipe: req.swipe,
             streaming: req.settings.stream,
             prompt: null,
-            books: {
-                character: req.character.data.character_book ?? {},
-                global: req.books
-            },
+            books: req.books
         }
 
-        content.prompt = api.makePrompt( content, content.swipe ? 1 : 0 )
-        api.generate( content ).then(async result => {
-            if( content.streaming ){
+        data.prompt = api.makePrompt( data, data.swipe ? 1 : 0 )
+        api.__message_chunk = ""
+        api.generate( data ).then(async result => {
+            if( data.streaming ){
                 try{
                     console.debug( chalk.blue("Streaming message..."))
                     const td = new TextDecoder();
                     for await (const message of result.body){
-                        let data: IReply | IError = api.receiveStream( td.decode(message), content.swipe ?? false )
-                        if( data ){
+                        let received: IReply | IError = api.receiveStream( td.decode(message), data.swipe ?? false )
+                        if( received ){
                             // console.debug( chalk.blue("%o"), data)
                             // the newline at the end is required as sometimes the stream
                             // can lag and the client will clump chunks together, so it's
                             // easier to separate them by lines instead.
-                            response.write(JSON.stringify(data) + "\n")
+                            response.write(JSON.stringify(received) + "\n")
                         }
                     }
                     response.end()
@@ -400,18 +405,14 @@ app.post("/generate", parser, async function(request, response){
                 }
             }else{
                 result.text().then(raw => {
-                    let data = api.receiveData( raw, content.swipe )
+                    let received: IReply | IError = api.receiveData( raw, data.swipe )
                     console.debug(chalk.blue("Received message"))
-                    response.send(data);
+                    response.send(received);
                 })
             }
         }).catch(error => {
             console.error(chalk.red(error))
-            response.status(error.status ?? 500).send({
-                error: {
-                    message: `[${error.name}]: ${error.message}`
-                }
-            })
+            response.status(error.status ?? 500).send({ error: { type: error.name, message: error.message }})
         });
     }else{
         const error = "Cannot generate message: Invalid API"
