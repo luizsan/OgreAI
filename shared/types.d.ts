@@ -144,6 +144,21 @@ export interface ISettings{
     recents?: Array<string>;
 }
 
+export interface IAPISettings{
+    title: string;
+    description: string;
+    /**
+     * The type of setting. Accepted strings are:
+     * - "select": A dropdown selection from predefined choices.
+     * - "range": A numeric slider within a specified range.
+     * - "checkbox": A toggleable true/false option.
+     * - "text": A single-line text input.
+     * - "textarea": A multi-line text input.
+    **/
+    type: string;
+    default: any;
+}
+
 export interface IPromptEntry{
     role: string;
     content: string;
