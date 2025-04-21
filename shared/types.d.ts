@@ -189,6 +189,7 @@ export interface IPromptEntry{
 export interface IPromptConfig{
     key: string;
     enabled: boolean;
+    role?: string;
     allow_override?: boolean;
     content?: string;
     open?: boolean;

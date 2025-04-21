@@ -30,6 +30,7 @@
             key: "custom",
             label: `Custom Prompt ${custom_prompts}`,
             description: "",
+            role: "user",
             enabled: true,
         })
         $currentSettingsAPI = $currentSettingsAPI

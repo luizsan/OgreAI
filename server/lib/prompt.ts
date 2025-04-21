@@ -16,6 +16,7 @@ import Lorebook from "./lorebook.ts";
 import { parseMacros, parseNames } from "../../shared/format.mjs";
 import chalk from "chalk";
 
+const available_roles: Array<string> = ["system", "user", "assistant"]
 
 export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     const user: IUser = data.user;
@@ -77,6 +78,8 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 break;
             case "custom":
                 const custom_entry: IPromptEntry = { role: "system", content: item.content }
+                if(available_roles.includes(item.role))
+                    custom_entry.role = item.role
                 custom_entry.content = parseMacros(custom_entry.content, data.chat )
                 custom_entry.content = parseNames(custom_entry.content, data.user.name, data.character.data.name )
                 prompt_entries.push(custom_entry)

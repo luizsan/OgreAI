@@ -94,25 +94,11 @@
             return
         }
 
-        // const elements = Array.from(container.querySelectorAll('.item'))
-        let picked_index = list.findIndex((e) => e.key === picked.id )
-        let marker_index = list.findIndex((e) => e.key === target.id )
-
+        let picked_index = parseInt(picked.id)
+        let marker_index = Array.from(container.children).indexOf(marker) + 1
         if( picked_index === marker_index ){
             return
         }
-        if( direction !== 0 && picked_index - direction === marker_index ){
-            return
-        }
-
-        if( picked_index > marker_index && direction > 0 ){
-            marker_index += direction
-        }
-
-        if( picked_index < marker_index && direction < 0 ){
-            marker_index += direction
-        }
-
         const picked_item = list.splice(picked_index, 1)[0]
         list.splice(marker_index, 0, picked_item)
         list = list
@@ -159,7 +145,7 @@
         class="item"
         draggable="{ !defaults[item.key].locked && !item.open}"
         class:locked={ defaults[item.key].locked || item.open}
-        id={ item.key }
+        id={ i.toString() }
         role="listitem"
         on:dragstart|self={pickItem}
         on:touchstart|self={(e) => pickItem(e, true)}
@@ -193,7 +179,7 @@
         {/if}
         </div>
 
-        <div class="horizontal">
+        <div>
             {#if defaults[item.key].editable || defaults[item.key].sub_items}
                 <button
                     class="normal wide toggle"
@@ -209,12 +195,19 @@
         {#if defaults[item.key].editable}
             <div class="section container inside">
                 {#if item.key === "custom"}
-                    <input
-                        type="text"
-                        class="component borderless wide"
-                        placeholder="Custom Prompt"
-                        bind:value={ $currentSettingsAPI.prompt[i].label }
-                    >
+                    <div class="section horizontal">
+                        <input
+                            type="text"
+                            class="component borderless wide"
+                            placeholder="Custom Prompt"
+                            bind:value={ $currentSettingsAPI.prompt[i].label }
+                        >
+                        <select class="component borderless" bind:value={ $currentSettingsAPI.prompt[i].role }>
+                            <option value="user">User</option>
+                            <option value="assistant">Assistant</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
                 {:else}
                     <div>
                         <div class="explanation">{defaults[item.key].description}</div>
@@ -227,7 +220,7 @@
                 />
                 {#if item.key === "custom"}
                 <div class="separator"></div>
-                <div class="wide center">
+                <div class="section horizontal wide center">
                     <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
                 </div>
                 {/if}
@@ -312,11 +305,11 @@
     }
 
     .inside{
-        padding: 10px 20px 20px 20px;
+        padding: 16px 20px 20px 20px;
         background-color: rgba(0, 0, 0, 0.1);
     }
 
-    .inside textarea, .inside input[type="text"]{
+    .inside textarea, .inside input[type="text"], select{
         background-color: var( --component-bg-hover );
         padding: 6px 8px;
         border-radius: 4px;
