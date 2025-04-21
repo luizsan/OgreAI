@@ -192,47 +192,49 @@
     </div>
 
     {#if item.open}
+        <div class="section container inside">
         {#if defaults[item.key].editable}
-            <div class="section container inside">
-                {#if item.key === "custom"}
-                    <div class="section horizontal">
-                        <input
-                            type="text"
-                            class="component borderless wide"
-                            placeholder="Custom Prompt"
-                            bind:value={ $currentSettingsAPI.prompt[i].label }
-                        >
-                        <select class="component borderless" bind:value={ $currentSettingsAPI.prompt[i].role }>
-                            <option value="user">User</option>
-                            <option value="assistant">Assistant</option>
-                            <option value="system">System</option>
-                        </select>
-                    </div>
-                {:else}
-                    <div>
-                        <div class="explanation">{defaults[item.key].description}</div>
-                    </div>
-                {/if}
-                <textarea
-                    class="component borderless wide"
-                    rows={defaults[item.key]?.row_size || 4}
-                    bind:value={ $currentSettingsAPI.prompt[i].content }
-                />
-                {#if item.key === "custom"}
-                <div class="separator"></div>
-                <div class="section horizontal wide center">
-                    <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
+            {#if item.key === "custom"}
+                <div class="section horizontal">
+                    <input
+                        type="text"
+                        class="component borderless wide"
+                        placeholder="Custom Prompt"
+                        bind:value={ $currentSettingsAPI.prompt[i].label }
+                    >
+                    <select class="component borderless" bind:value={ $currentSettingsAPI.prompt[i].role }>
+                        <option value="user">User</option>
+                        <option value="assistant">Assistant</option>
+                        <option value="system">System</option>
+                    </select>
                 </div>
-                {/if}
+            {:else}
+                <div>
+                    <div class="explanation">{defaults[item.key].description}</div>
+                </div>
+            {/if}
+            <textarea
+                class="component borderless wide"
+                rows={defaults[item.key]?.row_size || 4}
+                bind:value={ $currentSettingsAPI.prompt[i].content }
+            />
+            {#if item.key === "custom"}
+            <div class="separator"></div>
+            <div class="section horizontal wide center">
+                <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
             </div>
+            {/if}
         {/if}
 
         {#if defaults[item.key].sub_items}
             {#each defaults[item.key].sub_items as sub_item}
-                <div class="section container inside">
-                    <div>
-                        <div class="title">{defaults[sub_item].label}</div>
-                        <div class="explanation">{defaults[sub_item].description}</div>
+                <div class="section top">
+                    <div class="section horizontal center">
+                        <input type="checkbox" bind:checked={ $currentSettingsAPI.prompt[getPromptByKey(sub_item)].enabled } on:change={after}>
+                        <div class="wide">
+                            <div class="title">{defaults[sub_item].label}</div>
+                            <div class="explanation">{defaults[sub_item].description}</div>
+                        </div>
                     </div>
                     <textarea
                         class="component borderless wide"
@@ -242,6 +244,7 @@
                 </div>
             {/each}
         {/if}
+        </div>
     {/if}
 
 {/if}
@@ -272,6 +275,7 @@
         width: 16px;
         height: 16px;
         border: none;
+        cursor: pointer;
     }
 
     .item {
@@ -305,8 +309,9 @@
     }
 
     .inside{
-        padding: 16px 20px 20px 20px;
+        padding: 12px 20px 20px 20px;
         background-color: rgba(0, 0, 0, 0.1);
+        gap: 16px;
     }
 
     .inside textarea, .inside input[type="text"], select{
@@ -315,8 +320,12 @@
         border-radius: 4px;
     }
 
-    .section{
-        gap: 4px;
+    .section.inside.top{
+        gap: 12px;
+    }
+
+    .section.horizontal.center{
+        gap: 16px;
     }
 
     .separator{
