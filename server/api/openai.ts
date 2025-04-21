@@ -3,9 +3,7 @@ import API from "../core/api.ts";
 
 // imports type constraints
 import type {
-    IUser,
     IReply,
-    ICharacter,
     ISettings,
     IGenerationData,
     IPromptEntry,

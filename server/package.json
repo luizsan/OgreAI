@@ -2,16 +2,14 @@
   "name": "ogreai-server",
   "version": "0.2.0",
   "dependencies": {
-    "@anthropic-ai/tokenizer": "^0.0.4",
-    "chalk": "^5.2.0",
+    "chalk": "^5.4.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "gpt-tokenizer": "^2.6.1",
-    "js-tiktoken": "^1.0.10",
+    "gpt-tokenizer": "^2.9.0",
     "marked": "^4.3.0",
     "mime": "^4.0.7",
     "mistral-tokenizer-ts": "^1.2.0",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^1.4.5-lts.2",
     "open": "^9.1.0",
     "png-chunk-text": "^1.0.0",
     "png-chunks-encode": "^1.0.0",
@@ -20,7 +18,7 @@
   "private": true,
   "scripts": {
     "run": "bun run index.ts",
-    "build": "bun build --compile --target=bun ./index.ts ./api/**.*",
+    "build": "bun build --compile --target=bun ./index.ts",
     "compile": "bun run build.ts"
   },
   "type": "module",
@@ -29,6 +27,6 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.8.3"
   }
 }

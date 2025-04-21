@@ -8,11 +8,14 @@ export function getTokens(text: string, model: string): number[] {
         case model.startsWith("gpt-4."):
         case model.startsWith("gpt-4o"):
             return encode_o200k(text);
+
+        case model === "gpt-4":
         case model.startsWith("gpt-4-"):
-        case model.startsWith("gpt-3.5-turbo"):
+        case model.startsWith("gpt-3.5"):
             return encode_cl100k(text);
+
         default:
-            return encode_cl100k(text);
+            return encode_o200k(text);
     }
 }
 

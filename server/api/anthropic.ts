@@ -1,8 +1,20 @@
 import API from "../core/api.ts"
-import * as Tokenizer from "../tokenizer/anthropic.ts"
-import * as Format from "../../shared/format.mjs"
-import { buildPrompt, squashPrompt } from "../lib/prompt.ts"
-import { ICharacter, IError, IGenerationData, IReply, ISettings, IUser } from "../../shared/types.js"
+import {
+    ICharacter,
+    IError,
+    IGenerationData,
+    IReply,
+    ISettings,
+    IUser
+} from "../../shared/types.js"
+
+import {
+    buildPrompt,
+    squashPrompt
+} from "../lib/prompt.ts"
+
+import * as Tokenizer from "../tokenizer/gpt.ts"
+
 
 export default class Anthropic extends API {
     API_NAME = "Anthropic"

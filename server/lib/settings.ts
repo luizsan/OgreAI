@@ -1,5 +1,4 @@
-import { ISettings } from "../../shared/types.js"
-import { IAPISettings } from "../core/api.ts"
+import { ISettings, IAPISettings } from "../../shared/types.js"
 
 export default class Settings{
     static default_prompt_order = {

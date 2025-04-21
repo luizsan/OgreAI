@@ -1,7 +1,19 @@
 import API from "../core/api.ts"
+
+import {
+    IError,
+    IGenerationData,
+    IPromptEntry,
+    IReply,
+    ISettings
+} from "../../shared/types.js"
+
+import {
+    buildPrompt,
+    squashPrompt
+} from "../lib/prompt.ts"
+
 import * as Tokenizer from "../tokenizer/mistral.ts"
-import { IError, IGenerationData, IPromptEntry, IReply, ISettings } from "../../shared/types.js"
-import { buildPrompt, squashPrompt } from "../lib/prompt.ts"
 
 
 export default class Mistral extends API{

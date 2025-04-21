@@ -1,9 +1,18 @@
 import API from "../core/api.ts";
-import * as Utils from "../lib/utils.js"
+
+import {
+    IError,
+    IGenerationData,
+    IReply,
+    ISettings
+} from "../../shared/types.js";
+
+import {
+    squashPrompt,
+    buildPrompt
+} from "../lib/prompt.ts";
+
 import * as Tokenizer from "../tokenizer/gpt.ts"
-import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js";
-import { squashPrompt, buildPrompt } from "../lib/prompt.ts";
-import { build } from "bun";
 
 
 export default class DeepSeek extends API {
