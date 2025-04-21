@@ -4,8 +4,8 @@ import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlink
 import path from "path"
 import chalk from "chalk"
 
-import * as CAI from "../import/cai.js"
-import * as Tavern from "../import/tavern.js"
+import * as CAI from "../import/cai.ts"
+import * as Tavern from "../import/tavern.ts"
 import * as Format from "../../shared/format.mjs"
 
 export default class Chat{

@@ -1,4 +1,4 @@
-export function parseChat( json ){
+export function parseChat( json: any ): Array<Object>{
     let chats = []
 
     if( !json ){ return chats; }
@@ -24,7 +24,7 @@ export function parseChat( json ){
                     candidates: [
                         {
                             text: cai_msg.text.trim(),
-                            timestamp: Date.parse(cai_msg.created), 
+                            timestamp: Date.parse(cai_msg.created),
                         }
                     ]
                 }

@@ -1,17 +1,16 @@
-export function decodeTimestamp(str){
-    // to whoever made me do this, I sincerely 
+export function decodeTimestamp(str): number{
+    // to whoever made me do this, I sincerely
     // hope you solve your skill issues someday
     const [y, m, d, h, min, s, ms] = str.match(/\d+/g);
     const date = new Date(y, m - 1, d, h || 0, min || 0, s || 0, ms || 0);
     return date.getTime()
 }
 
-export function parseChat( jsonl ){
+export function parseChat( jsonl: string ): Object{
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
         return null;
     }
-
     let info = JSON.parse( lines[0] )
     if( typeof(info.create_date) === "string" ){
         if( info.create_date.indexOf("@") > -1 ){
@@ -20,7 +19,6 @@ export function parseChat( jsonl ){
             info.create_date = new Date(info.create_date).getTime()
         }
     }
-
     let chat = {
         title: info.create_date.toString(),
         participants: [ info.character_name ],
@@ -28,7 +26,6 @@ export function parseChat( jsonl ){
         last_interaction: info.create_date,
         messages: []
     }
-
     for( let line = 1; line < lines.length; line++){
         let ref = JSON.parse( lines[line] )
         let msg = {
@@ -36,7 +33,6 @@ export function parseChat( jsonl ){
             index: 0,
             candidates: []
         }
-
         let timestamp = ref.send_date
         if( typeof(timestamp) === "string" ){
             if( timestamp.indexOf("@") > -1 ){
@@ -63,14 +59,11 @@ export function parseChat( jsonl ){
                 timestamp: timestamp,
             })
         }
-
         if( timestamp > chat.create_date ){
             chat.last_interaction = timestamp
         }
-
         chat.messages.push( msg )
     }
-    
     return chat;
 }
 

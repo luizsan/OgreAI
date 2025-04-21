@@ -4,7 +4,7 @@ import chalk from "chalk";
 import PNGtext from 'png-chunk-text';
 import PNGextract from 'png-chunks-extract';
 import PNGencode from 'png-chunks-encode';
-import * as Tavern from "../import/tavern.js";
+import * as Tavern from "../import/tavern.ts";
 import { ICharacter } from "../../shared/types.js";
 
 export default class Character {
