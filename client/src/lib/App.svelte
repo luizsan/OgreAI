@@ -35,8 +35,7 @@
             return
         $fetching = true
         const recent : string = $currentSettingsMain.recents.at(-1)
-        const prefix : string = "../user/characters/"
-        const character : ICharacter = $characterList.find((c : ICharacter) => c.temp.filepath === prefix + recent)
+        const character : ICharacter = $characterList.find((c : ICharacter) => c.temp.filepath === recent)
         if( !character ){
             $fetching = false
             return

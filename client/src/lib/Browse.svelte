@@ -43,7 +43,7 @@
             label: "Recently chatted",
             order: (list : Array<ICharacter>) => {
                 let recent_list : Array<ICharacter> = $currentSettingsMain.recents.map((path : string) => $characterList.find((char : ICharacter) => {
-                    return char.temp.filepath == path_prefix + path;
+                    return char.temp.filepath == path;
                 }));
                 recent_list = recent_list.filter((item : ICharacter) => item && list.includes(item))
                 recent_list.reverse()
