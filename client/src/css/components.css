@@ -9,7 +9,7 @@
     --scrollbar-bg: var( --component-bg-normal )
 }
 
-.component:focus, .component:focus-within, .component:focus-within *:is(.cover, input, select){
+.component:focus, .component.focus:focus-within, .component.focus:focus-within *:is(.cover, input, select){
     --scrollbar-bg: var( --component-bg-hover );
     background: var( --component-bg-hover );
     color: var( --component-color-hover );
@@ -18,7 +18,7 @@
 
 .component::-webkit-resizer {
     background: var( --component-bg-normal );
-    border-style: outset; 
+    border-style: outset;
     border-width: 100px;
     border-top-color: transparent;
     border-right-color: var( --component-color-normal );
@@ -41,7 +41,7 @@
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
-    transition-duration: 0.125s; 
+    transition-duration: 0.125s;
     transition-timing-function: ease;
 }
 
@@ -59,12 +59,12 @@
 input[type="number"].no-spin{
     -moz-appearance: textfield;
     appearance: textfield;
-    margin: 0; 
+    margin: 0;
 }
 
-input[type=number].no-spin::-webkit-inner-spin-button, input[type=number].no-spin::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+input[type=number].no-spin::-webkit-inner-spin-button, input[type=number].no-spin::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 input:not([type="range"], [type="checkbox"], [type="radio"]).component, select.component{
@@ -83,7 +83,7 @@ input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea
     transition-property: color;
     transition-property: border-color;
     transition-property: outline-color;
-    transition-duration: 0.125s; 
+    transition-duration: 0.125s;
     transition-timing-function: ease;
 }
 

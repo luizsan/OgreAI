@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { currentSettingsAPI } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     export let list : Array<any> = []
@@ -117,6 +118,26 @@
         list = list
         after()
     }
+
+    function toggleOpen(index: number, b: boolean) : void {
+        list[index].open = b
+        list = list
+        after()
+    }
+
+    function removeAt(index: number) : void {
+        if( list[index].key !== "custom" ) return
+        const ok = confirm(`Do you really want to remove this prompt?`);
+        if( !ok ) return
+        list.splice(index, 1);
+        list = list;
+        after()
+    }
+
+    function getPromptByKey(key : string){
+        return $currentSettingsAPI.prompt.findIndex((e) => e.key == key)
+    }
+
 </script>
 
 
@@ -128,44 +149,112 @@
     on:touchend={dropItem}
 >
 
+<div class="list" bind:this={container}>
+<div bind:this={marker} class="marker"/>
 
-    <div class="list" bind:this={container}>
-        <div bind:this={marker} class="marker"/>
+{#each list as item, i}
+{#if item.key in defaults && !defaults[item.key].disabled}
 
-        {#each list as item}
-            {#if item.key in defaults }
+    <div
+        class="item"
+        draggable="{ !defaults[item.key].locked && !item.open}"
+        class:locked={ defaults[item.key].locked || item.open}
+        id={ item.key }
+        role="listitem"
+        on:dragstart|self={pickItem}
+        on:touchstart|self={(e) => pickItem(e, true)}
+    >
 
-                <div
-                    class="item"
-                    draggable="{ !defaults[item.key].locked }"
-                    class:locked={ defaults[item.key].locked }
-                    id={ item.key }
-                    role="listitem"
-                    on:dragstart|self={pickItem}
-                    on:touchstart|self={(e) => pickItem(e, true)}
-                >
-
-                    <div class="handle">
-                        {#if defaults[item.key].locked }
-                            {@html SVG.lock}
-                        {:else}
-                            {@html SVG.reorder}
-                        {/if}
-                    </div>
-
-                    <div class="center">
-                        {#if defaults[item.key].toggleable}
-                            <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
-                        {/if}
-                    </div>
-
-                    <div class="text disabled" class:unfocus={ defaults[item.key].toggleable && !item.enabled } title="Edit">{defaults[item.key].label}</div>
-                </div>
-
+        <div class="handle">
+            {#if defaults[item.key].locked }
+                {@html SVG.lock}
+            {:else}
+                {@html SVG.reorder}
             {/if}
-        {/each}
+        </div>
 
+        <div class="center">
+            {#if defaults[item.key].toggleable}
+                <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
+            {:else}
+                <input type="checkbox" disabled checked={true}>
+            {/if}
+        </div>
+
+        <div
+            class="text disabled"
+            class:unfocus={ defaults[item.key].toggleable && !item.enabled }
+            title="Edit"
+        >
+        {#if item.key === "custom"}
+            {item.label || "Custom Prompt"}
+        {:else}
+            {defaults[item.key].label}
+        {/if}
+        </div>
+
+        <div class="horizontal">
+            {#if defaults[item.key].editable || defaults[item.key].sub_items}
+                <button
+                    class="normal wide toggle"
+                    class:open={item.open}
+                    title="Open"
+                    on:click={() => toggleOpen(i,!item.open)}
+                >{@html SVG.arrow}</button>
+            {/if}
+        </div>
     </div>
+
+    {#if item.open}
+        {#if defaults[item.key].editable}
+            <div class="section container inside">
+                {#if item.key === "custom"}
+                    <input
+                        type="text"
+                        class="component borderless wide"
+                        placeholder="Custom Prompt"
+                        bind:value={ $currentSettingsAPI.prompt[i].label }
+                    >
+                {:else}
+                    <div>
+                        <div class="explanation">{defaults[item.key].description}</div>
+                    </div>
+                {/if}
+                <textarea
+                    class="component borderless wide"
+                    rows={defaults[item.key]?.row_size || 4}
+                    bind:value={ $currentSettingsAPI.prompt[i].content }
+                />
+                {#if item.key === "custom"}
+                <div class="separator"></div>
+                <div class="wide center">
+                    <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
+                </div>
+                {/if}
+            </div>
+        {/if}
+
+        {#if defaults[item.key].sub_items}
+            {#each defaults[item.key].sub_items as sub_item}
+                <div class="section container inside">
+                    <div>
+                        <div class="title">{defaults[sub_item].label}</div>
+                        <div class="explanation">{defaults[sub_item].description}</div>
+                    </div>
+                    <textarea
+                        class="component borderless wide"
+                        rows={defaults[sub_item]?.row_size || 4}
+                        bind:value={ $currentSettingsAPI.prompt[getPromptByKey(sub_item)].content }
+                    />
+                </div>
+            {/each}
+        {/if}
+    {/if}
+
+{/if}
+{/each}
+</div>
+
 </div>
 
 
@@ -194,7 +283,7 @@
 
     .item {
         display: grid;
-        grid-template-columns: 32px 36px auto;
+        grid-template-columns: 32px 36px auto 64px;
         user-select: none;
         width: 100%;
         min-height: 32px;
@@ -204,7 +293,7 @@
     }
 
     .item.locked{
-        background: #60606010;
+        background-color: rgba(96, 96, 96, 0.1);
     }
 
     [draggable=true] {
@@ -220,6 +309,34 @@
 
     .center{
         justify-content: center;
+    }
+
+    .inside{
+        padding: 10px 20px 20px 20px;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .inside textarea, .inside input[type="text"]{
+        background-color: var( --component-bg-hover );
+        padding: 6px 8px;
+        border-radius: 4px;
+    }
+
+    .section{
+        gap: 4px;
+    }
+
+    .separator{
+        min-height: 4px;
+    }
+
+    .toggle :global(svg){
+        translate: 12px 0px;
+        transform: rotate(180deg);
+    }
+
+    .toggle.open :global(svg){
+        transform: rotate(-90deg);
     }
 
     .text{

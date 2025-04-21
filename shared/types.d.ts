@@ -159,6 +159,25 @@ export interface IAPISettings{
     type: string;
     default: any;
     disabled?: boolean;
+
+    // select
+    choices?: Array<string>;
+
+    // range
+    min?: number;
+    max?: number;
+    step?: number;
+    unit?: string;
+
+    // text
+    placeholder?: string;
+
+    // list
+    length?: number;
+    limit?: number;
+
+    // dictionary
+    value?: string;
 }
 
 export interface IPromptEntry{

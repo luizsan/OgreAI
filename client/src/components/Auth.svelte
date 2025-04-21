@@ -96,7 +96,7 @@
 
 
 <div class="main" bind:this={self}>
-    <div class="component container">
+    <div class="component container focus">
         {#if elements}
             <div class="top">
                 <div class="list">

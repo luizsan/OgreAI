@@ -14,7 +14,7 @@
 
 <div class="section">
     <Heading title={title} description={description}/>
-    <div class="component dropdown container min" class:dropdown={editable} class:container={editable} class:wide={wide}>
+    <div class="component dropdown focus container min" class:dropdown={editable} class:container={editable} class:wide={wide}>
 
         <select class="component min" class:padding={!!icon} class:borderless={editable} class:wide={wide} bind:value={value}>
             {#each choices as item}

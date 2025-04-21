@@ -91,6 +91,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
         }
     })
     console.debug("---")
+
     return prompt_entries
 }
 

@@ -3,7 +3,7 @@ import { ISettings, IAPISettings } from "../../shared/types.js"
 export default class Settings{
     static default_prompt_order = {
         base_prompt: {
-            toggleable: false, editable: true,
+            toggleable: false, editable: true, row_size: 12,
             label: "Main prompt",
             description: "Used to give basic instructions to the model on how to behave in the chat.",
             default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition."
@@ -16,28 +16,28 @@ export default class Settings{
         },
 
         description: {
-            toggleable: true, editable: true,
+            toggleable: true, editable: true, row_size: 3,
             label: "Character description",
             description: "How to insert the character's description in the prompt. Use {{original}} to apply the character's description field.",
             default: "{{char}}'s description:\n{{original}}"
         },
 
         personality: {
-            toggleable: true, editable: true,
+            toggleable: true, editable: true, row_size: 3,
             label: "Character personality",
             description: "How to insert the character's personality in the prompt. Use {{original}} to apply the character's personality field.",
             default: "{{char}}'s personality:\n{{original}}"
         },
 
         scenario: {
-            toggleable: true, editable: true,
+            toggleable: true, editable: true, row_size: 3,
             label: "Character scenario",
             description: "How to insert the character's scenario in the prompt. Use {{original}} to apply the character's scenario field.",
             default: "{{char}}'s scenario:\n{{original}}"
         },
 
         mes_example: {
-            toggleable: true, editable: true,
+            toggleable: true, editable: true, row_size: 3,
             label: "Example messages",
             description: "How to insert the character's example messages in the prompt. Use {{original}} to apply the character's example messages field.",
             default: "Example messages:\n{{original}}"
@@ -50,31 +50,38 @@ export default class Settings{
         },
 
         persona: {
-            toggleable: true, editable: true,
+            toggleable: true, editable: false,
             label: "User persona",
             description: "How would you describe yourself to the AI? This description is inserted in the prompt.",
             default: ""
         },
 
         messages: {
-            toggleable: false, editable: false, locked: true,
+            toggleable: false, editable: false, sub_items: ["sub_prompt", "prefill_prompt"],
             label: "Chat history",
-            description: "",
+            description: "Inserts the chat history.",
         },
 
         sub_prompt: {
-            toggleable: true, editable: true, locked: true,
+            toggleable: true, editable: true, disabled: true, row_size: 6,
             label: "Jailbreak prompt",
             description: "Appended at the end of the user's last message to reinforce instructions.",
             default: "",
         },
 
         prefill_prompt: {
-            toggleable: true, editable: true, locked: true,
+            toggleable: true, editable: true, disabled: true, row_size: 6,
             label: "Prefill prompt",
             description: "Appended at the very end of the prompt to enforce instructions and patterns.",
             default: "",
         },
+
+        custom: {
+            toggleable: true, editable: true, row_size: 6,
+            label: "Custom prompt",
+            description: "User-defined prompt injection.",
+            default: "",
+        }
     }
 
     static default_prompt_categories = Object.keys(this.default_prompt_order)
@@ -141,7 +148,7 @@ export default class Settings{
 
         // filter repeated keys
         obj = obj.filter((value, index, self) =>
-            index === self.findIndex((t) => t.key === value.key)
+            value.key === "custom" || index === self.findIndex((t) => t.key === value.key)
         )
 
         obj.forEach((e) => {
@@ -157,6 +164,8 @@ export default class Settings{
                 e.content = this.default_prompt_order[e.key].default
             }
         })
+
+        /*
 
         // find "base_prompt" entry:
         let insert_index = obj.find(e => e.key === "base_prompt")
@@ -178,6 +187,8 @@ export default class Settings{
         let fixed = obj.filter(e => fixed_items.includes(e.key))
 
         obj = [...sorted,...fixed]
+
+        */
         return obj;
     }
 }
