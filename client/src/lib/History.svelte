@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { marked } from 'marked';
+    import type { IChat } from "@shared/types";
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from '../modules/Server.svelte';
@@ -32,8 +32,8 @@
     async function deleteChat(){
         if(window.confirm("Are you sure you want to delete this chat?")){
             $fetching = true;
-            await Server.request("/delete_chat", { 
-                character: $currentCharacter, 
+            await Server.request("/delete_chat", {
+                character: $currentCharacter,
                 chat: chat,
             })
 
@@ -91,9 +91,9 @@
         <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
         <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
     </div>
-    
+
     <hr class="component"/>
-    
+
     <div class="text">
         <div class="author">
             <span class="name">{author}</span>
@@ -102,8 +102,8 @@
 
         <div class="message disabled" class:open={open}>
             <div class="contents">
-                <Text 
-                    content={last.candidates[index].text} 
+                <Text
+                    content={last.candidates[index].text}
                     author={author}
                     user={$currentProfile.name}
                     bot={$currentCharacter.data.name}
@@ -187,7 +187,7 @@
     .sub{
         font-size: 0.8em;
     }
-    
+
     .timestamp{
         color: gray;
         font-size: 85%;
@@ -213,7 +213,7 @@
         display: flex;
         flex-direction: column;
     }
-    
+
     .message:not(.open){
         overflow-y: hidden;
         max-height: 120px;
@@ -239,5 +239,5 @@
     .right{
         margin-left: auto;
     }
-    
+
 </style>

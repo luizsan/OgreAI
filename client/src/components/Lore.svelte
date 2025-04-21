@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ILorebookEntry } from "@shared/types";
     import Heading from "./Heading.svelte";
     import Accordion from "./Accordion.svelte";
     import Entry from "./Entry.svelte";
@@ -10,19 +11,19 @@
 
     export let open : boolean = false;
     export let entry : ILorebookEntry = {} as ILorebookEntry;
-    
+
     let self : HTMLElement;
 
     $: title = entry.name || entry.comment || "New lorebook entry"
     $: keys_index = [
-        {   
-            key: "keys", 
-            label: "Primary keys", 
+        {
+            key: "keys",
+            label: "Primary keys",
             enabled: () => !entry.constant
         },
-        {   
-            key: "secondary_keys", 
-            label: "Secondary keys", 
+        {
+            key: "secondary_keys",
+            label: "Secondary keys",
             enabled: () => entry.selective && !entry.constant
         },
     ]
@@ -74,7 +75,7 @@
             <Heading title="Content" description="Description that will be inserted in the prompt."/>
             <textarea class="component" rows={6} placeholder="Insert lore content" bind:value={entry.content}></textarea>
         </div>
-        
+
         <div class="grid">
             <div class="section">
                 <Heading title="Priority" description="If the token budget of the lorebook is reached, a lower priority means the entry will be discarded first."/>
@@ -87,21 +88,21 @@
             </div>
         </div>
 
-        <Checkbox 
-            bind:value={entry.constant} 
-            title="Constant" 
+        <Checkbox
+            bind:value={entry.constant}
+            title="Constant"
             description="Guarantees to insert the entry if it's within the token budget."
         />
 
         {#if !entry.constant}
-            <Checkbox 
-                bind:value={entry.selective} 
+            <Checkbox
+                bind:value={entry.selective}
                 title="Selective"
                 description="Activation of this entry requires a key from both primary and secondary keys."
             />
 
-            <Checkbox 
-                bind:value={entry.case_sensitive} 
+            <Checkbox
+                bind:value={entry.case_sensitive}
                 title="Case sensitive"
                 description="Defines whether or not to treat uppercase and lowercase letters as distinct when searching for keys."
             />
@@ -179,7 +180,7 @@
         place-items: center;
         place-content: center;
     }
-    
+
     .entry{
         padding: 4px 8px;
         justify-content: flex-start;

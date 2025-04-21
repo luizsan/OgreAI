@@ -11,7 +11,7 @@
     let marker : HTMLElement;
     let target : Element;
     let direction : number;
-    
+
     // touch
     const touch_duration : number = 100;
     let touch_timer;
@@ -43,7 +43,7 @@
             picked = e.target;
             pickedItem()
         }
-        
+
         function touchedItem(){
             picked = e.targetTouches[0].target;
             pickedItem()
@@ -59,7 +59,7 @@
             container.insertBefore(marker, direction > 0 ? picked.nextSibling : picked)
         }
     }
-    
+
 
     function moveItem(e, touch = false) {
         e.preventDefault()
@@ -70,7 +70,7 @@
         });
         container.insertBefore(marker, direction > 0 ? target.nextSibling : target)
     }
-    
+
 
     function dropItem() {
         if(touch_timer) {
@@ -120,26 +120,28 @@
 </script>
 
 
-<div class="container component"  
-    on:dragover={moveItem} 
-    on:dragend={dropItem} 
-    on:touchmove={(e) => moveItem(e, true)} 
+<div class="container component"
+    role="list"
+    on:dragover={moveItem}
+    on:dragend={dropItem}
+    on:touchmove={(e) => moveItem(e, true)}
     on:touchend={dropItem}
 >
 
 
     <div class="list" bind:this={container}>
         <div bind:this={marker} class="marker"/>
-        
+
         {#each list as item}
             {#if item.key in defaults }
 
-                <div 
+                <div
                     class="item"
                     draggable="{ !defaults[item.key].locked }"
                     class:locked={ defaults[item.key].locked }
                     id={ item.key }
-                    on:dragstart|self={pickItem} 
+                    role="listitem"
+                    on:dragstart|self={pickItem}
                     on:touchstart|self={(e) => pickItem(e, true)}
                 >
 
@@ -156,13 +158,13 @@
                             <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
                         {/if}
                     </div>
-                    
+
                     <div class="text disabled" class:unfocus={ defaults[item.key].toggleable && !item.enabled } title="Edit">{defaults[item.key].label}</div>
                 </div>
-                
+
             {/if}
         {/each}
-    
+
     </div>
 </div>
 
@@ -189,7 +191,7 @@
         height: 16px;
         border: none;
     }
-    
+
     .item {
         display: grid;
         grid-template-columns: 32px 36px auto;
@@ -206,14 +208,14 @@
     }
 
     [draggable=true] {
-        cursor: grab;
+        cursor: move;
     }
 
     .item div{
         width: 100%;
         height: 100%;
         display: flex;
-        align-items: center;  
+        align-items: center;
     }
 
     .center{

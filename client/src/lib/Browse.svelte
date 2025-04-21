@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ICharacter } from "@shared/types";
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, localServer } from "../State";
     import Character from './Character.svelte'
     import Search from '../components/Search.svelte'

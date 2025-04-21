@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ILorebook, ILorebookEntry } from "@shared/types";
     import Heading from "./Heading.svelte";
     import Checkbox from "./Checkbox.svelte";
     import Accordion from "./Accordion.svelte";
@@ -21,7 +22,7 @@
             secondary_keys: [],
             extensions: {},
         } as ILorebookEntry)
-        
+
         book.entries = book.entries;
     }
 
@@ -42,11 +43,11 @@
             closeEntry()
         }
     }
-    
+
 </script>
 
 <div class="content" bind:this={self}>
-    
+
     <div class="section">
         <input type="text" class="component" placeholder="Insert lorebook name" bind:value={book.name}>
         <textarea class="component" placeholder="Insert lorebook description" rows={4} bind:value={book.description}></textarea>

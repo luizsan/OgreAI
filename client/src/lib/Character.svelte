@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ICharacter } from "@shared/types";
     import { fetching, editing, favoritesList, characterList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "../modules/Server.svelte";
@@ -55,7 +56,7 @@
         $fetching = false;
     }
 
-    function FavoriteCharacter(s : String){
+    function FavoriteCharacter(s : string){
         let i = $favoritesList.indexOf(s)
         if( i > -1 ){
             $favoritesList.splice(i, 1)

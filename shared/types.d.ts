@@ -16,6 +16,7 @@ export interface ICharacter{
     temp : {
         filepath : string;
         avatar : string;
+        tokens?: Record<string, number>;
         filecreated? : number;
         filemodified? : number;
     };
@@ -157,6 +158,7 @@ export interface IAPISettings{
     **/
     type: string;
     default: any;
+    disabled?: boolean;
 }
 
 export interface IPromptEntry{
@@ -167,8 +169,11 @@ export interface IPromptEntry{
 
 export interface IPromptConfig{
     key: string;
-    enabled?: boolean;
+    enabled: boolean;
     allow_override?: boolean;
     content?: string;
     open?: boolean;
+    editable?: boolean;
+    label?: string;
+    description?: string;
 }

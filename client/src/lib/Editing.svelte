@@ -243,6 +243,7 @@
                 recursive_scanning: false,
                 scan_depth: 5,
                 entries: [],
+                extensions: {},
                 temp: { filepath: filename }
             }
 
@@ -269,7 +270,6 @@
     function removeLorebook(){
         if(has_lorebook && confirm("Are you sure you want to remove this lorebook?\nThis action cannot be undone.")){
             $editing.data.character_book = null
-            $editing.data.character_book = {}
             $editing = $editing;
             ApplyChanges()
         }

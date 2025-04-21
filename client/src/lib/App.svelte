@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { ICharacter } from "@shared/types";
+
     // components
     import Browse from './Browse.svelte'
     import Editing from './Editing.svelte';
@@ -8,7 +10,19 @@
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { swipe } from 'svelte-gestures';
-    import { connected, currentTheme, currentPreferences, currentCharacter, currentChat, fetching, sectionCharacters, characterList, currentSettingsMain } from '../State';
+
+    import {
+        connected,
+        currentTheme,
+        currentPreferences,
+        currentCharacter,
+        currentChat,
+        fetching,
+        sectionCharacters,
+        characterList,
+        currentSettingsMain
+    } from '../State';
+
     import { initializeMarked } from '../Marked';
     import Loading from '../components/Loading.svelte';
     import * as Preferences from '../modules/Preferences.svelte';

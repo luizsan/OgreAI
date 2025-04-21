@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ICharacter, IMessage, ICandidate, IReply, ILorebook } from "@shared/types";
     import { AutoResize, resize } from "../utils/AutoResize";
     import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList, currentLorebooks } from "../State";
     import { clickOutside } from "../utils/ClickOutside";
@@ -94,9 +95,9 @@
     }
 
     function fetchLorebooks(){
-        return $currentSettingsMain.books?.map(
-            (entry : string) => $currentLorebooks.find(book => book.temp.filepath == entry)
-        ) ?? []
+        return $currentSettingsMain.books?.map((entry : ILorebook) => {
+            return $currentLorebooks.find(book => book.temp?.filepath == entry.temp?.filepath)
+        }).filter(item => item) ?? []
     }
 
     // select messages without cached tokens

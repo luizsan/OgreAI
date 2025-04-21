@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { IChat } from "@shared/types";
+
     import { marked } from 'marked';
     import DOMPurify from 'dompurify';
     import { addToggleableBlocks } from "../utils/ToggleableBlock";

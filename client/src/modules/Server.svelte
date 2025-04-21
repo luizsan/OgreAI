@@ -1,6 +1,8 @@
 <script context="module" lang="ts">
+    import type { ICharacter, IChat } from "@shared/types";
     import { get } from "svelte/store";
     import * as State from "../State";
+
     let _heartbeat = null;
 
     export async function request( url : string, json = null ){

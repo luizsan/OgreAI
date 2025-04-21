@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ILorebook } from "@shared/types";
     import { tick, onMount } from "svelte";
     import Heading from "../components/Heading.svelte"
     import Book from "../components/Book.svelte"
@@ -100,7 +101,7 @@
     async function saveGlobals(){
         updateSelected()
         await Server.request("/save_main_settings", { data: $currentSettingsMain })
-    } 
+    }
 
     function sortLorebooks(a,b){
         const nameA = a.name.toLowerCase();
@@ -111,9 +112,9 @@
     }
 
     function initializeSelected(){
-        selectedBooks = $currentSettingsMain.books.map(
-            (entry : string) => $currentLorebooks.find(book => book?.temp?.filepath == entry)
-        )
+        selectedBooks = $currentSettingsMain.books.map((entry : ILorebook) => {
+            return $currentLorebooks.find(book => book?.temp?.filepath == entry.temp?.filepath)
+        })
         selectedBooks = selectedBooks.filter(item => item)
     }
 
@@ -162,16 +163,16 @@
                 <div class="top">
                     <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
                     <div>
-                        <Heading 
-                            title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"} 
+                        <Heading
+                            title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"}
                             description="Currently editing"
-                            reverse={true} 
+                            reverse={true}
                             scale={1.2}
                         />
                         <div class="explanation">{editingBook.temp?.filepath}</div>
                     </div>
                 </div>
-                
+
                 <div class="buttons">
                     {#if $currentCharacter}
                         <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Copy to character</button>
@@ -180,7 +181,7 @@
                     <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
-    
+
             <Book bind:book={editingBook}/>
         </div>
 
@@ -211,7 +212,7 @@
                     <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
                 </div>
             </div>
-            
+
             {#if loading}
                 <div class="loading">
                     <Loading/>
@@ -296,8 +297,8 @@
     }
 
     .buttons button{
-        margin-left:auto; 
-        align-self: flex-end; 
+        margin-left:auto;
+        align-self: flex-end;
         height: 30px;
     }
 
@@ -336,7 +337,7 @@
         width: 72px;
         height: 72px;
     }
-    
+
     .book div{
         line-height: 1em;
         text-align: left;
