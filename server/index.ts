@@ -31,8 +31,8 @@ const server_config: IServerConfig = await Initialize()
 
 const __dirname: string = path.resolve("./")
 const _userPath: string = path.join(__dirname, server_config.paths.user, "/").replace(/\\/g, '/');
-const _imgPath: string = path.join(__dirname, '../img').replace(/\\/g, '/');
-const _buildPath: string = path.join(__dirname, '../build').replace(/\\/g, '/');
+const _imgPath: string = path.join(__dirname, './img/').replace(/\\/g, '/');
+const _buildPath: string = path.join(__dirname, '../build/').replace(/\\/g, '/');
 
 const path_dir: Record<string, string> = {
     user: path.join(_userPath, "/").replace(/\\/g, '/'),
@@ -160,21 +160,25 @@ app.post("/save_api_settings", parser, async function(request, response){
 })
 
 app.post("/get_presets", parser, async function(request, response){
-    if (!request.body?.type || !Presets.categories.includes(request.body.type)) {
+    if (!request.body?.type || !Settings.default_preset_categories.includes(request.body.type)) {
         const obj: Record<string, any[]> = {};
-        Presets.categories.forEach(async type => {
-            const filepath = path.join(path_dir.presets, `${type}.json`);
-            obj[type] = await LoadData(filepath, []);
-        });
+        await Promise.all(
+            Settings.default_preset_categories.map(async (type) => {
+                const filepath = path.join(path_dir.presets, `${type}.json`);
+                const data = await LoadData(filepath, []);
+                obj[type] = data;
+            })
+        );
         response.send(obj);
     } else {
         const filepath = path.join(path_dir.presets, `${request.body.type}.json`);
-        response.send( await LoadData(filepath));
+        const data = await LoadData(filepath, []);
+        response.send(data)
     }
 })
 
 app.post("/save_presets", parser, async function(request, response){
-    if( !request.body || !request.body.type || !Presets.categories.includes( request.body.type )){
+    if( !request.body || !request.body.type || !Settings.default_preset_categories.includes( request.body.type )){
         response.send( false )
         return
     }
@@ -264,23 +268,23 @@ app.get("/new_character", parser, function(request, response){
     response.send(Character.create())
 })
 
-app.post("/save_character_image", upload.single("file"), function(request, response){
+app.post("/save_character_image", upload.single("file"), async function(request, response){
     const char = JSON.parse(request.body.character)
     let image = request.file ? request.file.buffer : null
     let filepath = request.body.filepath
     filepath = path.join( path_dir.characters, filepath )
     if( request.body.creating && !image ){
-        image = fs.readFileSync( path.join( __dirname, "../img/bot_default.png" ))
+        image = fs.readFileSync( path.join( _imgPath, "bot_default.png" ))
     }
     if( !filepath.toLowerCase().endsWith(".png")){
         filepath += ".png"
     }
     char.metadata.modified = Date.now()
-    let result = Character.WriteToFile( char, filepath, image )
+    let result = await Character.WriteToFile( char, filepath, image )
     response.send( result )
 })
 
-app.post("/save_character", parser, function(request, response){
+app.post("/save_character", parser, async function(request, response){
     const char = request.body.character
     let filepath = request.body.filepath || char.temp.filepath
     filepath = path.join( path_dir.characters, filepath )
@@ -288,7 +292,7 @@ app.post("/save_character", parser, function(request, response){
         filepath += ".png"
     }
     char.metadata.modified = Date.now()
-    let result = Character.WriteToFile( char, filepath, null )
+    let result = await Character.WriteToFile( char, filepath, null )
     response.send( result )
 })
 

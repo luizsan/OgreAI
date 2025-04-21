@@ -140,6 +140,8 @@ export interface ISettings{
     model : string;
     formatting?: Record<string, any>;
     prompt: Array<IPromptConfig>;
+    books?: Array<ILorebook>;
+    recents?: Array<string>;
 }
 
 export interface IPromptEntry{
@@ -153,4 +155,5 @@ export interface IPromptConfig{
     enabled?: boolean;
     allow_override?: boolean;
     content?: string;
+    open?: boolean;
 }

@@ -12,9 +12,9 @@ export default class Profile{
     }
 
     static Validate(user: IUser, source: any){
-        user.name = source.name || user.name || "You";
-        user.persona = source.persona || user.persona || "";
-        user.avatar = source.avatar || user.avatar || "";
-        user.customization = source.customization || user.customization || {};
+        user.name = user.name || source.name || "You";
+        user.persona = user.persona || source.persona || "";
+        user.avatar = user.avatar || source.avatar || "";
+        user.customization = user.customization || source.customization || {};
     }
 }

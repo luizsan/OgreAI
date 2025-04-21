@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain } from "../State";
+    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, localServer } from "../State";
     import Character from './Character.svelte'
     import Search from '../components/Search.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
@@ -85,7 +85,8 @@
             $editing.data.creator = $currentProfile.name ?? ""
             $editing.data.character_version = "main"
             $editing.temp.tokens = {}
-            $editing.temp.filepath = "./img/bot_default.png"
+            $editing.temp.filepath = ""
+            $editing.temp.avatar = localServer + "/img/bot_default.png"
         });
 
         let tokens = await Server.getCharacterTokens($editing)

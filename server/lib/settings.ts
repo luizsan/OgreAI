@@ -1,3 +1,4 @@
+import { ISettings } from "../../shared/types.js"
 import { IAPISettings } from "../core/api.ts"
 
 export default class Settings{
@@ -77,9 +78,10 @@ export default class Settings{
         },
     }
 
-    static categories = Object.keys(this.default_prompt_order)
+    static default_prompt_categories = Object.keys(this.default_prompt_order)
+    static default_preset_categories = [ "api_auth", "base_prompt", "sub_prompt", "prefill_prompt", "persona" ]
 
-    static ValidateMain(obj, api_modes){
+    static ValidateMain(obj: ISettings, api_modes: string[]){
         if( !obj.api_mode ){
             obj.api_mode = api_modes[0]
         }

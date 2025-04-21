@@ -1,5 +1,5 @@
 <script>
-    import { characterList, creating, currentCharacter, currentChat, editing, fetching } from "../State";
+    import { characterList, creating, currentCharacter, currentChat, editing, fetching, localServer } from "../State";
     import Character from './Character.svelte'
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from "../modules/Server.svelte";
@@ -11,7 +11,7 @@
             $editing = data;
             $editing.data.name = "New character"
             $editing.temp.tokens = {}
-            $editing.temp.filepath = "./img/bot_default.png"
+            $editing.temp.avatar = localServer + "/img/bot_default.png"
         });
 
         let tokens = await Server.getCharacterTokens($editing)
@@ -81,7 +81,7 @@
         overflow-x: hidden;
         overflow-y: scroll;
         scrollbar-width: none;
-        
+
         justify-content: center;
         transition: translate 0.15s ease;
     }
