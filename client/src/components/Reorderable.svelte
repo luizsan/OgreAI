@@ -96,11 +96,15 @@
             return
         }
 
-        let picked_index = parseInt(picked.id)
         let marker_index = Array.from(container.children).indexOf(marker)
+        let marker_offset = Array.from(container.children).slice(0, marker_index).filter((item) => item.classList.contains("inside")).length
+        marker_index -= marker_offset
+
+        let picked_index = parseInt(picked.id)
         if( picked_index === marker_index || picked_index === marker_index - 1){
             return
         }
+        container.insertBefore(marker, container.firstChild)
 
         const picked_item = list[picked_index]
         list.splice(marker_index, 0, picked_item)
@@ -119,7 +123,6 @@
         });
 
         list = list
-        container.insertBefore(marker, container.firstChild)
         after()
     }
 
@@ -239,6 +242,7 @@
                     key={ item.key }
                     resizable={true}
                     borderless={true}
+                    highlighted={true}
                     rows={defaults[item.key]?.row_size || 4}
                 />
             {:else}
