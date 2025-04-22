@@ -191,9 +191,9 @@
             title="Edit"
         >
         {#if item.key === "custom"}
-            {i} {item.label || "Custom Prompt"}
+            {item.label || "Custom Prompt"}
         {:else}
-            {i} {ref.label}
+            {ref.label}
         {/if}
         </div>
 
