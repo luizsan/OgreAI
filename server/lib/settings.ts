@@ -3,7 +3,7 @@ import { ISettings, IAPISettings } from "../../shared/types.js"
 export default class Settings{
     static default_prompt_order = {
         base_prompt: {
-            toggleable: false, editable: true, row_size: 12,
+            toggleable: false, editable: true, overridable: true, row_size: 12,
             label: "Main prompt",
             description: "Used to give basic instructions to the model on how to behave in the chat.",
             default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition."
@@ -63,7 +63,7 @@ export default class Settings{
         },
 
         sub_prompt: {
-            toggleable: true, editable: true, locked: "messages", row_size: 6,
+            toggleable: true, editable: true, locked: "messages", overridable: true, row_size: 6,
             label: "Jailbreak prompt",
             description: "Appended at the end of the user's last message to reinforce instructions.",
             default: "",
@@ -136,7 +136,7 @@ export default class Settings{
         disabled: bool = optional and only if the item is toggleable by default
         content: string = optional and only if the item is editable by default
     }] */
-    static ValidatePrompt(obj){
+    static ValidatePrompt(obj: Array<Record<string, any>>){
         if( !Array.isArray(obj) ){
             obj = []
         }
@@ -146,11 +146,25 @@ export default class Settings{
             typeof e === "object" && e.key && Object.keys(this.default_prompt_order).includes(e.key)
         )
 
+        // add missing keys with default values
+        Object.keys(this.default_prompt_order).forEach((key) => {
+            if(key === "custom") return
+            if (!obj.some((e) => e.key === key)) {
+                obj.push({
+                    key: key,
+                    enabled: true,
+                    content: this.default_prompt_order[key].editable ? this.default_prompt_order[key].default : undefined,
+                    allow_override: this.default_prompt_order[key].overridable ? true : undefined
+                });
+            }
+        });
+
         // filter repeated keys
         obj = obj.filter((value, index, self) =>
             value.key === "custom" || index === self.findIndex((t) => t.key === value.key)
         )
 
+        // sanitize values
         obj.forEach((e) => {
             if( !this.default_prompt_order[e.key].toggleable ){
                 e.enabled = undefined
@@ -163,32 +177,14 @@ export default class Settings{
             }else if( typeof e.content !== "string" ){
                 e.content = this.default_prompt_order[e.key].default
             }
-        })
 
-        /*
-
-        // find "base_prompt" entry:
-        let insert_index = obj.find(e => e.key === "base_prompt")
-        insert_index = insert_index > -1 ? insert_index : 1
-
-        Object.keys(this.default_prompt_order).forEach(key => {
-            if (!obj.some((o) => o.key && o.key === key)) {
-                obj.splice(insert_index, 0, {
-                    key: key,
-                    enabled: true,
-                    content: this.default_prompt_order[key].editable ? this.default_prompt_order[key].default : undefined
-                });
-                insert_index += 1
+            if( !this.default_prompt_order[e.key].overridable ){
+                e.allow_override = undefined
+            }else if( typeof e.allow_override !== "boolean" ){
+                e.allow_override = true
             }
         })
 
-        const fixed_items = ["messages", "sub_prompt", "prefill_prompt"]
-        let sorted = obj.filter(e => !fixed_items.includes(e.key))
-        let fixed = obj.filter(e => fixed_items.includes(e.key))
-
-        obj = [...sorted,...fixed]
-
-        */
         return obj;
     }
 }

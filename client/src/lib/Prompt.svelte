@@ -66,7 +66,7 @@
                 <div class="explanation">Edit, toggle and reorder parts of the prompt for the current API mode.</div>
             </div>
             <div class="buttons">
-                <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add</button>
+                <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add Item</button>
             </div>
         </div>
 

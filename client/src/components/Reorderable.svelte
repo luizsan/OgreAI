@@ -172,7 +172,8 @@
         on:touchstart|self={(e) => pickItem(e, true)}
     >
 
-        <div class="handle">
+        <!-- handle -->
+        <div class="handle center">
             {#if ref.locked }
                 {@html SVG.lock}
             {:else}
@@ -180,6 +181,7 @@
             {/if}
         </div>
 
+        <!-- toggle -->
         <div class="center">
             {#if ref.toggleable}
                 <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
@@ -188,35 +190,42 @@
             {/if}
         </div>
 
+        <!-- label -->
         <div
-            class="text disabled"
+            class="text deselect grow"
             class:unfocus={ ref.toggleable && !item.enabled }
             title="Edit"
         >
-        {#if item.key === "custom"}
-            {item.label || "Custom Prompt"}
-        {:else}
-            {ref.label}
-        {/if}
-        </div>
-
-        <div>
-            {#if ref.editable}
-                <button
-                    class="normal wide toggle"
-                    class:open={item.open}
-                    title="Open"
-                    on:click={() => toggleOpen(i,!item.open)}
-                >{@html SVG.arrow}</button>
+            {#if item.key === "custom"}
+                {item.label || "Custom Prompt"}
+            {:else}
+                {ref.label}
             {/if}
+
+            <!-- button -->
+            <button
+                class="normal wide toggle"
+                class:open={item.open}
+                class:hidden={!ref.editable}
+                class:deselect={!ref.editable}
+                title="Open"
+                on:click={() => {
+                    if(ref.editable){
+                        toggleOpen(i,!item.open)
+                    }
+                }}>
+                <div class="min">
+                    {@html SVG.arrow}
+                </div>
+            </button>
         </div>
     </div>
 
     {#if ref.editable && item.open}
-        <div class="section container inside">
+        <div class="section container inside" class:custom={item.key === "custom"}>
 
             {#if item.key === "custom"}
-                <div class="section horizontal">
+                <div class="section horizontal custom">
                     <input
                         type="text"
                         class="component borderless wide"
@@ -253,13 +262,27 @@
                 />
             {/if}
 
+            {#if ref.overridable}
+            <div class="section horizontal center override">
+            <label class="deselect">
+            <input
+                type="checkbox"
+                title="Allow Override"
+                bind:checked={ $currentSettingsAPI.prompt[i].allow_override }
+            >
+            Allow Override
+            </label>
+
+            </div>
+            {/if}
 
             {#if item.key === "custom"}
-            <div class="separator"></div>
-            <div class="section horizontal wide center">
-            <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
-        </div>
-    {/if}
+                <div class="section horizontal wide center">
+                    <button class="danger component custom delete" title="Remove" on:click={() => removeAt(i)}>
+                        {@html SVG.trashcan} Delete
+                    </button>
+                </div>
+            {/if}
 </div>
 {/if}
 {/each}
@@ -291,15 +314,14 @@
         width: 16px;
         height: 16px;
         border: none;
-        cursor: pointer;
     }
 
     .item {
         display: grid;
-        grid-template-columns: 32px 36px auto 64px;
+        grid-template-columns: 40px 32px auto;
         user-select: none;
         width: 100%;
-        min-height: 32px;
+        min-height: 36px;
         border-radius: 2px;
         align-items: center;
         font-size: 90%;
@@ -307,10 +329,6 @@
 
     .item.locked{
         background-color: rgba(96, 96, 96, 0.1);
-    }
-
-    [draggable=true] {
-        cursor: move;
     }
 
     .item div{
@@ -325,26 +343,43 @@
     }
 
     .inside{
-        padding: 12px 20px 20px 20px;
+        padding: 10px 20px 20px 20px;
         background-color: rgba(0, 0, 0, 0.15);
+        gap: 8px;
+    }
+
+    .inside.custom{
+        padding: 20px 20px 20px 20px;
+    }
+
+    .section.custom{
+        gap: 4px;
+    }
+
+    .inside .explanation{
+        font-size: 80%;
     }
 
     .inside textarea, .inside input[type="text"], select{
         background-color: var( --component-bg-hover );
-        padding: 6px 8px;
+        padding: 10px 12px;
         border-radius: 4px;
+        min-height: 36px;
     }
 
     .section.horizontal.center{
         gap: 16px;
     }
 
-    .separator{
-        min-height: 4px;
+    .toggle{
+        position: absolute;
+        inset: 0px;
+        padding: 0px;
     }
 
     .toggle :global(svg){
-        translate: 16px 0px;
+        position: absolute;
+        right: 12px;
         transform: rotate(180deg);
     }
 
@@ -353,12 +388,24 @@
     }
 
     .text{
-        padding: 0px 4px;
-        translate: 0px -1px;
+        padding: 0px 4px 1px 8px;
+        position: relative;
     }
 
     .item:not(.locked):hover{
         background: var( --component-bg-hover );
+    }
+
+    button.custom.delete{
+        margin-top: 4px;
+    }
+
+    .override{
+        font-size: 80%;
+    }
+
+    .override input{
+        margin-right: 4px;
     }
 
     .unfocus{
@@ -368,12 +415,13 @@
     .handle{
         color: gray;
         opacity: 0.333;
+        cursor: move;
     }
 
     .handle :global(svg){
         width: 100%;
         height: 16px;
-        translate: 2px 0px;
+        translate: 0px 0px;
     }
 
     .marker{
