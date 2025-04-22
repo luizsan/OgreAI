@@ -13,6 +13,7 @@
     export let rows : number = 4 // number of rows
     export let resizable : Boolean = false // textarea resizable?
     export let borderless : Boolean = false
+    export let highlighted : Boolean = false
 
     let index : number = findEntryByContent(content)
     $: can_apply = elements && index > -1 && content != elements[index].content;
@@ -91,7 +92,7 @@
 
 
 <div class="main" bind:this={self}>
-    <div class="component container focus" class:borderless>
+    <div class="component container focus" class:borderless class:highlighted>
         {#if elements}
             <div class="top">
                 <div class="list">
@@ -183,5 +184,9 @@
         display: flex;
         align-items: center;
         padding: 4px 16px;
+    }
+
+    .highlighted, .highlighted select{
+        background-color: var(--component-bg-hover);
     }
 </style>

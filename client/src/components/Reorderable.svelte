@@ -344,7 +344,7 @@
     }
 
     .toggle :global(svg){
-        translate: 12px 0px;
+        translate: 16px 0px;
         transform: rotate(180deg);
     }
 
