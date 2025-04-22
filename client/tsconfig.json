@@ -24,6 +24,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
       "@shared/*": ["../shared/*"]
     },
   },

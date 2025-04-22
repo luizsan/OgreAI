@@ -401,7 +401,7 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="container">
-    {#if $currentPreferences["enable_background"]}
+    {#if $currentPreferences["chat_background"]}
         <Background/>
     {/if}
 

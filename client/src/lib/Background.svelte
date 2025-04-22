@@ -1,7 +1,7 @@
 <script lang="ts">
     import { localServer, currentCharacter, currentPreferences } from "../State";
 
-    $: vertical = $currentPreferences["vertical_background"] ?? true;
+    $: vertical = $currentPreferences["chat_background"] === "vertical";
     $: coverage = ($currentPreferences["background_coverage"] ?? 50);
     $: opacity = ($currentPreferences["background_opacity"] ?? 10) * 0.01;
 

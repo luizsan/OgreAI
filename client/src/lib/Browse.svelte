@@ -181,7 +181,7 @@
             <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.plus}Create Character</button>
 
             <div class="section horizontal">
-                <button class="component normal wide disabled" title="Import">{@html SVG.download}Import</button>
+                <button class="component normal wide blocked" title="Import">{@html SVG.download}Import</button>
                 <button class="component normal wide" title="Reload" on:click={reloadCharacterList}>{@html SVG.refresh}Reload</button>
             </div>
         </div>

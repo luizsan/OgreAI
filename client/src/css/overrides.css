@@ -1,7 +1,7 @@
 .borderless{
     border: none !important;
     outline: none !important;
-    box-shadow: none !important; 
+    box-shadow: none !important;
 }
 
 .clear{
@@ -21,6 +21,12 @@
 
 .disabled{
     pointer-events: none !important;
+}
+
+.blocked{
+    pointer-events: none !important;
+    user-select: none !important;
+    opacity: 0.25 !important;
 }
 
 .deselect{

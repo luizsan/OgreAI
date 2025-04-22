@@ -3,7 +3,7 @@
     import { slide } from "svelte/transition";
 
     const dispatch = createEventDispatcher();
-    
+
     export let name : string = "";
     export let open : boolean = false;
     export let size : number = 0
@@ -12,10 +12,10 @@
     export let enabled : boolean = true;
 
     $: label = `${name ? name : "List"}`;
-    
+
     let self : HTMLElement;
 
-    function Toggle(){ 
+    function Toggle(){
         open = !open;
         dispatch(open ? "open" : "close")
     }
@@ -28,7 +28,7 @@
 
 </script>
 
-<div class="main" bind:this={self} class:disabled={!enabled}>
+<div class="main" bind:this={self} class:blocked={!enabled}>
     <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
         <span class="label deselect">{label}</span>
 
@@ -61,10 +61,6 @@
         opacity: 0.33;
     }
 
-    .disabled{
-        opacity: 0.5;
-    }
-
     .accordion{
         padding: 16px 16px;
         max-height: 32px;
@@ -94,5 +90,5 @@
         border-radius: 0px 0px 6px 6px;
     }
 
-    
+
 </style>
