@@ -1,9 +1,11 @@
 <script lang="ts">
-    import { currentSettingsAPI } from "../State";
+    import { currentSettingsAPI, currentPresets } from "../State";
+    import Preset from "./Preset.svelte";
     import * as SVG from "../utils/SVGCollection.svelte";
 
     export let list : Array<any> = []
     export let defaults : object = {}
+    export let presets : Array<string> = [];
     export let after = () => {}
 
     // reorderable
@@ -95,13 +97,29 @@
         }
 
         let picked_index = parseInt(picked.id)
-        let marker_index = Array.from(container.children).indexOf(marker) + 1
-        if( picked_index === marker_index ){
+        let marker_index = Array.from(container.children).indexOf(marker)
+        if( picked_index === marker_index || picked_index === marker_index - 1){
             return
         }
-        const picked_item = list.splice(picked_index, 1)[0]
+
+        const picked_item = list[picked_index]
         list.splice(marker_index, 0, picked_item)
+        if( marker_index > picked_index ){
+            list.splice(picked_index, 1)
+        }else{
+            list.splice(picked_index + 1, 1)
+        }
+
+        const locked = list.filter((item) => defaults[item.key].locked);
+        locked.forEach((item) => {
+            const from = list.findIndex((e) => e.key === item.key);
+            const move = list.splice(from, 1)[0]
+            const to = list.findIndex((e) => e.key === defaults[item.key].locked);
+            list.splice(to + 1, 0, move);
+        });
+
         list = list
+        container.insertBefore(marker, container.firstChild)
         after()
     }
 
@@ -136,15 +154,15 @@
 >
 
 <div class="list" bind:this={container}>
-<div bind:this={marker} class="marker"/>
+
 
 {#each list as item, i}
-{#if item.key in defaults && !defaults[item.key].disabled}
+    {@const ref = defaults[item.key]}
 
     <div
         class="item"
-        draggable="{ !defaults[item.key].locked && !item.open}"
-        class:locked={ defaults[item.key].locked || item.open}
+        draggable="{ !ref.locked && !item.open}"
+        class:locked={ ref.locked || (ref.editable && item.open)}
         id={ i.toString() }
         role="listitem"
         on:dragstart|self={pickItem}
@@ -152,7 +170,7 @@
     >
 
         <div class="handle">
-            {#if defaults[item.key].locked }
+            {#if ref.locked }
                 {@html SVG.lock}
             {:else}
                 {@html SVG.reorder}
@@ -160,7 +178,7 @@
         </div>
 
         <div class="center">
-            {#if defaults[item.key].toggleable}
+            {#if ref.toggleable}
                 <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
             {:else}
                 <input type="checkbox" disabled checked={true}>
@@ -169,18 +187,18 @@
 
         <div
             class="text disabled"
-            class:unfocus={ defaults[item.key].toggleable && !item.enabled }
+            class:unfocus={ ref.toggleable && !item.enabled }
             title="Edit"
         >
         {#if item.key === "custom"}
-            {item.label || "Custom Prompt"}
+            {i} {item.label || "Custom Prompt"}
         {:else}
-            {defaults[item.key].label}
+            {i} {ref.label}
         {/if}
         </div>
 
         <div>
-            {#if defaults[item.key].editable || defaults[item.key].sub_items}
+            {#if ref.editable}
                 <button
                     class="normal wide toggle"
                     class:open={item.open}
@@ -191,9 +209,9 @@
         </div>
     </div>
 
-    {#if item.open}
+    {#if ref.editable && item.open}
         <div class="section container inside">
-        {#if defaults[item.key].editable}
+
             {#if item.key === "custom"}
                 <div class="section horizontal">
                     <input
@@ -213,42 +231,36 @@
                     <div class="explanation">{defaults[item.key].description}</div>
                 </div>
             {/if}
-            <textarea
-                class="component borderless wide"
-                rows={defaults[item.key]?.row_size || 4}
-                bind:value={ $currentSettingsAPI.prompt[i].content }
-            />
+
+            {#if presets.includes(item.key)}
+                <Preset
+                    bind:elements={ $currentPresets[item.key] }
+                    bind:content={ $currentSettingsAPI.prompt[getPromptByKey(item.key)].content }
+                    key={ item.key }
+                    resizable={true}
+                    borderless={true}
+                    rows={defaults[item.key]?.row_size || 4}
+                />
+            {:else}
+                <textarea
+                    class="component borderless wide"
+                    rows={defaults[item.key]?.row_size || 4}
+                    bind:value={ $currentSettingsAPI.prompt[i].content }
+                />
+            {/if}
+
+
             {#if item.key === "custom"}
             <div class="separator"></div>
             <div class="section horizontal wide center">
-                <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
-            </div>
-            {/if}
-        {/if}
-
-        {#if defaults[item.key].sub_items}
-            {#each defaults[item.key].sub_items as sub_item}
-                <div class="section top">
-                    <div class="section horizontal center">
-                        <input type="checkbox" bind:checked={ $currentSettingsAPI.prompt[getPromptByKey(sub_item)].enabled } on:change={after}>
-                        <div class="wide">
-                            <div class="title">{defaults[sub_item].label}</div>
-                            <div class="explanation">{defaults[sub_item].description}</div>
-                        </div>
-                    </div>
-                    <textarea
-                        class="component borderless wide"
-                        rows={defaults[sub_item]?.row_size || 4}
-                        bind:value={ $currentSettingsAPI.prompt[getPromptByKey(sub_item)].content }
-                    />
-                </div>
-            {/each}
-        {/if}
+            <button class="danger component" title="Remove" on:click={() => removeAt(i)}>{@html SVG.trashcan} Delete</button>
         </div>
     {/if}
-
+</div>
 {/if}
 {/each}
+
+<div bind:this={marker} class="marker"/>
 </div>
 
 </div>
@@ -310,18 +322,13 @@
 
     .inside{
         padding: 12px 20px 20px 20px;
-        background-color: rgba(0, 0, 0, 0.1);
-        gap: 16px;
+        background-color: rgba(0, 0, 0, 0.15);
     }
 
     .inside textarea, .inside input[type="text"], select{
         background-color: var( --component-bg-hover );
         padding: 6px 8px;
         border-radius: 4px;
-    }
-
-    .section.inside.top{
-        gap: 12px;
     }
 
     .section.horizontal.center{

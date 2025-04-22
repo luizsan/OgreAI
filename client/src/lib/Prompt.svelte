@@ -7,16 +7,8 @@
     import * as SVG from "../utils/SVGCollection.svelte";
     import { defaultPrompt, currentPresets, currentSettingsMain, currentSettingsAPI } from "../State";
 
-    let normal_order : Array<string> = Object.keys($defaultPrompt)
-    let custom_order : object = {
-        base_prompt: { "rows": 12 },
-        sub_prompt: { "rows": 6 },
-        prefill_prompt: { "rows": 6 },
-        // persona: { "rows": 4 },
-    }
+    const presets_categories = ["base_prompt", "sub_prompt", "prefill_prompt"]
 
-    normal_order = normal_order.filter(item => item != "persona")
-    normal_order = normal_order.filter(item => !Object.keys(custom_order).includes(item))
 
     async function saveSettings(){
         const mode = $currentSettingsMain.api_mode
@@ -82,31 +74,9 @@
             bind:list={$currentSettingsAPI.prompt}
             defaults={$defaultPrompt}
             after={saveSettings}
+            presets={presets_categories}
         />
     </div>
-
-    <Accordion name="Quick Presets">
-    {#each Object.keys(custom_order) as key}
-        {#if $defaultPrompt[key] && $defaultPrompt[key].editable && $currentSettingsAPI.prompt.find((e) => e.key == key)}
-            {@const item = $currentSettingsAPI.prompt.findIndex((e) => e.key == key)}
-
-            <div class="section" on:change={saveSettings}>
-                <div>
-                    <div class="title">{$defaultPrompt[key].label}</div>
-                    <div class="explanation">{$defaultPrompt[key].description}</div>
-                </div>
-
-                <Preset
-                    bind:elements={ $currentPresets[key] }
-                    bind:content={ $currentSettingsAPI.prompt[item].content }
-                    key={ key }
-                    resizable={true}
-                    rows={custom_order[key].rows ?? 4}
-                />
-            </div>
-        {/if}
-    {/each}
-    </Accordion>
 </div>
 
 

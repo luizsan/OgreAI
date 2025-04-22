@@ -57,20 +57,20 @@ export default class Settings{
         },
 
         messages: {
-            toggleable: false, editable: false, sub_items: ["sub_prompt", "prefill_prompt"],
+            toggleable: false, editable: false,
             label: "Chat history",
             description: "Inserts the chat history.",
         },
 
         sub_prompt: {
-            toggleable: true, editable: true, disabled: true, row_size: 6,
+            toggleable: true, editable: true, locked: "messages", row_size: 6,
             label: "Jailbreak prompt",
             description: "Appended at the end of the user's last message to reinforce instructions.",
             default: "",
         },
 
         prefill_prompt: {
-            toggleable: true, editable: true, disabled: true, row_size: 6,
+            toggleable: true, editable: true, locked: "sub_prompt", row_size: 6,
             label: "Prefill prompt",
             description: "Appended at the very end of the prompt to enforce instructions and patterns.",
             default: "",

@@ -12,6 +12,7 @@
     export let key : string = "" // presets category
     export let rows : number = 4 // number of rows
     export let resizable : Boolean = false // textarea resizable?
+    export let borderless : Boolean = false
 
     let index : number = findEntryByContent(content)
     $: can_apply = elements && index > -1 && content != elements[index].content;
@@ -90,7 +91,7 @@
 
 
 <div class="main" bind:this={self}>
-    <div class="component container focus">
+    <div class="component container focus" class:borderless>
         {#if elements}
             <div class="top">
                 <div class="list">
