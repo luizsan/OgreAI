@@ -298,10 +298,6 @@
         place-content: center;
     }
 
-    .top .explanation{
-        font-size: 120%;
-    }
-
     .back{
         padding: 0px;
     }
