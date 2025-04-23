@@ -1,3 +1,19 @@
+import type { IChat } from "../../shared/types.d.ts"
+
+const KEY_MAP = {
+    "main": "base_prompt",
+    "worldInfoBefore": "world_info",
+    "worldInfoAfter": "character_book",
+    "chatHistory": "messages",
+    "jailbreak": "sub_prompt",
+    "prefill": "prefill_prompt",
+    "personaDescription": "persona",
+    "charDescription": "description",
+    "scenario": "scenario",
+    "charPersonality": "personality",
+    "dialogueExamples": "mes_example"
+}
+
 export function decodeTimestamp(str): number{
     // to whoever made me do this, I sincerely
     // hope you solve your skill issues someday
@@ -6,7 +22,7 @@ export function decodeTimestamp(str): number{
     return date.getTime()
 }
 
-export function parseChat( jsonl: string ): Object{
+export function parseJSONL( jsonl: string ): IChat{
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
         return null;
@@ -67,4 +83,49 @@ export function parseChat( jsonl: string ): Object{
     return chat;
 }
 
-export default { parseChat, decodeTimestamp };
+export function convertPrompt(obj: any): Array<any>{
+    let list = []
+    obj.prompt_order[0]?.order.forEach((item) => {
+        let id: string = item.identifier
+        let enabled: boolean = item.enabled
+        let target: any = obj.prompts.find((e) => e.identifier == id)
+        let source: any = {
+            key: "",
+            enabled: enabled,
+            open: false,
+        }
+
+        if( KEY_MAP[id] ){
+            source.key = KEY_MAP[id]
+        }else{
+            source.key = "custom"
+        }
+
+        switch(id){
+            case "main":
+                source.content = target.content
+                source.allow_override = !target.forbid_overrides
+                break
+            case "jailbreak":
+                source.content = target.content
+                break
+            default:
+                source.label = target.name || target.identifier
+                source.role = target.role || "system"
+                source.content = target.content
+        }
+
+        list.push(source)
+        // insert prefill after jailbreak
+        if(source.key === "sub_prompt" && obj.assistant_prefill){
+            list.push({
+                key: "prefill_prompt",
+                enabled: true,
+                content: obj.assistant_prefill,
+                open: false,
+            })
+        }
+
+    })
+    return list
+}

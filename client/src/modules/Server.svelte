@@ -1,7 +1,10 @@
 <script context="module" lang="ts">
-    import type { ICharacter, IChat } from "@shared/types";
+    import type {
+        ICharacter,
+        IChat
+    } from "@shared/types";
     import { get } from "svelte/store";
-    import * as State from "../State";
+    import * as State from "@/State";
 
     let _heartbeat = null;
 
@@ -198,6 +201,13 @@
         }
 
         return request( "/get_character_tokens", body )
+    }
+
+    export async function saveSettings(): Promise<void>{
+        const settings = get( State.currentSettingsMain )
+        const mode = settings.api_mode
+        await request("/save_main_settings", { data: settings })
+        await request("/save_api_settings", { api_mode: mode, data: settings })
     }
 
 

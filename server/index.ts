@@ -361,7 +361,7 @@ app.get("/get_prompt", parser, function(_, response){
 })
 
 app.post("/validate_prompt", parser, function(request, response){
-    let valid = Settings.ValidatePrompt( request.body.prompt )
+    let valid = Settings.ValidatePrompt( request.body.prompt, request.body.type )
     response.status(200).send(valid)
 })
 

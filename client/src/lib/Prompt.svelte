@@ -37,87 +37,22 @@
         Data.download(exported, `exported_${$currentSettingsMain.api_mode}_prompt.json`)
     }
 
-    function convertTavernPrompt(obj: any){
-        let list = []
-        obj.prompt_order[0]?.order.forEach((item) => {
-            let id: string = item.identifier
-            let enabled: boolean = item.enabled
-            let target: any = obj.prompts.find((e) => e.identifier == id)
-            let source: any = {
-                key: "",
-                enabled: enabled,
-                open: false,
-            }
-            switch(id){
-                case "main":
-                    source.key = "base_prompt"
-                    source.content = target.content
-                    source.allow_override = !target.forbid_overrides
-                    break
-                case "worldInfoBefore":
-                    source.key = "world_info"
-                    break
-                case "worldInfoAfter":
-                    source.key = "character_book"
-                    break
-                case "chatHistory":
-                    source.key = "messages"
-                    break
-                case "jailbreak":
-                    source.key = "sub_prompt"
-                    source.content = target.content
-                    break
-                case "charDescription":
-                    source.key = "description"
-                    break
-                case "scenario":
-                    source.key = "scenario"
-                    break
-                case "personaDescription":
-                    source.key = "persona"
-                    break
-                case "charPersonality":
-                    source.key = "personality"
-                    break
-                case "dialogueExamples":
-                    source.key = "mes_example"
-                    break
-                default:
-                    source.key = "custom"
-                    source.label = target.name || target.identifier
-                    source.role = target.role || "system"
-                    source.content = target.content
-            }
-            list.push(source)
-            // insert prefill after jailbreak
-            if(source.key === "sub_prompt" && obj.assistant_prefill){
-                list.push({
-                    key: "prefill_prompt",
-                    enabled: true,
-                    content: obj.assistant_prefill,
-                    open: false,
-                })
-            }
-
-        })
-        return list
-    }
-
-
     function importPrompt(){
         Data.upload(async (data) => {
             let imported = JSON.parse(data)
             if(!imported)
                 return
+            let content: any = { prompt: imported }
             // convert from ST
             if(imported.prompt_order && imported.prompts){
-                imported = convertTavernPrompt(imported)
+                content.type = "tavern"
             }
-            await Server.request("/validate_prompt", { prompt: imported }).then(valid => {
+            await Server.request("/validate_prompt", content).then(valid => {
                 console.log(valid)
                 $currentSettingsAPI.prompt = valid;
                 $currentSettingsAPI = $currentSettingsAPI
             })
+            await Server.saveSettings()
         })
     }
 </script>

@@ -84,7 +84,7 @@ export default class Chat{
                         // TAVERN
                         let filepath = path.join( target, files[i] )
                         let content = readFileSync( filepath, "utf-8")
-                        let parsed = Tavern.parseChat( content )
+                        let parsed = Tavern.parseJSONL( content )
                         if( parsed ){
                             let new_chat: IChat = parsed
                             this.Validate( new_chat, parsed )
@@ -131,7 +131,7 @@ export default class Chat{
             for(let i = 0; i < files.length; i++){
                 let file = files[i]
                 let content = readFileSync( file, "utf-8")
-                let parsed = Tavern.parseChat( content )
+                let parsed = Tavern.parseJSONL( content )
                 if( parsed ){
                     let new_chat: IChat = this.create(character)
                     this.Validate( new_chat, parsed )

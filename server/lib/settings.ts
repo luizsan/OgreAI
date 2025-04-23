@@ -1,4 +1,5 @@
 import { ISettings, IAPISettings } from "../../shared/types.js"
+import * as Tavern from "../import/tavern.ts"
 
 export default class Settings{
     static default_prompt_order = {
@@ -136,7 +137,11 @@ export default class Settings{
         disabled: bool = optional and only if the item is toggleable by default
         content: string = optional and only if the item is editable by default
     }] */
-    static ValidatePrompt(obj: Array<Record<string, any>>){
+    static ValidatePrompt(obj: Array<Record<string, any>>, type?: string){
+        if( type && type === "tavern" ){
+            obj = Tavern.convertPrompt(obj)
+        }
+
         if( !Array.isArray(obj) ){
             obj = []
         }
