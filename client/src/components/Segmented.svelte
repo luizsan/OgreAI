@@ -11,9 +11,9 @@
 </script>
 
 <div class="group horizontal">
-    
+
     {#each elements as item}
-        <label class="component deselect" class:wide={wide}>
+        <label class="component deselect pointer" class:wide={wide}>
             <input type="radio" class="component deselect" bind:group={value} value={key(item)} checked={value == key(item)}>{label(item)}
         </label>
     {/each}
@@ -40,7 +40,6 @@
     label{
         padding: 0px 20px;
         border-radius: 0px;
-        cursor: pointer;
         font-size: 0.9em;
     }
 

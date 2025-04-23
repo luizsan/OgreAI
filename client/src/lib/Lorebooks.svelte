@@ -228,19 +228,21 @@
                     <Loading/>
                 </div>
             {:else}
-                <div class="section horizontal wide">
-                    <Search
-                        bind:elements={$currentLorebooks}
-                        bind:results={searchResults}
-                        placeholder="Search lorebooks..."
-                        item={(item) => item.name.toLowerCase()}
-                        after={(list) => list.toSorted(sortLorebooks)}
-                    />
-                    <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
+                <div class="section">
+                    <div class="section horizontal wide">
+                        <Search
+                            bind:elements={$currentLorebooks}
+                            bind:results={searchResults}
+                            placeholder="Search lorebooks..."
+                            item={(item) => item.name.toLowerCase()}
+                            after={(list) => list.toSorted(sortLorebooks)}
+                        />
+                        <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
+                    </div>
+                    <label class="component borderless clear toggle deselect pointer">
+                        <input type="checkbox" bind:checked={selectedOnly}>Display selected only
+                    </label>
                 </div>
-                <label class="component borderless clear toggle">
-                    <input type="checkbox" bind:checked={selectedOnly}>Display selected only
-                </label>
 
 
                 {#if searchResults && searchResults.length > 0}
@@ -256,7 +258,7 @@
                                     <div class="description">{book.description ? book.description : "No description"}</div>
                                     <div class="info disabled">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
                                 </button>
-                                <button class="check" on:click={() => toggleLorebook(book)}>
+                                <button class="check" class:selected={selected} on:click={() => toggleLorebook(book)}>
                                     <input type="checkbox" class="component" checked={selected}>
                                 </button>
                             </div>
@@ -366,8 +368,12 @@
         height: 100%;
         width: 48px;
         padding: 0px;
-        border-radius: 5px 0px 0px 5px;
-        background-color: hsla(0, 0%, 10%, 0.5);
+        border-radius: 4px 0px 0px 4px;
+        background-color: hsla(0, 0%, 0%, 0.1);
+    }
+
+    .check.selected{
+        background-color: hsla(192, 100%, 50%, 0.125);
     }
 
     .check input{
@@ -416,5 +422,9 @@
         place-items: center;
         place-content: center;
         font-style: italic;
+    }
+
+    .info{
+        font-size: 95%;
     }
 </style>

@@ -365,7 +365,7 @@
 
     {#if $deleting && id > 0}
         <button class="all" on:click|self={SelectMessageBatch} ></button>
-        <input class="toggle" type="checkbox" bind:checked={selected} on:input={SelectMessageSingle}>
+        <input class="toggle pointer" type="checkbox" bind:checked={selected} on:input={SelectMessageSingle}>
     {/if}
 </div>
 
@@ -611,7 +611,6 @@
         right: 12px;
         width: 20px;
         height: 20px;
-        cursor: pointer;
     }
 
     .all{
