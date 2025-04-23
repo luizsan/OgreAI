@@ -12,40 +12,35 @@
     import { onMount } from "svelte";
 
     const tab_items = {
-        settings: {   
-            title: "Settings", 
+        settings: {
+            title: "Settings",
             description: "Change API, connection and related settings.",
-            icon: SVG.sliders, disabled: false 
+            icon: SVG.sliders, disabled: false
         },
-        prompt: {   
-            title: "Prompt", 
+        prompt: {
+            title: "Prompt",
             description: "Build the chat prompt for the current API mode.",
-            icon: SVG.prompt, disabled: false 
+            icon: SVG.prompt, disabled: false
         },
         lorebooks: {
             title: "Lorebooks",
             description: "Manage lorebooks.",
             icon: SVG.book, disabled : false
         },
-        presets: {   
-            title: "Presets", 
-            description: "Manage predefined settings to use across different API modes.",
-            icon: SVG.saved, disabled: true 
-        },
-        formatting: {   
-            title: "Formatting", 
+        formatting: {
+            title: "Formatting",
             description: "Use regular expressions to automatically format text in chat.",
-            icon: SVG.formatting, disabled: false 
+            icon: SVG.formatting, disabled: false
         },
-        user: {   
-            title: "User", 
+        user: {
+            title: "User",
             description: "Customize the user's profile and preferences.",
-            icon: SVG.user, disabled: false 
+            icon: SVG.user, disabled: false
         },
         customization: {
             title: "Customization",
             description: "Customize interface and visual preferences",
-            icon: SVG.palette, disabled: false 
+            icon: SVG.palette, disabled: false
         }
     }
 
@@ -87,23 +82,23 @@
                     <Settings/>
                 {/if}
             </div>
-            
+
             <div class="bottom grow">
                 <Footer/>
             </div>
         </div>
 
-    
+
         <div class="side section wrap">
             <div class="dim disabled"/>
 
             {#each Object.keys(tab_items) as key}
                 {#if !tab_items[key].disabled}
-                    <button 
+                    <button
                         class="tab accent"
                         class:active={key == $tabSettings}
-                        class:disabled={key == $tabSettings} 
-                        disabled={tab_items[key].disabled || key == $tabSettings} 
+                        class:disabled={key == $tabSettings}
+                        disabled={tab_items[key].disabled || key == $tabSettings}
                         on:click={() => setTab(key)}>{@html tab_items[key].icon}
                     </button>
                 {/if}
@@ -143,7 +138,7 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .tab :global(svg){
         width: 24px;
         height: 24px;
