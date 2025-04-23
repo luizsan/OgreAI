@@ -96,10 +96,10 @@
             return
         }
 
-        let marker_index = Array.from(container.children).indexOf(marker)
-        let marker_offset = Array.from(container.children).slice(0, marker_index).filter((item) => item.classList.contains("inside")).length
-        marker_index -= marker_offset
-
+        let elements_list = Array.from(container.children).filter((item) => {
+            return item.classList.contains("item") || item.classList.contains("marker")
+        })
+        let marker_index = elements_list.indexOf(marker)
         let picked_index = parseInt(picked.id)
         if( picked_index === marker_index || picked_index === marker_index - 1){
             return
