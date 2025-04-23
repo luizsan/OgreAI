@@ -16,6 +16,7 @@
     let editingBook : any = null;
     let searchResults : Array<ILorebook> = [];
     let selectedBooks : Array<ILorebook> = [];
+    let selectedOnly : boolean = false;
     let loading : boolean = false;
 
     function createLorebook(){
@@ -56,7 +57,7 @@
             return
         }
 
-        const ok = confirm("Are you sure you want to apply this lorebook to the current character?\nAny existing lorebook embedded in the character will be overwritten.\nThis action cannot be undone.")
+        const ok = confirm("Are you sure you want to embed this lorebook in the current character?\nAny existing embedded lorebook will be overwritten.\nThis action cannot be undone.")
         if( ok ){
             let copy = JSON.parse(JSON.stringify(book))
             $currentCharacter.data.character_book = copy;
@@ -149,6 +150,15 @@
         })
     }
 
+    function toggleLorebook(book: ILorebook){
+        if( selectedBooks.includes(book) ){
+            selectedBooks = selectedBooks.filter(item => item !== book)
+        } else {
+            selectedBooks.push(book)
+        }
+        selectedBooks = selectedBooks
+    }
+
     onMount(() => {
         initializeSelected()
     })
@@ -175,18 +185,16 @@
 
                 <div class="buttons">
                     {#if $currentCharacter}
-                        <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Copy to character</button>
+                        <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Embed</button>
                     {/if}
                     <button class="component normal" on:click={() => exportLorebook(editingBook)}>{@html SVG.upload} Export</button>
                     <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
-
             <Book bind:book={editingBook}/>
         </div>
-
     {:else}
-        <div class="section" on:change={saveGlobals}>
+        <!-- <div class="section" on:change={saveGlobals}>
             <Heading
                 title="Global Lorebooks"
                 description={`These lorebooks are enabled globally for all chats and will be inserted in the prompt as 'World Info'.`}
@@ -202,12 +210,14 @@
             />
         </div>
 
-        <hr class="component"/>
+        <hr class="component"/> -->
 
-        <div class="section" style="gap: 16px">
-            <div class="section horizontal wide wrap">
-                <div class="grow"><Heading title="Local Collection" description="Create, delete and edit your installed lorebooks."/></div>
-                <div class="buttons">
+        <div class="section header">
+            <div class="section horizontal wide">
+                <div class="wide">
+                    <Heading title="Collection" description="Create, edit and delete your globally installed lorebooks. Selected lorebooks are enabled for all chats and will be inserted in the prompt as 'World Info'."/>
+                </div>
+                <div class="buttons grow">
                     <button class="component" on:click={importLorebook}>{@html SVG.download} Import</button>
                     <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
                 </div>
@@ -218,7 +228,7 @@
                     <Loading/>
                 </div>
             {:else}
-                <div class="section horizontal wide wrap">
+                <div class="section horizontal wide">
                     <Search
                         bind:elements={$currentLorebooks}
                         bind:results={searchResults}
@@ -228,17 +238,29 @@
                     />
                     <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
                 </div>
+                <label class="component borderless clear toggle">
+                    <input type="checkbox" bind:checked={selectedOnly}>Display selected only
+                </label>
 
 
                 {#if searchResults && searchResults.length > 0}
                     <div class="books">
                         {#each searchResults as book}
-                            <button class="component normal wide book ellipsis" on:click={() => editLorebook(book)}>
-                                <div class="background normal disabled">{@html SVG.book}</div>
-                                <div class="title ellipsis">{book.name}</div>
-                                <div class="description">{book.description ? book.description : "No description"}</div>
-                                <div class="info disabled">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
-                            </button>
+                            {@const selected = selectedBooks.includes(book)}
+
+                            {#if !selectedOnly || (selectedOnly && selected)}
+                            <div class="item">
+                                <button class="component normal wide book ellipsis" on:click={() => editLorebook(book)}>
+                                    <div class="background normal disabled">{@html SVG.book}</div>
+                                    <div class="title ellipsis">{book.name}</div>
+                                    <div class="description">{book.description ? book.description : "No description"}</div>
+                                    <div class="info disabled">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
+                                </button>
+                                <button class="check" on:click={() => toggleLorebook(book)}>
+                                    <input type="checkbox" class="component" checked={selected}>
+                                </button>
+                            </div>
+                            {/if}
                         {/each}
                     </div>
                 {:else}
@@ -252,10 +274,6 @@
 </div>
 
 <style>
-    hr{
-        border-style: dashed;
-    }
-
     .content{
         display: flex;
         flex-direction: column;
@@ -278,6 +296,10 @@
         place-content: center;
     }
 
+    .top .explanation{
+        font-size: 120%;
+    }
+
     .back{
         padding: 0px;
     }
@@ -287,9 +309,13 @@
         height: 24px;
     }
 
+    .header{
+        gap: 16px;
+    }
+
     .buttons{
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         flex-direction: row;
         margin-left: auto;
         gap: 8px;
@@ -310,10 +336,42 @@
         height: 128px;
     }
 
+    .toggle{
+        place-items: center;
+        place-content: flex-start;
+        padding: 0px;
+        font-size: 80%;
+    }
+
+    .toggle input{
+        width: 16px;
+        height: 16px;
+    }
+
     .books{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
+    }
+
+    .item{
+        position: relative;
+        display: grid;
+        grid-template-columns: auto;
+    }
+
+    .check{
+        position: absolute;
+        left: 0px;
+        height: 100%;
+        width: 48px;
+        padding: 0px;
+        border-radius: 5px 0px 0px 5px;
+        background-color: hsla(0, 0%, 10%, 0.5);
+    }
+
+    .check input{
+        height: 20px;
     }
 
     .book{
@@ -322,7 +380,7 @@
         gap: 4px;
         align-items: flex-start;
         justify-content: flex-start;
-        padding: 12px 16px;
+        padding: 12px 16px 16px 64px;
         box-shadow: 0px 2px 2px 1px #00000040;
     }
 
