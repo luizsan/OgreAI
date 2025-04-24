@@ -42,7 +42,7 @@ export interface ICharacterBaseV2{
     alternate_greetings : Array<string>
     tags : Array<string>
     character_book : ILorebook;
-    extensions : any;
+    extensions : Record<string, any>;
 }
 
 // ogre "exclusive"
@@ -106,14 +106,14 @@ export interface ILorebook{
     token_budget? : number; // inserted tokens will not exceed this value
     recursive_scanning? : boolean; // entries can trigger other entries
     entries : Array<ILorebookEntry>;
-    extensions : any;
+    extensions : Record<string, any>;
     temp?: any;
 }
 
 export interface ILorebookEntry{
     keys : Array<string>;
     content : string;
-    extensions : any;
+    extensions : Record<string, any>;
     enabled : boolean;
     insertion_order : number; // sort inserted entries by this value - lower = first
     case_sensitive? : boolean;

@@ -13,7 +13,7 @@
     $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
     $: backgroundPath = localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime();
 
-    const opacity_ratio : number = 0.25
+    const opacity_ratio : number = 1.0
 </script>
 
 <div class="background" style={`

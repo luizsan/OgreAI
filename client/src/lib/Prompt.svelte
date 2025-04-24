@@ -10,12 +10,6 @@
     const presets_categories = ["base_prompt", "sub_prompt", "prefill_prompt"]
 
 
-    async function saveSettings(){
-        const mode = $currentSettingsMain.api_mode
-        await Server.request("/save_main_settings", { data: $currentSettingsMain })
-        await Server.request("/save_api_settings", { api_mode: mode, data: $currentSettingsAPI })
-    }
-
     function addItem(){
         const custom_prompts: number = $currentSettingsAPI.prompt.filter(p => p.key === "custom").length
         $currentSettingsAPI.prompt.push({
@@ -65,7 +59,7 @@
         <hr class="component">
     </div>
 
-    <div class="section" on:change={saveSettings}>
+    <div class="section" on:change={Server.saveSettings}>
         <div class="section wide wrap horizontal">
             <div>
                 <div class="title">Prompt Manager</div>
@@ -79,7 +73,6 @@
         <Reorderable
             bind:list={$currentSettingsAPI.prompt}
             defaults={$defaultPrompt}
-            after={saveSettings}
             presets={presets_categories}
         />
     </div>

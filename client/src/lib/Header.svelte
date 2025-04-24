@@ -85,11 +85,11 @@
         transition: all 0.2s ease;
     }
 
-    .title:hover{
+    button:hover .title{
         translate: 1em 0px 0;
     }
 
-    .title:hover::before{
+    button:hover .title::before{
         opacity: 1;
         translate: -3em 0px 0;
     }
