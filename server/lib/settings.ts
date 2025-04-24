@@ -120,7 +120,7 @@ export default class Settings{
         }
 
         Object.keys( api_settings ).forEach(key => {
-            if( !obj[key] ){
+            if( obj[key] === undefined || typeof obj[key] !== typeof api_settings[key].default ){
                 obj[key] = api_settings[key].default
             }
         })
