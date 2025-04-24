@@ -204,10 +204,11 @@
     }
 
     export async function saveSettings(): Promise<void>{
-        const settings = get( State.currentSettingsMain )
-        const mode = settings.api_mode
-        await request("/save_main_settings", { data: settings })
-        await request("/save_api_settings", { api_mode: mode, data: settings })
+        const main_settings = get( State.currentSettingsMain )
+        const api_settings = get( State.currentSettingsAPI)
+        const mode = main_settings.api_mode
+        await request("/save_main_settings", { data: main_settings })
+        await request("/save_api_settings", { api_mode: mode, data: api_settings })
     }
 
 
