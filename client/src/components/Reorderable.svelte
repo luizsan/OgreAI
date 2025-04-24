@@ -123,12 +123,14 @@
         });
 
         list = list
+        container.dispatchEvent(new Event('change', { bubbles: true }));
         after()
     }
 
     function toggleOpen(index: number, b: boolean) : void {
         list[index].open = b
         list = list
+        container.dispatchEvent(new Event('change', { bubbles: true }));
         after()
     }
 
@@ -138,6 +140,7 @@
         if( !ok ) return
         list.splice(index, 1);
         list = list;
+        container.dispatchEvent(new Event('change', { bubbles: true }));
         after()
     }
 
