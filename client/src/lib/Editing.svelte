@@ -22,7 +22,7 @@
     let avatar = "";
     let countingTokens : boolean = false;
 
-    $: has_lorebook = $editing && typeof $editing.data.character_book === "object" && Object.keys($editing.data.character_book).length > 0
+    $: has_lorebook = $editing && $editing.data.character_book && (typeof $editing.data.character_book === "object") && Object.keys($editing.data.character_book).length > 0
 
     $: {
         if( $editing ){
@@ -269,7 +269,7 @@
 
     function removeLorebook(){
         if(has_lorebook && confirm("Are you sure you want to remove this lorebook?\nThis action cannot be undone.")){
-            $editing.data.character_book = null
+            $editing.data.character_book = undefined
             $editing = $editing;
             ApplyChanges()
         }
@@ -281,7 +281,6 @@
     <Screen>
         <div class="top" on:change={SaveCharacter} >
             <div class="section header">
-
                 <div class="avatar">
                     <img src={avatar} alt=""/>
                     <button class="upload" on:click={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
@@ -503,10 +502,16 @@
         justify-content: start;
         gap: 16px;
         box-shadow: 0px 20px 20px -20px #00000040;
-        padding: 16px 48px 16px 20px;
-        position: sticky;
-        top: 0px;
+        position: fixed;
+        padding: 0px;
+        top: var(--header-height);
+        width: var( --chat-width );
         z-index: 1;
+    }
+
+    .top .section.header{
+        width: 100%;
+        padding: 16px 20px;
     }
 
     .header{
@@ -520,7 +525,7 @@
         height: fit-content;
         flex-direction: column;
         gap: 32px;
-        padding: 24px 20px;
+        padding: 128px 20px 24px 20px;
         scrollbar-color: #303030 transparent;
         scrollbar-width: thin;
     }
