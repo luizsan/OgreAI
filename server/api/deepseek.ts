@@ -160,11 +160,16 @@ export default class DeepSeek extends API {
             if (parsed.error){
                 return parsed
             }
+            reply.candidate.model = parsed.model ?? undefined
+            const reason: string = parsed.choices[0]?.message.reasoning_content;
+            if (reason){
+                reply.candidate.reasoning = reason;
+                this.__message_chunk = "";
+            }
             const message: string = parsed.choices[0]?.message?.content;
             if (message){
                 reply.done = true;
                 reply.candidate.text = message;
-                reply.candidate.model = parsed.model ?? undefined;
                 this.__message_chunk = "";
             }
         }catch(error: any){
@@ -187,10 +192,18 @@ export default class DeepSeek extends API {
                 if (parsed.error){
                     return parsed
                 }
+                reply.candidate.model = parsed.model ?? undefined
+                const reason: string = parsed.choices[0]?.delta?.reasoning_content;
+                if (reason){
+                    if( !reply.candidate.reasoning )
+                        reply.candidate.reasoning = "";
+                    reply.candidate.reasoning += reason;
+                    this.__message_chunk = "";
+                }
                 const delta: string = parsed.choices[0]?.delta?.content;
                 if (delta){
+                    console.log(delta)
                     reply.candidate.text += delta;
-                    reply.candidate.model = parsed.model ?? undefined
                     this.__message_chunk = "";
                 }
             }catch(error: any){
