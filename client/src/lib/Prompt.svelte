@@ -16,6 +16,7 @@
             key: "custom",
             label: `Custom Prompt ${custom_prompts}`,
             description: "",
+            content: "",
             role: "user",
             enabled: true,
         })

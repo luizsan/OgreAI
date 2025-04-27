@@ -77,7 +77,8 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 }
                 break;
             case "custom":
-                const custom_entry: IPromptEntry = { role: "system", content: item.content }
+                const custom_content: string = item.content || item.label || ""
+                const custom_entry: IPromptEntry = { role: "system", content: custom_content }
                 if(available_roles.includes(item.role))
                     custom_entry.role = item.role
                 custom_entry.content = parseMacros(custom_entry.content, data.chat )
