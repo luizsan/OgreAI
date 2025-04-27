@@ -64,17 +64,18 @@ export default class Anthropic extends API {
             type: "range", default: 5, min: 0, max: 100, step: 1,
         },
 
+        caching_size: {
+            title: "Prompt Caching Size",
+            description: "Adjust the size of the prompt caching. 0 means no caching, and a higher value will cache more of the prompt from the beginning of the conversation. This feature can affect the quality of the response.",
+            type: "range", default: 0, min: 0, max: 200, step: 1,
+        },
+
         stream: {
             title: "Stream",
             description: "Whether to incrementally stream the response using server-sent events.",
             type: "checkbox", default: true,
         },
 
-        caching: {
-            title: "Prompt Caching",
-            description: "Prompt caching is a powerful feature that optimizes your API usage by allowing resuming from specific prefixes in your prompts. This approach significantly reduces processing time and costs for repetitive tasks or prompts with consistent elements. This feature can affect the quality of the response.",
-            type: "checkbox", default: true,
-        },
 
         continue_message: {
             title: "Continue Message",
@@ -141,15 +142,21 @@ export default class Anthropic extends API {
             stream: settings.stream,
         };
 
-        if( settings.caching ){
-            let last = prompt.at(-1)
-            let rest = prompt.slice(0, -1)
-            outgoing_data.system = [{
-                type: "text",
-                text: JSON.stringify(rest),
-                cache_control: { type: "ephemeral" }
-            }]
-            outgoing_data.messages = [ last ]
+        if( settings.caching && settings.caching_size && settings.caching_size > 0){
+            let sys = prompt.slice(0, settings.caching_size)
+            let last = prompt.slice(settings.caching_size)
+            // required to have at least one message
+            if(sys.length > 0 &&last.length < 1){
+                last.push(sys.pop())
+            }
+            // map system messages
+            outgoing_data.system = sys.map((item) => {
+                return { "type": "text", "text": item.content }
+            })
+            // sets cache flag at the last system message
+            if (outgoing_data.system.length > 0)
+                outgoing_data.system.at(-1).cache_control = { type: "ephemeral" }
+            outgoing_data.messages = last
         }else{
             outgoing_data.messages = prompt
         }
