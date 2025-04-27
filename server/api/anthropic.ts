@@ -66,7 +66,7 @@ export default class Anthropic extends API {
 
         caching_size: {
             title: "Prompt Caching Size",
-            description: "Adjust the size of the prompt caching. 0 means no caching, and a higher value will cache more of the prompt from the beginning of the conversation. This feature can affect the quality of the response.",
+            description: "Adjust the size of the prompt caching. 0 means no caching, and a higher value will cache more messages of the prompt from the beginning of the conversation, starting from the system prompts. This feature can affect the quality of the response.",
             type: "range", default: 0, min: 0, max: 200, step: 1,
         },
 
