@@ -16,7 +16,7 @@
     let self : HTMLElement;
 
     function reset(){
-        if( original && value != original ){
+        if( original !== undefined && value != original ){
             value = original;
             update()
         }
