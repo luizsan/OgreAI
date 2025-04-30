@@ -202,7 +202,6 @@ export default class DeepSeek extends API {
                 }
                 const delta: string = parsed.choices[0]?.delta?.content;
                 if (delta){
-                    console.log(delta)
                     reply.candidate.text += delta;
                     this.__message_chunk = "";
                 }

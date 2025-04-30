@@ -156,7 +156,6 @@ export default class Mistral extends API{
                 if (parsed.detail ){
                     return { error: { message: parsed.detail[0]?.msg, type: parsed.detail[0]?.type }}
                 }
-                console.log(line)
                 const delta: string = parsed.choices[0]?.delta?.content ?? parsed.choices[0]?.message?.content;
                 if (delta){
                     reply.candidate.text += delta;
