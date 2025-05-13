@@ -13,6 +13,7 @@
     let unit : string = "%"
 
     const avatar_user_default = localServer + "/img/user_default.png";
+    const protocol_regex = /^([a-zA-Z]+):\/\//;
 
     let append : string;
     let img : string;
@@ -50,6 +51,10 @@
             append = is_bot ? "?" + character.metadata.modified : "";
         }else{
             img = $currentProfile.avatar ? $currentProfile.avatar : avatar_user_default;
+            if(!protocol_regex.test(img)){
+                img = localServer + "/" + img;
+            }
+            console.log(img)
             append = ""
         }
 
