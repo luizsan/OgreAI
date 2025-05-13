@@ -120,11 +120,10 @@ export default class xAI extends API {
         if( settings.model.toLowerCase().includes("-mini") ){
             outgoing_data.presence_penalty = undefined
             outgoing_data.frequency_penalty = undefined
-        }
-
-        if( settings.reasoning_effort && this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
-            if( settings.reasoning_effort != "none"){
-                outgoing_data["reasoning_effort"] = settings.reasoning_effort
+            if( settings.reasoning_effort && this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
+                if( settings.reasoning_effort != "none"){
+                    outgoing_data["reasoning_effort"] = settings.reasoning_effort
+                }
             }
         }
 
