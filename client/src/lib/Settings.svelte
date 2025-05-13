@@ -142,6 +142,7 @@
                             editable={key == "model"}
                             title={entry.title}
                             description={entry.description}
+                            capitalize={entry.capitalize}
                         />
 
                     {:else if entry.type == "range"}

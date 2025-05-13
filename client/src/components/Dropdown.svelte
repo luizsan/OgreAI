@@ -1,5 +1,6 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
+    import * as Format from "@shared/format.mjs";
 
     export let value : any = null;
     export let choices : Array<any>;
@@ -10,16 +11,17 @@
     export let wide : boolean = false
 
     export let icon : string = "";
+    export let capitalize : boolean = false
 </script>
 
 <div class="section">
     <Heading title={title} description={description}/>
     <div class="component dropdown focus container min" class:dropdown={editable} class:container={editable} class:wide={wide}>
 
-        <select class="component min" class:padding={!!icon} class:borderless={editable} class:wide={wide} bind:value={value}>
+        <select class="component min" class:padding={!!icon} class:borderless={editable} class:wide={wide} class:capitalized={capitalize} bind:value={value}>
             {#each choices as item}
                 {#if typeof(item) === "object"}
-                    <option value={item.key}>{item.title}</option>
+                    <option value={item.key} class:capitalized={capitalize}>{item.title}</option>
                 {:else}
                     <option value={item}>{item}</option>
                 {/if}
@@ -39,6 +41,10 @@
 </div>
 
 <style>
+    .capitalized{
+        text-transform: capitalize;
+    }
+
     .container{
         padding-right: 2px;
     }

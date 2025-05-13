@@ -1,44 +1,32 @@
-// imports the base class, required for all API modes
 import API from "../core/api.ts";
-
-// imports type constraints
 import type {
     IReply,
     ISettings,
     IGenerationData,
     IPromptEntry,
-} from "../../shared/types.d.ts";
+} from "../../shared/types.js";
 
-// imports the prompt builder
 import {
     buildPrompt,
     squashPrompt
 } from "../lib/prompt.ts";
 
-// imports the tokenizer for token counts
 import * as Tokenizer from "../tokenizer/gpt.ts"
 
 
-export default class OpenAI extends API {
-    API_NAME = "OpenAI";
-    API_VERSION = "2024-02-01";
-    API_ADDRESS = "https://api.openai.com";
+export default class xAI extends API {
+    API_NAME = "xAI";
+    API_VERSION = "1.0.0";
+    API_ADDRESS = "https://api.x.ai";
     API_SETTINGS = {
         model: {
             title: "Model",
-            description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
-            type: "select", default: "gpt-3.5-turbo", choices: [
-                "gpt-4.1",
-                "gpt-4.1-mini",
-                "gpt-4.1-nano",
-                "gpt-4o",
-                "gpt-4o-mini",
-                "gpt-4-turbo",
-                "gpt-4-turbo-preview",
-                "gpt-4-32k",
-                "gpt-4",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo",
+            description: "Both grok-3 and grok-3-fast use the exact same underlying model and deliver identical response quality. The difference lies in how they're served: grok-3-fast is served on faster infrastructure, offering response times that are significantly faster than the standard grok-3. The increased speed comes at a higher cost per output token.",
+            type: "select", default: "grok-3-beta", choices: [
+                "grok-3-beta",
+                "grok-3-fast-beta",
+                "grok-3-mini-beta",
+                "grok-3-mini-fast-beta"
             ]
         },
 
@@ -51,7 +39,7 @@ export default class OpenAI extends API {
         context_size: {
             title: "Context Size",
             description: "Number of context tokens to submit to the AI for sampling. Make sure this is higher than Output Length. Higher values increase VRAM/RAM usage.",
-            type: "range", default: 1024, min: 128, max: 16384, step: 8,
+            type: "range", default: 4096, min: 128, max: 131072, step: 8,
         },
 
         temperature: {
@@ -84,16 +72,16 @@ export default class OpenAI extends API {
             type: "checkbox", default: true,
         },
 
+        reasoning_effort: {
+            title: "Reasoning Effort",
+            description: "Constrains how hard a reasoning model thinks before responding.",
+            type: "select", default: "none", choices: [ "none", "low", "high" ], capitalize: true,
+        },
+
         stop_sequences: {
             title: "Stop Sequences",
             description: "Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
             type: "list", limit: 4, default: [],
-        },
-
-        logit_bias: {
-            title: "Logit Bias",
-            description: "Modify the likelihood of specified tokens appearing in the completion.",
-            type: "dictionary", value: "number", default: [],
         }
     }
 
@@ -110,35 +98,7 @@ export default class OpenAI extends API {
     makePrompt(data: IGenerationData, offset?: number ): any {
         let list: Array<IPromptEntry> = squashPrompt(buildPrompt( this, data, offset ))
         list = squashPrompt(list)
-        list = list.map((item) => {
-            return {
-                role: item.role.replaceAll("system", "developer"),
-                content: item.content
-            }
-        })
         return list
-    }
-
-    buildLogitBias(bias: any, model?: string): Map<number, number> {
-        const logit_bias = new Map<number, number>()
-        if( !Array.isArray(bias) )
-            return null
-        bias.forEach((pair) => {
-            const k: string | number = pair.key
-            let value: number = parseInt(pair.value)
-            value = Math.max(-100, Math.min(100, value))
-
-            if( typeof k === "number" && !isNaN(k) ){
-                logit_bias.set(k, value)
-
-            }else if( typeof k === "string" ){
-                const parsed_keys = Tokenizer.getTokens(k, model)
-                parsed_keys.forEach(id => {
-                    logit_bias.set(id, value)
-                })
-            }
-        })
-        return logit_bias
     }
 
     async generate(data: IGenerationData): Promise<any> {
@@ -154,8 +114,18 @@ export default class OpenAI extends API {
             presence_penalty: parseFloat(settings.presence_penalty),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
-            logit_bias: this.buildLogitBias(settings.logit_bias, settings.model),
             stream: settings.stream,
+        }
+
+        if( settings.model.toLowerCase().includes("-mini") ){
+            outgoing_data.presence_penalty = undefined
+            outgoing_data.frequency_penalty = undefined
+        }
+
+        if( settings.reasoning_effort && this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
+            if( settings.reasoning_effort != "none"){
+                outgoing_data["reasoning_effort"] = settings.reasoning_effort
+            }
         }
 
         let options = {
@@ -168,7 +138,7 @@ export default class OpenAI extends API {
         }
 
         const url: string = settings.api_url ? settings.api_url : this.API_ADDRESS
-        const target: string = `${url}/v1/chat/completions?api-version=${this.API_VERSION}`
+        const target: string = `${url}/v1/chat/completions`
         console.debug(`Sending prompt\n > ${target}\n\n%o`, outgoing_data)
         return await fetch(target, options)
     }
@@ -179,6 +149,12 @@ export default class OpenAI extends API {
             const parsed: any = JSON.parse(raw);
             if (parsed.error){
                 return parsed
+            }
+            reply.candidate.model = parsed.model ?? undefined
+            const reason: string = parsed.choices[0]?.message.reasoning_content;
+            if (reason){
+                reply.candidate.reasoning = reason;
+                this.__message_chunk = "";
             }
             const message: string = parsed.choices[0]?.message?.content;
             if (message){
@@ -206,6 +182,14 @@ export default class OpenAI extends API {
                 const parsed: any = JSON.parse(line);
                 if (parsed.error){
                     return parsed
+                }
+                reply.candidate.model = parsed.model ?? undefined
+                const reason: string = parsed.choices[0]?.delta?.reasoning_content;
+                if (reason){
+                    if( !reply.candidate.reasoning )
+                        reply.candidate.reasoning = "";
+                    reply.candidate.reasoning += reason;
+                    this.__message_chunk = "";
                 }
                 const delta: string = parsed.choices[0]?.delta?.content;
                 if (delta){

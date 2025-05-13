@@ -17,6 +17,7 @@ import DeepSeek from "./api/deepseek.ts"
 import Google from "./api/google.ts"
 import Mistral from "./api/mistral.ts"
 import OpenAI from "./api/openai.ts"
+import xAI from "./api/xai.ts"
 
 // data modules
 import Character from "./lib/character.ts"
@@ -54,6 +55,7 @@ var API_MODES: Record<string, API> = {
     "google": new Google(),
     "mistral": new Mistral(),
     "openai": new OpenAI(),
+    "xai": new xAI(),
 }
 
 var API_LIST: Array<{ key: string, title: string }> = []

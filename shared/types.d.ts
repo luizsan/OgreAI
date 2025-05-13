@@ -162,6 +162,7 @@ export interface IAPISettings{
 
     // select
     choices?: Array<string>;
+    capitalize?: boolean;
 
     // range
     min?: number;
