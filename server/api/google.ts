@@ -175,18 +175,21 @@ export default class Google extends API{
 
     receiveStream(raw: string, swipe: boolean, replace?: boolean): IReply | IError {
         var reply: IReply = this.createReply(swipe, replace)
+        if( raw.startsWith("data: ") ){
+            raw = raw.replace("data: ", "")
+        }
         var pre: any = JSON.parse(raw)
         if( pre.error ){
             return { error: { type: pre.error.status, message: pre.error.message }}
         }
-
         const lines: string[] = this.cleanIncomingStream(raw)
-        for (const line of lines) {
+        for (let line of lines) {
             if (line.startsWith(":")) continue;
             if (line === '[DONE]') {
                 reply.done = true;
                 break;
             }
+            console.log(line)
             try{
                 const parsed: any = JSON.parse(line);
                 if (parsed.promptFeedback){
