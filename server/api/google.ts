@@ -189,7 +189,6 @@ export default class Google extends API{
                 reply.done = true;
                 break;
             }
-            console.log(line)
             try{
                 const parsed: any = JSON.parse(line);
                 if (parsed.promptFeedback){
