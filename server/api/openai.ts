@@ -7,6 +7,7 @@ import type {
     ISettings,
     IGenerationData,
     IPromptEntry,
+    IError,
 } from "../../shared/types.d.ts";
 
 // imports the prompt builder
@@ -193,7 +194,7 @@ export default class OpenAI extends API {
         return reply
     }
 
-    receiveStream( raw: string, swipe: boolean = false, replace: boolean = false ): IReply | { error: any } {
+    receiveStream( raw: string, swipe: boolean = false, replace: boolean = false ): IReply | IError {
         var reply: IReply = this.createReply(swipe, replace)
         const lines: string[] = this.cleanIncomingStream(raw)
         for (const line of lines) {

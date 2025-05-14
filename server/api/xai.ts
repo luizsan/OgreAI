@@ -4,6 +4,7 @@ import type {
     ISettings,
     IGenerationData,
     IPromptEntry,
+    IError,
 } from "../../shared/types.js";
 
 import {
@@ -75,7 +76,7 @@ export default class xAI extends API {
         reasoning_effort: {
             title: "Reasoning Effort",
             description: "Constrains how hard a reasoning model thinks before responding.",
-            type: "select", default: "none", choices: [ "none", "low", "high" ], capitalize: true,
+            type: "select", default: "low", choices: [ "low", "high" ], capitalize: true,
         },
 
         stop_sequences: {
@@ -120,10 +121,8 @@ export default class xAI extends API {
         if( settings.model.toLowerCase().includes("-mini") ){
             outgoing_data.presence_penalty = undefined
             outgoing_data.frequency_penalty = undefined
-            if( settings.reasoning_effort && this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
-                if( settings.reasoning_effort != "none"){
-                    outgoing_data["reasoning_effort"] = settings.reasoning_effort
-                }
+            if( this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
+                outgoing_data["reasoning_effort"] = settings.reasoning_effort
             }
         }
 
@@ -147,7 +146,7 @@ export default class xAI extends API {
         try{
             const parsed: any = JSON.parse(raw);
             if (parsed.error){
-                return parsed
+                return { error: { type: parsed.code, message: parsed.error }}
             }
             reply.candidate.model = parsed.model ?? undefined
             const reason: string = parsed.choices[0]?.message.reasoning_content;
@@ -168,7 +167,7 @@ export default class xAI extends API {
         return reply
     }
 
-    receiveStream( raw: string, swipe: boolean = false, replace: boolean = false ): IReply | { error: any } {
+    receiveStream( raw: string, swipe: boolean = false, replace: boolean = false ): IReply | IError {
         var reply: IReply = this.createReply(swipe, replace)
         const lines: string[] = this.cleanIncomingStream(raw)
         for (const line of lines) {
@@ -180,7 +179,7 @@ export default class xAI extends API {
             try{
                 const parsed: any = JSON.parse(line);
                 if (parsed.error){
-                    return parsed
+                    return { error: { type: parsed.code, message: parsed.error }}
                 }
                 reply.candidate.model = parsed.model ?? undefined
                 const reason: string = parsed.choices[0]?.delta?.reasoning_content;

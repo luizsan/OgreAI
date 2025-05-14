@@ -149,7 +149,7 @@ export default class Google extends API{
         try{
             const parsed: any = JSON.parse(raw);
             if (parsed.error){
-                return parsed
+                return { error: { type: parsed.error.status, message: parsed.error.message }}
             }
             if (parsed.promptFeedback){
                 return { error: { message: parsed.promptFeedback.blockReason, type: "Prompt Feedback" }}
@@ -175,6 +175,11 @@ export default class Google extends API{
 
     receiveStream(raw: string, swipe: boolean, replace?: boolean): IReply | IError {
         var reply: IReply = this.createReply(swipe, replace)
+        var pre: any = JSON.parse(raw)
+        if( pre.error ){
+            return { error: { type: pre.error.status, message: pre.error.message }}
+        }
+
         const lines: string[] = this.cleanIncomingStream(raw)
         for (const line of lines) {
             if (line.startsWith(":")) continue;
@@ -184,9 +189,6 @@ export default class Google extends API{
             }
             try{
                 const parsed: any = JSON.parse(line);
-                if (parsed.error){
-                    return parsed
-                }
                 if (parsed.promptFeedback){
                     return { error: { message: parsed.promptFeedback.blockReason, type: "Prompt Feedback" }}
                 }
