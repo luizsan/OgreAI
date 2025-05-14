@@ -41,6 +41,9 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 break;
             case "persona":
                 if ( user?.persona?.trim().length > 0 ){
+                    let persona_entry: IPromptEntry = { role: "system", content: user.persona }
+                    persona_entry.content = parseMacros(persona_entry.content, data.chat)
+                    persona_entry.content = parseNames(persona_entry.content, user.name, character.data.name )
                     prompt_entries.push({ role: "system", content: user.persona })
                     added = true
                 }
@@ -65,14 +68,20 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
             case "world_info":
                 const world_entries: Array<ILorebookEntry> = Lorebook.getGlobalLoreEntries(api, data)
                 if( world_entries.length > 0 ){
-                    prompt_entries.push({ role: "system", content: Lorebook.squashEntries(world_entries) })
+                    let world_entry: IPromptEntry = { role: "system", content: Lorebook.squashEntries(world_entries) }
+                    world_entry.content = parseMacros(world_entry.content, data.chat)
+                    world_entry.content = parseNames(world_entry.content, data.user.name, data.character.data.name )
+                    prompt_entries.push(world_entry)
                     added = true
                 }
                 break;
             case "character_book":
                 const character_entries: Array<ILorebookEntry> = Lorebook.getEntriesFromBook(api, character.data.character_book, data)
                 if( character_entries.length > 0 ){
-                    prompt_entries.push({ role: "system", content: Lorebook.squashEntries(character_entries) })
+                    let book_entry: IPromptEntry = { role: "system", content: Lorebook.squashEntries(character_entries) }
+                    book_entry.content = parseMacros(book_entry.content, data.chat)
+                    book_entry.content = parseNames(book_entry.content, data.user.name, data.character.data.name )
+                    prompt_entries.push(book_entry)
                     added = true
                 }
                 break;
@@ -88,11 +97,13 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
             default:
                 break;
         }
+
         if( added ){
             console.debug(chalk.cyan(chalk.bold( " + ")) + chalk.blue(item.key))
         }else{
             console.debug(chalk.gray(chalk.bold( " - " ) + item.key))
         }
+
     })
     console.debug("---")
 
@@ -164,7 +175,9 @@ function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromp
         let role: string = message.participant > -1 ? "assistant" : "user";
         let index: number = message.index
         let candidate: ICandidate = message.candidates[index]
-        let contents: string = parseNames(candidate.text, data.user.name, data.character.data.name)
+        let contents: string = candidate.text
+        contents = parseMacros(contents, data.chat)
+        contents = parseNames(candidate.text, data.user.name, data.character.data.name)
         return { role: role, content: contents }
     }) as Array<IPromptEntry>;
 
