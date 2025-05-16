@@ -178,12 +178,20 @@ export default class Google extends API{
         if( raw.startsWith("data: ") ){
             raw = raw.replace("data: ", "")
         }
-        var pre: any = JSON.parse(raw)
-        if( pre.error ){
-            return { error: { type: pre.error.status, message: pre.error.message }}
+
+        // handles errors and proxy queues
+        try{
+            var pre: any = JSON.parse(raw)
+            if( pre && pre.error ){
+                return { error: { type: pre.error.status, message: pre.error.message }}
+            }
+        }catch(error: any){
+            console.warn(raw)
         }
+
         const lines: string[] = this.cleanIncomingStream(raw)
         for (let line of lines) {
+            console.log(line)
             if (line.startsWith(":")) continue;
             if (line === '[DONE]') {
                 reply.done = true;
