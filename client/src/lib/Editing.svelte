@@ -48,7 +48,11 @@
                         let k = key.charAt(0).toUpperCase() + key.slice(1)
                         percent[key] = tokens[key] / total * 100
                         breakdown.push( `${tokens[key]} ${k} (${percent[key].toFixed(2)}%)` )
-                        distribution += `${percent[key]}% `
+                        if( isNaN(percent[key]) ){
+                            distribution += `0px `
+                        }else{
+                            distribution += `${percent[key]}% `
+                        }
                     })
                 }
             }
@@ -505,7 +509,8 @@
         position: fixed;
         padding: 0px;
         top: var(--header-height);
-        width: var( --chat-width );
+        width: 100%;
+        max-width: var( --chat-width );
         z-index: 1;
     }
 
