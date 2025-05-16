@@ -13,7 +13,7 @@ import type {
 
 import API from "../core/api.ts";
 import Lorebook from "./lorebook.ts";
-import { parseMacros, parseNames } from "../../shared/format.mjs";
+import { parseMacros, parseNames } from "../../shared/format.ts";
 import chalk from "chalk";
 
 const available_roles: Array<string> = ["system", "user", "assistant"]

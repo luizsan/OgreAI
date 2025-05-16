@@ -6,7 +6,7 @@
     import Avatar from '../components/Avatar.svelte';
     import Text from '../components/Text.svelte';
     import * as Server from '../modules/Server.svelte';
-    import * as Format from "@shared/format.mjs";
+    import * as Format from "@shared/format.ts";
     import { tick } from 'svelte';
 
     let self : HTMLElement;

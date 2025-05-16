@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { marked } from 'marked';
     import type { ICharacter } from "@shared/types";
 
     // components
@@ -23,11 +24,30 @@
         currentSettingsMain
     } from '../State';
 
-    import { initializeMarked } from '../Marked';
     import Loading from '../components/Loading.svelte';
     import * as Preferences from '../modules/Preferences.svelte';
     import * as Theme from '../modules/Theme.svelte';
     import * as Server from '../modules/Server.svelte';
+
+    function initializeMarked(){
+        const quotePattern = /(&quot;|")([^"]+?)(\1)/gi
+        const marked_renderer = new marked.Renderer();
+
+        marked_renderer.del = function(text : string){
+            return "~" + text + "~"
+        }
+        marked_renderer.text = function(text : string){
+            text = text.replaceAll("<", "&lt;")
+            text = text.replaceAll(">", "&gt;")
+            text = text.replace(quotePattern, `<span class="quote">"$2"</span>`)
+            return text;
+        }
+
+        marked.setOptions({
+            breaks: true,
+            renderer: marked_renderer,
+        })
+    }
 
     onMount(async () => {
         Theme.updateRatio()

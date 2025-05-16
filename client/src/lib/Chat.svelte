@@ -10,8 +10,8 @@
     import Message from './Message.svelte'
     import Background from "./Background.svelte";
     import { ChatScroll } from "../utils/ChatScroll";
-    import { onMount, tick } from "svelte";
-    import * as Format from "@shared/format.mjs";
+    import { tick } from "svelte";
+    import * as Format from "@shared/format.ts";
     import * as Logo from "../utils/SVGLogo.svelte";
 
     $: lockinput = !$currentChat || $fetching || $busy;

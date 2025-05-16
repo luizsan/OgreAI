@@ -1,10 +1,11 @@
 <script lang="ts">
-    import type { IChat } from "@shared/types";
+    import DOMPurify from 'dompurify';
 
     import { marked } from 'marked';
-    import DOMPurify from 'dompurify';
     import { addToggleableBlocks } from "../utils/ToggleableBlock";
-    import * as Format from "@shared/format.mjs";
+
+    import type { IChat } from "@shared/types";
+    import * as Format from "@shared/format.ts";
 
     export let author : string = ""
     export let content : string = ""

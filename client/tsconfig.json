@@ -17,6 +17,7 @@
      */
     "allowJs": true,
     "checkJs": true,
+    "allowImportingTsExtensions": true,
     "isolatedModules": false,
     "ignoreDeprecations": "5.0",
     "jsx": "preserve",

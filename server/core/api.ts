@@ -7,7 +7,7 @@ import type {
     IUser
 } from "../../shared/types.d.ts";
 
-import { parseNames } from "../../shared/format.mjs";
+import { parseNames } from "../../shared/format.ts";
 
 
 export default abstract class API {

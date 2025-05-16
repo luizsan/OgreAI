@@ -1,13 +1,13 @@
 <script lang="ts">
     import { characterList, creating, currentProfile, currentCharacter, currentChat, currentLorebooks, editing, fetching, localServer } from "../State";
     import Screen from "../components/Screen.svelte";
-    import * as Server from "../modules/Server.svelte"
     import Accordion from "../components/Accordion.svelte";
-    import * as SVG from "../utils/SVGCollection.svelte";
     import Footer from "../components/Footer.svelte";
     import Heading from "../components/Heading.svelte";
     import Book from "../components/Book.svelte";
-    import * as Format from "@shared/format.mjs";
+    import * as Server from "../modules/Server.svelte"
+    import * as SVG from "../utils/SVGCollection.svelte";
+    import * as Format from "@shared/format.ts";
 
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;

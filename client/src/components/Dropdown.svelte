@@ -1,6 +1,5 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
-    import * as Format from "@shared/format.mjs";
 
     export let value : any = null;
     export let choices : Array<any>;

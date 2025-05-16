@@ -6,7 +6,7 @@ import chalk from "chalk"
 
 import * as CAI from "../import/cai.ts"
 import * as Tavern from "../import/tavern.ts"
-import * as Format from "../../shared/format.mjs"
+import * as Format from "../../shared/format.ts"
 
 export default class Chat{
 
@@ -41,7 +41,7 @@ export default class Chat{
                     timestamp: Date.now(),
                     text: greeting
                 }
-                candidate.text = Format.parseMacros(candidate.text)
+                candidate.text = Format.parseMacros(candidate.text, chat)
                 first.candidates.push(candidate)
             })
         }

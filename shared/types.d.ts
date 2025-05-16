@@ -198,3 +198,12 @@ export interface IPromptConfig{
     label?: string;
     description?: string;
 }
+
+export interface IReplaceEntry{
+    name?: string;
+    enabled: boolean;
+    pattern?: string;
+    replacement: string;
+    mode: string;
+    flags?: string;
+}

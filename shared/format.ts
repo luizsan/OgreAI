@@ -1,13 +1,10 @@
 
+import type { IChat, IReplaceEntry } from "./types.d.ts";
+
 const randomSplit = /[:]{2,}|[|]+/gm
 const randomPattern = /{{random\s?\:+\s?([^}]+)}}/gi
 
-/**
- * @param {string} text
- * @param {string} user
- * @param {string} bot
- */
-export function parseNames(text, user, bot){
+export function parseNames(text: string, user: string, bot: string){
     if(!text) return text;
     text = text.replace(/(\[NAME_IN_MESSAGE_REDACTED\])/gmi, user)
     text = text.replace(/{{user}}/gi, user)
@@ -17,12 +14,7 @@ export function parseNames(text, user, bot){
     return text
 }
 
-
-/**
- * @param {string} text
- * @param {IChat} chat
- */
-export function parseMacros(text, chat){
+export function parseMacros(text: string, chat: IChat){
     const date = new Date();
     const idle = getIdleTime(chat)
     text = randomReplace(text)
@@ -33,10 +25,7 @@ export function parseMacros(text, chat){
     return text
 }
 
-/**
- * @param {{ messages: IMessage[] }} chat
- */
-export function getIdleTime(chat){
+export function getIdleTime(chat: IChat){
     const last = chat?.messages?.length || 0 > 0 ? chat.messages.at(-1) : null
     if( last && last.candidates.length > 0 ){
         const candidate = last.candidates.at(last.index)
@@ -47,12 +36,9 @@ export function getIdleTime(chat){
     return relativeTime( new Date(), true )
 }
 
-/**
- * @param {string} text
- */
-export function randomReplace(text){
+export function randomReplace(text: string){
     text = text.replace(randomPattern, (_match, replace) => {
-        const list = replace.split(randomSplit).map((item) => item.trim()).filter((item) => item && item.length > 0);
+        const list = replace.split(randomSplit).map((item: string) => item.trim()).filter((item: string) => item && item.length > 0);
         if(list.length < 2){
             return ''
         }
@@ -63,21 +49,14 @@ export function randomReplace(text){
     return text
 }
 
-/**
- * @param {string} text
- * @param {string | any[]} modes
- * @param {any[]} patterns
- */
-export function regexReplace(text, modes, patterns){
+export function regexReplace(text: string, modes: Array<string>, patterns: Array<IReplaceEntry>){
     let replaced = text
-    patterns.forEach((item) => {
+    patterns.forEach((item: IReplaceEntry) => {
         if( !item || !item.enabled || !item.pattern )
             return
-
         if( item.mode != "always" && !modes.includes(item.mode)){
             return
         }
-
         const regex = new RegExp(item.pattern, item.flags || "")
         if( regex.test( replaced )){
             replaced = replaced.replace(regex, item.replacement ?? "")
@@ -86,40 +65,35 @@ export function regexReplace(text, modes, patterns){
     return replaced
 }
 
-/**
- * @param {string} text
- */
-export function toFilename(text){
+
+export function toFilename(text: string){
     return text.replace(/[^a-z0-9]/gi, '_');
 }
 
-/**
- * @param {string | number | Date} datetime
- */
-export function relativeTime( datetime, precise = false ){
+export function relativeTime(datetime: string | number | Date, precise = false ){
     const now = new Date();
     const target = new Date(datetime);
-    
+
     const date = target.toLocaleDateString()
     const time = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     const full = `${date} ${time}`
 
     let time_a;
     let time_b;
-    
+
     if( precise ){
         time_a = now.getTime()
         time_b = target.getTime()
     }else{
         time_a = new Date(
-            now.getFullYear(), 
-            now.getMonth(), 
+            now.getFullYear(),
+            now.getMonth(),
             now.getDate()
         ).getTime()
 
         time_b = new Date(
-            target.getFullYear(), 
-            target.getMonth(), 
+            target.getFullYear(),
+            target.getMonth(),
             target.getDate()
         ).getTime()
     }

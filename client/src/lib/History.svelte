@@ -3,7 +3,7 @@
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "../State";
     import * as SVG from "../utils/SVGCollection.svelte";
     import * as Server from '../modules/Server.svelte';
-    import * as Format from "@shared/format.mjs";
+    import * as Format from "@shared/format.ts";
     import { tick } from 'svelte';
     import Text from '../components/Text.svelte';
 

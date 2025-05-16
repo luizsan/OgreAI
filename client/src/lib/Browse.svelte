@@ -9,7 +9,6 @@
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
-    const path_prefix : string = "../user/characters/";
     const sortModes = {
         creation_date_new: {
             label: "Creation date (newest)",

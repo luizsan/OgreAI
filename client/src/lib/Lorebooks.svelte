@@ -4,13 +4,12 @@
     import Heading from "../components/Heading.svelte"
     import Book from "../components/Book.svelte"
     import Loading from "../components/Loading.svelte";
-    import Tags from "../components/Tags.svelte";
     import Search from "../components/Search.svelte";
     import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "../State"
     import * as Server from "../modules/Server.svelte";
     import * as Data from "../modules/Data.svelte"
     import * as SVG from "../utils/SVGCollection.svelte"
-    import * as Format from "@shared/format.mjs";
+    import * as Format from "@shared/format.ts";
 
 
     let editingBook : any = null;

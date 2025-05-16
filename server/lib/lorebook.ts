@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path"
 import chalk from "chalk";
 import { IGenerationData, ILorebook, ILorebookEntry, IMessage } from "../../shared/types.js";
-import { parseNames } from "../../shared/format.mjs";
+import { parseNames } from "../../shared/format.ts";
 import API from "../core/api.ts";
 
 export default class Lorebook{
