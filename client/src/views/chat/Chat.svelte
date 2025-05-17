@@ -1,18 +1,45 @@
 <script lang="ts">
-    import type { ICharacter, IMessage, ICandidate, IReply, ILorebook } from "@shared/types";
+    import type {
+        ICandidate,
+        ICharacter,
+        IMessage,
+        IReply,
+        ILorebook,
+    } from "@shared/types";
+
     import { AutoResize, resize } from "@/utils/AutoResize";
-    import { busy, deleting, history, localServer, currentCharacter, currentPreferences, currentChat, currentProfile, currentSettingsMain, currentSettingsAPI, deleteList, fetching, chatList, currentLorebooks } from "@/State";
-    import { clickOutside } from "@/utils/ClickOutside";
-    import * as Server from "@/Server";
-    import * as SVG from "@/svg/Common.svelte"
-    import History from "./History.svelte";
-    import Loading from '@/components/Loading.svelte'
-    import Message from './Message.svelte'
-    import Background from "@/views/main/Background.svelte";
     import { AutoScroll } from "@/utils/AutoScroll";
-    import { tick } from "svelte";
+    import { clickOutside } from "@/utils/ClickOutside";
+
+    import Background from "@/views/main/Background.svelte";
+    import {
+        busy,
+        chatList,
+        currentCharacter,
+        currentChat,
+        currentLorebooks,
+        currentPreferences,
+        currentProfile,
+        currentSettingsAPI,
+        currentSettingsMain,
+        deleteList,
+        deleting,
+        fetching,
+        history,
+        localServer
+    } from "@/State";
+
+
+    import History from "./History.svelte";
+    import Message from './Message.svelte';
+    import Loading from '@/components/Loading.svelte';
+
     import * as Format from "@shared/format.ts";
+    import * as Server from "@/Server";
+    import * as SVG from "@/svg/Common.svelte";
     import * as Logo from "@/svg/Logo.svelte";
+
+    import { tick } from "svelte";
 
     $: lockinput = !$currentChat || $fetching || $busy;
 

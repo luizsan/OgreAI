@@ -4,7 +4,7 @@ import * as SVG from "../svg/Common.svelte"
 const keys = ["thinking", "think"]
 const pattern = /<(thinking)>([\s\S]*?)<\/(\1)>\n*/gi
 
-export function addToggleableBlocks(node: Element, args: { name: string, type?: string }) {
+export function addToggleableBlocks(node: Element, args: { name: string, content: string, type?: string }) {
     function parseBlocks(){
         node.innerHTML = node.innerHTML.replace(pattern, (_match, tag, content) => {
             if ( keys.includes(tag) ){

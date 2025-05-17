@@ -7,7 +7,7 @@ import * as State from "@/State";
 
 let _heartbeat = null;
 
-export async function request( url : string, json = null ){
+export async function request( url : string, json = null, timeout_seconds: number = 0 ){
     let req : RequestInit;
     const headers = {
         "Content-Type": "application/json",
@@ -25,6 +25,10 @@ export async function request( url : string, json = null ){
             method: "GET",
             headers: headers
         }
+    }
+
+    if( timeout_seconds > 0 ){
+        req.signal = AbortSignal.timeout(timeout_seconds * 1000)
     }
 
     const response = await fetch(State.localServer + url, req);
@@ -126,7 +130,9 @@ export async function getAPIStatus(){
     let mode = settings_main.api_mode;
 
     State.api.set( null );
-    let result = await request( "/get_api_status", { api_mode: mode, settings: settings_api })
+    let result = await request( "/get_api_status", {
+        api_mode: mode, settings: settings_api
+    }, 5.0 )
     State.api.set( result )
 }
 
