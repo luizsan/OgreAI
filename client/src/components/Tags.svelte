@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import * as SVG from "../utils/SVGCollection.svelte"
+    import * as SVG from "../svg/Common.svelte"
 
     let self : HTMLElement;
     const numDropdown : number = 5
@@ -16,7 +16,7 @@
 
     let inputText : string = "";
     let filtered = choices;
-    
+
     $: {
         choices = choices;
         selected = selected;
@@ -28,7 +28,7 @@
         filtered = choices.filter(e => item(e) && item(e).toLowerCase().includes(inputText.toLowerCase()));
         filtered = filtered.filter(e => !selected.some((s) => item(e) == item(s)))
     }
-    
+
     function addTag(tag : string) {
         if(selected.includes(tag)){
             return
@@ -38,13 +38,13 @@
         filterTags();
         self.dispatchEvent(new Event("change", { bubbles: true }))
     }
-    
+
     function removeTag(index : number) {
         selected = selected.filter((_, i) => i !== index);
         filterTags()
         self.dispatchEvent(new Event("change", { bubbles: true }))
     }
-    
+
     onMount(filterTags);
 </script>
 
@@ -83,7 +83,7 @@
         flex-wrap: wrap;
         gap: 5px;
     }
-    
+
     .tag {
         position: relative;
         display: flex;
@@ -95,7 +95,7 @@
         height: 24px;
         border-radius: 3px;
     }
-    
+
     .tag button{
         position: absolute;
         right: 0px;
@@ -137,7 +137,7 @@
         width: fit-content;
         max-width: 100%;
         height: auto;
-        overflow-y: auto; 
+        overflow-y: auto;
         font-size: 0.9em;
     }
 

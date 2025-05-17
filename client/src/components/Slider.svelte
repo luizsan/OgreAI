@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as SVG from "../utils/SVGCollection.svelte";
+    import * as SVG from "../svg/Common.svelte";
     import Heading  from "./Heading.svelte";
 
     export let value : number;

@@ -1,41 +1,44 @@
 <script lang="ts">
-    import * as Server from "../Server.ts";
-    import * as SVG from "../svg/Common.svelte";
+    import * as Server from "@/Server";
+    import * as SVG from "@/svg/Common.svelte";
 
     let self : HTMLElement;
+    const key : string = "api_auth"
 
     // bind
     export let elements : Array<any> // list of presets
-    export let content : string = "" // actual content
+    export let url : string = ""
+    export let auth : string = ""
 
-    // properties
-    export let key : string = "" // presets category
-    export let rows : number = 4 // number of rows
-    export let resizable : Boolean = false // textarea resizable?
-    export let borderless : Boolean = false
-    export let highlighted : Boolean = false
+    let index : number = findEntryByContent(url, auth)
+    $: {
+        if( elements ){
+            refreshIndex()
+        }
+    }
+    $: can_apply = elements && index > -1 && (url != elements[index].address || auth != elements[index].password);
+    $: can_delete = elements && index > -1 && (url == elements[index].address && auth == elements[index].password);
 
-    let index : number = findEntryByContent(content)
-    $: can_apply = elements && index > -1 && content != elements[index].content;
-    $: can_delete = elements && index > -1 && content == elements[index].content;
-
-    function findEntryByContent(s : string){
+    function findEntryByContent(s : string, auth : string){
         if(!elements) return -1
-        return elements.findIndex((item) => item.content == s)
+        return elements.findIndex((item) => item.address == s && item.password == auth)
     }
 
     function refreshIndex(){
-        index = findEntryByContent(content)
+        index = findEntryByContent(url, auth)
     }
 
     function setPreset(i : number){
         if( i > -1 ){
-            content = elements.at(i).content;
+            // console.log(elements.at(i))
+            url = elements.at(i).address;
+            auth = elements.at(i).password
         }
     }
 
     function clear(){
-        content = ""
+        url = ""
+        auth = ""
         update()
     }
 
@@ -50,7 +53,7 @@
 
     function savePreset(){
         let target_name = ""
-        let existing_index = elements.findIndex((e) => e.content == content)
+        let existing_index = elements.findIndex((e) => e.address == url)
         if( index > -1 ){
             target_name = elements.at(index).name
         }else if( existing_index > -1 && elements.at(existing_index).name){
@@ -58,18 +61,19 @@
         }else{
             let id = 0;
             do{
-                target_name = "New preset " + id
+                target_name = "New authentication " + id
                 id += 1;
             }while( elements.some((item) => item.name == target_name ))
         }
 
-        let new_name = prompt("Choose a name for the saved preset:", target_name )
+        let new_name = prompt("Choose a name for the saved authentication:", target_name )
         if( new_name ){
             let existing_item = elements.find((item) => item.name == new_name)
             if( existing_item ){
-                existing_item.content = content
+                existing_item.address = url
+                existing_item.password = auth
             }else{
-                elements.push({ "name": new_name, "content": content })
+                elements.push({ "name": new_name, "address": url, "password": auth })
             }
 
             elements = elements;
@@ -92,7 +96,7 @@
 
 
 <div class="main" bind:this={self}>
-    <div class="component container focus" class:borderless class:highlighted>
+    <div class="component container focus">
         {#if elements}
             <div class="top">
                 <div class="list">
@@ -118,7 +122,17 @@
             <hr>
         {/if}
 
-        <textarea class="component clear wide" class:resizable={resizable} rows={rows > 0 ? rows : 0} bind:value={content}></textarea>
+        <div class="group">
+            <div class="field">
+                <div class="icon normal disabled">{@html SVG.link}</div>
+                <input type="text" class="component clear wide" placeholder="Insert API URL..." bind:value={url} style="flex: 1 1 auto">
+            </div>
+            <hr>
+            <div class="field">
+                <div class="icon normal disabled">{@html SVG.key}</div>
+                <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={auth} style="flex: 1 1 auto">
+            </div>
+        </div>
     </div>
 </div>
 
@@ -128,7 +142,7 @@
         position: absolute;
         left: 50%;
         translate: -50% 0px;
-        width: calc( 100% - 20px );
+        width: calc( 100% - 24px );
         margin: 0px;
         border: none;
         border-bottom: 2px dotted gray;
@@ -143,21 +157,10 @@
     }
 
     select{
-        padding: 8px 12px;
-        height: 32px;
-        width: 100%;
         height: 36px;
-    }
-
-    textarea{
-        margin: 0px;
         padding: 8px 12px;
-        font-size: 0.9em;
-        resize: none;
-    }
-
-    textarea.resizable{
-        resize: vertical;
+        width: 100%;
+        height: 100%;
     }
 
     .list{
@@ -183,10 +186,27 @@
         height: 36px;
         display: flex;
         align-items: center;
-        padding: 4px 16px;
+        padding: 8px 16px;
     }
 
-    .highlighted, .highlighted select{
-        background-color: var(--component-bg-hover);
+    .field .icon{
+        position: absolute;
+        width: 32px;
+        height: 100%;
+        display: flex;
+        left: 12px;
     }
+
+    .field .icon :global(svg){
+        align-self: center;
+        width: 16px;
+        height: 16px;
+        opacity: 0.5;
+    }
+
+    .field input{
+        padding-left: 36px;
+        height: 36px;
+    }
+
 </style>

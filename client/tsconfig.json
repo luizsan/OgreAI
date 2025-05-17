@@ -2,8 +2,8 @@
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
+    "useDefineForClassFields": true,
     "resolveJsonModule": true,
     // Don't you love when things suddenly explode on you?
     "preserveValueImports": false,
@@ -29,7 +29,7 @@
       "@shared/*": ["../shared/*"]
     },
   },
-  "include": ["src", "../shared/*.*", "src/**/*.svelte"],
+  "include": ["src", "../shared/*.*", "src/**/*.svelte", "src/global.d.ts"],
   "exclude": ["node_modules/*", ".git/*", "build/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

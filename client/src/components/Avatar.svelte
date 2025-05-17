@@ -54,7 +54,6 @@
             if(!protocol_regex.test(img)){
                 img = localServer + "/" + img;
             }
-            console.log(img)
             append = ""
         }
 

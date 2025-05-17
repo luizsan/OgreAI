@@ -3,7 +3,7 @@ const observer = new IntersectionObserver(onIntersect)
 function onIntersect(entries: IntersectionObserverEntry[]){
     entries.forEach((entry : IntersectionObserverEntry): void => {
         if( entry.isIntersecting ){
-            entry.target.dispatchEvent(new Event("lazyload"))
+            entry.target.dispatchEvent(new CustomEvent("lazyload"))
         }
     })
 }

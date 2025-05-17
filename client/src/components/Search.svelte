@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as SVG from "../utils/SVGCollection.svelte"
+    import * as SVG from "../svg/Common.svelte"
 
     export let search : string = ""
     export let elements : Array<any> = []
@@ -9,10 +9,8 @@
     // assumes it's an Array of strings by default
     // override to access object fields
     export let item = (item : any) => item;
-
     // the condition to filter items
     export let condition = (obj : any, arg : string) => obj.indexOf(arg) >- 1
-
     // "post-process" the search results (can sort here)
     export let after = (list : Array<any>) => list;
 

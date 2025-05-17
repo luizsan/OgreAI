@@ -36,6 +36,8 @@ export const creating = writable<boolean>( false )
 export const deleting = writable<boolean>( false )
 // toggles the state of viewing chat history
 export const history = writable<boolean>( false )
+// stores the current search query
+export const search = writable<string>( "" )
 
 // LISTS
 // stores the global list of characters

@@ -1,15 +1,15 @@
 import { marked } from 'marked';
-import * as SVG from "./SVGCollection.svelte"
+import * as SVG from "../svg/Common.svelte"
 
 const keys = ["thinking", "think"]
 const pattern = /<(thinking)>([\s\S]*?)<\/(\1)>\n*/gi
 
-export function addToggleableBlocks(node : Element, options : any){
+export function addToggleableBlocks(node: Element, args: { name: string, type?: string }) {
     function parseBlocks(){
-        node.innerHTML = node.innerHTML.replace(pattern, (match, tag, content) => {
+        node.innerHTML = node.innerHTML.replace(pattern, (_match, tag, content) => {
             if ( keys.includes(tag) ){
-               return `<p><button class="thinking">
-                    <div class="heading">${SVG.chat} ${options.name}</div>
+               return `<p><button class="thinking ${args.type || ""}">
+                    <div class="heading">${SVG.chat} ${args.name}</div>
                     <div class="content">${marked.parse(content)}</div>
                 </button></p>`
             }
@@ -29,7 +29,7 @@ export function addToggleableBlocks(node : Element, options : any){
     parseBlocks()
 
     return{
-        update(options : any){
+        update(_options : any){
             parseBlocks()
         },
 
