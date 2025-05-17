@@ -191,7 +191,6 @@ export default class Google extends API{
 
         const lines: string[] = this.cleanIncomingStream(raw)
         for (let line of lines) {
-            console.log(line)
             if (line.startsWith(":")) continue;
             if (line === '[DONE]') {
                 reply.done = true;

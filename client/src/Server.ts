@@ -106,7 +106,7 @@ export async function initializeData(){
         State.currentPresets.set( responses[2] )
         State.defaultPrompt.set( responses[3] )
         State.currentLorebooks.set( responses[4] )
-        await getAPIStatus()
+        getAPIStatus()
     }).catch((error) => {
         disconnect()
         console.error(error)

@@ -79,25 +79,25 @@ app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, max
 app.use('/user/avatar', express.static(path_dir.avatar, { fallthrough: false, index: false,  maxAge: -1  }));
 app.use('/user/characters', express.static(path_dir.characters, { fallthrough: false, index: false,  maxAge: -1  }));
 
-app.get("/status", parser, function(_, response){
+app.get("/status", parser, function(_: express.Request, response: express.Response){
     response.sendStatus(200)
 })
 
-app.get("/get_profile", parser, async function(_, response){
+app.get("/get_profile", parser, async function(_: express.Request, response: express.Response){
     let user_default: IUser = Profile.create()
     let user_profile = await LoadData( path.join(path_dir.user, "profile.json"), user_default)
     Profile.Validate(user_profile, user_default)
     response.send( user_profile )
 })
 
-app.get("/get_main_settings", parser, async function(_, response){
+app.get("/get_main_settings", parser, async function(_: express.Request, response: express.Response){
     const filepath = path.join(path_dir.settings, "main.json")
     let settings = await LoadData(filepath)
     Settings.ValidateMain(settings, Object.keys(API_MODES))
     response.send( settings )
 })
 
-app.post("/get_api_settings", parser, async function(request, response){
+app.post("/get_api_settings", parser, async function(request: express.Request, response: express.Response){
     try{
         const mode: string = request.body.api_mode
         const filepath: string = path.join(path_dir.settings, mode, "main.json")
@@ -110,7 +110,7 @@ app.post("/get_api_settings", parser, async function(request, response){
     }
 })
 
-app.post("/get_api_status", parser, async function(request, response){
+app.post("/get_api_status", parser, async function(request: express.Request, response: express.Response){
     const mode: string = request.body?.api_mode ?? "";
     const settings: ISettings = request.body?.settings ?? {};
     const api: API = API_MODES[mode];
@@ -122,7 +122,7 @@ app.post("/get_api_status", parser, async function(request, response){
         console.debug(chalk.blue(`Checking ${api.API_NAME} API status...`));
         const result = await api.getStatus(settings);
         if (result){
-            console.debug(chalk.green("✅ OK\n"));
+            console.debug(chalk.green(`${api.API_NAME} API status\n✅ OK\n`));
             response.status(200).send(result);
             return
         }
@@ -131,10 +131,10 @@ app.post("/get_api_status", parser, async function(request, response){
         response.status(500).send(false);
     }
     response.status(503).send(false);
-    console.debug(chalk.red("❌ Failed\n"));
+    console.debug(chalk.red(`${api.API_NAME} API status\n❌ Failed\n`));
 })
 
-app.post("/save_profile", parser, async function(request, response){
+app.post("/save_profile", parser, async function(request: express.Request, response: express.Response){
     let user_default: IUser = Profile.create()
     let user_profile = request.body
     Profile.Validate(user_profile, user_default)
@@ -142,13 +142,13 @@ app.post("/save_profile", parser, async function(request, response){
     response.send(ok)
 })
 
-app.post("/save_main_settings", parser, async function(request, response){
+app.post("/save_main_settings", parser, async function(request: express.Request, response: express.Response){
     const filepath = path.join(path_dir.settings, "main.json")
     const ok = await SaveData( filepath, request.body.data )
     response.send(ok)
 })
 
-app.post("/save_api_settings", parser, async function(request, response){
+app.post("/save_api_settings", parser, async function(request: express.Request, response: express.Response){
     if( !request.body || !request.body.api_mode || !API_MODES[request.body.api_mode]){
         response.send(false)
         return
@@ -160,7 +160,7 @@ app.post("/save_api_settings", parser, async function(request, response){
     response.send(ok)
 })
 
-app.post("/get_presets", parser, async function(request, response){
+app.post("/get_presets", parser, async function(request: express.Request, response: express.Response){
     if (!request.body?.type || !Settings.default_preset_categories.includes(request.body.type)) {
         const obj: Record<string, any[]> = {};
         await Promise.all(
@@ -178,7 +178,7 @@ app.post("/get_presets", parser, async function(request, response){
     }
 })
 
-app.post("/save_presets", parser, async function(request, response){
+app.post("/save_presets", parser, async function(request: express.Request, response: express.Response){
     if( !request.body || !request.body.type || !Settings.default_preset_categories.includes( request.body.type )){
         response.send( false )
         return
@@ -191,14 +191,14 @@ app.post("/save_presets", parser, async function(request, response){
 })
 
 
-app.get("/get_characters", parser, function(_, response){
+app.get("/get_characters", parser, function(_: express.Request, response: express.Response){
     let dir: string = path.join( _userPath, "characters" ).replaceAll("\\", "/");
     console.debug( chalk.blue( `Fetching characters from ${dir}` ))
     let list = Character.LoadFromDirectory(dir)
     response.send(list)
 });
 
-app.post("/get_character", parser, function(request, response){
+app.post("/get_character", parser, function(request: express.Request, response: express.Response){
     let filepath = request.body.filepath
     console.debug( chalk.blue( `Reading character from ${ filepath }` ))
     let character = Character.ReadFromFile( path.join( path_dir.characters, filepath ))
@@ -208,7 +208,7 @@ app.post("/get_character", parser, function(request, response){
     response.send(character)
 });
 
-app.post("/get_character_tokens", parser, function(request, response){
+app.post("/get_character_tokens", parser, function(request: express.Request, response: express.Response){
     let api: API = API_MODES[ request.body.api_mode ]
     let tokens: Record<string, number> = api.getCharacterTokens(
         request.body.character,
@@ -218,7 +218,7 @@ app.post("/get_character_tokens", parser, function(request, response){
     response.send(tokens)
 })
 
-app.post("/get_message_tokens", parser, function(request, response){
+app.post("/get_message_tokens", parser, function(request: express.Request, response: express.Response){
     let api = API_MODES[ request.body.api_mode ]
     let tokens = request.body.messages.map(message => {
         return api.getTokenCount(
@@ -229,13 +229,13 @@ app.post("/get_message_tokens", parser, function(request, response){
     response.send(tokens)
 })
 
-app.post("/get_chats", parser, function(request, response){
+app.post("/get_chats", parser, function(request: express.Request, response: express.Response){
     let chats = Chat.GetAllChats(request.body.character, path_dir.chats )
     if( !chats ){ chats = [] }
     response.send(chats)
 });
 
-app.post("/new_chat", parser, function(request, response){
+app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
     try{
         response.send(Chat.create(request.body.character))
     }catch(error){
@@ -243,12 +243,12 @@ app.post("/new_chat", parser, function(request, response){
     }
 })
 
-app.post("/save_chat", parser, function(request, response){
+app.post("/save_chat", parser, function(request: express.Request, response: express.Response){
     let result = Chat.Save( request.body.chat, request.body.character, path_dir.chats )
     response.send( result )
 })
 
-app.post("/copy_chat", parser, function(request, response){
+app.post("/copy_chat", parser, function(request: express.Request, response: express.Response){
     const now = Date.now();
 
     let copy = request.body.chat;
@@ -260,16 +260,16 @@ app.post("/copy_chat", parser, function(request, response){
     response.send( result )
 })
 
-app.post("/delete_chat", parser, function(request, response){
+app.post("/delete_chat", parser, function(request: express.Request, response: express.Response){
     let result = Chat.Delete( request.body.chat )
     response.send( result )
 })
 
-app.get("/new_character", parser, function(request, response){
+app.get("/new_character", parser, function(request: express.Request, response: express.Response){
     response.send(Character.create())
 })
 
-app.post("/save_character_image", upload.single("file"), async function(request, response){
+app.post("/save_character_image", upload.single("file"), async function(request: express.Request, response: express.Response){
     const char = JSON.parse(request.body.character)
     let image = request.file ? request.file.buffer : null
     let filepath = request.body.filepath
@@ -285,7 +285,7 @@ app.post("/save_character_image", upload.single("file"), async function(request,
     response.send( result )
 })
 
-app.post("/save_character", parser, async function(request, response){
+app.post("/save_character", parser, async function(request: express.Request, response: express.Response){
     const char = request.body.character
     let filepath = request.body.filepath || char.temp.filepath
     filepath = path.join( path_dir.characters, filepath )
@@ -297,7 +297,7 @@ app.post("/save_character", parser, async function(request, response){
     response.send( result )
 })
 
-app.post("/delete_character", parser, function(request, response){
+app.post("/delete_character", parser, function(request: express.Request, response: express.Response){
     let filepath = request.body.filepath
     const dir: string = path.join( _userPath, "characters" )
     if( !filepath.toLowerCase().startsWith( dir )){
@@ -313,11 +313,11 @@ app.post("/delete_character", parser, function(request, response){
     }
 })
 
-app.get("/get_lorebooks", parser, function(_, response){
+app.get("/get_lorebooks", parser, function(_: express.Request, response: express.Response){
     response.send( Lorebook.GetAllLorebooks(path_dir.lorebooks) )
 })
 
-app.post("/save_lorebook", parser, function(request, response){
+app.post("/save_lorebook", parser, function(request: express.Request, response: express.Response){
     if( !request.body || !request.body.book ){
         response.status(500).send( false )
     }else{
@@ -331,7 +331,7 @@ app.post("/save_lorebook", parser, function(request, response){
     response.status(500).send( false )
 })
 
-app.post("/delete_lorebook", parser, function(request, response){
+app.post("/delete_lorebook", parser, function(request: express.Request, response: express.Response){
     try{
         let filepath = request.body.book?.temp?.filepath
         filepath = path.join( path_dir.lorebooks, filepath )
@@ -344,11 +344,11 @@ app.post("/delete_lorebook", parser, function(request, response){
     response.status(500).send(false)
 })
 
-app.get("/get_api_modes", parser, async function(_, response){
+app.get("/get_api_modes", parser, async function(_: express.Request, response: express.Response){
     response.send( API_LIST )
 })
 
-app.post("/get_api_defaults", parser, function(request, response){
+app.post("/get_api_defaults", parser, function(request: express.Request, response: express.Response){
     let api: API = API_MODES[request.body.api_mode]
     try{
         response.send(JSON.stringify( api.API_SETTINGS ))
@@ -358,16 +358,16 @@ app.post("/get_api_defaults", parser, function(request, response){
     }
 })
 
-app.get("/get_prompt", parser, function(_, response){
+app.get("/get_prompt", parser, function(_: express.Request, response: express.Response){
     response.send( Settings.default_prompt_order )
 })
 
-app.post("/validate_prompt", parser, function(request, response){
+app.post("/validate_prompt", parser, function(request: express.Request, response: express.Response){
     let valid = Settings.ValidatePrompt( request.body.prompt, request.body.type )
     response.status(200).send(valid)
 })
 
-app.post("/generate", parser, async function(request, response){
+app.post("/generate", parser, async function(request: express.Request, response: express.Response){
     if( !request.body || !request.body.api_mode ){
         response.status(500).send({})
     }

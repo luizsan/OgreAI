@@ -145,9 +145,10 @@ export interface ISettings{
     recents?: Array<string>;
 }
 
-export interface IAPISettings{
+export interface IAPISetting{
     title: string;
     description: string;
+    disabled?: boolean;
     /**
      * The type of setting. Accepted strings are:
      * - "select": A dropdown selection from predefined choices.
@@ -155,10 +156,11 @@ export interface IAPISettings{
      * - "checkbox": A toggleable true/false option.
      * - "text": A single-line text input.
      * - "textarea": A multi-line text input.
+     * - "list": An array of items
+     * - "dictionary": An object with a single key-value pair
     **/
-    type: string;
+    type: "select" | "range" | "checkbox" | "text" | "textarea" | "list" | "dictionary";
     default: any;
-    disabled?: boolean;
 
     // select
     choices?: Array<string>;
