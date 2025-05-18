@@ -214,12 +214,12 @@
     async function Close(){
         if( $creating ){
             const ok = await Dialog.confirm("OgreAI", "You have unsaved changes!\nAre you sure you want to exit? You will lose this character forever!")
-            if ( ok ){
-                $editing = null;
+            if ( !ok ){
+                return
             }
-        }else{
-            $editing = null;
         }
+        $editing = null;
+        $creating = false;
     }
 
     function OpenImage(){
