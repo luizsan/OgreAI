@@ -31,7 +31,9 @@
 
 {#if state}
 <dialog class="light" bind:this={self}>
+
     <div class="header wide">{state.title}</div>
+
     <div class="body section">
         <div>{state.message}</div>
         <div class="section center">
@@ -54,6 +56,9 @@
             {/if}
         </div>
     </div>
+
+
+
 </dialog>
 {/if}
 
@@ -73,11 +78,17 @@
         overflow-y: hidden;
         font-family: var( --system-font-face );
         box-shadow: 0px 8px 24px 0px #00000080;
+        border: 1px solid #00000030;
     }
 
     dialog::backdrop{
         background: hsla(0, 0%, 15%, 0.9);
         backdrop-filter: blur(2px);
+    }
+
+    input[type="text"]{
+        font-family: var( --default-font-face );
+        font-size: 14px;
     }
 
     .header{
@@ -88,7 +99,8 @@
         height: 20px;
         padding: 4px 16px;
         font-size: 12px;
-        background: var( --component-bg-hover );
+        background: white;
+        z-index: 1;
     }
 
     .body {
@@ -96,12 +108,8 @@
         position: relative;
         display: flex;
         font-size: 12px;
+        background: hsl(0, 0%, 85%);
         color: black;
-    }
-
-    input[type="text"]{
-        font-family: var( --default-font-face );
-        font-size: 14px;
     }
 
     .choice{
@@ -114,12 +122,11 @@
     }
 
     .section{
-        gap: 16px;
+        gap: 12px;
     }
 
     .section.horizontal{
         gap: 8px;
     }
-
 
 </style>

@@ -395,6 +395,7 @@
     }
 
     async function ChangeChatTitle(){
+        chatOptions = false;
         let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
         if( new_title ){
             $currentChat.title = new_title
