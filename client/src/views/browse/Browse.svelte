@@ -68,6 +68,10 @@
         if( $characterList || $favoritesList ){
             searchResults = orderResults(searchResults)
         }
+
+        if( !$sectionCharacters ){
+            scrolled = 0
+        }
     }
 
     $: size = searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length;
