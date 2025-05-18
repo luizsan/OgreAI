@@ -1,13 +1,29 @@
 <script lang="ts">
-    import * as SVG from "@/svg/Common.svelte"
     import { AutoResize } from '@/utils/AutoResize';
-    import { currentProfile, currentPreferences, currentSettingsMain, currentCharacter, currentChat, busy, deleting, deleteList, fetching, editing, sectionSettings, tabSettings, tabEditing } from '@/State';
+    import {
+        currentProfile,
+        currentPreferences,
+        currentSettingsMain,
+        currentCharacter,
+        currentChat,
+        busy,
+        deleting,
+        deleteList,
+        fetching,
+        editing,
+        sectionSettings,
+        tabSettings,
+        tabEditing
+    } from '@/State';
     import { clickOutside } from '@/utils/ClickOutside';
     import Avatar from '@/components/Avatar.svelte';
     import Content from './Content.svelte';
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from '@/Server';
     import * as Format from "@shared/format.ts";
+    import * as SVG from "@/svg/Common.svelte"
     import { tick } from 'svelte';
+    import { get } from 'svelte/store';
 
     let self : HTMLElement;
 
@@ -39,7 +55,7 @@
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
-    $: lockinput = !$currentChat || $fetching || $busy;
+    $: lockinput = !$currentChat || $fetching || $busy
 
     // prefs
     $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
@@ -132,11 +148,11 @@
 
     async function CopyMessage(){
         SetPostActions(false)
-        navigator.clipboard.writeText(current.text).then(function(){
-            alert('Text copied to clipboard!');
-        }).catch(function(err) {
+        navigator.clipboard.writeText(current.text).then(async function(){
+            await Dialog.alert("OgreAI", 'Text copied to clipboard!');
+        }).catch(async function(err) {
             console.error('Failed to copy text: ', err);
-            alert('Failed to copy text to clipboard.\n' + err);
+            await Dialog.alert("OgreAI", 'Failed to copy text to clipboard.\n' + err);
         });
 
     }
@@ -182,7 +198,7 @@
             if( result ){
                 await Server.getChats( $currentCharacter, true )
                 $fetching = false;
-                window.alert("Successfully branched chat!")
+                await Dialog.alert("OgreAI", "Successfully branched chat!")
             }else{
                 $fetching = false;
             }
@@ -216,7 +232,12 @@
     }
 
     function Shortcuts(event : KeyboardEvent){
-        if( lockinput ) return;
+        if( lockinput ){
+            return;
+        }
+        if( Dialog.isOpen() ){
+            return
+        }
 
         let activeElement = document.activeElement;
 
@@ -271,6 +292,7 @@
         }
     }
 </script>
+
 
 <svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
@@ -331,7 +353,7 @@
 
         {#if !isEditing}
             <div class="footer" class:hidden={isEditing}>
-                <button class="dots normal" use:clickOutside={{callback: () => SetPostActions(false)}} on:click={TogglePostActions} disabled={postActions}>
+                <button class="dots normal" disabled={postActions} use:clickOutside on:click={TogglePostActions} on:clickout={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
                         {#if postActions}
                         <div class="actions">

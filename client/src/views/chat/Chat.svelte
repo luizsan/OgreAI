@@ -34,14 +34,16 @@
     import Message from './Message.svelte';
     import Loading from '@/components/Loading.svelte';
 
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as Format from "@shared/format.ts";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
     import * as Logo from "@/svg/Logo.svelte";
 
     import { tick } from "svelte";
+    import { get } from "svelte/store";
 
-    $: lockinput = !$currentChat || $fetching || $busy;
+    $: lockinput = !$currentChat || $fetching || $busy || chatOptions || Dialog.isOpen()
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
@@ -200,7 +202,7 @@
                 console.debug( "Awaiting stream..." )
                 let candidate = ReceiveStream(swipe)
 
-                function processText({ done, value }){
+                async function processText({ done, value }){
                     if(done || (value && value.done)){
                         candidate.timer = new Date().getTime() - requestTime;
                         candidate.text = Format.regexReplace(candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
@@ -221,7 +223,7 @@
                                 candidate.timer = new Date().getTime() - requestTime;
                                 candidate.text += "\n\n" + obj.error?.message || obj.error
                                 candidate.text = candidate.text.trim()
-                                alert(obj.error?.message)
+                                await Dialog.alert(obj.error?.code, obj.error?.message)
                             }
 
                             if( obj.candidate ){
@@ -275,7 +277,7 @@
                 response.json().then(async data => {
                     console.debug("Received message: %o", data)
                     if( data.error ){
-                        alert(`${data.error.type}\n${data.error.message}`)
+                        await Dialog.alert(data.error.type, data.error.message)
                     }else{
                         ReceiveMessage( data )
                     }
@@ -392,8 +394,8 @@
         }
     }
 
-    function ChangeChatTitle(){
-        let new_title = prompt("Insert the new chat title", $currentChat.title)
+    async function ChangeChatTitle(){
+        let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
         if( new_title ){
             $currentChat.title = new_title
             Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
@@ -425,14 +427,13 @@
     }
 </script>
 
-<svelte:body on:keydown={Shortcuts}/>
-
-<div class="container">
+<div class="container" inert={get(Dialog.data) !== null}>
     {#if $currentPreferences["chat_background"]}
         <Background/>
     {/if}
 
-    <div class="chat">
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="chat" on:keydown={Shortcuts}>
         {#if !$history}
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
                 {#if $currentChat != null}
@@ -467,7 +468,7 @@
             </div>
         {:else}
             <div class="input" class:disabled={$busy}>
-                <div class="options-group" use:clickOutside={{ callback: () => { chatOptions = false; }}}>
+                <div class="options-group" use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; chatOptions = false; }}>
                 <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
                 {#if chatOptions}

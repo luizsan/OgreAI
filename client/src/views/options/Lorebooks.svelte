@@ -6,6 +6,7 @@
     import Loading from "@/components/Loading.svelte";
     import Search from "@/components/Search.svelte";
     import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "@/State"
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server";
     import * as Data from "@/modules/Data.ts"
     import * as SVG from "@/svg/Common.svelte"
@@ -29,7 +30,7 @@
     }
 
     async function addLorebook(){
-        let name = prompt("Choose a name for your new lorebook", "New lorebook")
+        let name = await Dialog.prompt("OgreAI", "Choose a name for your new lorebook:", "New lorebook")
         if( name ){
             let book : any = createLorebook()
             book.name = name
@@ -56,7 +57,7 @@
             return
         }
 
-        const ok = confirm("Are you sure you want to embed this lorebook in the current character?\nAny existing embedded lorebook will be overwritten.\nThis action cannot be undone.")
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to embed this lorebook in the current character?\nAny existing embedded lorebook will be overwritten.\nThis action cannot be undone.")
         if( ok ){
             let copy = JSON.parse(JSON.stringify(book))
             $currentCharacter.data.character_book = copy;
@@ -70,7 +71,7 @@
     }
 
     async function removeLorebook(book : ILorebook){
-        const ok = confirm("Are you sure you want to delete this lorebook?\nThis action cannot be undone.")
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this lorebook?\nThis action cannot be undone.")
         if( ok ){
             let result = await Server.request("/delete_lorebook", { book: book })
             if( result ){
@@ -184,10 +185,10 @@
 
                 <div class="buttons">
                     {#if $currentCharacter}
-                        <button class="component info" on:click={() => applyLorebook(editingBook)}>{@html SVG.copy} Embed</button>
+                        <button class="component info" on:click={async () => await applyLorebook(editingBook)}>{@html SVG.copy} Embed</button>
                     {/if}
                     <button class="component normal" on:click={() => exportLorebook(editingBook)}>{@html SVG.upload} Export</button>
-                    <button class="component danger" on:click={() => removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
+                    <button class="component danger" on:click={async () => await removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
             <Book bind:book={editingBook}/>

@@ -5,6 +5,7 @@
     import Footer from "@/components/Footer.svelte";
     import Heading from "@/components/Heading.svelte";
     import Book from "@/views/lorebook/Book.svelte";
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server"
     import * as SVG from "@/svg/Common.svelte";
     import * as Format from "@shared/format.ts";
@@ -63,7 +64,7 @@
     async function CreateCharacter(){
         if( $creating ){
             if( !$editing.data.name ){
-                alert( "Cannot create character:\nInvalid or empty name")
+                await Dialog.alert("OgreAI", "Cannot create character:\nInvalid or empty name.")
                 return
             }
         }
@@ -104,7 +105,7 @@
                         await Server.getCharacterList();
                         $editing = null;
                         $creating = false;
-                        alert("Successfully created character:\n" + created.data.name)
+                        await Dialog.alert("OgreAI", "Successfully created character:\n" + created.data.name)
                     }else{
                         if( $editing && $editing.temp.avatar ){
                             let edited = await Server.request("/get_character", {
@@ -141,7 +142,7 @@
                         }
                     }
                 }else{
-                    alert("Could not create the character.")
+                    await Dialog.alert("OgreAI", "Could not create the character.")
                 }
             })
         })
@@ -151,7 +152,12 @@
     }
 
     async function DeleteCharacter(){
-        if( $editing && window.confirm("Are you sure you want to delete this character?\nThis action is irreversible!")){
+        if( !$editing ) {
+            return
+        }
+
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this character?\nThis action is irreversible!");
+        if( ok ){
             if( $editing.temp.filepath === $currentCharacter.temp.filepath ){
                 $currentCharacter = null;
                 $currentChat = null;
@@ -205,9 +211,9 @@
         }
     }
 
-    function Close(){
+    async function Close(){
         if( $creating ){
-            const ok = confirm("You have unsaved changes!\nAre you sure you want to exit? You will lose this character forever!")
+            const ok = await Dialog.confirm("OgreAI", "You have unsaved changes!\nAre you sure you want to exit? You will lose this character forever!")
             if ( ok ){
                 $editing = null;
             }

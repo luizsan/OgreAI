@@ -214,6 +214,11 @@ hr.component{
     place-items: center;
 }
 
+.end{
+    display: flex;
+    place-content: flex-end;
+}
+
 .section{
     display: flex;
     flex-direction: column;

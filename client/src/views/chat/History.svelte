@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { IChat } from "@shared/types";
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from '@/Server';
     import * as Format from "@shared/format.ts";
@@ -48,7 +49,7 @@
         if( result ){
             await Server.getChats( $currentCharacter )
             $fetching = false;
-            window.alert("Successfully copied chat!")
+            await Dialog.alert("OgreAI", "Successfully copied chat!")
         }else{
             $fetching = false;
         }

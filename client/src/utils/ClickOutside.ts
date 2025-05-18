@@ -1,10 +1,10 @@
-export function clickOutside(node : HTMLElement, args: { exclude?: Array<HTMLElement>, callback?: Function }) {
+export function clickOutside(node : HTMLElement, args?: { exclude?: Array<HTMLElement> }) {
     const handleClick = (event: Event) => {
         const target = event.target as HTMLElement;
         if (!event.target) {
             return;
         }
-        if(args.exclude){
+        if(args?.exclude){
             for(let i = 0; i < args.exclude.length; i++){
                 if(args.exclude[i] && args.exclude[i].contains(target)){
                     return
@@ -12,18 +12,16 @@ export function clickOutside(node : HTMLElement, args: { exclude?: Array<HTMLEle
             }
         }
         if (node && !node.contains(target) && !event.defaultPrevented) {
-            if (args.callback) {
-                args.callback();
-            }
+            node.dispatchEvent(new CustomEvent("clickout", { bubbles: true }));
         }
     }
-	document.addEventListener("click", handleClick, true);
+	document.body.addEventListener("click", handleClick, true);
 	return {
         update(newValue?: Array<HTMLElement>){
             args.exclude = newValue;
         },
 		destroy() {
-			document.removeEventListener("click", handleClick, true);
+			document.body.removeEventListener("click", handleClick, true);
 		}
 	};
 }

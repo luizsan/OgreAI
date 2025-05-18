@@ -74,7 +74,7 @@
         <div class="avatar" style="background-image: url({loaded ? url : ""})"/>
         {#if label}
             <div class="label">
-                <div class="name">{character.data.name}</div>
+                <div class="name normal">{character.data.name}</div>
                 <div class="sub">{filename}</div>
             </div>
 
@@ -147,7 +147,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-weight: bolder;
-        color: hsl(0, 0%, 85%);
     }
 
     .sub{
@@ -160,12 +159,12 @@
         color: gray;
     }
 
-    .main:hover .name{
-        color: white;
-    }
-
     .main:hover .sub{
         color: var( --accent-color-light );
+    }
+
+    :global(body.light) .main:hover .sub{
+        color: var( --accent-color-normal );
     }
 
     .favorite{
@@ -176,7 +175,6 @@
         height: 100%;
         opacity: 0.15;
         filter: grayscale(0.666666);
-
     }
 
     .checked{

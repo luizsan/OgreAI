@@ -23,6 +23,7 @@
         currentSettingsMain
     } from '@/State';
 
+    import Dialog from '@/components/Dialog.svelte';
     import Loading from '@/components/Loading.svelte';
     import * as Preferences from '@/modules/Preferences';
     import * as Theme from '@/modules/Theme';
@@ -131,6 +132,7 @@
         <Editing/>
         <Options/>
         <Header/>
+        <Dialog/>
     </div>
 
 {:else}

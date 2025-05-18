@@ -1,6 +1,7 @@
 <script lang="ts">
-    import * as Server from "../Server.ts";
-    import * as SVG from "../svg/Common.svelte";
+    import * as Dialog from "@/modules/Dialog.ts";
+    import * as Server from "@/Server.ts";
+    import * as SVG from "@/svg/Common.svelte";
 
     let self : HTMLElement;
 
@@ -48,7 +49,7 @@
         update()
     }
 
-    function savePreset(){
+    async function savePreset(){
         let target_name = ""
         let existing_index = elements.findIndex((e) => e.content == content)
         if( index > -1 ){
@@ -63,7 +64,7 @@
             }while( elements.some((item) => item.name == target_name ))
         }
 
-        let new_name = prompt("Choose a name for the saved preset:", target_name )
+        let new_name = await Dialog.prompt("OgreAI", "Choose a name for the saved preset:", target_name )
         if( new_name ){
             let existing_item = elements.find((item) => item.name == new_name)
             if( existing_item ){
@@ -78,8 +79,8 @@
         }
     }
 
-    function deletePreset(){
-        const ok = confirm(`Do you really want to delete preset '${elements[index].name}'?\nThis action cannot be undone.`)
+    async function deletePreset(){
+        const ok = await Dialog.confirm("OgreAI",`Do you really want to delete preset '${elements[index].name}'?\nThis action cannot be undone.`)
         if( ok ){
             elements.splice(index, 1)
             Server.request("/save_presets", { type: key, data: elements })

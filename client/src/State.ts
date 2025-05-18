@@ -1,7 +1,7 @@
 import { writable } from "svelte/store"
 import type {
     ISettings,
-    IAPISettings,
+    IAPISetting,
     ICharacter,
     IChat,
     IPromptConfig,
@@ -53,7 +53,7 @@ export const availableAPIModes = writable< Array<string> >( [] )
 
 // DEFAULTS
 // default schema for the selected API settings
-export const defaultSettingsAPI = writable< Record<string, IAPISettings> >( null )
+export const defaultSettingsAPI = writable< Record<string, IAPISetting> >( null )
 // default prompt order schema
 export const defaultPrompt = writable< Record<string, IPromptConfig> >( null )
 

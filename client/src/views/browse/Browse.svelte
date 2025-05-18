@@ -170,12 +170,12 @@
 
 {#if $sectionCharacters}
 
-<div class="main" class:active={$sectionCharacters} class:hidden={!$sectionCharacters} use:clickOutside={{exclude: exclusion, callback:Close}}>
+<div class="main" class:active={$sectionCharacters} class:hidden={!$sectionCharacters} use:clickOutside={{exclude: exclusion}} on:clickout={Close}>
 
     <div class="container" bind:this={self} on:scroll={refreshScroll}>
 
         <div class="section horizontal" style="justify-content: end">
-            <button class="pin {pinned ? "info" : "unpin"}" on:click={togglePin}>{@html SVG.pin}</button>
+            <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
         </div>
 
         <div class="section">
@@ -256,6 +256,11 @@
         translate: -100% 0 0;
     }
 
+    :global(body.light) .main{
+        background: hsl(0, 0%, 90%);
+    }
+
+
     .container{
         position: absolute;
         width: 100%;
@@ -281,10 +286,6 @@
         height: 100%;
         color: gray;
     }
-
-    .unpin{ color: hsl(0, 0%, 75%); }
-    .unpin:hover{ color: hsl(0, 0%, 100%); }
-    .unpin:active{ color: hsla(0, 0%, 66%, 0.5); }
 
     .pin{
         width: 24px;
@@ -328,6 +329,10 @@
         flex-direction: row;
         gap: 8px;
         box-shadow: 0px 5px 20px 15px hsla(210, 3%, 15%, 1);
+    }
+
+    :global(body.light) .back{
+        box-shadow: 0px 5px 20px 15px hsla(0, 3%, 85%, 1);
     }
 
     .back:after{

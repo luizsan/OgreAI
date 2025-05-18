@@ -4,6 +4,7 @@
     import Checkbox from "@/components/Checkbox.svelte";
     import Accordion from "@/components/Accordion.svelte";
     import Lore from "./Lore.svelte";
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
 
     let self : HTMLElement;
@@ -35,7 +36,7 @@
     }
 
     async function removeEntry(i : number){
-        const ok = confirm("Are you sure you want to delete this entry?\nThis action cannot be undone.")
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this entry?\nThis action cannot be undone.")
         if( ok ){
             book.entries.splice(i, 1)
             book.entries = book.entries
@@ -73,7 +74,7 @@
                 <div class:section={!editingEntry}>
                     {#each book.entries as entry, i}
                         {#if !editingEntry || editingEntry == entry}
-                            <Lore bind:entry={entry} on:open={() => editEntry(entry)} on:close={closeEntry} on:remove={() => removeEntry(i)}/>
+                            <Lore bind:entry={entry} on:open={() => editEntry(entry)} on:close={closeEntry} on:remove={async () => await removeEntry(i)}/>
                         {/if}
                     {/each}
                 </div>

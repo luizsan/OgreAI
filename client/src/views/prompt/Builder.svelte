@@ -1,6 +1,7 @@
 <script lang="ts">
     import { currentSettingsAPI, currentPresets } from "@/State";
     import Preset from "@/components/Preset.svelte";
+    import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
 
     export let list : Array<any> = []
@@ -134,9 +135,9 @@
         after()
     }
 
-    function removeAt(index: number) : void {
+    async function removeAt(index: number) : Promise<void> {
         if( list[index].key !== "custom" ) return
-        const ok = confirm(`Do you really want to remove this prompt?`);
+        const ok = await Dialog.confirm("OgreAI", "Do you really want to remove this prompt?");
         if( !ok ) return
         list.splice(index, 1);
         list = list;
@@ -281,18 +282,17 @@
 
             {#if item.key === "custom"}
                 <div class="section horizontal wide center">
-                    <button class="danger component custom delete" title="Remove" on:click={() => removeAt(i)}>
+                    <button class="danger component custom delete" title="Remove" on:click={async () => await removeAt(i)}>
                         {@html SVG.trashcan} Delete
                     </button>
                 </div>
             {/if}
-</div>
-{/if}
+        </div>
+    {/if}
 {/each}
 
 <div bind:this={marker} class="marker"/>
 </div>
-
 </div>
 
 
