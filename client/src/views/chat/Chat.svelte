@@ -43,7 +43,7 @@
     import { tick } from "svelte";
     import { get } from "svelte/store";
 
-    $: lockinput = !$currentChat || $fetching || $busy || chatOptions || Dialog.isOpen()
+    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen()
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
@@ -71,7 +71,8 @@
 
     async function ConfirmDeleteMessages(){
         if($deleteList.length > 0){
-            if(window.confirm(`Are you sure you want to delete ${$deleteList.length} message(s)?`)){
+            const ok: boolean = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${$deleteList.length} message(s)?`);
+            if( ok ){
                 $deleteList.sort()
                 $currentChat.messages = $currentChat.messages.filter((_: any, index: number) => index == 0 || !$deleteList.includes(index))
                 $currentChat = $currentChat;
@@ -428,13 +429,15 @@
     }
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<svelte:body on:keydown={Shortcuts}/>
+
 <div class="container" inert={get(Dialog.data) !== null}>
     {#if $currentPreferences["chat_background"]}
         <Background/>
     {/if}
 
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="chat" on:keydown={Shortcuts}>
+    <div class="chat">
         {#if !$history}
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
                 {#if $currentChat != null}

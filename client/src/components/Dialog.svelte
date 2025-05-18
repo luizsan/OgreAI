@@ -50,8 +50,8 @@
                 <!-- svelte-ignore a11y-autofocus -->
                 <input class="component normal wide" autofocus type="text" bind:value={input}/>
                 <div class="section horizontal wide end">
-                    <button class="component normal info choice" on:click={() => close(input)}>OK</button>
-                    <button class="component normal choice" on:click={() => close("")}>Cancel</button>
+                    <button class="component normal choice" on:click={() => close(input)}>OK</button>
+                    <button class="component normal choice" on:click={() => close(null)}>Cancel</button>
                 </div>
             {/if}
         </div>

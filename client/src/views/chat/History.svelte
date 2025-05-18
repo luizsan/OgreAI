@@ -31,7 +31,8 @@
     }
 
     async function deleteChat(){
-        if(window.confirm("Are you sure you want to delete this chat?")){
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this chat?");
+        if(ok){
             $fetching = true;
             await Server.request("/delete_chat", {
                 character: $currentCharacter,

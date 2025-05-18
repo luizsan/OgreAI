@@ -157,13 +157,14 @@
 
     }
 
-    export function DeleteCandidate(){
+    export async function DeleteCandidate(){
         if( first ){
             return;
         }
 
         SetPostActions(false)
-        if(window.confirm("Are you sure you want to delete this message?")){
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
+        if( ok ){
             $currentChat.messages[ id ].candidates.splice( index, 1 )
             // console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
 
@@ -185,7 +186,7 @@
     }
 
     async function BranchChat(){
-        const new_name = window.prompt("Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
+        const new_name = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
         if(new_name !== null){
             $fetching = true;
             let branch = JSON.parse( JSON.stringify( $currentChat ))
@@ -197,8 +198,8 @@
             let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch, name: new_name })
             if( result ){
                 await Server.getChats( $currentCharacter, true )
-                $fetching = false;
                 await Dialog.alert("OgreAI", "Successfully branched chat!")
+                $fetching = false;
             }else{
                 $fetching = false;
             }
@@ -231,10 +232,11 @@
         $deleteList.sort()
     }
 
-    function Shortcuts(event : KeyboardEvent){
+    async function Shortcuts(event : KeyboardEvent){
         if( lockinput ){
             return;
         }
+
         if( Dialog.isOpen() ){
             return
         }
@@ -248,7 +250,7 @@
 
         if( last ){
             if( activeElement.nodeName !== "INPUT" && activeElement.nodeName !== "TEXTAREA" ){
-                LastMessageShortcuts(event)
+                await LastMessageShortcuts(event)
             }
         }
     }
@@ -269,7 +271,7 @@
         }
     }
 
-    function LastMessageShortcuts(event : KeyboardEvent){
+    async function LastMessageShortcuts(event : KeyboardEvent){
         switch(event.key){
             case "ArrowUp":
                 event.preventDefault()
@@ -285,7 +287,7 @@
                 break;
             case "Delete":
                 event.preventDefault()
-                DeleteCandidate();
+                await DeleteCandidate();
                 break;
             default:
                 break;
@@ -304,28 +306,30 @@
 
 
     <div class="content">
-        <div class="author">
-            <span class="name {authorType}">{author}</span>
+        <div class="section wide horizontal">
+            <div class="author">
+                <span class="name {authorType}">{author}</span>
 
-            {#if prefs_show_datetime}
-                <span class="sub" title={date_time}>{relative_time}</span>
-            {/if}
-
-            {#if is_bot && prefs_show_model}
-                {@const botmaker = $currentCharacter.data.creator}
-                <span class="sub">&middot;</span>
-                {#if id > 0}
-                    <span class="sub">{model}</span>
-                {:else}
-                    <span class="sub">{botmaker ? `@${botmaker.toLowerCase()}` : "Unknown creator"}</span>
+                {#if prefs_show_datetime}
+                    <span class="sub" title={date_time}>{relative_time}</span>
                 {/if}
-            {/if}
 
-            {#if id > 0 && is_bot && prefs_show_timer}
-                {@const digits = timer > 0 ? 2 : 0}
-                <span class="sub">({timer.toFixed(digits) + "s"})</span>
-            {/if}
+                {#if is_bot && prefs_show_model}
+                    {@const botmaker = $currentCharacter.data.creator}
+                    <span class="sub">&middot;</span>
+                    {#if id > 0}
+                        <span class="sub">{model}</span>
+                    {:else}
+                        <span class="sub">{botmaker ? `@${botmaker.toLowerCase()}` : "Unknown creator"}</span>
+                    {/if}
+                {/if}
 
+                {#if id > 0 && is_bot && prefs_show_timer}
+                    {@const digits = timer > 0 ? 2 : 0}
+                    <span class="sub">({timer.toFixed(digits) + "s"})</span>
+                {/if}
+
+            </div>
             <span class="sub index"># {id+1}</span>
         </div>
 
@@ -466,6 +470,7 @@
     .index{
         margin-left: auto;
         visibility: hidden;
+        text-wrap: nowrap;
     }
 
     .sub{
