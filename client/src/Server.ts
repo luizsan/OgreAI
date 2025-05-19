@@ -1,6 +1,7 @@
 import type {
     ICharacter,
-    IChat
+    IChat,
+    ISettings,
 } from "@shared/types";
 import { get } from "svelte/store";
 import * as State from "@/State";
@@ -13,7 +14,6 @@ export async function request( url : string, json = null, timeout_seconds: numbe
         "Content-Type": "application/json",
         "Cache-Control": "no-cache"
     }
-
     if( json ){
         req = {
             method: "POST",
@@ -26,11 +26,9 @@ export async function request( url : string, json = null, timeout_seconds: numbe
             headers: headers
         }
     }
-
     if( timeout_seconds > 0 ){
         req.signal = AbortSignal.timeout(timeout_seconds * 1000)
     }
-
     const response = await fetch(State.localServer + url, req);
     const data = await response.json();
     return data;
@@ -214,4 +212,22 @@ export async function saveSettings(): Promise<void>{
     const mode = main_settings.api_mode
     await request("/save_main_settings", { data: main_settings })
     await request("/save_api_settings", { api_mode: mode, data: api_settings })
+}
+
+export async function addToRecentlyChatted(character: ICharacter): Promise<void>{
+    // parse the recents list if it exists in local storage
+    const path : string = character.temp.filepath.replaceAll("../user/characters/", "")
+    const currentSettingsMain: ISettings = get( State.currentSettingsMain )
+    if( !currentSettingsMain.recents || !Array.isArray( currentSettingsMain.recents )){
+        currentSettingsMain.recents = []
+    }
+    if (currentSettingsMain.recents.at(-1) === path){
+        return
+    }
+    const index = currentSettingsMain.recents.findIndex((item : string) => item === path)
+    if(index > -1){
+        currentSettingsMain.recents.splice(index, 1)
+    }
+    currentSettingsMain.recents.push(path)
+    await request("/save_main_settings", {data: currentSettingsMain})
 }

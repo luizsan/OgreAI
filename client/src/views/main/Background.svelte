@@ -16,6 +16,8 @@
     const opacity_ratio : number = 1.0
 </script>
 
+{#if $currentPreferences["chat_background"]}
+
 <div class="background" style={`
     --image: url(${backgroundPath});
     --width: ${width};
@@ -25,6 +27,8 @@
     --opacity: ${opacity * opacity_ratio};
     `}
 ></div>
+
+{/if}
 
 <style>
     .background{

@@ -18,7 +18,6 @@
         currentCharacter,
         currentChat,
         fetching,
-        sectionCharacters,
         characterList,
         currentSettingsMain
     } from '@/State';
@@ -79,28 +78,6 @@
         let tokens = await Server.getCharacterTokens( character );
         $currentCharacter.temp.tokens = tokens
         $fetching = false;
-    }
-
-    function swipeHandler(event : CustomEvent) {
-        // console.log(event.detail.direction)
-        switch(event.detail.direction){
-            case "right":
-                if( !$sectionCharacters ){
-                    $sectionCharacters = true;
-                    return;
-                }
-                break;
-
-            case "left":
-                if( $sectionCharacters ){
-                    $sectionCharacters = false;
-                    return;
-                }
-                break;
-
-            default:
-                break;
-        }
     }
 
     const confirmationMessage = 'Are you sure you want to leave this page?';

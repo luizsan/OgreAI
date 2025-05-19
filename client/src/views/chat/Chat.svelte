@@ -47,24 +47,24 @@
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
-    let chatOptions : boolean = false;
+    let showMenu : boolean = false;
     let requestTime : number = 0;
 
     let abortController : AbortController = new AbortController()
     let abortSignal = abortController.signal;
 
     function ToggleChatOptions(){
-        chatOptions = !chatOptions;
+        showMenu = !showMenu;
     }
 
     function SetDeleteMessages(){
-        chatOptions = false;
+        showMenu = false;
         $deleting = true;
         $deleteList = [];
     }
 
     function CancelDeleteMessages(){
-        chatOptions = false;
+        showMenu = false;
         $deleting = false;
         $deleteList = [];
     }
@@ -103,25 +103,7 @@
 
         console.debug( $currentChat.messages )
         await Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
-        await GenerateMessage()
-    }
-
-    // adds a character to the recents list, or move it to the bottom if it already exists
-    async function addToRecentCharacters(character : ICharacter){
-        // parse the recents list if it exists in local storage
-        const path : string = character.temp.filepath.replaceAll("../user/characters/", "")
-        if( !$currentSettingsMain.recents || !Array.isArray( $currentSettingsMain.recents )){
-            $currentSettingsMain.recents = []
-        }
-        if ( $currentSettingsMain.recents.at(-1) === path ){
-            return
-        }
-        const index = $currentSettingsMain.recents.findIndex((item : string) => item === path)
-        if( index > -1 ){
-            $currentSettingsMain.recents.splice(index, 1)
-        }
-        $currentSettingsMain.recents.push(path)
-        await Server.request("/save_main_settings", { data: $currentSettingsMain })
+        await generateMessage()
     }
 
     function fetchLorebooks(){
@@ -144,7 +126,6 @@
     async function cacheMessageTokens(){
         const mode : string = $currentSettingsMain.api_mode;
         const model = $currentSettingsAPI.model;
-
         let messagesToCache = getNonCachedMessages(model);
         let tokenCache = await Server.request( "/get_message_tokens", {
             api_mode: mode,
@@ -153,7 +134,6 @@
             character: $currentCharacter,
             settings: $currentSettingsAPI
         })
-
         // apply array of cached tokens to messages
         messagesToCache.forEach((message : IMessage, index : number) => {
             const candidate = message.candidates[message.index]
@@ -167,7 +147,7 @@
         console.log($currentChat.messages)
     }
 
-    export async function GenerateMessage(swipe = false){
+    export async function generateMessage(swipe = false){
         const mode = $currentSettingsMain.api_mode;
         let body = {
             api_mode: mode,
@@ -192,85 +172,20 @@
         requestTime = new Date().getTime()
         await tick()
         document.dispatchEvent(new CustomEvent("autoscroll"))
-
-        await addToRecentCharacters($currentCharacter)
+        await Server.addToRecentlyChatted($currentCharacter)
         await cacheMessageTokens()
-
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
-                const stream = response.body.pipeThrough( new TextDecoderStream() );
+                const stream = response.body.pipeThrough(new TextDecoderStream());
                 const reader = stream.getReader()
                 console.debug( "Awaiting stream..." )
-                let candidate = ReceiveStream(swipe)
-
-                async function processText({ done, value }){
-                    if(done || (value && value.done)){
-                        candidate.timer = new Date().getTime() - requestTime;
-                        candidate.text = Format.regexReplace(candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
-                        candidate.text = Format.parseMacros(candidate.text, $currentChat)
-                        $currentChat = $currentChat;
-
-                        console.debug( "Received stream: %o", candidate )
-                        document.dispatchEvent(new CustomEvent("autoscroll"))
-                        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+                let candidate = receiveStream(swipe)
+                async function processText({ done, value: input }){
+                    if(done || (input && input.done)){
+                        finishStream(candidate)
                         return;
                     }
-
-                    const lines = value.split('\n').filter((line: string) => line.trim() !== '');
-                    for( const line of lines ){
-                        try{
-                            const obj = JSON.parse(line)
-                            if( obj.error ){
-                                candidate.timer = new Date().getTime() - requestTime;
-                                candidate.text += "\n\n" + obj.error?.message || obj.error
-                                candidate.text = candidate.text.trim()
-                                await Dialog.alert(obj.error?.code, obj.error?.message)
-                            }
-
-                            if( obj.candidate ){
-
-                                candidate.timestamp = obj.candidate.timestamp
-
-                                // reasoning
-                                if( obj.candidate.reasoning ){
-                                    if( obj.replace ){
-                                        candidate.reasoning = obj.candidate.reasoning
-                                    }else{
-                                        candidate.reasoning += obj.candidate.reasoning
-                                    }
-                                }
-
-                                // text
-                                if( obj.candidate.text ){
-                                    if( obj.replace ){
-                                        candidate.text = obj.candidate.text
-                                    }else{
-                                        candidate.text += obj.candidate.text
-                                    }
-                                }
-
-                                // model
-                                if( !candidate.model ){
-                                    if( obj.candidate.model ){
-                                        candidate.model = obj.candidate.model
-                                    }else if( $currentSettingsAPI.model ){
-                                        candidate.model = $currentSettingsAPI.model
-                                    }
-                                }
-                            }
-                        }catch(error){
-                            if(error instanceof SyntaxError){
-                                console.error("SyntaxError: Failed to parse chunk: %s", line)
-                            }else{
-                                console.error(error)
-                            }
-                        }
-
-                        candidate.timer = new Date().getTime() - requestTime;
-                        document.dispatchEvent(new CustomEvent("autoscroll"))
-                        $currentChat = $currentChat;
-                    }
-
+                    await parseStream(candidate, input)
                     return reader.read().then(processText)
                 }
                 return reader.read().then(processText)
@@ -280,7 +195,7 @@
                     if( data.error ){
                         await Dialog.alert(data.error.type, data.error.message)
                     }else{
-                        ReceiveMessage( data )
+                        receiveMessage( data )
                     }
                 }).catch(error => {
                     console.error(error)
@@ -293,11 +208,35 @@
                 console.error(error)
             }
         })
-
         $busy = false;
     }
 
-    function AbortMessage(){
+    function receiveMessage(incoming : IReply){
+        console.debug($currentChat.messages)
+        incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
+        incoming.candidate.text = Format.parseMacros(incoming.candidate.text, $currentChat)
+        incoming.candidate.timer = Date.now() - requestTime;
+
+        if( incoming.swipe ){
+            let last = $currentChat.messages.at(-1)
+            if( last.participant > -1 ){
+                last.candidates.push(incoming.candidate)
+                last.index = last.candidates.length-1;
+            }
+        }else{
+            $currentChat.messages.push({
+                participant: incoming.participant,
+                index: 0,
+                candidates: [ incoming.candidate ],
+            })
+        }
+        $currentChat.last_interaction = Date.now()
+        $currentChat = $currentChat;
+        document.dispatchEvent(new CustomEvent("autoscroll"))
+        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+    }
+
+    function abortMessage(){
         if(!$busy) return;
         abortController.abort()
         abortController = new AbortController()
@@ -305,7 +244,7 @@
         $busy = false;
     }
 
-    function ReceiveStream(swipe = false) : ICandidate{
+    function receiveStream(swipe = false) : ICandidate{
         let candidate = {
             text: "",
             reasoning: "",
@@ -332,35 +271,77 @@
         return candidate;
     }
 
-    function ReceiveMessage(incoming : IReply){
-        console.debug($currentChat.messages)
-        incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
-        incoming.candidate.text = Format.parseMacros(incoming.candidate.text, $currentChat)
-        incoming.candidate.timer = Date.now() - requestTime;
 
-        if( incoming.swipe ){
-            let last = $currentChat.messages.at(-1)
-            if( last.participant > -1 ){
-                last.candidates.push(incoming.candidate)
-                last.index = last.candidates.length-1;
+    async function parseStream(candidate: ICandidate, input: string){
+        const lines = input.split('\n').filter((line: string) => line.trim() !== '');
+        for( const line of lines ){
+            try{
+                const obj = JSON.parse(line)
+                if( obj.error ){
+                    candidate.timer = new Date().getTime() - requestTime;
+                    candidate.text += "\n\n" + obj.error?.message || obj.error
+                    candidate.text = candidate.text.trim()
+                    await Dialog.alert(obj.error?.code, obj.error?.message)
+                }
+
+                if( obj.candidate ){
+
+                    candidate.timestamp = obj.candidate.timestamp
+
+                    // reasoning
+                    if( obj.candidate.reasoning ){
+                        if( obj.replace ){
+                            candidate.reasoning = obj.candidate.reasoning
+                        }else{
+                            candidate.reasoning += obj.candidate.reasoning
+                        }
+                    }
+
+                    // text
+                    if( obj.candidate.text ){
+                        if( obj.replace ){
+                            candidate.text = obj.candidate.text
+                        }else{
+                            candidate.text += obj.candidate.text
+                        }
+                    }
+
+                    // model
+                    if( !candidate.model ){
+                        if( obj.candidate.model ){
+                            candidate.model = obj.candidate.model
+                        }else if( $currentSettingsAPI.model ){
+                            candidate.model = $currentSettingsAPI.model
+                        }
+                    }
+                }
+            }catch(error){
+                if(error instanceof SyntaxError){
+                    console.error("SyntaxError: Failed to parse chunk: %s", line)
+                }else{
+                    console.error(error)
+                }
             }
-        }else{
-            $currentChat.messages.push({
-                participant: incoming.participant,
-                index: 0,
-                candidates: [ incoming.candidate ],
-            })
+
+            candidate.timer = new Date().getTime() - requestTime;
+            document.dispatchEvent(new CustomEvent("autoscroll"))
+            $currentChat = $currentChat;
         }
-        $currentChat.last_interaction = Date.now()
+    }
+
+    function finishStream(candidate: ICandidate){
+        candidate.timer = new Date().getTime() - requestTime;
+        candidate.text = Format.regexReplace(candidate.text, ["on_reply"], $currentSettingsMain.formatting.replace )
+        candidate.text = Format.parseMacros(candidate.text, $currentChat)
         $currentChat = $currentChat;
+        console.debug( "Received stream: %o", candidate )
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
     }
 
     async function RegenerateMessage(){
         if( lockinput ) return;
-
-        chatOptions = false;
+        showMenu = false;
         let last = $currentChat.messages.at(-1)
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
             if( last.candidates.length > 1 ){
@@ -370,20 +351,20 @@
                 index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
                 $currentChat.messages.at(-1).index = index;
                 $currentChat = $currentChat;
-                await GenerateMessage(true);
+                await generateMessage(true);
             }else{
                 $currentChat.messages.pop()
                 $currentChat = $currentChat;
-                await GenerateMessage(false);
+                await generateMessage(false);
             }
         }else{
-            await GenerateMessage(false);
+            await generateMessage(false);
         }
     }
 
     async function ChatHistory(state : boolean){
         if( state ){
-            chatOptions = false;
+            showMenu = false;
             $fetching = true;
             await Server.getChats( $currentCharacter )
             $fetching = false;
@@ -396,7 +377,7 @@
     }
 
     async function ChangeChatTitle(){
-        chatOptions = false;
+        showMenu = false;
         let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
         if( new_title ){
             $currentChat.title = new_title
@@ -406,7 +387,7 @@
 
     function Shortcuts(event : KeyboardEvent){
         if( event.key === "Escape"){
-            AbortMessage()
+            abortMessage()
         }
 
         if( lockinput ) return;
@@ -433,25 +414,23 @@
 <svelte:body on:keydown={Shortcuts}/>
 
 <div class="container" inert={get(Dialog.data) !== null}>
-    {#if $currentPreferences["chat_background"]}
-        <Background/>
-    {/if}
+    <Background/>
 
     <div class="chat">
         {#if !$history}
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
-                {#if $currentChat != null}
-                    {#each $currentChat.messages as _, i}
-                        <Message id={i} generateSwipe={()=>GenerateMessage(true)}/>
-                    {/each}
-                {/if}
+            {#if $currentChat != null}
+                {#each $currentChat.messages as _, i}
+                    <Message id={i} generateSwipe={()=>generateMessage(true)}/>
+                {/each}
+            {/if}
             </div>
         {:else}
             {#if $chatList != null && $chatList.length > 0}
                 <div class="history">
-                    {#each $chatList as chat}
-                        <History chat={chat}/>
-                    {/each}
+                {#each $chatList as chat}
+                    <History chat={chat}/>
+                {/each}
                 </div>
             {:else}
                 <div class="center">
@@ -466,27 +445,33 @@
                 <button class="component normal" on:click={CancelDeleteMessages}>Cancel</button>
                 <button class="component danger" on:click={ConfirmDeleteMessages}>Delete</button>
             </div>
+
         {:else if $history}
             <div class="bottom">
                 <button class="component normal" on:click={() => ChatHistory(false)}>Back</button>
             </div>
+
         {:else}
             <div class="input" class:disabled={$busy}>
-                <div class="options-group" use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; chatOptions = false; }}>
-                <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
+                <div use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; showMenu = false; }}>
+                    <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
-                {#if chatOptions}
-                    <div class="options-list">
-                        {#if $currentChat}
-                        <button class="options-item normal title" on:click={ChangeChatTitle}>{@html SVG.chat}<div><p class="subtitle">Current chat</p><p class="name">{$currentChat.title}</p></div></button>
-                        {/if}
-                        <button class="options-item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
-                        <button class="options-item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
+                    {#if showMenu}
+                    <div class="chatmenu">
+                        <button class="item normal title" on:click={ChangeChatTitle}>
+                            {@html SVG.chat}
+                            <div>
+                                <p class="subtitle">Current chat</p>
+                                <p class="name">{$currentChat.title}</p>
+                            </div>
+                        </button>
+                        <button class="item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
+                        <button class="item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
                         <hr>
-                        <button class="options-item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
-                        <button class="options-item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
+                        <button class="item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
+                        <button class="item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
                     </div>
-                {/if}
+                    {/if}
 
                 </div>
 
@@ -512,7 +497,7 @@
                 </div>
                 <div>
                     {#if $busy}
-                        <button class="abort danger side" on:click={AbortMessage}>Abort Message {@html SVG.stop}</button>
+                        <button class="abort danger side" on:click={abortMessage}>Abort Message {@html SVG.stop}</button>
                     {/if}
                 </div>
             </div>
@@ -650,7 +635,7 @@
         height: 16px;
     }
 
-    .options-list{
+    .chatmenu{
         position: absolute;
         width: fit-content;
         max-width: 240px;
@@ -668,12 +653,12 @@
         outline: var( --input-outline-normal );
     }
 
-    .options-list hr{
+    .chatmenu hr{
         margin: 8px 12px;
         border-color: #80808040;
     }
 
-    .options-item{
+    .chatmenu .item{
         font-size: 85%;
         box-sizing: border-box;
         border-radius: 3px;
@@ -686,28 +671,28 @@
         width: 100%;
     }
 
-    .options-item:hover{
+    .chatmenu .item:hover{
         background-color: hsl(0, 0%, 20%);
     }
 
-    .options-item:is(.normal):hover{
+    .chatmenu .item:is(.normal):hover{
         color: white;
     }
 
-    .options-item:disabled{
+    .chatmenu .item:disabled{
         color: hsl(0, 0%, 40%);
         pointer-events: none;
     }
 
-    .title{
+    .chatmenu .item.title{
         font-size: 0.75em;
     }
 
-    .subtitle{
+    .chatmenu .item .subtitle{
         opacity: 0.5;
     }
 
-    .options-list .name{
+    .chatmenu .item .name{
         text-overflow: ellipsis;
         overflow: hidden;
     }
