@@ -281,7 +281,7 @@
                     candidate.timer = new Date().getTime() - requestTime;
                     candidate.text += "\n\n" + obj.error?.message || obj.error
                     candidate.text = candidate.text.trim()
-                    await Dialog.alert(obj.error?.code, obj.error?.message)
+                    await Dialog.alert(obj.error?.type || "Error", obj.error?.message)
                 }
 
                 if( obj.candidate ){

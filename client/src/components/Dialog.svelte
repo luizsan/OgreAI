@@ -31,12 +31,10 @@
 
 {#if state}
 <dialog class="light" bind:this={self}>
-
     <div class="header wide">{state.title}</div>
-
     <div class="body section">
         <div>{state.message}</div>
-        <div class="section center">
+        <form class="section center">
             {#if state.type === "alert"}
                 <div class="section horizontal wide center">
                     <button class="component normal choice" on:click={() => close()}>OK</button>
@@ -48,17 +46,14 @@
                 </div>
             {:else if state.type === "prompt"}
                 <!-- svelte-ignore a11y-autofocus -->
-                <input class="component normal wide" autofocus type="text" bind:value={input}/>
+                <input class="component normal wide" autofocus type="text" bind:value={input} on:submit={() => close(input)}/>
                 <div class="section horizontal wide end">
                     <button class="component normal choice" on:click={() => close(input)}>OK</button>
                     <button class="component normal choice" on:click={() => close(null)}>Cancel</button>
                 </div>
             {/if}
-        </div>
+        </form>
     </div>
-
-
-
 </dialog>
 {/if}
 
@@ -108,6 +103,8 @@
         position: relative;
         display: flex;
         font-size: 12px;
+        white-space: pre;
+        line-height: 1.3em;
         background: hsl(0, 0%, 85%);
         color: black;
     }
