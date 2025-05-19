@@ -145,7 +145,7 @@ export interface ISettings{
     recents?: Array<string>;
 }
 
-export interface IAPISetting{
+export interface IAPISettings{
     title: string;
     description: string;
     disabled?: boolean;
@@ -159,7 +159,7 @@ export interface IAPISetting{
      * - "list": An array of items
      * - "dictionary": An object with a single key-value pair
     **/
-    type: "select" | "range" | "checkbox" | "text" | "textarea" | "list" | "dictionary";
+    type: string;
     default: any;
 
     // select
