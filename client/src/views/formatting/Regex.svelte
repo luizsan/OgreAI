@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import Accordion from "@/components/Accordion.svelte";
     import Heading from "@/components/Heading.svelte";
     import Segmented from "@/components/Segmented.svelte";
@@ -20,20 +22,35 @@
         { key: "s", label: "Single line", description: "Dot matches newline." },
     ]
 
-    // export let open : boolean = false;
-    export let name : string = "";
-    export let enabled : boolean = true;
-    export let pattern : string = "";
-    export let replacement : string = "";
-    export let mode : string = modes[0].key;
-    export let flags : string = "g";
+    
 
-    export let remove = () => {}
+    interface Props {
+        // export let open : boolean = false;
+        name?: string;
+        enabled?: boolean;
+        pattern?: string;
+        replacement?: string;
+        mode?: string;
+        flags?: string;
+        remove?: any;
+    }
 
-    let selectedFlags : Array<boolean> = regexFlags.map(f => flags.includes(f.key))
+    let {
+        name = $bindable(""),
+        enabled = $bindable(true),
+        pattern = $bindable(""),
+        replacement = $bindable(""),
+        mode = $bindable(modes[0].key),
+        flags = $bindable("g"),
+        remove = () => {}
+    }: Props = $props();
+
+    let selectedFlags : Array<boolean> = $state(regexFlags.map(f => flags.includes(f.key)))
 
     // build flags string based on selected flags
-    $: flags = selectedFlags.map((e, i) => e ? regexFlags[i].key : "").join("")
+    run(() => {
+        flags = selectedFlags.map((e, i) => e ? regexFlags[i].key : "").join("")
+    });
 
     onMount(() => {
         if( !mode ){
@@ -61,7 +78,7 @@
                     <div class="fields">
                         <input type="text" class="component wide" placeholder="Pattern" bind:value={pattern}/>
                         <div class="separator disabled">{@html SVG.arrow}</div>
-                        <textarea class="component wide" placeholder="Replacement" rows={5} bind:value={replacement} style="flex: 1 1 auto"/>
+                        <textarea class="component wide" placeholder="Replacement" rows={5} bind:value={replacement} style="flex: 1 1 auto"></textarea>
                     </div>
                 </div>
 
@@ -88,7 +105,7 @@
         </Accordion>
 
         <div class="controls">
-            <button class="component danger" title="Remove" on:click={remove}>{@html SVG.trashcan}</button>
+            <button class="component danger" title="Remove" onclick={remove}>{@html SVG.trashcan}</button>
         </div>
     </div>
 </div>

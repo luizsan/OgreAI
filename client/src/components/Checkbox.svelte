@@ -3,10 +3,19 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
 
-    export let value : boolean = false;
-    export let title : string = "";
-    export let description : string = "";
-    export let disabled = () => false;
+    interface Props {
+        value?: boolean;
+        title?: string;
+        description?: string;
+        disabled?: any;
+    }
+
+    let {
+        value = $bindable(false),
+        title = "",
+        description = "",
+        disabled = () => false
+    }: Props = $props();
 </script>
 
 <div class="toggle wide vertical" class:disabled={disabled()}>

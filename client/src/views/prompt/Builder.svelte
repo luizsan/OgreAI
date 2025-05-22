@@ -1,18 +1,30 @@
 <script lang="ts">
+    import { self, createBubbler, preventDefault } from 'svelte/legacy';
+
+    const bubble = createBubbler();
     import { currentSettingsAPI, currentPresets } from "@/State";
     import Preset from "@/components/Preset.svelte";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
 
-    export let list : Array<any> = []
-    export let defaults : object = {}
-    export let presets : Array<string> = [];
-    export let after = () => {}
+    interface Props {
+        list?: Array<any>;
+        defaults?: object;
+        presets?: Array<string>;
+        after?: any;
+    }
+
+    let {
+        list = $bindable([]),
+        defaults = {},
+        presets = [],
+        after = () => {}
+    }: Props = $props();
 
     // reorderable
-    let container : HTMLElement;
+    let container : HTMLElement = $state();
     let picked : HTMLElement;
-    let marker : HTMLElement;
+    let marker : HTMLElement = $state();
     let target : Element;
     let direction : number;
 
@@ -154,10 +166,10 @@
 
 <div class="container component"
     role="list"
-    on:dragover={moveItem}
-    on:dragend={dropItem}
-    on:touchmove={(e) => moveItem(e, true)}
-    on:touchend={dropItem}
+    ondragover={moveItem}
+    ondragend={dropItem}
+    ontouchmove={(e) => moveItem(e, true)}
+    ontouchend={dropItem}
 >
 
 <div class="list" bind:this={container}>
@@ -172,13 +184,13 @@
         class:locked={ ref.locked || (ref.editable && item.open)}
         id={ i.toString() }
         role="listitem"
-        on:dragstart|self={pickItem}
-        on:touchstart|self={(e) => pickItem(e, true)}
+        ondragstart={self(pickItem)}
+        ontouchstart={self((e) => pickItem(e, true))}
     >
 
         <!-- handle -->
         <div class="handle center">
-            {#if ref.locked }
+            {#if ref.locked}
                 {@html SVG.lock}
             {:else}
                 {@html SVG.reorder}
@@ -188,7 +200,7 @@
         <!-- toggle -->
         <div class="center">
             {#if ref.toggleable}
-                <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
+                <input type="checkbox" title="Toggle" bind:checked={item.enabled} onchange={after} onmousedown={preventDefault(bubble('mousedown'))}>
             {:else}
                 <input type="checkbox" disabled checked={true}>
             {/if}
@@ -213,7 +225,7 @@
                 class:hidden={!ref.editable}
                 class:deselect={!ref.editable}
                 title="Open"
-                on:click={() => {
+                onclick={() => {
                     if(ref.editable){
                         toggleOpen(i,!item.open)
                     }
@@ -263,7 +275,7 @@
                     class="component borderless wide"
                     rows={defaults[item.key]?.row_size || 4}
                     bind:value={ $currentSettingsAPI.prompt[i].content }
-                />
+></textarea>
             {/if}
 
             {#if ref.overridable}
@@ -282,7 +294,7 @@
 
             {#if item.key === "custom"}
                 <div class="section horizontal wide center">
-                    <button class="danger component custom delete" title="Remove" on:click={async () => await removeAt(i)}>
+                    <button class="danger component custom delete" title="Remove" onclick={async () => await removeAt(i)}>
                         {@html SVG.trashcan} Delete
                     </button>
                 </div>
@@ -291,7 +303,7 @@
     {/if}
 {/each}
 
-<div bind:this={marker} class="marker"/>
+<div bind:this={marker} class="marker"></div>
 </div>
 </div>
 

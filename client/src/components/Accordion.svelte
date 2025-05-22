@@ -4,20 +4,37 @@
 
     const dispatch = createEventDispatcher();
 
-    export let name : string = "";
-    export let open : boolean = false;
-    export let size : number = 0
-    export let limit : number = undefined
-    export let showSize : boolean = false;
-    export let enabled : boolean = true;
+    interface Props {
+        name?: string;
+        open?: boolean;
+        size?: number;
+        limit?: number;
+        showSize?: boolean;
+        enabled?: boolean;
+        onclose?: Function;
+        children?: import('svelte').Snippet;
+    }
 
-    $: label = `${name ? name : "List"}`;
+    let {
+        name = "",
+        open = $bindable(false),
+        size = 0,
+        limit = undefined,
+        showSize = false,
+        enabled = true,
+        onclose = () => {},
+        children
+    }: Props = $props();
 
-    let self : HTMLElement;
+    let label = $derived(`${name ? name : "List"}`);
+
+    let self : HTMLElement = $state();
 
     function Toggle(){
         open = !open;
         dispatch(open ? "open" : "close")
+        if( !open )
+            onclose()
     }
 
     function Scroll(){
@@ -29,7 +46,7 @@
 </script>
 
 <div class="main" bind:this={self} class:blocked={!enabled}>
-    <button class="component wide accordion normal" class:active={open} on:click={Toggle}>
+    <button class="component wide accordion normal" class:active={open} onclick={Toggle}>
         <span class="label deselect">{label}</span>
 
         {#if showSize}
@@ -42,8 +59,8 @@
     </button>
 
     {#if open && enabled}
-        <div class="container" in:slide={{duration: 150}} on:introend={Scroll}>
-            <slot/>
+        <div class="container" in:slide={{duration: 150}} onintroend={Scroll}>
+            {@render children?.()}
         </div>
     {/if}
 </div>

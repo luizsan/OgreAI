@@ -1,16 +1,25 @@
 <script lang="ts">
-    import type { ILorebook, ILorebookEntry } from "@shared/types";
-    import Heading from "@/components/Heading.svelte";
-    import Checkbox from "@/components/Checkbox.svelte";
-    import Accordion from "@/components/Accordion.svelte";
+    import type {
+        ILorebook,
+        ILorebookEntry
+    } from "@shared/types";
     import Lore from "./Lore.svelte";
+    import Accordion from "@/components/Accordion.svelte";
+    import Checkbox from "@/components/Checkbox.svelte";
+    import Heading from "@/components/Heading.svelte";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
 
-    let self : HTMLElement;
+    interface Props {
+        book?: ILorebook;
+    }
 
-    export let book : ILorebook = { entries: [] } as ILorebook;
-    let editingEntry : ILorebookEntry = null;
+    let {
+        book = $bindable({ entries: [] } as ILorebook)
+    }: Props = $props();
+
+    let self : HTMLElement = $state();
+    let editingEntry : ILorebookEntry = $state(null);
 
     function addEntry(){
         book.entries.push({
@@ -69,19 +78,24 @@
     <Checkbox bind:value={book.recursive_scanning} title="Recursive scanning" description="Whether entries can trigger other entries. Not yet implemented." disabled={() => true}/>
 
     <div class="section">
-        <Accordion name="Entries" size={book.entries.length} showSize={true} on:close={closeEntry}>
-            {#if book.entries && book.entries.length > 0 }
+        <Accordion name="Entries" size={book.entries.length} showSize={true} onclose={closeEntry}>
+            {#if book.entries && book.entries.length > 0}
                 <div class:section={!editingEntry}>
                     {#each book.entries as entry, i}
                         {#if !editingEntry || editingEntry == entry}
-                            <Lore bind:entry={entry} on:open={() => editEntry(entry)} on:close={closeEntry} on:remove={async () => await removeEntry(i)}/>
+                            <Lore
+                                bind:entry={book.entries[i]}
+                                on:open={() => editEntry(entry)}
+                                on:close={closeEntry}
+                                on:remove={async () => await removeEntry(i)}
+                            />
                         {/if}
                     {/each}
                 </div>
             {/if}
 
             {#if !editingEntry}
-                <button class="component normal add" on:click={addEntry}>{@html SVG.plus}Add entry</button>
+                <button class="component normal add" onclick={addEntry}>{@html SVG.plus}Add entry</button>
             {/if}
         </Accordion>
     </div>

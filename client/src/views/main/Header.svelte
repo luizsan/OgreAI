@@ -1,4 +1,6 @@
 <script>
+    import { stopPropagation } from 'svelte/legacy';
+
     import { currentCharacter, currentChat, editing, sectionCharacters, sectionSettings, tabSettings } from "@/State";
     import { menu, settings } from "@/svg/Common.svelte"
 
@@ -31,9 +33,9 @@
 
 
 <header id="header">
-    <button class="normal" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
-    <button class="clear" on:click|stopPropagation={CloseChat}><div class="title deselect">OGRE</div></button>
-    <button class="normal" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
+    <button class="normal" onclick={stopPropagation(ToggleSidebar)}>{@html menu}</button>
+    <button class="clear" onclick={stopPropagation(CloseChat)}><div class="title deselect">OGRE</div></button>
+    <button class="normal" onclick={stopPropagation(ToggleSettings)}>{@html settings}</button>
 </header>
 
 

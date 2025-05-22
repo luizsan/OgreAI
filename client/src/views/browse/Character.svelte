@@ -1,23 +1,23 @@
 <script lang="ts">
+    import { stopPropagation } from 'svelte/legacy';
+
     import type { ICharacter } from "@shared/types";
     import { fetching, editing, favoritesList, characterList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "@/State";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
     import { LazyLoad } from "@/utils/LazyLoad";
 
-    export let id : number = -1
-    export let character : ICharacter | null = null
-    export let label : boolean = false;
+    interface Props {
+        id?: number;
+        character?: ICharacter | null;
+        label?: boolean;
+    }
 
-    let loaded : boolean = false
+    let { id = -1, character = null, label = false }: Props = $props();
 
-    $: name = character.data.name
-    $: filepath = character.temp.filepath
-    $: address = getImageAddress(filepath)
-    $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
-    $: favorited = $favoritesList.indexOf(filepath) > -1
+    let loaded : boolean = $state(false)
 
-    $: url = `${address}?${character.metadata.modified}`
+
 
     function getImageAddress(path){
         if( !path )
@@ -66,12 +66,18 @@
         $favoritesList = $favoritesList.filter((fav) => $characterList.find((char) => char.temp.filepath == fav))
         window.localStorage.setItem("favorites", JSON.stringify($favoritesList))
     }
+    let name = $derived(character.data.name)
+    let filepath = $derived(character.temp.filepath)
+    let address = $derived(getImageAddress(filepath))
+    let filename = $derived(character.temp.filepath.replaceAll("../user/characters/", ""))
+    let favorited = $derived($favoritesList.indexOf(filepath) > -1)
+    let url = $derived(`${address}?${character.metadata.modified}`)
 </script>
 
 
-<div class="container" use:LazyLoad on:lazyload={() => loaded = true}>
-    <button class="main" on:click={() => SelectCharacter(filepath)}>
-        <div class="avatar" style="background-image: url({loaded ? url : ""})"/>
+<div class="container" use:LazyLoad onlazyload={() => loaded = true}>
+    <button class="main" onclick={() => SelectCharacter(filepath)}>
+        <div class="avatar" style="background-image: url({loaded ? url : ""})"></div>
         {#if label}
             <div class="label">
                 <div class="name normal">{character.data.name}</div>
@@ -79,8 +85,8 @@
             </div>
 
         {/if}
-        <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
     </button>
+    <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} onclick={stopPropagation(() => FavoriteCharacter(filepath))}>{@html SVG.star}</button>
 </div>
 
 

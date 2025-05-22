@@ -17,7 +17,7 @@
 </script>
 
 
-<div class="content wide" on:change={() => Server.request("/save_main_settings", { data: $currentSettingsMain })}>
+<div class="content wide" onchange={() => Server.request("/save_main_settings", { data: $currentSettingsMain })}>
     {#each $currentSettingsMain.formatting.replace as rep, i}
         <Regex
             bind:name={rep.name}
@@ -29,7 +29,7 @@
             remove={() => RemoveItem("replace", i)}
         />
     {/each}
-    <button class="component normal" on:click={() => AddItem("replace")}>{@html SVG.plus}Add Text Replace</button>
+    <button class="component normal" onclick={() => AddItem("replace")}>{@html SVG.plus}Add Text Replace</button>
 </div>
 
 

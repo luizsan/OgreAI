@@ -1,25 +1,31 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { currentProfile, localServer } from '../State';
     import type { ICharacter } from '@shared/types';
 
-    export let is_bot : boolean
-    export let size : number = 56
-    export let character : ICharacter = null;
+    interface Props {
+        is_bot: boolean;
+        size?: number;
+        character?: ICharacter;
+    }
 
-    let w : number;
-    let h : number;
-    let ratio : number = 1;
-    let roundness : number = 50;
-    let unit : string = "%"
+    let { is_bot, size = 56, character = null }: Props = $props();
+
+    let w : number = $state();
+    let h : number = $state();
+    let ratio : number = $state(1);
+    let roundness : number = $state(50);
+    let unit : string = $state("%")
 
     const avatar_user_default = localServer + "/img/user_default.png";
     const protocol_regex = /^([a-zA-Z]+):\/\//;
 
-    let append : string;
-    let img : string;
-    let url : string;
+    let append : string = $state();
+    let img : string = $state();
+    let url : string = $state();
 
-    $: {
+    run(() => {
 
         if($currentProfile.customization){
             switch($currentProfile.customization.avatarShape){
@@ -58,7 +64,7 @@
         }
 
         url = encodeURIComponent(img).replace(/%2F/g, '/').replace(/%3A/g, ':') + append;
-    }
+    });
 </script>
 
 <div class="avatar" style="background-image: url({url}); width: {w}px; height: {h}px; border-radius: {roundness}{unit}"></div>

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import DOMPurify from 'dompurify';
 
     import { marked } from 'marked';
@@ -7,18 +9,29 @@
     import type { IChat } from "@shared/types";
     import * as Format from "@shared/format.ts";
 
-    export let author : string = ""
-    export let content : string = ""
-    export let reasoning : string = ""
 
-    export let user : string
-    export let bot : string
-    export let chat : IChat
+    interface Props {
+        author?: string;
+        content?: string;
+        reasoning?: string;
+        user: string;
+        bot: string;
+        chat: IChat;
+    }
 
-    let displayReasoning = ""
-    let displayText = ""
+    let {
+        author = "",
+        content = "",
+        reasoning = "",
+        user,
+        bot,
+        chat
+    }: Props = $props();
 
-    $: {
+    let displayReasoning = $state("")
+    let displayText = $state("")
+
+    run(() => {
         if( reasoning ){
             displayReasoning = DOMPurify.sanitize( displayReasoning )
             displayReasoning = marked.parse(reasoning)
@@ -35,7 +48,7 @@
         }else{
             displayText = ""
         }
-    }
+    });
 </script>
 
 {#if displayReasoning}

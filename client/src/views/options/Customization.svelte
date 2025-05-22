@@ -8,7 +8,7 @@
     import { currentTheme, currentPreferences } from "@/State";
     import Heading from "@/components/Heading.svelte";
 
-    let buffer = {}
+    let buffer = $state({})
     Preferences.prefsList.forEach(key => {
         buffer[key] = $currentPreferences[key]
     });
@@ -32,7 +32,7 @@
 
     <div class="section">
         <Heading title="Theme" description="Define your preferred color scheme."/>
-        <div class="section" on:change={() => Theme.setTheme($currentTheme)}>
+        <div class="section" onchange={() => Theme.setTheme($currentTheme)}>
             <Segmented
                 bind:value={$currentTheme}
                 elements={Object.keys(Theme.themes)}
@@ -42,8 +42,8 @@
     </div>
 
     {#each Preferences.prefsList as key}
-        {@const entry = Preferences.prefs[key] }
-        <div class="setting" class:blocked={entry.disabled($currentPreferences)} on:change={() => applyPreference(key, buffer[key])}>
+        {@const entry = Preferences.prefs[key]}
+        <div class="setting" class:blocked={entry.disabled($currentPreferences)} onchange={() => applyPreference(key, buffer[key])}>
             {#if entry.type == "range"}
                 <Slider
                     bind:value={buffer[key]}

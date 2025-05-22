@@ -91,9 +91,9 @@
     }
 </script>
 
-<svelte:window on:resize={Theme.updateRatio} on:beforeunload={confirmExit}/>
+<svelte:window onresize={Theme.updateRatio} onbeforeunload={confirmExit}/>
 
-{#if $connected }
+{#if $connected}
     <div class="fullscreen" style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
         {#if !$fetching}
             {#if $currentCharacter && $currentChat}
@@ -114,12 +114,12 @@
 
 {:else}
     <div class="fullscreen center loading" transition:fade={{duration:125}}>
-        {#if $connected === null }
+        {#if $connected === null}
             <Loading width={48} height={48}/>
             Retrieving data from server...
         {:else}
             Cannot connect to server.
-            <button class="component" on:click={ ()=> Server.initializeData() }>Retry</button>
+            <button class="component" onclick={()=> Server.initializeData()}>Retry</button>
         {/if}
     </div>
 {/if}

@@ -1,27 +1,36 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { onMount } from 'svelte';
     import * as SVG from "../svg/Common.svelte"
 
-    let self : HTMLElement;
+    let self : HTMLElement = $state();
     const numDropdown : number = 5
 
-    export let choices : Array<any> = [ "Apples", "Bananas", "Coconuts", "Durians", "Eggplants" ]
-    export let selected : Array<any> = [];
-    export let placeholder : string = "Add tags..."
-    export let notFound : string = "No tags found"
 
-    // use custom functions to retrieve object properties if choices aren't strings
-    export let display = (v : string | any) => v.toLowerCase();
-    export let item = (v : string | any) => v;
-
-    let inputText : string = "";
-    let filtered = choices;
-
-    $: {
-        choices = choices;
-        selected = selected;
-        filterTags()
+    
+    interface Props {
+        choices?: Array<any>;
+        selected?: Array<any>;
+        placeholder?: string;
+        notFound?: string;
+        // use custom functions to retrieve object properties if choices aren't strings
+        display?: any;
+        item?: any;
     }
+
+    let {
+        choices = $bindable([ "Apples", "Bananas", "Coconuts", "Durians", "Eggplants" ]),
+        selected = $bindable([]),
+        placeholder = "Add tags...",
+        notFound = "No tags found",
+        display = (v : string | any) => v.toLowerCase(),
+        item = (v : string | any) => v
+    }: Props = $props();
+
+    let inputText : string = $state("");
+    let filtered = $state(choices);
+
 
     function filterTags() {
         selected = selected.filter(s => choices.some(c => item(c) == item(s)))
@@ -46,18 +55,23 @@
     }
 
     onMount(filterTags);
+    run(() => {
+        choices = choices;
+        selected = selected;
+        filterTags()
+    });
 </script>
 
 
 <div class="section" bind:this={self}>
     <div class="component container input">
-        <input type="text" class="component borderless wide" bind:value={inputText} on:input={filterTags} placeholder={placeholder}>
+        <input type="text" class="component borderless wide" bind:value={inputText} oninput={filterTags} placeholder={placeholder}>
 
         {#if selected.length !== choices.length}
             <div class="component container dropdown wide ellipsis">
                 {#if filtered.length > 0}
                     {#each filtered.slice(0, numDropdown) as element}
-                        <button class="component borderless wide candidate ellipsis" on:click|preventDefault={() => addTag(element)}>{display(element)}</button>
+                        <button class="component borderless wide candidate ellipsis" onclick={preventDefault(() => addTag(element))}>{display(element)}</button>
                     {/each}
                 {:else}
                     <button class="component borderless candidate empty disabled">{notFound}</button>
@@ -70,7 +84,7 @@
         {#each selected as tag, index}
             <div class="tag accent">
                 <span>{display(tag)}</span>
-                <button on:click={() => removeTag(index)}>{@html SVG.close}</button>
+                <button onclick={() => removeTag(index)}>{@html SVG.close}</button>
             </div>
         {/each}
     </div>

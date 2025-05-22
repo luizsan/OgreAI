@@ -1,17 +1,17 @@
 <script lang="ts">
     import { localServer, currentCharacter, currentPreferences } from "@/State";
 
-    $: vertical = $currentPreferences["chat_background"] === "vertical";
-    $: coverage = ($currentPreferences["background_coverage"] ?? 50);
-    $: opacity = ($currentPreferences["background_opacity"] ?? 10) * 0.01;
+    let vertical = $derived($currentPreferences["chat_background"] === "vertical");
+    let coverage = ($derived($currentPreferences["background_coverage"] ?? 50));
+    let opacity = $derived(($currentPreferences["background_opacity"] ?? 10) * 0.01);
 
-    $: width = vertical ? "100%" : `${coverage}%`;
-    $: height = vertical ? `${coverage}%` : "100%"
-    $: position = vertical ? "top center" : "center left";
-    $: rotation = vertical ? "0.5turn" : "0.25turn";
+    let width = $derived(vertical ? "100%" : `${coverage}%`);
+    let height = $derived(vertical ? `${coverage}%` : "100%")
+    let position = $derived(vertical ? "top center" : "center left");
+    let rotation = $derived(vertical ? "0.5turn" : "0.25turn");
 
-    $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
-    $: backgroundPath = localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime();
+    let uri = $derived($currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "");
+    let backgroundPath = $derived(localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime());
 
     const opacity_ratio : number = 1.0
 </script>

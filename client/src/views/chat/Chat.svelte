@@ -43,11 +43,11 @@
     import { tick } from "svelte";
     import { get } from "svelte/store";
 
-    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen()
+    let lockinput = $derived(!$currentChat || $fetching || $busy || Dialog.isOpen())
 
-    let userMessage : string = ""
-    let messageBox : HTMLTextAreaElement;
-    let showMenu : boolean = false;
+    let userMessage : string = $state("")
+    let messageBox : HTMLTextAreaElement = $state();
+    let showMenu : boolean = $state(false);
     let requestTime : number = 0;
 
     let abortController : AbortController = new AbortController()
@@ -410,8 +410,8 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<svelte:body on:keydown={Shortcuts}/>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<svelte:body onkeydown={Shortcuts}/>
 
 <div class="container" inert={get(Dialog.data) !== null}>
     <Background/>
@@ -442,34 +442,34 @@
 
         {#if $deleting}
             <div class="bottom">
-                <button class="component normal" on:click={CancelDeleteMessages}>Cancel</button>
-                <button class="component danger" on:click={ConfirmDeleteMessages}>Delete</button>
+                <button class="component normal" onclick={CancelDeleteMessages}>Cancel</button>
+                <button class="component danger" onclick={ConfirmDeleteMessages}>Delete</button>
             </div>
 
         {:else if $history}
             <div class="bottom">
-                <button class="component normal" on:click={() => ChatHistory(false)}>Back</button>
+                <button class="component normal" onclick={() => ChatHistory(false)}>Back</button>
             </div>
 
         {:else}
             <div class="input" class:disabled={$busy}>
-                <div use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; showMenu = false; }}>
-                    <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
+                <div use:clickOutside onclickout={() => { if(Dialog.isOpen()) return; showMenu = false; }}>
+                    <button class="normal side options" onclick={ToggleChatOptions}>{@html SVG.menu}</button>
 
                     {#if showMenu}
                     <div class="chatmenu">
-                        <button class="item normal title" on:click={ChangeChatTitle}>
+                        <button class="item normal title" onclick={ChangeChatTitle}>
                             {@html SVG.chat}
                             <div>
                                 <p class="subtitle">Current chat</p>
                                 <p class="name">{$currentChat.title}</p>
                             </div>
                         </button>
-                        <button class="item normal" on:click={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
-                        <button class="item normal" on:click={Server.newChat}>{@html SVG.window}New Chat</button>
+                        <button class="item normal" onclick={() => ChatHistory(true)}>{@html SVG.history}Chat History</button>
+                        <button class="item normal" onclick={Server.newChat}>{@html SVG.window}New Chat</button>
                         <hr>
-                        <button class="item normal" on:click={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
-                        <button class="item danger" on:click={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
+                        <button class="item normal" onclick={RegenerateMessage}>{@html SVG.reload}Regenerate<span class="shortcut">Ctrl+Space</span></button>
+                        <button class="item danger" onclick={SetDeleteMessages}>{@html SVG.trashcan}Delete Messages</button>
                     </div>
                     {/if}
 
@@ -480,7 +480,7 @@
                 {#if $busy}
                     <Loading/>
                 {:else}
-                    <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
+                    <button class="normal side send" onclick={SendMessage}>{@html SVG.send}</button>
                 {/if}
             </div>
 
@@ -497,7 +497,7 @@
                 </div>
                 <div>
                     {#if $busy}
-                        <button class="abort danger side" on:click={abortMessage}>Abort Message {@html SVG.stop}</button>
+                        <button class="abort danger side" onclick={abortMessage}>Abort Message {@html SVG.stop}</button>
                     {/if}
                 </div>
             </div>
@@ -675,7 +675,7 @@
         background-color: hsl(0, 0%, 20%);
     }
 
-    .chatmenu .item:is(.normal):hover{
+    .chatmenu .item:is(:global(.normal)):hover{
         color: white;
     }
 

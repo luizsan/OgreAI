@@ -1,16 +1,29 @@
 <script lang="ts">
     import Heading from "./Heading.svelte";
 
-    export let value : any = null;
-    export let choices : Array<any>;
-    export let editable : boolean = false;
 
-    export let title : string = "";
-    export let description : string = "";
-    export let wide : boolean = false
 
-    export let icon : string = "";
-    export let capitalize : boolean = false
+    interface Props {
+        value?: any;
+        choices: Array<any>;
+        editable?: boolean;
+        title?: string;
+        description?: string;
+        wide?: boolean;
+        icon?: string;
+        capitalize?: boolean;
+    }
+
+    let {
+        value = $bindable(null),
+        choices,
+        editable = false,
+        title = "",
+        description = "",
+        wide = false,
+        icon = "",
+        capitalize = false
+    }: Props = $props();
 </script>
 
 <div class="section">

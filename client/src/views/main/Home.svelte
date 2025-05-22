@@ -26,8 +26,8 @@
         <input type="text" class="component" placeholder="Search characters...">
 
         <div class="buttons">
-            <button class="component" title="New character" on:click={NewCharacter}>{@html SVG.add} Add character</button>
-            <button class="component" title="Reload characters" on:click={Server.getCharacterList}>{@html SVG.refresh}Refresh list</button>
+            <button class="component" title="New character" onclick={NewCharacter}>{@html SVG.add} Add character</button>
+            <button class="component" title="Reload characters" onclick={Server.getCharacterList}>{@html SVG.refresh}Refresh list</button>
             <span style="margin-left: auto"></span>
             <label for="sort">Sort by:</label>
             <select name="sort" class="component">

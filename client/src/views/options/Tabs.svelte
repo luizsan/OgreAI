@@ -56,7 +56,7 @@
 
 </script>
 
-{#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
+{#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null}
     <Screen>
         <div class="content">
             <div class="top section">
@@ -90,7 +90,7 @@
 
 
         <div class="side section wrap">
-            <div class="dim disabled"/>
+            <div class="dim disabled"></div>
 
             {#each Object.keys(tab_items) as key}
                 {#if !tab_items[key].disabled}
@@ -99,7 +99,7 @@
                         class:active={key == $tabSettings}
                         class:disabled={key == $tabSettings}
                         disabled={tab_items[key].disabled || key == $tabSettings}
-                        on:click={() => setTab(key)}>{@html tab_items[key].icon}
+                        onclick={() => setTab(key)}>{@html tab_items[key].icon}
                     </button>
                 {/if}
             {/each}

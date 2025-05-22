@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { stopPropagation } from 'svelte/legacy';
+
     import type { IChat } from "@shared/types";
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
     import * as Dialog from "@/modules/Dialog.ts";
@@ -8,16 +10,20 @@
     import { tick } from 'svelte';
     import Text from './Content.svelte';
 
-    export let chat : IChat;
-    let titleField : HTMLInputElement
-    let editingTitle : boolean = false
-    let open : boolean = false
+    interface Props {
+        chat: IChat;
+    }
 
-    $: last = chat ? chat.messages.at(-1) : null;
-    $: index = last ? last.index : 0;
-    $: author = last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
-    $: created = chat.create_date || 0
-    $: modified = last ? last.candidates[index].timestamp : 0
+    let { chat = $bindable() }: Props = $props();
+    let titleField : HTMLInputElement = $state()
+    let editingTitle : boolean = $state(false)
+    let open : boolean = $state(false)
+
+    let last = $derived(chat ? chat.messages.at(-1) : null);
+    let index = $derived(last ? last.index : 0);
+    let author = $derived(last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name)
+    let created = $derived(chat.create_date || 0)
+    let modified = $derived(last ? last.candidates[index].timestamp : 0)
 
     function getFormattedDate(timestamp : number) : string{
         return new Date(timestamp).toLocaleString()
@@ -80,10 +86,10 @@
 <div class="content">
     <div class="section data">
         <div class="title">
-            <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
+            <button class="normal" onclick={stopPropagation(toggleEditTitle)}>{@html SVG.edit}</button>
             {#if editingTitle}
-                <!-- svelte-ignore a11y-autofocus -->
-                <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
+                <!-- svelte-ignore a11y_autofocus -->
+                <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} onchange={saveChanges}>
             {:else}
                 <span class="label">{chat.title}</span>
             {/if}
@@ -113,13 +119,13 @@
             </div>
         </div>
 
-        <button class="toggle" on:click={() => open = !open}/>
+        <button class="toggle" aria-label={open ? "Close" : "Open"} onclick={() => open = !open}></button>
     </div>
 
     <div class="buttons">
-        <button class="component left danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
-        <button class="component left info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
-        <button class="component right normal continue" on:click|stopPropagation={selectHistory}>{@html SVG.chat} Continue chat</button>
+        <button class="component left danger" title="Delete chat" onclick={stopPropagation(deleteChat)}>{@html SVG.trashcan}</button>
+        <button class="component left info" title="Duplicate chat" onclick={stopPropagation(copyChat)}>{@html SVG.copy}</button>
+        <button class="component right normal continue" onclick={stopPropagation(selectHistory)}>{@html SVG.chat} Continue chat</button>
     </div>
 </div>
 
@@ -219,7 +225,7 @@
     .message:not(.open){
         overflow-y: hidden;
         max-height: 120px;
-        mask-image: linear-gradient(180deg, black 50%, transparent );;
+        mask-image: linear-gradient(180deg, black 50%, transparent );
     }
 
     .buttons{

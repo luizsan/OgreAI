@@ -1,8 +1,17 @@
 <script lang="ts">
-    export let title : string = ""
-    export let description : string = ""
-    export let scale : number = 1;
-    export let reverse : boolean = false;
+    interface Props {
+        title?: string;
+        description?: string;
+        scale?: number;
+        reverse?: boolean;
+    }
+
+    let {
+        title = "",
+        description = "",
+        scale = 1,
+        reverse = false
+    }: Props = $props();
 </script>
 
 {#if title}

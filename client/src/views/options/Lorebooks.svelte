@@ -13,11 +13,11 @@
     import * as Format from "@shared/format.ts";
 
 
-    let editingBook : any = null;
-    let searchResults : Array<ILorebook> = [];
-    let selectedBooks : Array<ILorebook> = [];
-    let selectedOnly : boolean = false;
-    let loading : boolean = false;
+    let editingBook : any = $state(null);
+    let searchResults : Array<ILorebook> = $state([]);
+    let selectedBooks : Array<ILorebook> = $state([]);
+    let selectedOnly : boolean = $state(false);
+    let loading : boolean = $state(false);
 
     function createLorebook(){
         return {
@@ -168,10 +168,10 @@
 <div class="content wide">
 
     {#if editingBook}
-        <div class="content" on:change={saveBook}>
+        <div class="content" onchange={saveBook}>
             <div class="section horizontal wide wrap">
                 <div class="top">
-                    <button class="component normal clear back" on:click={closeLorebook}>{@html SVG.arrow}</button>
+                    <button class="component normal clear back" onclick={closeLorebook}>{@html SVG.arrow}</button>
                     <div>
                         <Heading
                             title={editingBook && editingBook.name ? editingBook.name : "Lorebook entry"}
@@ -185,10 +185,10 @@
 
                 <div class="buttons">
                     {#if $currentCharacter}
-                        <button class="component info" on:click={async () => await applyLorebook(editingBook)}>{@html SVG.copy} Embed</button>
+                        <button class="component info" onclick={async () => await applyLorebook(editingBook)}>{@html SVG.copy} Embed</button>
                     {/if}
-                    <button class="component normal" on:click={() => exportLorebook(editingBook)}>{@html SVG.upload} Export</button>
-                    <button class="component danger" on:click={async () => await removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
+                    <button class="component normal" onclick={() => exportLorebook(editingBook)}>{@html SVG.upload} Export</button>
+                    <button class="component danger" onclick={async () => await removeLorebook(editingBook)}>{@html SVG.trashcan} Delete</button>
                 </div>
             </div>
             <Book bind:book={editingBook}/>
@@ -218,8 +218,8 @@
                     <Heading title="Collection" description="Create, edit and delete your globally installed lorebooks. Selected lorebooks are enabled for all chats and will be inserted in the prompt as 'World Info'."/>
                 </div>
                 <div class="buttons grow">
-                    <button class="component" on:click={importLorebook}>{@html SVG.download} Import</button>
-                    <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
+                    <button class="component" onclick={importLorebook}>{@html SVG.download} Import</button>
+                    <button class="component confirm" onclick={addLorebook}>{@html SVG.plus}Create Lorebook</button>
                 </div>
             </div>
 
@@ -237,7 +237,7 @@
                             item={(item) => item.name.toLowerCase()}
                             after={(list) => list.toSorted(sortLorebooks)}
                         />
-                        <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
+                        <button class="component normal" onclick={loadLorebooks}>{@html SVG.refresh}Refresh</button>
                     </div>
                     <label class="component borderless clear toggle deselect pointer">
                         <input type="checkbox" bind:checked={selectedOnly}>Display selected only
@@ -252,13 +252,13 @@
 
                             {#if !selectedOnly || (selectedOnly && selected)}
                             <div class="item">
-                                <button class="component normal wide book ellipsis" on:click={() => editLorebook(book)}>
+                                <button class="component normal wide book ellipsis" onclick={() => editLorebook(book)}>
                                     <div class="background normal disabled">{@html SVG.book}</div>
                                     <div class="title ellipsis">{book.name}</div>
                                     <div class="description">{book.description ? book.description : "No description"}</div>
                                     <div class="info disabled">{`${book.entries.length} ${book.entries.length === 1 ? "entry" : "entries"}`}</div>
                                 </button>
-                                <button class="check" class:selected={selected} on:click={() => toggleLorebook(book)}>
+                                <button class="check" class:selected={selected} onclick={() => toggleLorebook(book)}>
                                     <input type="checkbox" class="component" checked={selected}>
                                 </button>
                             </div>

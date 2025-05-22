@@ -1,13 +1,26 @@
 <script lang="ts">
-    export let elements : Array<any> = []
-    // the selected element
-    export let value : any = elements[0];
-    // override to define the value of the selected element
-    export let key = (element : any) => element;
-    // override to define the label
-    export let label = (element : any) => element;
+    
+    
+    
 
-    export let wide : boolean = false
+    interface Props {
+        elements?: Array<any>;
+        // the selected element
+        value?: any;
+        // override to define the value of the selected element
+        key?: any;
+        // override to define the label
+        label?: any;
+        wide?: boolean;
+    }
+
+    let {
+        elements = [],
+        value = $bindable(elements[0]),
+        key = (element : any) => element,
+        label = (element : any) => element,
+        wide = false
+    }: Props = $props();
 </script>
 
 <div class="group horizontal">
@@ -33,7 +46,7 @@
         -moz-appearance: none;
     }
 
-    label:has(input[type="radio"]:checked){
+    label:has(:global(input[type="radio"]:checked)){
         z-index: 1;
     }
 

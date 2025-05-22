@@ -1,20 +1,36 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import * as SVG from "../svg/Common.svelte"
 
-    export let search : string = ""
-    export let elements : Array<any> = []
-    export let results : Array<any> = []
-    export let placeholder : string = ""
     // what to search in the array
     // assumes it's an Array of strings by default
-    // override to access object fields
-    export let item = (item : any) => item;
-    // the condition to filter items
-    export let condition = (obj : any, arg : string) => obj.indexOf(arg) >- 1
-    // "post-process" the search results (can sort here)
-    export let after = (list : Array<any>) => list;
+    
+    
+    
+    interface Props {
+        search?: string;
+        elements?: Array<any>;
+        results?: Array<any>;
+        placeholder?: string;
+        // override to access object fields
+        item?: any;
+        // the condition to filter items
+        condition?: any;
+        // "post-process" the search results (can sort here)
+        after?: any;
+    }
 
-    $: results = update()
+    let {
+        search = $bindable(""),
+        elements = [],
+        results = $bindable([]),
+        placeholder = "",
+        item = (item : any) => item,
+        condition = (obj : any, arg : string) => obj.indexOf(arg) >- 1,
+        after = (list : Array<any>) => list
+    }: Props = $props();
+
 
     function update(){
         results = elements.filter((element) => condition(item(element), search))
@@ -26,13 +42,16 @@
         search = "";
         results = update()
     }
+    run(() => {
+        results = update()
+    });
 </script>
 
 
 <div class="section wide">
-    <input type="text" class="component wide" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
+    <input type="text" class="component wide" autocomplete="off" placeholder={placeholder} bind:value={search} oninput={update}>
     {#if search}
-        <button class="normal icon cancel" on:click={clear}>{@html SVG.close}</button>
+        <button class="normal icon cancel" onclick={clear}>{@html SVG.close}</button>
     {:else}
         <div class="normal disabled icon">{@html SVG.search}</div>
     {/if}

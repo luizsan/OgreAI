@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import type { ICharacter } from "@shared/types";
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, search, localServer } from "@/State";
     import Character from './Character.svelte'
@@ -52,29 +54,17 @@
         }
     }
 
-    let searchResults : Array<ICharacter> = Array.from($characterList) || []
-    let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
+    let searchResults : Array<ICharacter> = $state(Array.from($characterList) || [])
+    let currentSortMode : string = $state(window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0])
 
-    let self : HTMLElement;
-    let exclusion : Array<HTMLElement>; // "click outside" excluded elements
+    let self : HTMLElement = $state();
+    let exclusion : Array<HTMLElement> = $state(); // "click outside" excluded elements
 
-    let pinned = false;
-    let separator : HTMLElement; // threshold to show "Back to top" button
-    let scrolled = 0; // amount of pixels scrolled so far
+    let pinned = $state(false);
+    let separator : HTMLElement = $state(); // threshold to show "Back to top" button
+    let scrolled = $state(0); // amount of pixels scrolled so far
 
-    $: {
-        // reactively check for changes in $characterList and $favoritesList
-        // update the search results
-        if( $characterList || $favoritesList ){
-            searchResults = orderResults(searchResults)
-        }
 
-        if( !$sectionCharacters ){
-            scrolled = 0
-        }
-    }
-
-    $: size = searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length;
 
     onMount(() => {
         exclusion = [document.getElementById("header")]
@@ -169,34 +159,46 @@
         self.scrollTo({top: 0, behavior: "smooth"})
     }
 
+    run(() => {
+        // reactively check for changes in $characterList and $favoritesList
+        // update the search results
+        if( $characterList || $favoritesList ){
+            searchResults = orderResults(searchResults)
+        }
+
+        if( !$sectionCharacters ){
+            scrolled = 0
+        }
+    });
+    let size = $derived(searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length);
 </script>
 
 
 {#if $sectionCharacters}
 
-<div class="main" class:active={$sectionCharacters} class:hidden={!$sectionCharacters} use:clickOutside={{exclude: exclusion}} on:clickout={Close}>
+<div class="main" class:active={$sectionCharacters} class:hidden={!$sectionCharacters} use:clickOutside={{exclude: exclusion}} onclickout={Close}>
 
-    <div class="container" bind:this={self} on:scroll={refreshScroll}>
+    <div class="container" bind:this={self} onscroll={refreshScroll}>
 
         <div class="section horizontal" style="justify-content: end">
-            <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
+            <button class="pin {pinned ? "info" : "normal"}" onclick={togglePin}>{@html SVG.pin}</button>
         </div>
 
         <div class="section">
-            <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.plus}Create Character</button>
+            <button class="component normal wide confirm" title="Create" onclick={NewCharacter}>{@html SVG.plus}Create Character</button>
 
             <div class="section horizontal">
                 <button class="component normal wide blocked" title="Import">{@html SVG.download}Import</button>
-                <button class="component normal wide" title="Reload" on:click={reloadCharacterList}>{@html SVG.refresh}Reload</button>
+                <button class="component normal wide" title="Reload" onclick={reloadCharacterList}>{@html SVG.refresh}Reload</button>
             </div>
         </div>
 
-        <div/>
+        <div></div>
 
         <div class="section">
             <div class="label explanation">Character List — {size}</div>
             <div class="section horizontal wide select">
-                <select class="component wide" bind:value={currentSortMode} on:change={changeSort}>
+                <select class="component wide" bind:value={currentSortMode} onchange={changeSort}>
                     {#each Object.keys(sortModes) as key}
                     <option value={key}>{sortModes[key].label}</option>
                     {/each}
@@ -216,7 +218,7 @@
             />
         </div>
 
-        <div class="separator" bind:this={separator}/>
+        <div class="separator" bind:this={separator}></div>
 
         <div class="section characters">
             {#if searchResults && searchResults.length > 0}
@@ -230,7 +232,7 @@
     </div>
 
     {#if scrolled > separator?.offsetTop}
-        <button class="component normal back" transition:fly={{duration: 250, y: -16, opacity: 0}} on:click={backToTop}>Back to top</button>
+        <button class="component normal back" transition:fly={{duration: 250, y: -16, opacity: 0}} onclick={backToTop}>Back to top</button>
     {/if}
 
 </div>

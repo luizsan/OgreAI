@@ -9,13 +9,17 @@
 
     const dispatch = createEventDispatcher();
 
-    export let open : boolean = false;
-    export let entry : ILorebookEntry = {} as ILorebookEntry;
+    interface Props {
+        open?: boolean;
+        entry?: ILorebookEntry;
+    }
 
-    let self : HTMLElement;
+    let { open = $bindable(false), entry = $bindable({} as ILorebookEntry) }: Props = $props();
 
-    $: title = entry.name || entry.comment || "New lorebook entry"
-    $: keys_index = [
+    let self : HTMLElement = $state();
+
+    let title = $derived(entry.name || entry.comment || "New lorebook entry")
+    let keys_index = $derived([
         {
             key: "keys",
             label: "Primary keys",
@@ -26,7 +30,7 @@
             label: "Secondary keys",
             enabled: () => entry.selective && !entry.constant
         },
-    ]
+    ])
 
     function toggle(){
         open = !open;
@@ -61,9 +65,9 @@
 <div class="content" bind:this={self}>
     {#if open}
         <div class="top">
-            <button class="component normal clear back" on:click={toggle}>{@html SVG.arrow}</button>
+            <button class="component normal clear back" onclick={toggle}>{@html SVG.arrow}</button>
             <div class="grow"><Heading title={title} description="Currently editing" reverse={true} scale={1.2}/></div>
-            <button class="component danger remove" on:click={remove}>{@html SVG.trashcan} Delete</button>
+            <button class="component danger remove" onclick={remove}>{@html SVG.trashcan} Delete</button>
         </div>
 
         <div class="section">
@@ -113,17 +117,17 @@
                 {@const target = entry[index.key]}
 
                 <Accordion name={index.label} size={target.length} showSize={true}>
-                    {#if target && target.length > 0 }
+                    {#if target && target.length > 0}
                         <div class="section">
                             {#each target as key, i}
-                                <Entry bind:value={key} placeholder="Insert key" on:remove={()=> removeKeyFrom(target, i)}/>
+                                <Entry bind:value={target[i]} placeholder="Insert key" on:remove={()=> removeKeyFrom(target, i)}/>
                             {/each}
                         </div>
                     {/if}
 
                     <div class="section horizontal">
-                        <button class="component normal add" on:click={() => addKeyTo(target) }>{@html SVG.plus}Add key</button>
-                        <button class="component danger add" on:click={() => clearKeys(target) }>{@html SVG.close}Clear keys</button>
+                        <button class="component normal add" onclick={() => addKeyTo(target)}>{@html SVG.plus}Add key</button>
+                        <button class="component danger add" onclick={() => clearKeys(target)}>{@html SVG.close}Clear keys</button>
                     </div>
                 </Accordion>
             {/if}
@@ -132,7 +136,7 @@
     {:else}
         <div class="section closed">
             <input type="checkbox" class="component" bind:checked={entry.enabled}>
-            <button class="component normal wide entry ellipsis" on:click={toggle}>
+            <button class="component normal wide entry ellipsis" onclick={toggle}>
                 <div class="ellipsis">{title}</div>
             </button>
         </div>

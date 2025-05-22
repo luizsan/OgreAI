@@ -53,19 +53,19 @@
 <div class="content wide">
 
     <div class="section horizontal wide wrap data">
-        <button class="component" on:click={exportPrompt}>{@html SVG.upload} Export Prompt</button>
-        <button class="component" on:click={importPrompt}>{@html SVG.download} Import Prompt</button>
+        <button class="component" onclick={exportPrompt}>{@html SVG.upload} Export Prompt</button>
+        <button class="component" onclick={importPrompt}>{@html SVG.download} Import Prompt</button>
         <hr class="component">
     </div>
 
-    <div class="section" on:change={Server.saveSettings}>
+    <div class="section" onchange={Server.saveSettings}>
         <div class="section wide wrap horizontal">
             <div>
                 <div class="title">Prompt Manager</div>
                 <div class="explanation">Edit, toggle and reorder parts of the prompt for the current API mode.</div>
             </div>
             <div class="buttons">
-                <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add Item</button>
+                <button class="component confirm" onclick={addItem}>{@html SVG.plus} Add Item</button>
             </div>
         </div>
 
@@ -108,6 +108,6 @@
         flex-direction: row;
         margin-left: auto;
         gap: 8px;
-        place-content: flex-end;;
+        place-content: flex-end;
     }
 </style>

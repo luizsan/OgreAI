@@ -1,7 +1,11 @@
 <script lang="ts">
-    export let color : string = "black"
-    export let opacity : number = 0.0333
-    export let height : string = "25vh"
+    interface Props {
+        color?: string;
+        opacity?: number;
+        height?: string;
+    }
+
+    let { color = "black", opacity = 0.0333, height = "25vh" }: Props = $props();
 </script>
 
 <div class="main grow" style="min-height: {height}; --stripe-color: {color}; opacity: {opacity}">

@@ -1,7 +1,7 @@
 declare namespace svelteHTML{
     interface HTMLAttributes<T>{
-        'on:startedit'?: (event: any) => any;
-        'on:lazyload'?: (event: any) => any;
-        'on:clickout'?: (event: any) => any;
+        'onstartedit'?: (event: any) => any;
+        'onlazyload'?: (event: any) => any;
+        'onclickout'?: (event: any) => any;
     }
 }

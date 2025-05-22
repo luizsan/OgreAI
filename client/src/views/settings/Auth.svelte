@@ -1,24 +1,24 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
 
-    let self : HTMLElement;
+    let self : HTMLElement = $state();
     const key : string = "api_auth"
 
-    // bind
-    export let elements : Array<any> // list of presets
-    export let url : string = ""
-    export let auth : string = ""
-
-    let index : number = findEntryByContent(url, auth)
-    $: {
-        if( elements ){
-            refreshIndex()
-        }
+    
+    interface Props {
+        // bind
+        elements: Array<any>; // list of presets
+        url?: string;
+        auth?: string;
     }
-    $: can_apply = elements && index > -1 && (url != elements[index].address || auth != elements[index].password);
-    $: can_delete = elements && index > -1 && (url == elements[index].address && auth == elements[index].password);
+
+    let { elements = $bindable(), url = $bindable(""), auth = $bindable("") }: Props = $props();
+
+    let index : number = $state(findEntryByContent(url, auth))
 
     function findEntryByContent(s : string, auth : string){
         if(!elements) return -1
@@ -93,6 +93,13 @@
             clear()
         }
     }
+    run(() => {
+        if( elements ){
+            refreshIndex()
+        }
+    });
+    let can_apply = $derived(elements && index > -1 && (url != elements[index].address || auth != elements[index].password));
+    let can_delete = $derived(elements && index > -1 && (url == elements[index].address && auth == elements[index].password));
 </script>
 
 
@@ -101,7 +108,7 @@
         {#if elements}
             <div class="top">
                 <div class="list">
-                    <select class="component borderless" bind:value={index} on:change={() => setPreset(index)}>
+                    <select class="component borderless" bind:value={index} onchange={() => setPreset(index)}>
                         <option value={-1}>-- Select a preset --</option>
                         {#each elements as entry, i}
                             <option value={i}>{entry.name ?? `Preset ${i}`}</option>
@@ -111,12 +118,12 @@
 
                 <div class="controls">
                     {#if can_apply}
-                        <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} on:click={applyPreset}>{@html SVG.refresh} Revert</button>
+                        <button class="component clear {can_apply ? "confirm" : "normal disabled"}" title="Apply preset" disabled={!can_apply} onclick={applyPreset}>{@html SVG.refresh} Revert</button>
                     {:else}
-                        <button class="component clear {can_delete ? "danger" : "normal disabled"}" title="Delete preset" disabled={!can_delete} on:click={deletePreset}>{@html SVG.trashcan} Delete</button>
+                        <button class="component clear {can_delete ? "danger" : "normal disabled"}" title="Delete preset" disabled={!can_delete} onclick={deletePreset}>{@html SVG.trashcan} Delete</button>
                     {/if}
-                    <button class="component clear info" title="Save current" on:click={savePreset}>{@html SVG.save} Save</button>
-                    <button class="component clear normal" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
+                    <button class="component clear info" title="Save current" onclick={savePreset}>{@html SVG.save} Save</button>
+                    <button class="component clear normal" title="Clear" onclick={clear}>{@html SVG.close} Clear</button>
                 </div>
             </div>
 

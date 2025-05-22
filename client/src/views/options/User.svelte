@@ -14,7 +14,7 @@
     ]
 </script>
 
-<div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
+<div class="content wide" onchange={() => Server.request("/save_profile", $currentProfile)}>
     <div class="section">
         <Heading title="Display Name" description="User's name displayed in chat."/>
         <input type="text" class="component wide" bind:value={$currentProfile.name}>

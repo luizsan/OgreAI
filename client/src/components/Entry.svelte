@@ -4,8 +4,12 @@
 
     const dispatch = createEventDispatcher();
 
-    export let placeholder : string = "";
-    export let value : string = "";
+    interface Props {
+        placeholder?: string;
+        value?: string;
+    }
+
+    let { placeholder = "", value = $bindable("") }: Props = $props();
 
     function remove(){
         dispatch("remove")
@@ -15,7 +19,7 @@
 
 <div class="content">
     <input type="text" class="component" placeholder={placeholder} bind:value={value}>
-    <button class="component danger" on:click={remove}>{@html SVG.trashcan}</button>
+    <button class="component danger" onclick={remove}>{@html SVG.trashcan}</button>
 </div>
 
 

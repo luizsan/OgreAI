@@ -1,4 +1,6 @@
 <script>
+    import { preventDefault } from 'svelte/legacy';
+
     import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, currentPresets, availableAPIModes, fetching } from "@/State";
     import Accordion from "@/components/Accordion.svelte";
     import Auth from "@/views/settings/Auth.svelte";
@@ -13,7 +15,7 @@
     import * as SVG from "@/svg/Common.svelte";
     import * as Logo from "@/svg/Logo.svelte";
 
-    let loading = false;
+    let loading = $state(false);
 
     async function getSettings(){
         $fetching = true;
@@ -81,7 +83,7 @@
 
 
 <div class="content wide" class:disabled={loading}>
-    <div class="section" class:loading={loading} on:change={ async () => {
+    <div class="section" class:loading={loading} onchange={async () => {
         loading = true;
         await getSettings()
         await saveSettings()
@@ -95,7 +97,7 @@
             <Loading width={24} height={24}/>
         </div>
     {:else}
-        <div class="section" on:change={saveSettings}>
+        <div class="section" onchange={saveSettings}>
             <div class="title"><div class="inline">API Target <Status/></div></div>
             <div class="setting">
                 <div class="section vertical">
@@ -104,7 +106,7 @@
                         bind:url={$currentSettingsAPI.api_url}
                         bind:auth={$currentSettingsAPI.api_auth}
                     />
-                    <button class="component normal" on:click|preventDefault={Server.getAPIStatus}>Check Status</button>
+                    <button class="component normal" onclick={preventDefault(Server.getAPIStatus)}>Check Status</button>
                 </div>
             </div>
         </div>
@@ -113,15 +115,15 @@
         <hr class="component">
 
         <div class="section horizontal wide wrap">
-            <button class="component" on:click={exportSettings}>{@html SVG.upload} Export Settings</button>
-            <button class="component" on:click={importSettings}>{@html SVG.download} Import Settings</button>
+            <button class="component" onclick={exportSettings}>{@html SVG.upload} Export Settings</button>
+            <button class="component" onclick={importSettings}>{@html SVG.download} Import Settings</button>
         </div>
 
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
-        <div class="section" on:change={saveSettings}>
+        <div class="section" onchange={saveSettings}>
             <div class="setting vertical">
-                {#if $currentSettingsAPI[key] !== undefined && !$defaultSettingsAPI[key].disabled }
+                {#if $currentSettingsAPI[key] !== undefined && !$defaultSettingsAPI[key].disabled}
 
                     {#if entry.type == "text"}
                         <div class="section">
@@ -169,11 +171,11 @@
                         <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
                             {#each $currentSettingsAPI[key] as item, i}
                                 <div class="section horizontal preset">
-                                    <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
-                                    <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
+                                    <button class="component danger" title="Remove" onclick={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
+                                    <input type="text" class="component wide" placeholder="Empty item" bind:value={$currentSettingsAPI[key][i]} style="flex: 1 1 auto">
                                 </div>
                             {/each}
-                            <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
+                            <button class="component normal" onclick={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
                         </Accordion>
                         </div>
 
@@ -183,7 +185,7 @@
                         <Accordion size={$currentSettingsAPI[key].length} limit={entry.limit} showSize={true}>
                             {#each $currentSettingsAPI[key] as item, i}
                                 <div class="section horizontal dictionary">
-                                    <button class="component danger" title="Remove" on:click={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
+                                    <button class="component danger" title="Remove" onclick={() => removeListItem(key, i)}>{@html SVG.trashcan}</button>
                                     <input type="text" class="component wide" placeholder="Empty item" bind:value={item.key}>
                                     <div class="separator disabled">{@html SVG.arrow}</div>
                                     {#if entry.value == "number"}
@@ -193,7 +195,7 @@
                                     {/if}
                                 </div>
                             {/each}
-                            <button class="component normal" on:click={() => addListItem(key, { "key": "", "value": 0}, entry.limit)}>{@html SVG.plus}Add</button>
+                            <button class="component normal" onclick={() => addListItem(key, { "key": "", "value": 0}, entry.limit)}>{@html SVG.plus}Add</button>
                         </Accordion>
                         </div>
 

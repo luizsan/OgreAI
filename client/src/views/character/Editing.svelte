@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { characterList, creating, currentProfile, currentCharacter, currentChat, currentLorebooks, editing, fetching, localServer } from "@/State";
     import Screen from "@/components/Screen.svelte";
     import Accordion from "@/components/Accordion.svelte";
@@ -10,56 +12,20 @@
     import * as SVG from "@/svg/Common.svelte";
     import * as Format from "@shared/format.ts";
 
-    let uploadInput : HTMLInputElement;
+    let uploadInput : HTMLInputElement = $state();
     let uploadedURL : string = null;
 
-    let tokens = {}
-    let permanent = 0;
-    let total = 0;
-    let percent = {}
-    let breakdown = []
-    let distribution = "";
+    let tokens = $state({})
+    let permanent = $state(0);
+    let total = $state(0);
+    let percent = $state({})
+    let breakdown = $state([])
+    let distribution = $state("");
 
-    let avatar = "";
-    let countingTokens : boolean = false;
+    let avatar = $state("");
+    let countingTokens : boolean = $state(false);
 
-    $: has_lorebook = $editing && $editing.data.character_book && (typeof $editing.data.character_book === "object") && Object.keys($editing.data.character_book).length > 0
 
-    $: {
-        if( $editing ){
-            if( $editing.temp.tokens ){
-                tokens = $editing.temp.tokens
-
-                permanent = 0;
-                total = 0;
-                percent = {};
-                breakdown = [];
-                distribution = "";
-
-                if( $editing && $editing.temp.tokens ){
-                    Object.keys(tokens).forEach( key =>{
-                        total += tokens[key];
-                        if( key !== "greeting" && key !== "system" ){
-                            permanent += tokens[key]
-                        }
-                    });
-
-                    breakdown.push( `${total} Total tokens\n` )
-                    Object.keys(tokens).forEach( key => {
-                        let k = key.charAt(0).toUpperCase() + key.slice(1)
-                        percent[key] = tokens[key] / total * 100
-                        breakdown.push( `${tokens[key]} ${k} (${percent[key].toFixed(2)}%)` )
-                        if( isNaN(percent[key]) ){
-                            distribution += `0px `
-                        }else{
-                            distribution += `${percent[key]}% `
-                        }
-                    })
-                }
-            }
-            refreshAvatar();
-        }
-    }
 
     async function CreateCharacter(){
         if( $creating ){
@@ -284,18 +250,54 @@
             ApplyChanges()
         }
     }
+    let has_lorebook = $derived($editing && $editing.data.character_book && (typeof $editing.data.character_book === "object") && Object.keys($editing.data.character_book).length > 0)
+    run(() => {
+        if( $editing ){
+            if( $editing.temp.tokens ){
+                tokens = $editing.temp.tokens
+
+                permanent = 0;
+                total = 0;
+                percent = {};
+                breakdown = [];
+                distribution = "";
+
+                if( $editing && $editing.temp.tokens ){
+                    Object.keys(tokens).forEach( key =>{
+                        total += tokens[key];
+                        if( key !== "greeting" && key !== "system" ){
+                            permanent += tokens[key]
+                        }
+                    });
+
+                    breakdown.push( `${total} Total tokens\n` )
+                    Object.keys(tokens).forEach( key => {
+                        let k = key.charAt(0).toUpperCase() + key.slice(1)
+                        percent[key] = tokens[key] / total * 100
+                        breakdown.push( `${tokens[key]} ${k} (${percent[key].toFixed(2)}%)` )
+                        if( isNaN(percent[key]) ){
+                            distribution += `0px `
+                        }else{
+                            distribution += `${percent[key]}% `
+                        }
+                    })
+                }
+            }
+            refreshAvatar();
+        }
+    });
 </script>
 
 
-{#if $editing }
+{#if $editing}
     <Screen>
-        <div class="top" on:change={SaveCharacter} >
+        <div class="top" onchange={SaveCharacter} >
             <div class="section header">
                 <div class="avatar">
                     <img src={avatar} alt=""/>
-                    <button class="upload" on:click={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
+                    <button class="upload" onclick={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
                     <form action="/save_character_image" enctype="multipart/form-data" method="post">
-                        <input name="file" type="file" bind:this={uploadInput} bind:value={$editing.temp.avatar} on:change={SetUploadImage}>
+                        <input name="file" type="file" bind:this={uploadInput} bind:value={$editing.temp.avatar} onchange={SetUploadImage}>
                     </form>
                 </div>
 
@@ -319,11 +321,11 @@
                 </div>
             </div>
 
-            <button class="close normal" title="Close window" on:click={Close}>{@html SVG.close}</button>
-            <button class="open normal" title="Open image in new tab" on:click={OpenImage}>{@html SVG.open}</button>
+            <button class="close normal" title="Close window" onclick={Close}>{@html SVG.close}</button>
+            <button class="open normal" title="Open image in new tab" onclick={OpenImage}>{@html SVG.open}</button>
         </div>
 
-        <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
+        <div class="bottom" oninput={refreshTokens} onchange={SaveCharacter}>
             <div class="section wide">
                 <Heading title="Name" description="The name of the character displayed in chat."/>
                 <input type="text" class="component wide" bind:value={$editing.data.name}>
@@ -350,13 +352,13 @@
                 {#each $editing.data.alternate_greetings as alt, i}
                     <div class="altgreeting">
                         <div class="controls">
-                            <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
-                            <button class="component danger" title="Remove greeting" on:click={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
+                            <button class="component info" title="Duplicate" onclick={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
+                            <button class="component danger" title="Remove greeting" onclick={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
                         </div>
-                        <textarea class="component wide" rows=8 bind:value={alt}></textarea>
+                        <textarea class="component wide" rows=8 bind:value={$editing.data.alternate_greetings[i]}></textarea>
                     </div>
                 {/each}
-                <button class="component normal" on:click={AddGreeting}>{@html SVG.plus}Add greeting</button>
+                <button class="component normal" onclick={AddGreeting}>{@html SVG.plus}Add greeting</button>
             </Accordion>
 
             <div class="section wide description">
@@ -402,10 +404,10 @@
 
                 <div class="section horizontal wide wrap">
                     {#if has_lorebook}
-                        <button class="component confirm" on:click={installLorebook}>{@html SVG.download} Install</button>
-                        <button class="component danger" on:click={removeLorebook}>{@html SVG.trashcan} Delete</button>
+                        <button class="component confirm" onclick={installLorebook}>{@html SVG.download} Install</button>
+                        <button class="component danger" onclick={removeLorebook}>{@html SVG.trashcan} Delete</button>
                     {:else}
-                        <button class="component confirm" on:click={createLorebook}>{@html SVG.plus} Create</button>
+                        <button class="component confirm" onclick={createLorebook}>{@html SVG.plus} Create</button>
                     {/if}
 
                     <!-- <button class="component info" >{@html SVG.copy} Copy from local</button> -->
@@ -426,9 +428,9 @@
 
             <div class="wide horizontal center">
                 {#if $creating}
-                    <button class="component confirm" on:click={CreateCharacter}>Create Character</button>
+                    <button class="component confirm" onclick={CreateCharacter}>Create Character</button>
                 {:else}
-                    <button class="component danger" on:click={DeleteCharacter}>Delete Character</button>
+                    <button class="component danger" onclick={DeleteCharacter}>Delete Character</button>
                 {/if}
             </div>
         </div>

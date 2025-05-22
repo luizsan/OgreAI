@@ -2,18 +2,31 @@
     import * as SVG from "../svg/Common.svelte";
     import Heading  from "./Heading.svelte";
 
-    export let value : number;
-    export let original : number;
-    export let title : string = "";
-    export let description : string = "";
 
-    export let min : number = undefined
-    export let max : number = undefined
-    export let step : number = undefined
 
-    export let unit : string = ""
+    interface Props {
+        value: number;
+        original: number;
+        title?: string;
+        description?: string;
+        min?: number;
+        max?: number;
+        step?: number;
+        unit?: string;
+    }
 
-    let self : HTMLElement;
+    let {
+        value = $bindable(),
+        original,
+        title = "",
+        description = "",
+        min = undefined,
+        max = undefined,
+        step = undefined,
+        unit = ""
+    }: Props = $props();
+
+    let self : HTMLElement = $state();
 
     function reset(){
         if( original !== undefined && value != original ){
@@ -33,7 +46,7 @@
     <div class="input wide horizontal" bind:this={self}>
         <input type="number" class="component no-spin" class:padding={unit} step={step} bind:value={value}>
         <input type="range" class="component" bind:value={value} min={min} max={max} step={step}>
-        <button class="reset danger" title="Reset to default ({original})" on:click={reset}>{@html SVG.refresh}</button>
+        <button class="reset danger" title="Reset to default ({original})" onclick={reset}>{@html SVG.refresh}</button>
         {#if unit}
             <div class="unit disabled deselect">{unit}</div>
         {/if}

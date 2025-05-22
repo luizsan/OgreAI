@@ -2,7 +2,7 @@
     import { api } from "@/State";
 </script>
 
-{#if $api === null }
+{#if $api === null}
     <span class="badge disabled">Connecting...</span>
 {:else}
     {#if $api}

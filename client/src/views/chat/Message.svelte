@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { self as self_1 } from 'svelte/legacy';
+
     import { AutoResize } from '@/utils/AutoResize';
     import {
         currentProfile,
@@ -25,47 +27,51 @@
     import { tick } from 'svelte';
     import { get } from 'svelte/store';
 
-    let self : HTMLElement;
+    let self : HTMLElement = $state();
 
-    export let id : number = -1
-    export let generateSwipe = () => {}
+    interface Props {
+        id?: number;
+        generateSwipe?: any;
+    }
+
+    let { id = -1, generateSwipe = () => {} }: Props = $props();
 
     // basic
-    $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
-    $: is_bot = msg ? msg.participant > -1 : false;
+    let msg = $derived($currentChat && $currentChat.messages ? $currentChat.messages[id] : null);
+    let is_bot = $derived(msg ? msg.participant > -1 : false);
 
-    $: first = id === 0;
-    $: last = id === $currentChat.messages.length - 1;
+    let first = $derived(id === 0);
+    let last = $derived(id === $currentChat.messages.length - 1);
 
     // author
-    $: author = msg && msg.participant > -1 ? $currentChat.participants[msg.participant] : $currentProfile.name;
-    $: authorType = is_bot ? "bot" : "user"
+    let author = $derived(msg && msg.participant > -1 ? $currentChat.participants[msg.participant] : $currentProfile.name);
+    let authorType = $derived(is_bot ? "bot" : "user")
 
     // swipe
-    $: index = msg ? msg.index : 0;
-    $: candidates = msg && msg.candidates ? msg.candidates : []
-    $: current = candidates && candidates.length > 0 ? candidates[index] : null;
-    $: displayReasoning = current ? current.reasoning : ""
-    $: displayText = current ? current.text : ""
+    let index = $derived(msg ? msg.index : 0);
+    let candidates = $derived(msg && msg.candidates ? msg.candidates : [])
+    let current = $derived(candidates && candidates.length > 0 ? candidates[index] : null);
+    let displayReasoning = $derived(current ? current.reasoning : "")
+    let displayText = $derived(current ? current.text : "")
 
-    $: relative_time = current ? Format.relativeTime(current.timestamp) : "";
-    $: date_time = current ? new Date(current.timestamp).toLocaleString() : "";
-    $: model = current && current.model ? current.model : "Unknown model";
-    $: timer = current && current.timer ? (current.timer / 1000) : 0;
+    let relative_time = $derived(current ? Format.relativeTime(current.timestamp) : "");
+    let date_time = $derived(current ? new Date(current.timestamp).toLocaleString() : "");
+    let model = $derived(current && current.model ? current.model : "Unknown model");
+    let timer = $derived(current && current.timer ? (current.timer / 1000) : 0);
 
     // deletion
-    $: selected = $deleteList.indexOf(id) > -1;
-    $: lockinput = !$currentChat || $fetching || $busy
+    let selected = $derived($deleteList.indexOf(id) > -1);
+    let lockinput = $derived(!$currentChat || $fetching || $busy)
 
     // prefs
-    $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
-    $: prefs_show_model = $currentPreferences["show_model"] ?? false
-    $: prefs_show_timer = $currentPreferences["show_timer"] ?? false
+    let prefs_show_datetime = $derived($currentPreferences["show_datetime"] ?? false)
+    let prefs_show_model = $derived($currentPreferences["show_model"] ?? false)
+    let prefs_show_timer = $derived($currentPreferences["show_timer"] ?? false)
 
     // ---
-    let isEditing = false
-    let postActions = false;
-    let editedText = ""
+    let isEditing = $state(false)
+    let postActions = $state(false);
+    let editedText = $state("")
 
     export function SwipeMessage(step : number){
         if( first && candidates.length === 1){
@@ -296,11 +302,11 @@
 </script>
 
 
-<svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
+<svelte:body onkeydown={Shortcuts} onstartedit={CancelEditing}/>
 
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={self}>
 
-    <button class="avatar" on:click={EditCharacter}>
+    <button class="avatar" onclick={EditCharacter}>
         <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
     </button>
 
@@ -336,11 +342,11 @@
         {#if isEditing}
             <div class="section editing">
                 <p class="explanation">Editing message</p>
-                <!-- svelte-ignore a11y-autofocus -->
+                <!-- svelte-ignore a11y_autofocus -->
                 <textarea autofocus use:AutoResize={{ container: self }} bind:value={editedText}></textarea>
                 <div class="section horizontal wrap">
-                    <button on:click={CancelEditing} class="component borderless danger">{@html SVG.close} Cancel</button>
-                    <button on:click={ConfirmEdit} class="component borderless confirm">{@html SVG.confirm} Confirm</button>
+                    <button onclick={CancelEditing} class="component borderless danger">{@html SVG.close} Cancel</button>
+                    <button onclick={ConfirmEdit} class="component borderless confirm">{@html SVG.confirm} Confirm</button>
                 </div>
             </div>
         {:else}
@@ -357,26 +363,26 @@
 
         {#if !isEditing}
             <div class="footer" class:hidden={isEditing}>
-                <button class="dots normal" disabled={postActions} use:clickOutside on:click={TogglePostActions} on:clickout={() => SetPostActions(false)}>
+                <button class="dots normal" disabled={postActions} use:clickOutside onclick={TogglePostActions} onclickout={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
-                        {#if postActions}
-                        <div class="actions">
-                            <button class="copy {navigator.clipboard ? "info" : "normal"}" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
-                            <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
-                            {#if id > 0}
-                                <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
-                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html SVG.trashcan}</button>
-                            {/if}
-                        </div>
-                    {/if}
                 </button>
+                {#if postActions}
+                <div class="actions">
+                    <button class="copy {navigator.clipboard ? "info" : "normal"}" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} title="Copy text" onclick={CopyMessage}>{@html SVG.copy}</button>
+                    <button class="edit confirm" title="Edit message" onclick={StartEditing}>{@html SVG.edit}</button>
+                    {#if id > 0}
+                        <button class="branch special" title="Branch from this message" onclick={BranchChat}>{@html SVG.split}</button>
+                        <button class="delete danger" title="Delete message" onclick={DeleteCandidate}>{@html SVG.trashcan}</button>
+                    {/if}
+                </div>
+                {/if}
 
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
 
-                        <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
+                        <button class="left normal" class:invisible={index < 1} title="Previous candidate" onclick={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
-                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
+                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" onclick={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
                     </div>
 
                    <div class="extras">
@@ -390,8 +396,8 @@
     </div>
 
     {#if $deleting && id > 0}
-        <button class="all" on:click|self={SelectMessageBatch} ></button>
-        <input class="toggle pointer" type="checkbox" bind:checked={selected} on:input={SelectMessageSingle}>
+        <button class="all" aria-label="Select messages" onclick={SelectMessageBatch} ></button>
+        <input class="toggle pointer" type="checkbox" bind:checked={selected} oninput={SelectMessageSingle}>
     {/if}
 </div>
 
