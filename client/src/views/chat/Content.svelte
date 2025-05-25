@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
 
     import DOMPurify from 'dompurify';
 
@@ -28,27 +27,26 @@
         chat
     }: Props = $props();
 
-    let displayReasoning = $state("")
-    let displayText = $state("")
-
-    run(() => {
-        if( reasoning ){
-            displayReasoning = DOMPurify.sanitize( displayReasoning )
-            displayReasoning = marked.parse(reasoning)
-            displayReasoning = `<thinking>${displayReasoning}</thinking>`
-        }else{
-            displayReasoning = ""
+    let displayReasoning = $derived.by(() => {
+        let str: string = reasoning || ""
+        if( str ){
+            str = DOMPurify.sanitize(str)
+            str = marked.parse(str)
+            str = `<thinking>${str}</thinking>`
         }
+        return str
+    })
 
-        if( content ){
-            displayText = DOMPurify.sanitize( displayText )
-            displayText = marked.parse(content)
-            displayText = Format.parseMacros( displayText, chat )
-            displayText = Format.parseNames( displayText, user, bot )
-        }else{
-            displayText = ""
+    let displayText = $derived.by(() => {
+        let str: string = content || ""
+        if( str ){
+            str = DOMPurify.sanitize(str )
+            str = marked.parse(str)
+            str = Format.parseMacros( str, chat )
+            str = Format.parseNames( str, user, bot )
         }
-    });
+        return str
+    })
 </script>
 
 {#if displayReasoning}

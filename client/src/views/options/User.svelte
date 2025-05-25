@@ -22,7 +22,7 @@
 
     <div class="section avatar grid">
         <div class="avatar container">
-            <Avatar is_bot={false} size={80}/>
+            <Avatar size={80} character={null}/>
         </div>
 
         <div class="section" style="gap: 24px">

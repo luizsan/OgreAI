@@ -1,8 +1,17 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import type { ICharacter } from "@shared/types";
-    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, search, localServer } from "@/State";
+    import { characterList,
+        favoritesList,
+        creating,
+        editing,
+        fetching,
+        sectionCharacters,
+        currentProfile,
+        currentSettingsMain,
+        search,
+        localServer
+    } from "@/State";
+
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
     import * as SVG from "@/svg/Common.svelte";
@@ -44,27 +53,32 @@
         recently_chatted: {
             label: "Recently chatted",
             order: (list : Array<ICharacter>) => {
-                let recent_list : Array<ICharacter> = $currentSettingsMain.recents.map((path : string) => $characterList.find((char : ICharacter) => {
+                let recent_list : Array<ICharacter> = $currentSettingsMain.recents.map(
+                    (path : string) => $characterList.find((char : ICharacter) => {
                     return char.temp.filepath == path;
-                }));
-                recent_list = recent_list.filter((item : ICharacter) => item && list.includes(item))
+                })).filter((item : ICharacter) => item && list.includes(item))
                 recent_list.reverse()
                 return recent_list
             }
         }
     }
 
+    let self : HTMLElement = $state();
+
     let searchResults : Array<ICharacter> = $state(Array.from($characterList) || [])
     let currentSortMode : string = $state(window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0])
-
-    let self : HTMLElement = $state();
-    let exclusion : Array<HTMLElement> = $state(); // "click outside" excluded elements
-
-    let pinned = $state(false);
+    let exclusion : Array<HTMLElement> = $state();
+    let pinned : boolean = $state(false);
     let separator : HTMLElement = $state(); // threshold to show "Back to top" button
-    let scrolled = $state(0); // amount of pixels scrolled so far
+    let scrolled: number = $state(0); // amount of pixels scrolled so far
 
+    let size = $derived(searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length);
 
+    $effect(() => {
+        if( !$sectionCharacters ){
+            scrolled = 0
+        }
+    });
 
     onMount(() => {
         exclusion = [document.getElementById("header")]
@@ -99,6 +113,7 @@
         await Server.getCharacterList()
         searchResults = []
         searchResults = $characterList
+        searchResults = orderResults(searchResults)
 
     }
 
@@ -123,14 +138,12 @@
             list = sortModes[currentSortMode].order(list)
         }
         list = getFavoritesFirst(list)
-        console.log(list)
         return list
     }
 
     function getFavoritesFirst(list : Array<ICharacter>){
-        let a = [] // fav
-        let b = [] // non-fav
-
+        let a: Array<ICharacter> = [] // fav
+        let b: Array<ICharacter> = [] // non-fav
         list.forEach((char) => {
             if($favoritesList.find((item) => item == char.temp.filepath)){
                 a.push(char)
@@ -138,7 +151,6 @@
                 b.push(char)
             }
         })
-
         return a.concat(b)
     }
 
@@ -158,19 +170,6 @@
         }
         self.scrollTo({top: 0, behavior: "smooth"})
     }
-
-    run(() => {
-        // reactively check for changes in $characterList and $favoritesList
-        // update the search results
-        if( $characterList || $favoritesList ){
-            searchResults = orderResults(searchResults)
-        }
-
-        if( !$sectionCharacters ){
-            scrolled = 0
-        }
-    });
-    let size = $derived(searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length);
 </script>
 
 

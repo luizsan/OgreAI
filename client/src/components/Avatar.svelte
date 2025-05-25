@@ -1,58 +1,39 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { currentProfile, localServer } from '../State';
     import type { ICharacter } from '@shared/types';
 
     interface Props {
-        is_bot: boolean;
         size?: number;
         character?: ICharacter;
     }
 
-    let { is_bot, size = 56, character = null }: Props = $props();
+    let {
+        size = 56,
+        character = null
+    }: Props = $props();
 
-    let w : number = $state();
-    let h : number = $state();
-    let ratio : number = $state(1);
-    let roundness : number = $state(50);
-    let unit : string = $state("%")
-
-    const avatar_user_default = localServer + "/img/user_default.png";
     const protocol_regex = /^([a-zA-Z]+):\/\//;
+    const avatar_user_default = localServer + "/img/user_default.png";
+    const avatar_style = {
+        "portrait": { roundness: `${5}px`, ratio: (2.0 / 3.0) },
+        "square": { roundness: `${5}px`, ratio: 1 },
+        "round": { roundness: `${50}%`, ratio: 1 }
+    }
 
-    let append : string = $state();
-    let img : string = $state();
+    let shape: string = $derived($currentProfile?.customization?.avatarShape)
+    let roundness : string = $derived(avatar_style[shape]?.roundness || `${5}px`);
+    let ratio : number = $derived(avatar_style[shape]?.ratio || 1);
+    let w : number = $derived(size);
+    let h : number = $derived(size * ( ratio >= 1 ? ratio : (1.0 / ratio )));
+
+    let append : string;
+    let img : string;
     let url : string = $state();
 
-    run(() => {
+    let is_bot: boolean = $derived(!!character);
 
-        if($currentProfile.customization){
-            switch($currentProfile.customization.avatarShape){
-                case "square":
-                    roundness = 5;
-                    unit = "px"
-                    ratio = 1;
-                    break;
-
-                case "portrait":
-                    roundness = 5;
-                    unit = "px"
-                    ratio = (2 / 3.0)
-                    break;
-
-                default:
-                    roundness = 50;
-                    unit = "%"
-                    ratio = 1;
-                    break;
-            }
-        }
-
-        w = size;
-        h = size * ( ratio >= 1 ? ratio : (1.0 / ratio ));
-
-        if(is_bot && character){
+    $effect(() => {
+        if(character){
             img = localServer + "/user/characters/" + character.temp.filepath.replace("../", "")
             append = is_bot ? "?" + character.metadata.modified : "";
         }else{
@@ -62,15 +43,14 @@
             }
             append = ""
         }
-
         url = encodeURIComponent(img).replace(/%2F/g, '/').replace(/%3A/g, ':') + append;
     });
 </script>
 
-<div class="avatar" style="background-image: url({url}); width: {w}px; height: {h}px; border-radius: {roundness}{unit}"></div>
+<div style="background-image: url({url}); width: {w}px; height: {h}px; border-radius: {roundness}"></div>
 
 <style>
-    .avatar{
+    div{
         background: #00000020;
         background-size: cover;
         background-position: center;
