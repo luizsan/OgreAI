@@ -421,7 +421,11 @@
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
-                    <Message id={i} generateSwipe={()=>generateMessage(true)}/>
+                    <Message
+                        bind:msg={$currentChat.messages[i]}
+                        id={i}
+                        generateSwipe={()=>generateMessage(true)}
+                    />
                 {/each}
             {/if}
             </div>

@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { self as self_1 } from 'svelte/legacy';
-
+    import type { IMessage } from '@shared/types';
     import { AutoResize } from '@/utils/AutoResize';
     import {
         currentProfile,
@@ -25,20 +24,23 @@
     import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte"
     import { tick } from 'svelte';
-    import { get } from 'svelte/store';
 
     let self : HTMLElement = $state();
 
     interface Props {
-        id?: number;
+        id: number;
+        msg: IMessage;
         generateSwipe?: any;
     }
 
-    let { id = -1, generateSwipe = () => {} }: Props = $props();
+    let {
+        id = -1,
+        msg = $bindable(),
+        generateSwipe = () => {}
+    }: Props = $props();
 
     // basic
-    let msg = $derived($currentChat && $currentChat.messages ? $currentChat.messages[id] : null);
-    let is_bot = $derived(msg ? msg.participant > -1 : false);
+    let is_bot = $derived(msg.participant > -1);
 
     let first = $derived(id === 0);
     let last = $derived(id === $currentChat.messages.length - 1);
@@ -83,12 +85,12 @@
         }
 
         $currentChat.messages[id].index += step;
-        if($currentChat.messages[id].index < 0){
-            $currentChat.messages[id].index = 0;
+        if(msg.index < 0){
+            msg.index = 0;
         }
 
-        if($currentChat.messages[id].index > candidates.length-1){
-            $currentChat.messages[id].index = candidates.length-1;
+        if(msg.index > candidates.length-1){
+            msg.index = candidates.length-1;
             if(!first && id === $currentChat.messages.length-1){
                 generateSwipe();
             }
@@ -307,7 +309,7 @@
 <div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={self}>
 
     <button class="avatar" onclick={EditCharacter}>
-        <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
+        <Avatar size={54} character={is_bot ? $currentCharacter : null}/>
     </button>
 
 
