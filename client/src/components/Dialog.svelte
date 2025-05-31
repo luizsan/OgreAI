@@ -103,7 +103,7 @@
         position: relative;
         display: flex;
         font-size: 12px;
-        white-space: pre;
+        white-space: wrap;
         line-height: 1.3em;
         background: hsl(0, 0%, 85%);
         color: black;

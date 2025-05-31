@@ -133,7 +133,6 @@
             list = sortModes[currentSortMode].order(list)
         }
         list = getFavoritesFirst(list)
-        console.log(list)
         return list
     }
 
