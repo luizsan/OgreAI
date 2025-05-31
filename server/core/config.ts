@@ -13,7 +13,7 @@ export async function Initialize(): Promise<IServerConfig>{
     let config: IServerConfig = {
         port: 12480,
         paths: {
-            user: "./user",
+            user: "../user",
         }
     }
     // check if config file exists at root folder

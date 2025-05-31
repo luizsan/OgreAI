@@ -9,10 +9,10 @@ echo.
 echo ===== Building client =====
 pushd "%SCRIPT_DIR%.\client" || goto :error
 echo [1/2] npm install
-call npm install || goto :error
+call bun install || goto :error
 
 echo [2/2] npm run build
-call npm run build || goto :error
+call bun run build || goto :error
 
 echo [✓] Client built successfully@
 popd
@@ -23,10 +23,10 @@ echo ===== Building server =====
 pushd "%SCRIPT_DIR%.\server" || goto :error
 
 echo [1/4] bun install
-call bun install
+call bun install || goto :error
 
 echo [2/4] bun build
-call bun build --compile --target=bun index.ts || goto :error
+call bun run build || goto :error
 
 echo [3/4] Preparing output folder
 if not exist "%SCRIPT_DIR%.\output" mkdir "%SCRIPT_DIR%.\output"

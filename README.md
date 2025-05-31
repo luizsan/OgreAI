@@ -4,19 +4,16 @@ Light, fast, easy to use and bloat-free interface for AI chatbots.
 ![](https://raw.githubusercontent.com/luizsan/OgreAI/main/docs/img/sample_chat.png)
 
 # Requirements
-### Server
- - [Bun 1.2.10 or higher](https://bun.sh/)
-### Client
- - [Node.js 18.16.0 or higher](https://nodejs.org/)
+ - [Bun](https://bun.sh/) (1.2.10 or higher)
 
 ### Recommended
  - [Visual Studio Code](https://code.visualstudio.com/)
  - Any git client
 
 # How to use
-If you have no idea what you're doing and just want to run the project, execute the `build.bat` file at the project root folder and wait until it finishes building. After that, run `ogreai.exe` in the output folder.
+If you have no idea what you're doing and just want to run the project, execute the `build.bat` file at the project root folder and wait until it finishes building. After that, run `ogreai.exe` in the output folder that will show up.
 
-Your content will be located inside the `user` folder.
+Your content files (characters, chats, configs) will be located in the `user` directory, one level above the `output` directory. To modify this location, edit the user path in the `config.json` file found inside the `output` directory.
 
 # Development
 Run `install.bat` to install the necessary dependencies quickly, without building the project.
@@ -30,27 +27,27 @@ bun install
 ```
 
 ## Running
-To start a server
+To start a server, go to the server folder and run:
 ```
-bun run index.ts
+bun run index
 ```
 
-To run the dev version of the client
+To run the dev version of the client, go to the client folder and run:
 ```
-npm run dev
+bun run dev
 ```
 
 ## Building
-Building is not neccessary if you're using the development environment.
+⚠️ Building is not neccessary if you're using the development environment.
 
-Building the server
+To build the server binary, go to the server folder and run:
 ```
 bun build --compile --target=bun index.ts
 ```
 
-Building the client
+To build the client page, go to the client folder and run:
 ```
-vite build
+bun run build
 ```
 
 # Planned features

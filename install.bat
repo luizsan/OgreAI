@@ -8,8 +8,8 @@ REM ── Install dependencies for the Svelte client ──
 echo.
 echo ===== Installing client dependencies =====
 pushd "%SCRIPT_DIR%.\client" || goto :error
-echo npm install
-call npm install || goto :error
+echo bun install
+call bun install || goto :error
 popd
 
 REM ── Install dependencies for the Bun server ──
