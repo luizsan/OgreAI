@@ -25,6 +25,8 @@ export default class Anthropic extends API {
             title: "Model",
             description: "The model that will complete your prompt. This parameter controls which version of Claude answers your request.",
             type: "select", default: "claude-v1.2", choices: [
+                "claude-opus-4-0",
+                "claude-sonnet-4-0",
                 "claude-3-7-sonnet-latest",
                 "claude-3-5-sonnet-latest",
                 "claude-3-5-haiku-latest",
