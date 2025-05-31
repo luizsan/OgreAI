@@ -13,7 +13,24 @@ Light, fast, easy to use and bloat-free interface for AI chatbots.
 # How to use
 If you have no idea what you're doing and just want to run the project, execute the `build.bat` file at the project root folder and wait until it finishes building. After that, run `ogreai.exe` in the output folder that will show up.
 
-Your content files (characters, chats, configs) will be located in the `user` directory, one level above the `output` directory. To modify this location, edit the user path in the `config.json` file found inside the `output` directory.
+Your content files will be located in the `user` directory, one level above the `output` directory. Like this:
+```
+OgreAI
+├── client
+├── docs
+├── server
+├── output
+│   └── ogreai.exe
+├── shared
+└── user
+    ├── characters
+    ├── chats
+    ├── lorebooks
+    ├── presets
+    └── settings
+```
+
+ To modify this location, edit the user path in the `config.json` file found inside the `output` directory.
 
 # Development
 Run `install.bat` to install the necessary dependencies quickly, without building the project.
