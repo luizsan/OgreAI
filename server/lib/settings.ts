@@ -6,7 +6,7 @@ export default class Settings{
         base_prompt: {
             toggleable: true, editable: true, overridable: true, row_size: 12,
             label: "Main prompt",
-            description: "Used to give basic instructions to the model on how to behave in the chat. Can be overriden by a character's custom System Prompt.",
+            description: "Used to give basic instructions to the model on how to behave in the chat. May be overriden by a character's custom System Prompt.",
             default: "Write {{char}}'s next reply in a fictional chat between {{char}} and {{user}}. Write only one reply, with 1 to 4 paragraphs. Use markdown to italicize actions, and avoid quotation marks. Be proactive, creative, and drive the plot and conversation forward. Always stay in character and avoid repetition."
         },
 
@@ -66,14 +66,14 @@ export default class Settings{
         continue_prompt: {
             toggleable: true, editable: true, locked: "messages", row_size: 6,
             label: "Continue prompt",
-            description: "Appended at the end of the chat history if the last message is not from the user, so the model can continue the conversation without interruption.",
+            description: "Appended at the end of the chat history if the last message is not from user, so the model can continue the conversation without adding a new user message.",
             default: "(continue)",
         },
 
         sub_prompt: {
             toggleable: true, editable: true, locked: "continue_prompt", overridable: true, row_size: 6,
             label: "Jailbreak prompt",
-            description: "Appended at the end of the user's last message to reinforce instructions. Can be overridden by a character's Post-History Instructions.",
+            description: "Appended at the end of the user's last message to reinforce instructions. May be overridden by a character's Post-History Instructions.",
             default: "",
         },
 

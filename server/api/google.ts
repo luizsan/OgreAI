@@ -106,11 +106,6 @@ export default class Google extends API{
                 "parts": [{ "text": message.content }]
             }
         })
-
-        let last = list.at(-1)
-        if( last.role !== "user" ){
-            list.push({ "role": "user", "parts": [{ "text": "(continue)" }] })
-        }
         return list
     }
 

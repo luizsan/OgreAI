@@ -78,13 +78,6 @@ export default class Anthropic extends API {
             type: "checkbox", default: true,
         },
 
-
-        continue_message: {
-            title: "Continue Message",
-            description: "What to automatically send as a padding message when the last message in chat isn't from the user. Defaults to '(continue)' if empty.",
-            type: "text", default: "", placeholder: "(continue)",
-        },
-
         stop_sequences: {
             title: "Stop Sequences",
             description: "Sequences that will cause the model to stop generating completion text.",
@@ -110,9 +103,6 @@ export default class Anthropic extends API {
     }
 
     makePrompt( data: IGenerationData, offset: number = 0 ){
-        // const character = data.character;
-        // const settings = data.settings;
-        // const user = data.user.name;
         let list = buildPrompt( this, data, offset )
         list = squashPrompt(list)
         list = list.map((item) => {
@@ -121,10 +111,6 @@ export default class Anthropic extends API {
                 content: item.content
             }
         })
-        // const last = list.at(-1)
-        // const penultimate = list.at(-2)
-        // const insert_continue = last.role === penultimate.role && last.role === "assistant"
-        // todo: insert (continue)
         return list
     }
 

@@ -141,6 +141,16 @@ function getMainPrompt(config: IPromptConfig, data: IGenerationData) : IPromptEn
     return entry
 }
 
+// Retrieves the continue prompt from prompt config
+function getContinuePrompt(config: IPromptConfig, data: IGenerationData) : IPromptEntry{
+    var entry: IPromptEntry = { role: "user", content: "" }
+    entry.content = config.content
+    entry.content = parseMacros(entry.content, data.chat )
+    entry.content = parseNames(entry.content, data.user.name, data.character.data.name )
+    entry.content = entry.content.trim()
+    return entry
+}
+
 // Retrieves the jailbreak prompt from the character or the prompt config if the character doesn't have one
 function getSubPrompt(config: IPromptConfig, data: IGenerationData) : IPromptEntry{
     var entry: IPromptEntry = { role: "user", content: "" }
@@ -196,8 +206,19 @@ function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromp
         entries = entries.slice(cutoff_index)
     }
 
+    const config_continue: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "continue_prompt")
     const config_jailbreak: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "sub_prompt")
     const config_prefill: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "prefill_prompt")
+
+    if( config_continue && config_continue.enabled ){
+        var entry_continue: IPromptEntry = getContinuePrompt(config_continue, data)
+        if( entry_continue.content.length > 0 ){
+            if( entries.at(-1).role !== "user" ){
+                entries.push(entry_continue)
+            }
+        }
+    }
+
     // inject jailbreak
     if( config_jailbreak && config_jailbreak.enabled ){
         var entry_jailbreak: IPromptEntry = getSubPrompt(config_jailbreak, data)
