@@ -67,53 +67,46 @@ export async function initializeData(){
         return;
     }
 
-    const init_requests = [
-        request( "/get_api_modes" ),
-        request( "/get_profile" ),
-        request( "/get_main_settings" ),
+    const startup_requests: Array<Promise<any>> = [
+        request( "/get_api_modes" ).then(response => State.availableAPIModes.set(response)),
+        request( "/get_profile" ).then(response => State.currentProfile.set(response)),
+        request( "/get_main_settings" ).then(response => State.currentSettingsMain.set(response)),
+        getCharacterList(),
     ]
 
-    await Promise.all(init_requests).then(async responses => {
-        State.availableAPIModes.set( responses[0] )
-        State.currentProfile.set( responses[1] )
-        State.currentSettingsMain.set( responses[2] )
-        getStatus()
+    for( let i = 0; i < startup_requests.length; i++ ){
+        await startup_requests[i].catch(error => {
+            State.characterList.set( [] )
+            State.availableAPIModes.set( [] )
+            disconnect()
+            console.error(error)
+        });
+    }
 
-    }).catch(error => {
-        State.characterList.set( [] )
-        State.availableAPIModes.set( [] )
-        disconnect()
-        console.error(error)
-    })
-
+    getStatus()
     await getCharacterList()
-
     let favs = JSON.parse(window.localStorage.getItem("favorites"))
     State.favoritesList.set( favs ? favs : [] )
 
-
     const settings = get( State.currentSettingsMain )
     const mode = settings.api_mode
-    const post_requests = [
-        request( "/get_api_settings", { api_mode: mode }),
-        request( "/get_api_defaults", { api_mode: mode }),
-        request( "/get_presets", {} ),
-        request( "/get_prompt" ),
-        request( "/get_lorebooks" ),
+    const post_requests: Array<Promise<any>> = [
+        request( "/get_api_defaults", { api_mode: mode }).then(response => State.defaultSettingsAPI.set(response)),
+        request( "/get_api_settings", { api_mode: mode }).then(response => State.currentSettingsAPI.set(response)),
+        request( "/get_api_prompt", { api_mode: mode }).then(response => State.currentPrompt.set(response)),
+        request( "/get_default_prompt" ).then(response => State.defaultPrompt.set(response)),
+        request( "/get_presets", {} ).then(response => State.currentPresets.set(response)),
+        request( "/get_lorebooks" ).then(response => State.currentLorebooks.set(response)),
     ]
 
-    await Promise.all(post_requests).then(async responses => {
-        State.currentSettingsAPI.set( responses[0] )
-        State.defaultSettingsAPI.set( responses[1] )
-        State.currentPresets.set( responses[2] )
-        State.defaultPrompt.set( responses[3] )
-        State.currentLorebooks.set( responses[4] )
-        getAPIStatus()
-    }).catch((error) => {
-        disconnect()
-        console.error(error)
-    })
+    for ( let i = 0; i < post_requests.length; i++ ){
+        await post_requests[i].catch(error => {
+            disconnect()
+            console.error(error)
+        });
+    }
 
+    getAPIStatus()
     State.connected.set(true)
 }
 
@@ -208,10 +201,20 @@ export async function getCharacterTokens( character : ICharacter ){
 
 export async function saveSettings(): Promise<void>{
     const main_settings = get( State.currentSettingsMain )
-    const api_settings = get( State.currentSettingsAPI)
+    const api_settings = get( State.currentSettingsAPI )
     const mode = main_settings.api_mode
     await request("/save_main_settings", { data: main_settings })
-    await request("/save_api_settings", { api_mode: mode, data: api_settings })
+    await request("/save_api_settings", {
+        api_mode: mode,
+        data: api_settings
+    })
+}
+
+export async function savePrompt(): Promise<void>{
+    await request("/save_api_prompt", {
+        api_mode: get( State.currentSettingsMain ).api_mode,
+        data: get( State.currentPrompt )
+    })
 }
 
 export async function addToRecentlyChatted(character: ICharacter): Promise<void>{

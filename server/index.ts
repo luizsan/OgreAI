@@ -25,7 +25,7 @@ import Chat from "./lib/chat.ts"
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
-import type { IError, IReply, ISettings, IUser } from "../shared/types.d.ts";
+import type { IError, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
 
 const server_config: IServerConfig = await Initialize()
 
@@ -110,6 +110,26 @@ app.post("/get_api_settings", parser, async function(request: express.Request, r
     }
 })
 
+app.post("/get_api_prompt", parser, async function(request: express.Request, response: express.Response){
+    try{
+        const mode: string = request.body.api_mode
+        const filepath: string = path.join(path_dir.settings, mode, "prompt.json")
+        let prompt: Array<IPromptConfig> = await LoadData(filepath, null)
+        if( !prompt ){
+            prompt = []
+            Object.keys(Settings.default_prompt_order).forEach((key: string) => {
+                if( key === "custom" ) return
+                prompt.push({ key: key, ...Settings.default_prompt_order[key] })
+            })
+        }
+        Settings.ValidatePrompt(prompt)
+        response.send(prompt)
+    }catch(error){
+        console.error(error)
+        response.status(500).send([])
+    }
+})
+
 app.post("/get_api_status", parser, async function(request: express.Request, response: express.Response){
     const mode: string = request.body?.api_mode ?? "";
     const settings: ISettings = request.body?.settings ?? {};
@@ -153,9 +173,19 @@ app.post("/save_api_settings", parser, async function(request: express.Request, 
         response.send(false)
         return
     }
-
     const mode = request.body.api_mode
     const filepath = path.join(path_dir.settings, mode, "main.json")
+    const ok = await SaveData( filepath, request.body.data )
+    response.send(ok)
+})
+
+app.post("/save_api_prompt", parser, async function(request: express.Request, response: express.Response){
+    if( !request.body || !request.body.api_mode || !API_MODES[request.body.api_mode]){
+        response.send(false)
+        return
+    }
+    const mode = request.body.api_mode
+    const filepath = path.join(path_dir.settings, mode, "prompt.json")
     const ok = await SaveData( filepath, request.body.data )
     response.send(ok)
 })
@@ -358,7 +388,7 @@ app.post("/get_api_defaults", parser, function(request: express.Request, respons
     }
 })
 
-app.get("/get_prompt", parser, function(_: express.Request, response: express.Response){
+app.get("/get_default_prompt", parser, function(_: express.Request, response: express.Response){
     response.send( Settings.default_prompt_order )
 })
 

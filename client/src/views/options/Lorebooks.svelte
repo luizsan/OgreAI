@@ -137,7 +137,7 @@
     }
 
     function importLorebook(){
-        Data.upload(async (data) => {
+        Data.upload("application/json", async (data) => {
             let imported = JSON.parse(data)
             if(!imported)
                 return

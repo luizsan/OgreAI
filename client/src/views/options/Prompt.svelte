@@ -3,14 +3,14 @@
     import * as Data from "@/modules/Data.ts";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
-    import { defaultPrompt, currentPresets, currentSettingsMain, currentSettingsAPI } from "@/State";
+    import { defaultPrompt, currentPresets, currentSettingsMain, currentSettingsAPI, currentPrompt } from "@/State";
 
     const presets_categories = ["base_prompt", "sub_prompt", "prefill_prompt"]
 
 
     function addItem(){
-        const custom_prompts: number = $currentSettingsAPI.prompt.filter(p => p.key === "custom").length
-        $currentSettingsAPI.prompt.push({
+        const custom_prompts: number = $currentPrompt.filter(p => p.key === "custom").length
+        $currentPrompt.push({
             key: "custom",
             label: `Custom Prompt ${custom_prompts}`,
             description: "",
@@ -21,17 +21,13 @@
         $currentSettingsAPI = $currentSettingsAPI
     }
 
-    function getPromptByKey(key : string){
-        return $currentSettingsAPI.prompt.findIndex((e) => e.key == key)
-    }
-
     function exportPrompt(){
-        let exported = JSON.stringify($currentSettingsAPI.prompt, null, 2)
+        let exported = JSON.stringify($currentPrompt, null, 2)
         Data.download(exported, `exported_${$currentSettingsMain.api_mode}_prompt.json`)
     }
 
     function importPrompt(){
-        Data.upload(async (data) => {
+        Data.upload("application/json", async (data) => {
             let imported = JSON.parse(data)
             if(!imported)
                 return
@@ -42,10 +38,9 @@
             }
             await Server.request("/validate_prompt", content).then(valid => {
                 console.log(valid)
-                $currentSettingsAPI.prompt = valid;
-                $currentSettingsAPI = $currentSettingsAPI
+                $currentPrompt = valid;
             })
-            await Server.saveSettings()
+            await Server.savePrompt()
         })
     }
 </script>
@@ -58,7 +53,7 @@
         <hr class="component">
     </div>
 
-    <div class="section" on:change={Server.saveSettings}>
+    <div class="section" on:change={Server.savePrompt}>
         <div class="section wide wrap horizontal">
             <div>
                 <div class="title">Prompt Manager</div>
@@ -70,7 +65,7 @@
         </div>
 
         <Reorderable
-            bind:list={$currentSettingsAPI.prompt}
+            bind:list={$currentPrompt}
             defaults={$defaultPrompt}
             presets={presets_categories}
         />

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentSettingsAPI, currentPresets } from "@/State";
+    import { currentPrompt, currentPresets } from "@/State";
     import Preset from "@/components/Preset.svelte";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
@@ -19,7 +19,6 @@
     // touch
     const touch_duration : number = 100;
     let touch_timer;
-
 
     function comparePosition(y : number, e : Element){
         if( !e ) return;
@@ -146,7 +145,7 @@
     }
 
     function getPromptByKey(key : string){
-        return $currentSettingsAPI.prompt.findIndex((e) => e.key == key)
+        return $currentPrompt.findIndex((e) => e.key == key)
     }
 
 </script>
@@ -234,9 +233,9 @@
                         type="text"
                         class="component borderless wide"
                         placeholder="Custom Prompt"
-                        bind:value={ $currentSettingsAPI.prompt[i].label }
+                        bind:value={ $currentPrompt[i].label }
                     >
-                    <select class="component borderless" bind:value={ $currentSettingsAPI.prompt[i].role }>
+                    <select class="component borderless" bind:value={ $currentPrompt[i].role }>
                         <option value="user">User</option>
                         <option value="assistant">Assistant</option>
                         <option value="system">System</option>
@@ -251,7 +250,7 @@
             {#if presets.includes(item.key)}
                 <Preset
                     bind:elements={ $currentPresets[item.key] }
-                    bind:content={ $currentSettingsAPI.prompt[getPromptByKey(item.key)].content }
+                    bind:content={ $currentPrompt[getPromptByKey(item.key)].content }
                     key={ item.key }
                     resizable={true}
                     borderless={true}
@@ -262,7 +261,7 @@
                 <textarea
                     class="component borderless wide"
                     rows={defaults[item.key]?.row_size || 4}
-                    bind:value={ $currentSettingsAPI.prompt[i].content }
+                    bind:value={ $currentPrompt[i].content }
                 />
             {/if}
 
@@ -272,7 +271,7 @@
             <input
                 type="checkbox"
                 title="Allow Override"
-                bind:checked={ $currentSettingsAPI.prompt[i].allow_override }
+                bind:checked={ $currentPrompt[i].allow_override }
             >
             Allow Override
             </label>

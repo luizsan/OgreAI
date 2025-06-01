@@ -13,9 +13,10 @@ export function download(content: string, filename: string): void {
     URL.revokeObjectURL(url);
 }
 
-export async function upload(next: (data: string) => void): Promise<void> {
+export async function upload(ext: string, next: (data: string) => void): Promise<void> {
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = ext || "*";
     input.classList.add('hidden');
     document.body.appendChild(input);
 

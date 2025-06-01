@@ -63,8 +63,15 @@ export default class Settings{
             description: "Inserts the chat history.",
         },
 
+        continue_prompt: {
+            toggleable: true, editable: true, locked: "messages", row_size: 6,
+            label: "Continue prompt",
+            description: "Appended at the end of the chat history if the last message is not from the user, so the model can continue the conversation without interruption.",
+            default: "(continue)",
+        },
+
         sub_prompt: {
-            toggleable: true, editable: true, locked: "messages", overridable: true, row_size: 6,
+            toggleable: true, editable: true, locked: "continue_prompt", overridable: true, row_size: 6,
             label: "Jailbreak prompt",
             description: "Appended at the end of the user's last message to reinforce instructions. Can be overridden by a character's Post-History Instructions.",
             default: "",
@@ -111,24 +118,16 @@ export default class Settings{
     }
 
     static ValidateAPI(obj: any, api_settings: Record<string, IAPISettings>){
-        if( !obj.api_url ){
-            obj.api_url = ""
-        }
+        obj.api_url = obj.api_url || ""
+        obj.api_auth = obj.api_auth || ""
+        obj.prompt = obj.propmt ?? []
 
-        if( !obj.api_auth ){
-            obj.api_auth = ""
-        }
-
-        Object.keys( api_settings ).forEach(key => {
+        const keys = Object.keys(api_settings)
+        keys.forEach(key => {
             if( obj[key] === undefined || typeof obj[key] !== typeof api_settings[key].default ){
                 obj[key] = api_settings[key].default
             }
         })
-
-        if( !obj.prompt ){
-            obj.prompt = []
-        }
-
         obj.prompt = this.ValidatePrompt(obj.prompt)
     }
 
@@ -189,6 +188,19 @@ export default class Settings{
                 e.allow_override = true
             }
         })
+
+        // sort locked items
+        obj.forEach((e) => {
+            if (this.default_prompt_order[e.key]?.locked){
+                const locked_to = this.default_prompt_order[e.key].locked
+                const has_target = obj.some((item) => item.key === locked_to);
+                if (has_target) {
+                    const item = obj.splice(obj.indexOf(e), 1)[0];
+                    const index = obj.findIndex((item) => item.key === locked_to);
+                    obj.splice(index + 1, 0, item);
+                }
+            }
+        });
 
         return obj;
     }

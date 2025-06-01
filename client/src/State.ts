@@ -62,6 +62,8 @@ export const defaultPrompt = writable< Record<string, IPromptConfig> >( null )
 export const currentSettingsMain = writable<ISettings>( null )
 // current API-specific settings
 export const currentSettingsAPI = writable< Record<string,any> >( null )
+// current prompt
+export const currentPrompt = writable< Array<IPromptConfig> >( null )
 // current prompt presets
 export const currentPresets = writable< Record<string, any[]> >( null )
 // current user profile

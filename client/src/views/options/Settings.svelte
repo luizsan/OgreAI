@@ -1,5 +1,5 @@
-<script>
-    import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, currentPresets, availableAPIModes, fetching } from "@/State";
+<script lang="ts">
+    import { currentSettingsMain, defaultSettingsAPI, currentSettingsAPI, defaultPrompt,currentPresets, availableAPIModes, fetching, currentPrompt } from "@/State";
     import Accordion from "@/components/Accordion.svelte";
     import Auth from "@/views/settings/Auth.svelte";
     import Checkbox from "@/components/Checkbox.svelte";
@@ -21,6 +21,9 @@
         let mode = $currentSettingsMain.api_mode
         $defaultSettingsAPI = await Server.request( "/get_api_defaults", { api_mode: mode })
         $currentSettingsAPI = await Server.request( "/get_api_settings", { api_mode: mode })
+        $currentPrompt = await Server.request( "/get_api_prompt", { api_mode: mode })
+
+        // quick validation
         if( !$currentSettingsAPI ){
             $currentSettingsAPI = {}
         }
@@ -33,13 +36,11 @@
 
         $currentSettingsAPI = $currentSettingsAPI;
         $currentPresets = $currentPresets;
-        $fetching = false;
-    }
 
-    async function saveSettings(){
-        const mode = $currentSettingsMain.api_mode
-        await Server.request("/save_main_settings", { data: $currentSettingsMain })
-        await Server.request("/save_api_settings", { api_mode: mode, data: $currentSettingsAPI })
+        if( !$currentPrompt ){
+            $currentPrompt = JSON.parse(JSON.stringify($defaultPrompt))
+        }
+        $fetching = false;
     }
 
     function addListItem(key, item, limit = -1){
@@ -53,20 +54,24 @@
     function removeListItem(key, index){
         $currentSettingsAPI[key].splice(index, 1)
         $currentSettingsAPI[key] = $currentSettingsAPI[key];
-        saveSettings()
+        Server.saveSettings()
+    }
+
+    function filterSettings(obj: any, match?: Array<string>){
+        const entries = Object.entries(obj).filter(([key, value]) => {
+            if( !match.includes(key) ) return undefined;
+            return value
+        })
+        return Object.fromEntries(entries)
     }
 
     function exportSettings(){
-        let exported = JSON.stringify($currentSettingsAPI, (key, value) => {
-            if( key === "api_url" || key === "api_auth" ) return undefined;
-            if( key === "prompt" ) return undefined;
-            return value;
-        }, 2)
-        Data.download(exported, `exported_${$currentSettingsMain.api_mode}_settings.json`)
+        let exported = filterSettings($currentSettingsAPI, Object.keys($defaultSettingsAPI))
+        Data.download(JSON.stringify(exported), `exported_${$currentSettingsMain.api_mode}_settings.json`)
     }
 
     function importSettings(){
-        Data.upload((data) => {
+        Data.upload("application/json", (data) => {
             let imported = JSON.parse(data)
             if(!imported)
                 return
@@ -84,7 +89,7 @@
     <div class="section" class:loading={loading} on:change={ async () => {
         loading = true;
         await getSettings()
-        await saveSettings()
+        await Server.saveSettings()
         loading = false;
     }}>
         <Dropdown bind:value={$currentSettingsMain.api_mode} choices={$availableAPIModes} title="API Mode" icon={ Logo[$currentSettingsMain.api_mode] }/>
@@ -95,7 +100,7 @@
             <Loading width={24} height={24}/>
         </div>
     {:else}
-        <div class="section" on:change={saveSettings}>
+        <div class="section" on:change={Server.saveSettings}>
             <div class="title"><div class="inline">API Target <Status/></div></div>
             <div class="setting">
                 <div class="section vertical">
@@ -119,7 +124,7 @@
 
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}
 
-        <div class="section" on:change={saveSettings}>
+        <div class="section" on:change={Server.saveSettings}>
             <div class="setting vertical">
                 {#if $currentSettingsAPI[key] !== undefined && !$defaultSettingsAPI[key].disabled }
 
