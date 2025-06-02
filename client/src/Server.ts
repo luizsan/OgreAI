@@ -71,7 +71,7 @@ export async function initializeData(){
         request( "/get_api_modes" ).then(response => State.availableAPIModes.set(response)),
         request( "/get_profile" ).then(response => State.currentProfile.set(response)),
         request( "/get_main_settings" ).then(response => State.currentSettingsMain.set(response)),
-        getCharacterList(),
+        request( "/get_characters" ).then(response => State.characterList.set(response)),
     ]
 
     for( let i = 0; i < startup_requests.length; i++ ){
@@ -84,7 +84,6 @@ export async function initializeData(){
     }
 
     getStatus()
-    await getCharacterList()
     let favs = JSON.parse(window.localStorage.getItem("favorites"))
     State.favoritesList.set( favs ? favs : [] )
 

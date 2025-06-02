@@ -25,7 +25,7 @@ import Chat from "./lib/chat.ts"
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
-import type { IError, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
+import type { IError, IGenerationData, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
 
 const server_config: IServerConfig = await Initialize()
 
@@ -405,18 +405,19 @@ app.post("/generate", parser, async function(request: express.Request, response:
     let api = API_MODES[request.body.api_mode]
     if( api && api.generate ){
         const req = request.body;
-        const data = {
+        const data: IGenerationData = {
             character: req.character,
             chat: req.chat,
             user: req.user,
             settings: req.settings,
+            prompt: req.prompt,
             swipe: req.swipe,
             streaming: req.settings.stream,
-            prompt: null,
-            books: req.books
+            books: req.books,
+            output: null,
         }
 
-        data.prompt = api.makePrompt( data, data.swipe ? 1 : 0 )
+        data.output = api.makePrompt( data, data.swipe ? 1 : 0 )
         api.__message_chunk = ""
         api.generate( data ).then(async result => {
             if( data.streaming ){

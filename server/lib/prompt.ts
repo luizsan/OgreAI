@@ -21,12 +21,11 @@ const available_roles: Array<string> = ["system", "user", "assistant"]
 export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     const user: IUser = data.user;
     const character: ICharacter = data.character;
-    const settings: ISettings & Record<string,any> = data.settings;
 
     console.debug( "---" )
     console.debug( "Building prompt" )
     let prompt_entries: Array<IPromptEntry> = []
-    settings.prompt.forEach((item: IPromptConfig) => {
+    data.prompt.forEach((item: IPromptConfig) => {
         if( !item.key ) return
         if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
         let added: boolean = false
@@ -39,6 +38,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
             case "persona":
                 if ( user?.persona?.trim().length > 0 ){
                     let persona_entry: IPromptEntry = { role: "system", content: user.persona }
@@ -48,6 +48,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
             case "description":
             case "personality":
             case "scenario":
@@ -58,6 +59,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
             case "messages":
                 const messages_list: Array<IPromptEntry> = getMessages(api, data, offset)
                 if( messages_list.length > 0 ){
@@ -65,6 +67,9 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
+
+
             case "world_info":
                 const world_entries: Array<ILorebookEntry> = Lorebook.getGlobalLoreEntries(api, data)
                 if( world_entries.length > 0 ){
@@ -75,6 +80,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
             case "character_book":
                 const character_entries: Array<ILorebookEntry> = Lorebook.getEntriesFromBook(api, character.data.character_book, data)
                 if( character_entries.length > 0 ){
@@ -85,6 +91,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
+
             case "custom":
                 const custom_content: string = item.content || item.label || ""
                 const custom_entry: IPromptEntry = { role: "system", content: custom_content }
@@ -94,6 +101,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 custom_entry.content = parseNames(custom_entry.content, data.user.name, data.character.data.name )
                 prompt_entries.push(custom_entry)
                 added = true
+
             default:
                 break;
         }
@@ -206,9 +214,9 @@ function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromp
         entries = entries.slice(cutoff_index)
     }
 
-    const config_continue: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "continue_prompt")
-    const config_jailbreak: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "sub_prompt")
-    const config_prefill: IPromptConfig = data.settings.prompt.find((item: IPromptConfig) => item.key === "prefill_prompt")
+    const config_continue: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "continue_prompt")
+    const config_jailbreak: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "sub_prompt")
+    const config_prefill: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "prefill_prompt")
 
     if( config_continue && config_continue.enabled ){
         var entry_continue: IPromptEntry = getContinuePrompt(config_continue, data)
@@ -231,7 +239,6 @@ function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromp
     }
     // inject prefill
     if( config_prefill && config_prefill.enabled ){
-        console.log("PREFILL: " + config_prefill.enabled)
         var entry_prefill: IPromptEntry = getPrefillPrompt(config_prefill, data)
         if( entry_prefill.content.length > 0 ){
             entries.push(entry_prefill)

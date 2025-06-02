@@ -130,10 +130,11 @@ export interface IGenerationData{
     chat: IChat;
     user : IUser;
     settings : ISettings;
-    prompt : any;
+    prompt : Array<IPromptConfig>;
     swipe?: boolean;
     streaming?: boolean;
     books?: Array<ILorebook>;
+    output?: any;
 }
 
 export interface ISettings{

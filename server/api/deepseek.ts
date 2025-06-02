@@ -124,11 +124,11 @@ export default class DeepSeek extends API {
 
     async generate(data: IGenerationData): Promise<any>{
         const settings: ISettings & Record<string, any> = data.settings;
-        const prompt: any = data.prompt;
+        const output: any = data.output;
 
         let outgoing_data = {
             model: settings.model,
-            messages: prompt,
+            messages: output,
             stop: this.sanitizeStopSequences(settings.stop_sequences, data.user, data.character),
             max_tokens: parseInt(settings.max_tokens),
             frequency_penalty: parseFloat(settings.frequency_penalty),

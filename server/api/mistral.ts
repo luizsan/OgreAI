@@ -89,11 +89,11 @@ export default class Mistral extends API{
 
     async generate(data: IGenerationData): Promise<any>{
         const settings: ISettings & Record<string, any> = data.settings;
-        const prompt: any = data.prompt;
+        const output: any = data.output;
 
         let outgoing_data = {
             model: settings.model,
-            messages: prompt,
+            messages: output,
             max_tokens: parseInt(settings.max_tokens),
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),

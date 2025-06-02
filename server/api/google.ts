@@ -111,11 +111,11 @@ export default class Google extends API{
 
     async generate(data: IGenerationData): Promise<any> {
         const settings: ISettings & Record<string, any> = data.settings;
-        const prompt: any = data.prompt;
+        const output: any = data.output;
 
         let outgoing_data = {
             model: settings.model,
-            contents: prompt,
+            contents: output,
             safetySettings: SAFETY_SETTINGS,
             generationConfig: {
                 maxOutputTokens: parseInt(settings.max_tokens),

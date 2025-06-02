@@ -20,6 +20,7 @@
         currentLorebooks,
         currentPreferences,
         currentProfile,
+        currentPrompt,
         currentSettingsAPI,
         currentSettingsMain,
         deleteList,
@@ -155,6 +156,7 @@
             chat: $currentChat,
             user: $currentProfile,
             settings: $currentSettingsAPI,
+            prompt: $currentPrompt,
             books: fetchLorebooks(),
             swipe: swipe,
         }

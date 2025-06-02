@@ -116,9 +116,9 @@ export default class Anthropic extends API {
 
     async generate( data: IGenerationData ): Promise<any> {
         const settings: ISettings & Record<string, any> = data.settings;
-        const prompt: any = data.prompt;
         const character: ICharacter = data.character;
         const user: IUser = data.user;
+        const output: any = data.output;
 
         let outgoing_data: Record<string, any> = {
             model: settings.model,
@@ -131,10 +131,10 @@ export default class Anthropic extends API {
         };
 
         if( settings.caching && settings.caching_size && settings.caching_size > 0){
-            let sys = prompt.slice(0, settings.caching_size)
-            let last = prompt.slice(settings.caching_size)
+            let sys = output.slice(0, settings.caching_size)
+            let last = output.slice(settings.caching_size)
             // required to have at least one message
-            if(sys.length > 0 &&last.length < 1){
+            if(sys.length > 0 && last.length < 1){
                 last.push(sys.pop())
             }
             // map system messages
@@ -146,7 +146,7 @@ export default class Anthropic extends API {
                 outgoing_data.system.at(-1).cache_control = { type: "ephemeral" }
             outgoing_data.messages = last
         }else{
-            outgoing_data.messages = prompt
+            outgoing_data.messages = output
         }
 
         let options = {
