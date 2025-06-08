@@ -18,9 +18,9 @@ export function parseMacros(text: string, chat: IChat){
     const date = new Date();
     const idle = getIdleTime(chat)
     text = randomReplace(text)
-    text = text.replace(/{{date}}/gi, date.toLocaleDateString());
-    text = text.replace(/{{time}}/gi, date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    text = text.replace(/{{weekday}}/gi, date.toLocaleDateString("en-gb", { weekday: 'long' }));
+    text = text.replace(/{{date}}/gi, date.toLocaleDateString(undefined));
+    text = text.replace(/{{time}}/gi, date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }));
+    text = text.replace(/{{weekday}}/gi, date.toLocaleDateString(undefined, { weekday: 'long' }));
     text = text.replace(/{{idle_duration}}/gi, idle);
     return text
 }
@@ -74,12 +74,12 @@ export function relativeTime(datetime: string | number | Date, precise = false )
     const now = new Date();
     const target = new Date(datetime);
 
-    const date = target.toLocaleDateString()
-    const time = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const date = target.toLocaleDateString(undefined)
+    const time = target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
     const full = `${date} ${time}`
 
-    let time_a;
-    let time_b;
+    let time_a: number | Date;
+    let time_b: number | Date;
 
     if( precise ){
         time_a = now.getTime()
