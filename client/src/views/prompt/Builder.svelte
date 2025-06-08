@@ -176,7 +176,7 @@
     >
 
         <!-- handle -->
-        <div class="handle center">
+        <div class="handle center disabled">
             {#if ref.locked }
                 {@html SVG.lock}
             {:else}
@@ -185,11 +185,11 @@
         </div>
 
         <!-- toggle -->
-        <div class="center">
+        <div class="center toggle" class:disabled={!ref.toggleable}>
             {#if ref.toggleable}
-                <input type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
+                <input class="component" type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
             {:else}
-                <input type="checkbox" disabled checked={true}>
+                <input class="component" type="checkbox" disabled checked={true}>
             {/if}
         </div>
 
@@ -207,7 +207,7 @@
 
             <!-- button -->
             <button
-                class="normal wide toggle"
+                class="normal wide editable"
                 class:open={item.open}
                 class:hidden={!ref.editable}
                 class:deselect={!ref.editable}
@@ -327,10 +327,12 @@
         border-radius: 2px;
         align-items: center;
         font-size: 90%;
+        cursor: move;
     }
 
     .item.locked{
         background-color: rgba(96, 96, 96, 0.1);
+        cursor: not-allowed;
     }
 
     .item div{
@@ -373,19 +375,19 @@
         gap: 16px;
     }
 
-    .toggle{
+    .editable{
         position: absolute;
         inset: 0px;
         padding: 0px;
     }
 
-    .toggle :global(svg){
+    .editable :global(svg){
         position: absolute;
         right: 12px;
         transform: rotate(180deg);
     }
 
-    .toggle.open :global(svg){
+    .editable.open :global(svg){
         transform: rotate(-90deg);
     }
 

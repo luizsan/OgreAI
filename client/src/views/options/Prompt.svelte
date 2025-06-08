@@ -18,7 +18,7 @@
             role: "user",
             enabled: true,
         })
-        $currentSettingsAPI = $currentSettingsAPI
+        $currentPrompt = $currentPrompt
     }
 
     function exportPrompt(){
@@ -59,9 +59,6 @@
                 <div class="title">Prompt Manager</div>
                 <div class="explanation">Edit, toggle and reorder parts of the prompt for the current API mode.</div>
             </div>
-            <div class="buttons">
-                <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add Item</button>
-            </div>
         </div>
 
         <Reorderable
@@ -69,6 +66,10 @@
             defaults={$defaultPrompt}
             presets={presets_categories}
         />
+
+        <div class="buttons">
+            <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add Item</button>
+        </div>
     </div>
 </div>
 
