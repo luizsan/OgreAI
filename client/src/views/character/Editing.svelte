@@ -288,7 +288,7 @@
 
 
 {#if $editing }
-    <Screen>
+    <Screen fullscreen={true}>
         <div class="top" on:change={SaveCharacter} >
             <div class="section header">
                 <div class="avatar">

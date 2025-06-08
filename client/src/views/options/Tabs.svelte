@@ -1,5 +1,6 @@
 <script lang="ts">
     import { sectionSettings, currentSettingsMain, currentSettingsAPI, tabSettings } from "@/State";
+    import Toggle from "@/components/Toggle.svelte";
     import Screen from "@/components/Screen.svelte";
     import Footer from "@/components/Footer.svelte";
     import Settings from "./Settings.svelte";
@@ -44,11 +45,18 @@
         }
     }
 
+    let sidebar: boolean = window.localStorage.getItem("fullscreen_settings") == "true"
+
     onMount(() =>{
         if(!$tabSettings){
             $tabSettings = Object.keys(tab_items)[0]
         }
     })
+
+    function setSidebar(b){
+        window.localStorage.setItem("fullscreen_settings", b)
+        sidebar = b
+    }
 
     function setTab(s : string = ""){
         $tabSettings = s;
@@ -57,11 +65,20 @@
 </script>
 
 {#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
-    <Screen>
+    <Screen fullscreen={!sidebar} width={640} right={true}>
+
         <div class="content">
+
             <div class="top section">
-                <h1>{tab_items[$tabSettings].title}</h1>
-                <p class="explanation">{tab_items[$tabSettings].description}</p>
+                <div class="horizontal wide section">
+                    <div class="section grow">
+                        <h1>{tab_items[$tabSettings].title}</h1>
+                        <p class="explanation">{tab_items[$tabSettings].description}</p>
+                    </div>
+                    <div class="center">
+                        <Toggle bind:value={sidebar} mirror size={20} toggled={setSidebar} title="Toggle sidebar">{@html SVG.sidebar}</Toggle>
+                    </div>
+                </div>
                 <hr class="component">
             </div>
 

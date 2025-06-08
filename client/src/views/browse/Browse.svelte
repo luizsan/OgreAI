@@ -3,6 +3,7 @@
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, search, localServer } from "@/State";
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
+    import Toggle from "@/components/Toggle.svelte";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
     import { clickOutside } from "@/utils/ClickOutside";
@@ -124,10 +125,6 @@
         }
     }
 
-    function togglePin(){
-        pinned = !pinned;
-    }
-
     function orderResults(list : Array<ICharacter>){
         if(Object.keys(sortModes).includes(currentSortMode)){
             list = sortModes[currentSortMode].order(list)
@@ -178,7 +175,7 @@
     <div class="container" bind:this={self} on:scroll={refreshScroll}>
 
         <div class="section horizontal" style="justify-content: end">
-            <button class="pin {pinned ? "info" : "normal"}" on:click={togglePin}>{@html SVG.pin}</button>
+            <Toggle bind:value={pinned} size={20}>{@html SVG.pin}</Toggle>
         </div>
 
         <div class="section">
@@ -288,17 +285,6 @@
         width: 16px;
         height: 100%;
         color: gray;
-    }
-
-    .pin{
-        width: 24px;
-        height: 24px;
-        padding: 0px;
-    }
-
-    .pin :global(svg){
-        width: 20px;
-        height: 20px;
     }
 
     .label{
