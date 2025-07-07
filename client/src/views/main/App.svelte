@@ -74,7 +74,7 @@
             return
         }
         $currentCharacter = character
-        await Server.getChats( character, true )
+        await Server.getChatList( character, true )
         let tokens = await Server.getCharacterTokens( character );
         $currentCharacter.temp.tokens = tokens
         $fetching = false;

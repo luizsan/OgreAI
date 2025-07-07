@@ -25,7 +25,7 @@ import Chat from "./lib/chat.ts"
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
-import type { IError, IGenerationData, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
+import type { IChat, IChatMeta, IError, IGenerationData, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
 
 const server_config: IServerConfig = await Initialize()
 
@@ -259,11 +259,18 @@ app.post("/get_message_tokens", parser, function(request: express.Request, respo
     response.send(tokens)
 })
 
-app.post("/get_chats", parser, function(request: express.Request, response: express.Response){
-    let chats = Chat.GetAllChats(request.body.character, path_dir.chats )
+app.post("/get_chat_list", parser, function(request: express.Request, response: express.Response){
+    let chats: Array<IChatMeta> = Chat.GetAllChats(request.body.character, path_dir.chats )
     if( !chats ){ chats = [] }
     response.send(chats)
 });
+
+
+app.post("/get_chat", parser, function(request: express.Request, response: express.Response){
+    let chat: IChat = Chat.ReadFromFile( request.body.filepath, path_dir.chats )
+    response.send(chat)
+})
+
 
 app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
     try{
@@ -280,18 +287,21 @@ app.post("/save_chat", parser, function(request: express.Request, response: expr
 
 app.post("/copy_chat", parser, function(request: express.Request, response: express.Response){
     const now = Date.now();
+    const character = request.body.character
 
     let copy = request.body.chat;
     copy.title = request.body.name ? request.body.name : now;
     copy.create_date = now;
     copy.last_interaction = now;
+    copy.filepath = path.join(path.parse(character.temp.filepath).name, now.toString() + ".json");
+    copy.filepath = copy.filepath.replaceAll("\\", "/");
 
-    let result = Chat.Save( copy, request.body.character, path_dir.chats )
+    let result = Chat.Save( copy, character, path_dir.chats )
     response.send( result )
 })
 
 app.post("/delete_chat", parser, function(request: express.Request, response: express.Response){
-    let result = Chat.Delete( request.body.chat )
+    let result = Chat.Delete( request.body.chat, path_dir.chats )
     response.send( result )
 })
 

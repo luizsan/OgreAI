@@ -4,7 +4,7 @@
     import { marked } from 'marked';
     import { addToggleableBlocks } from "@/utils/ToggleableBlock";
 
-    import type { IChat } from "@shared/types";
+    import type { IChat, IChatMeta } from "@shared/types";
     import * as Format from "@shared/format.ts";
 
     export let author : string = ""
@@ -13,7 +13,7 @@
 
     export let user : string
     export let bot : string
-    export let chat : IChat
+    export let chat : IChat | IChatMeta
 
     let displayReasoning = ""
     let displayText = ""

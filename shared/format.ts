@@ -1,5 +1,5 @@
 
-import type { IChat, IReplaceEntry } from "./types.d.ts";
+import type { IChat, IChatMeta, IReplaceEntry } from "./types.d.ts";
 
 const randomSplit = /[:]{2,}|[|]+/gm
 const randomPattern = /{{random\s?\:+\s?([^}]+)}}/gi
@@ -14,7 +14,7 @@ export function parseNames(text: string, user: string, bot: string){
     return text
 }
 
-export function parseMacros(text: string, chat: IChat){
+export function parseMacros(text: string, chat: IChat | IChatMeta){
     const date = new Date();
     const idle = getIdleTime(chat)
     text = randomReplace(text)
@@ -25,15 +25,8 @@ export function parseMacros(text: string, chat: IChat){
     return text
 }
 
-export function getIdleTime(chat: IChat){
-    const last = chat?.messages?.length || 0 > 0 ? chat.messages.at(-1) : null
-    if( last && last.candidates.length > 0 ){
-        const candidate = last.candidates.at(last.index)
-        if( candidate ){
-            return relativeTime( candidate.timestamp, true )
-        }
-    }
-    return relativeTime( new Date(), true )
+export function getIdleTime(chat: IChat | IChatMeta){
+    return relativeTime( chat.last_interaction, true )
 }
 
 export function randomReplace(text: string){

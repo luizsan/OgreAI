@@ -1,6 +1,7 @@
 import type {
     ICharacter,
     IChat,
+    IChatMeta,
     ISettings,
 } from "@shared/types";
 import { get } from "svelte/store";
@@ -8,7 +9,7 @@ import * as State from "@/State";
 
 let _heartbeat = null;
 
-export async function request( url : string, json = null, timeout_seconds: number = 0 ){
+export async function request( url : string, json = null, timeout_seconds: number = 0 ): Promise<any>{
     let req : RequestInit;
     const headers = {
         "Content-Type": "application/json",
@@ -141,13 +142,13 @@ export async function getCharacter(filepath : String){
     });
 }
 
-export async function getChats(character : ICharacter, set_latest = false){
-    let list = await request( "/get_chats", { character: character });
-    let latest_time = 0;
-    let latest_chat = null;
+export async function getChatList(character : ICharacter, set_latest = false){
+    let list: Array<IChatMeta> = await request( "/get_chat_list", { character: character });
+    let latest_meta: IChatMeta = null;
+    let latest_chat: IChat = null;
 
     if( list && list.length > 0 ){
-        list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
+        list.sort((a : IChatMeta, b : IChatMeta) => { return b.last_interaction - a.last_interaction });
     }
 
     console.debug(`Retrieved chats for ${character.data.name}`)
@@ -156,12 +157,8 @@ export async function getChats(character : ICharacter, set_latest = false){
 
     if( set_latest ){
         if( list.length > 0 ){
-            list.forEach((chat : IChat) => {
-                if( chat.last_interaction > latest_time && chat.messages.length > 0 ){
-                    latest_time = chat.last_interaction;
-                    latest_chat = chat;
-                }
-            })
+            latest_meta = list.at(0)
+            latest_chat = await request( "/get_chat", { filepath: latest_meta.filepath });
         }else{
             latest_chat = await request( "/new_chat", { character: character });
         }

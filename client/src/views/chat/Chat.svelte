@@ -362,7 +362,6 @@
         if( state ){
             showMenu = false;
             $fetching = true;
-            await Server.getChats( $currentCharacter )
             // await Server.getChatList( $currentCharacter )
             $fetching = false;
             $history = true;

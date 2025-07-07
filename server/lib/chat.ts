@@ -1,12 +1,14 @@
-import { ICandidate, ICharacter, IChat, IMessage } from "../../shared/types.js"
+import { ICandidate, ICharacter, IChat, IChatMeta, IMessage } from "../../shared/types.js"
 
-import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlinkSync } from "fs"
+import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlinkSync, exists } from "fs"
 import path from "path"
 import chalk from "chalk"
 
 import * as CAI from "../import/cai.ts"
 import * as Tavern from "../import/tavern.ts"
 import * as Format from "../../shared/format.ts"
+
+const META_FILE: string = "_index.meta"
 
 export default class Chat{
 
@@ -57,54 +59,113 @@ export default class Chat{
         chat.messages = source.messages || []
     }
 
+    // Returns an array of IChatMeta for all chats in the character folder
     static GetAllChats(character: ICharacter, dir: string){
-        let chats = []
-        let target = path.join(dir, path.parse( character.temp.filepath ).name, "/" )
+        let chats: Array<IChatMeta> = []
+        let filename = path.parse( character.temp.filepath).name
+        let target = path.join(dir, filename)
         target = target.replaceAll("\\", "/")
         console.debug( chalk.blue( "Reading chats from " + chalk.blue(target)))
-        if(existsSync(target)){
+        // folder exists
+        if(!existsSync(target))
+            return chats
 
+        // look for _index.meta file
+        let index = path.join(target, META_FILE)
+        try{
+            if(!existsSync(index))
+                throw new Error("Index file not found")
+                // index found
+            let content = readFileSync(index, "utf-8")
+            let parsed = JSON.parse(content)
+            if(Array.isArray(parsed)){
+                parsed.forEach(meta => {
+                    meta.filepath = meta.filepath.replaceAll("\\", "/")
+                    chats.push(meta)
+                })
+            }
+        }catch(e: any){
+            console.log("Error reading index file: " + e.message)
+            // no index found
             let files = readdirSync(target)
             for(let i = 0; i < files.length; i++){
                 try{
-                    if(files[i].toLowerCase().endsWith('.json')){
-                        // OGRE
-                        let filepath = path.join( target, files[i] )
-                        let content = readFileSync( filepath, "utf-8")
-                        let parsed = JSON.parse( content )
-                        if(parsed.messages < 1){
-                            continue;
-                        }
-                        let new_chat: IChat = parsed
-                        this.Validate( new_chat, parsed )
-                        new_chat.filepath = filepath.replaceAll("\\", "/" )
-                        chats.push( new_chat )
-
-                    }else if(files[i].toLowerCase().endsWith('.jsonl')){
-                        // TAVERN
-                        let filepath = path.join( target, files[i] )
-                        let content = readFileSync( filepath, "utf-8")
-                        let parsed = Tavern.parseJSONL( content )
-                        if( parsed ){
-                            let new_chat: IChat = parsed
-                            this.Validate( new_chat, parsed )
-                            new_chat.filepath = filepath.replaceAll("\\", "/" )
-                            chats.push( new_chat )
-                        }
+                    let filepath = path.join( target, files[i] )
+                    filepath = filepath.replaceAll("\\", "/")
+                    let new_chat : IChat = this.ReadFromFile( filepath )
+                    if( new_chat ){
+                        let meta : IChatMeta = this.createMetadata( new_chat )
+                        meta.filepath = path.relative(dir, filepath)
+                        meta.filepath = meta.filepath.replaceAll("\\", "/")
+                        chats.push( meta )
                     }
                 }catch(error){
                     console.warn( chalk.yellow( error ))
-
                 }
             }
+            // write metadata
+            let meta_content: string = JSON.stringify(chats)
+            let meta_path: string = path.join(target, META_FILE)
+            writeFileSync(meta_path, meta_content)
         }
         return chats;
+    }
+
+    static createMetadata( chat: IChat ): IChatMeta{
+        let meta: IChatMeta = {
+            filepath: chat.filepath,
+            title: chat.title,
+            create_date: chat.create_date,
+            last_interaction: chat.last_interaction,
+            participants: chat.participants,
+            message_count: chat.messages.length,
+            last_message: undefined,
+        }
+
+        if (chat.messages.length > 0) {
+            const last: IMessage = chat.messages.at(-1)
+            const current: ICandidate = last.candidates[last.index]
+            meta.last_message = {
+                participant: last.participant,
+                index: last.index,
+                candidates: [current]
+            };
+        }
+
+        return meta
+    }
+
+    static ReadFromFile( filepath: string, dir: string = "" ): IChat | null{
+        try{
+            let extension = path.extname(filepath)
+            let content = readFileSync( path.join(dir, filepath), "utf-8")
+            let parsed: IChat = null
+            switch(extension){
+                case ".json": // OGRE
+                    parsed = JSON.parse(content)
+                    break;
+                case ".jsonl": // TAVERN
+                    parsed = Tavern.parseChat(content )
+                    break;
+                default:
+                    break;
+                }
+            if ( !parsed )
+                throw new Error( "Could not parse chat file" )
+            let new_chat: IChat = parsed
+            this.Validate( new_chat, parsed )
+            new_chat.filepath = filepath.replaceAll("\\", "/" )
+            return new_chat
+        }catch(error){
+            console.warn( chalk.yellow( error ))
+        }
+        return null
     }
 
     static Save( chat: IChat, character: ICharacter, dir: string ): boolean{
         if( !character ) return;
         if( !character.data.name ) return;
-        let filename = chat.create_date + ".json";
+        let filename = chat.create_date.toString();
         let folder =  path.join(dir, path.parse( character.temp.filepath ).name )
         let target = path.join(folder, filename)
         target = target.replaceAll("\\", "/")
@@ -113,9 +174,27 @@ export default class Chat{
                 mkdirSync(folder, { recursive: true });
             }
             let json = JSON.stringify(chat, function(key, value){
-                return key != "dom" ? value : undefined;
+                switch(key){
+                    case "dom": return undefined
+                    case "filepath": return undefined
+                    default: return value
+                }
             });
-            writeFileSync(target, json);
+            // meta
+            let meta_path = path.join(path.dirname(target), META_FILE)
+            if(existsSync(meta_path)){
+                let new_meta = this.createMetadata(chat)
+                let meta_content = readFileSync(meta_path, "utf-8")
+                let meta_list = JSON.parse(meta_content)
+                let meta_index = meta_list.findIndex((entry: IChatMeta) => entry.filepath == chat.filepath)
+                if( meta_index > -1 ){
+                    meta_list[meta_index] = new_meta
+                }else{
+                    meta_list.push(new_meta)
+                }
+                writeFileSync(meta_path, JSON.stringify(meta_list))
+            }
+            writeFileSync(target + ".json", json);
             console.debug( chalk.blue( `Saved chat at ${target}` ))
             return true
         }catch(error){
@@ -131,7 +210,7 @@ export default class Chat{
             for(let i = 0; i < files.length; i++){
                 let file = files[i]
                 let content = readFileSync( file, "utf-8")
-                let parsed = Tavern.parseJSONL( content )
+                let parsed = Tavern.parseChat( content )
                 if( parsed ){
                     let new_chat: IChat = this.create(character)
                     this.Validate( new_chat, parsed )
@@ -163,9 +242,17 @@ export default class Chat{
         }
     }
 
-    static Delete( chat: IChat ){
+    static Delete( chat: IChat, dir: string ){
         try{
-            let target =  chat.filepath
+            let target = path.join( dir, chat.filepath )
+            // meta
+            let meta_path = path.join(path.dirname(target), META_FILE)
+            if(existsSync(meta_path)){
+                let meta_content = readFileSync(meta_path, "utf-8")
+                let meta_list = JSON.parse(meta_content)
+                meta_list = meta_list.filter( (entry: IChatMeta) => entry.filepath != chat.filepath )
+                writeFileSync(meta_path, JSON.stringify(meta_list))
+            }
             unlinkSync(target)
             return true
         }catch(error){
@@ -173,5 +260,4 @@ export default class Chat{
             return false
         }
     }
-
 }

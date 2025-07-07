@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { IChat } from "@shared/types";
+    import type { IChatMeta } from "@shared/types";
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
@@ -8,24 +8,26 @@
     import { tick } from 'svelte';
     import Text from './Content.svelte';
 
-    export let chat : IChat;
+    export let chat : IChatMeta;
     let titleField : HTMLInputElement
     let editingTitle : boolean = false
     let open : boolean = false
 
-    $: last = chat ? chat.messages.at(-1) : null;
-    $: index = last ? last.index : 0;
-    $: author = last.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
+    $: author = chat.last_message.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
     $: created = chat.create_date || 0
-    $: modified = last ? last.candidates[index].timestamp : 0
+    $: modified = chat.last_interaction || 0
+    // chat meta only has 1 candidate despite storing the current index correctly
+    $: candidate = chat.last_message?.candidates[0]
 
     function getFormattedDate(timestamp : number) : string{
         return new Date(timestamp).toLocaleString()
     }
 
     async function selectHistory(){
-        $currentChat = chat;
+        $fetching = true;
+        $currentChat = await Server.request( "/get_chat", { filepath: chat.filepath });
         $history = false;
+        $fetching = false;
         await tick()
         document.dispatchEvent(new CustomEvent("autoscroll"));
     }
@@ -39,7 +41,7 @@
                 chat: chat,
             })
 
-            await Server.getChats( $currentCharacter )
+            await Server.getChatList( $currentCharacter )
             $fetching = false;
         }
     }
@@ -48,7 +50,7 @@
         $fetching = true;
         let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: chat })
         if( result ){
-            await Server.getChats( $currentCharacter )
+            await Server.getChatList( $currentCharacter )
             $fetching = false;
             await Dialog.alert("OgreAI", "Successfully copied chat!")
         }else{
@@ -80,7 +82,7 @@
 <div class="content">
     <div class="section data">
         <div class="title">
-            <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
+            <button class="normal" on:click|stopPropagation={/*toggleEditTitle*/ () => {}}>{@html SVG.edit}</button>
             {#if editingTitle}
                 <!-- svelte-ignore a11y-autofocus -->
                 <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
@@ -91,7 +93,7 @@
 
         <div class="sub explanation disabled">{chat.filepath.replaceAll("../user/", "")}</div>
         <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
-        <div class="sub info disabled"><strong>{chat.messages.length}</strong> Messages</div>
+        <div class="sub info disabled"><strong>{chat.message_count}</strong> Messages</div>
     </div>
 
     <hr class="component"/>
@@ -105,7 +107,7 @@
         <div class="message disabled" class:open={open}>
             <div class="contents">
                 <Text
-                    content={last.candidates[index].text}
+                    content={candidate.text}
                     author={author}
                     user={$currentProfile.name}
                     bot={$currentCharacter.data.name}

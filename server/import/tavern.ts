@@ -22,7 +22,8 @@ export function decodeTimestamp(str): number{
     return date.getTime()
 }
 
-export function parseJSONL( jsonl: string ): IChat{
+// parses a .jsonl Tavern chat file
+export function parseChat( jsonl: string ): IChat{
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
         return null;

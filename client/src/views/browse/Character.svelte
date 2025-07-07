@@ -43,7 +43,7 @@
 
         $fetching = true;
         await Server.getCharacter( filepath );
-        await Server.getChats( $currentCharacter, true )
+        await Server.getChatList( $currentCharacter, true )
         $history = false;
         $deleting = false;
         $editing = null;
