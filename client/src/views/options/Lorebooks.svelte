@@ -5,17 +5,21 @@
     import Book from "@/views/lorebook/Book.svelte"
     import Loading from "@/components/Loading.svelte";
     import Search from "@/components/Search.svelte";
-    import { editing, currentCharacter, currentLorebooks, currentSettingsMain } from "@/State"
+    import {
+        editing,
+        currentCharacter,
+        currentLorebooks,
+        selectedLorebooks,
+        currentSettingsMain
+    } from "@/State"
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server";
     import * as Data from "@/modules/Data.ts"
     import * as SVG from "@/svg/Common.svelte"
     import * as Format from "@shared/format.ts";
 
-
     let editingBook : any = null;
     let searchResults : Array<ILorebook> = [];
-    let selectedBooks : Array<ILorebook> = [];
     let selectedOnly : boolean = false;
     let loading : boolean = false;
 
@@ -113,16 +117,16 @@
     }
 
     function initializeSelected(){
-        selectedBooks = $currentSettingsMain.books.map((entry : ILorebook) => {
-            return $currentLorebooks.find(book => book?.temp?.filepath == entry.temp?.filepath)
+        $selectedLorebooks = $currentSettingsMain.books.map((entry: string) => {
+            return $currentLorebooks.find(book => book?.temp?.filepath == entry)
         })
-        selectedBooks = selectedBooks.filter(item => item)
+        $selectedLorebooks = $selectedLorebooks.filter(item => item)
     }
 
     function updateSelected(){
-        const updated = selectedBooks.map((book : any) => book?.temp?.filepath ?? undefined)
-        selectedBooks = selectedBooks
-        $currentSettingsMain.books = updated.filter(item => item)
+        const updated: Array<string> = $selectedLorebooks.map((book : any) => book?.temp?.filepath ?? undefined)
+        $selectedLorebooks = $selectedLorebooks
+        $currentSettingsMain.books = updated.filter(item => item) as Array<string>
         $currentSettingsMain = $currentSettingsMain;
         return updated
     }
@@ -151,12 +155,15 @@
     }
 
     function toggleLorebook(book: ILorebook){
-        if( selectedBooks.includes(book) ){
-            selectedBooks = selectedBooks.filter(item => item !== book)
+        if( $selectedLorebooks.includes(book) ){
+            $selectedLorebooks = $selectedLorebooks.filter(item => item !== book)
         } else {
-            selectedBooks.push(book)
+            $selectedLorebooks.push(book)
         }
-        selectedBooks = selectedBooks
+        updateSelected()
+        console.log($selectedLorebooks)
+        console.log($currentSettingsMain.books)
+        Server.request("/save_main_settings", { data: $currentSettingsMain })
     }
 
     onMount(() => {
@@ -248,7 +255,7 @@
                 {#if searchResults && searchResults.length > 0}
                     <div class="books">
                         {#each searchResults as book}
-                            {@const selected = selectedBooks.includes(book)}
+                            {@const selected = $selectedLorebooks.includes(book)}
 
                             {#if !selectedOnly || (selectedOnly && selected)}
                             <div class="item">

@@ -68,6 +68,17 @@ export interface IChat{
     filepath? : string;
 }
 
+// chat indexing
+export interface IChatMeta{
+    title : string;
+    participants : Array<string>;
+    create_date : number;
+    last_interaction : number;
+    message_count : number;
+    filepath? : string;
+    last_message: IMessage;
+}
+
 // message entry in chat
 export interface IMessage{
     participant : number;
@@ -142,7 +153,7 @@ export interface ISettings{
     model : string;
     formatting?: Record<string, any>;
     prompt: Array<IPromptConfig>;
-    books?: Array<ILorebook>;
+    books?: Array<string>;
     recents?: Array<string>;
 }
 

@@ -28,7 +28,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     data.prompt.forEach((item: IPromptConfig) => {
         if( !item.key ) return
         if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
-        let added: boolean = false
+        let added: boolean = item.enabled
 
         switch(item.key){
             case "base_prompt":
@@ -67,8 +67,6 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     added = true
                 }
                 break;
-
-
 
             case "world_info":
                 const world_entries: Array<ILorebookEntry> = Lorebook.getGlobalLoreEntries(api, data)

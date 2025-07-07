@@ -17,7 +17,7 @@
         chatList,
         currentCharacter,
         currentChat,
-        currentLorebooks,
+        selectedLorebooks,
         currentPreferences,
         currentProfile,
         currentPrompt,
@@ -27,7 +27,7 @@
         deleting,
         fetching,
         history,
-        localServer
+        localServer,
     } from "@/State";
 
 
@@ -107,12 +107,6 @@
         await generateMessage()
     }
 
-    function fetchLorebooks(){
-        return $currentSettingsMain.books?.map((entry : ILorebook) => {
-            return $currentLorebooks.find(book => book.temp?.filepath == entry.temp?.filepath)
-        }).filter(item => item) ?? []
-    }
-
     // select messages without cached tokens
     function getNonCachedMessages(model : string){
         let targetMessages : Array<IMessage> = $currentChat.messages.filter((message : IMessage) => {
@@ -157,7 +151,7 @@
             user: $currentProfile,
             settings: $currentSettingsAPI,
             prompt: $currentPrompt,
-            books: fetchLorebooks(),
+            books: $selectedLorebooks,
             swipe: swipe,
         }
 
@@ -369,6 +363,7 @@
             showMenu = false;
             $fetching = true;
             await Server.getChats( $currentCharacter )
+            // await Server.getChatList( $currentCharacter )
             $fetching = false;
             $history = true;
         }else{

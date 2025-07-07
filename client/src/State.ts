@@ -6,7 +6,8 @@ import type {
     IChat,
     IPromptConfig,
     IUser,
-    ILorebook
+    ILorebook,
+//     IChatMeta
 } from "@shared/types"
 
 function getAddress(){
@@ -43,7 +44,7 @@ export const search = writable<string>( "" )
 // stores the global list of characters
 export const characterList = writable< Array<ICharacter> >( [] )
 // stores the list of chats for the current character
-export const chatList = writable< Array<IChat> >( [] )
+// export const chatList = writable< Array<IChatMeta> >( [] )
 // stores the list of messages indices to be deleted
 export const deleteList = writable< Array<number> >( [] )
 // stores the list of favorite characters by filepath
@@ -70,12 +71,16 @@ export const currentPresets = writable< Record<string, any[]> >( null )
 export const currentProfile = writable<IUser>( null )
 // list of global lorebooks
 export const currentLorebooks = writable< Array<ILorebook> >( [] )
+// list of selected lorebooks
+export const selectedLorebooks = writable< Array<ILorebook> >( [] )
 
 // USER SELECTION
 // currently selected character
 export const currentCharacter = writable<ICharacter>( null )
 // currently selected chat
 export const currentChat = writable<IChat>( null )
+// currently selected chat meta
+// export const currentChatMeta = writable<IChatMeta>( null )
 
 // CUSTOMIZATION
 // currently selected theme (dark or light)
