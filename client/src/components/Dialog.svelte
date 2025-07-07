@@ -26,6 +26,12 @@
         $data = null
     }
 
+    function selectContent(event : Event){
+        const target = event.target as HTMLInputElement;
+        if (!target) return;
+        target.select();
+    }
+
     onDestroy(unsubscribe)
 </script>
 
@@ -46,7 +52,7 @@
                 </div>
             {:else if state.type === "prompt"}
                 <!-- svelte-ignore a11y-autofocus -->
-                <input class="component normal wide" autofocus type="text" bind:value={input} on:submit={() => close(input)}/>
+                <input class="component normal wide" autofocus type="text" bind:value={input} on:focus={selectContent} on:submit={() => close(input)}/>
                 <div class="section horizontal wide end">
                     <button class="component normal choice" on:click={() => close(input)}>OK</button>
                     <button class="component normal choice" on:click={() => close(null)}>Cancel</button>
