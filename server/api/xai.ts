@@ -24,10 +24,11 @@ export default class xAI extends API {
             title: "Model",
             description: "Both grok-3 and grok-3-fast use the exact same underlying model and deliver identical response quality. The difference lies in how they're served: grok-3-fast is served on faster infrastructure, offering response times that are significantly faster than the standard grok-3. The increased speed comes at a higher cost per output token.",
             type: "select", default: "grok-3-beta", choices: [
-                "grok-3-beta",
-                "grok-3-fast-beta",
-                "grok-3-mini-beta",
-                "grok-3-mini-fast-beta"
+                "grok-4-0709",
+                "grok-3",
+                "grok-3-fast",
+                "grok-3-mini",
+                "grok-3-mini-fast"
             ]
         },
 
@@ -86,6 +87,12 @@ export default class xAI extends API {
         }
     }
 
+    REASONING_MODELS = [
+        "grok-4-0709",
+        "grok-3-mini",
+        "grok-3-mini-fast"
+    ]
+
     async getStatus(settings: { api_auth: string, api_url?: string; }): Promise<boolean> {
         const options = { method: "GET", headers:{ "Authorization": `Bearer ${settings.api_auth}` }}
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
@@ -118,11 +125,14 @@ export default class xAI extends API {
             stream: settings.stream,
         }
 
-        if( settings.model.toLowerCase().includes("-mini") ){
+        if( this.REASONING_MODELS.includes(settings.model) ){
             outgoing_data.presence_penalty = undefined
             outgoing_data.frequency_penalty = undefined
-            if( this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
+
+            if( this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort) && !settings.model.includes("grok-4")){
                 outgoing_data["reasoning_effort"] = settings.reasoning_effort
+            }else{
+                outgoing_data["reasoning_effort"] = undefined
             }
         }
 
