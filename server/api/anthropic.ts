@@ -25,6 +25,7 @@ export default class Anthropic extends API {
             title: "Model",
             description: "The model that will complete your prompt. This parameter controls which version of Claude answers your request.",
             type: "select", default: "claude-v1.2", choices: [
+                "claude-opus-4-1",
                 "claude-opus-4-0",
                 "claude-sonnet-4-0",
                 "claude-3-7-sonnet-latest",
@@ -130,6 +131,16 @@ export default class Anthropic extends API {
             stream: settings.stream,
         };
 
+        // temperature and top_p cannot both be specified for opus 4.1
+        if( settings.model.includes("opus-4-1")){
+            if( outgoing_data.top_p < 1.0 ){
+                outgoing_data.temperature = undefined
+            }else{
+                outgoing_data.top_p = undefined
+            }
+        }
+
+        // caching rules
         if( settings.caching && settings.caching_size && settings.caching_size > 0){
             let sys = output.slice(0, settings.caching_size)
             let last = output.slice(settings.caching_size)

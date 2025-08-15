@@ -29,6 +29,10 @@ export default class OpenAI extends API {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
             type: "select", default: "gpt-3.5-turbo", choices: [
+                "gpt-5-chat-latest",
+                "gpt-5",
+                "gpt-5-mini",
+                "gpt-5-nano",
                 "gpt-4.1",
                 "gpt-4.1-mini",
                 "gpt-4.1-nano",
@@ -157,6 +161,14 @@ export default class OpenAI extends API {
             top_p: parseFloat(settings.top_p),
             logit_bias: this.buildLogitBias(settings.logit_bias, settings.model),
             stream: settings.stream,
+        }
+
+        // special rules
+        if(outgoing_data.model.startsWith("gpt-5")){
+            if(outgoing_data.model != "gpt-5-chat-latest"){
+                outgoing_data.stop = undefined
+                outgoing_data.logit_bias = undefined
+            }
         }
 
         let options = {
