@@ -1,6 +1,5 @@
 <script lang="ts">
     import { marked } from 'marked';
-    import type { ICharacter } from "@shared/types";
 
     // components
     import Browse from '@/views/browse/Browse.svelte'
@@ -15,11 +14,8 @@
         connected,
         currentTheme,
         currentPreferences,
-        currentCharacter,
         currentChat,
         fetching,
-        characterList,
-        currentSettingsMain
     } from '@/State';
 
     import Dialog from '@/components/Dialog.svelte';
@@ -27,6 +23,7 @@
     import * as Preferences from '@/modules/Preferences';
     import * as Theme from '@/modules/Theme';
     import * as Server from '@/Server';
+    import Home from './Home.svelte';
 
     function initializeMarked(){
         const quotePattern = /(&quot;|")([^"]+?)(\1)/gi
@@ -55,30 +52,10 @@
         initializeMarked()
         await Server.initializeData()
         if( $currentPreferences["load_last_chat"] ){
-            await loadLastChat()
+            await Server.loadLastChat()
         }
     });
 
-    async function loadLastChat(){
-        if( $characterList.length < 1 )
-            return
-        if( !Array.isArray($currentSettingsMain.recents) )
-            return
-        if( $currentSettingsMain.recents.length < 1 )
-            return
-        $fetching = true
-        const recent : string = $currentSettingsMain.recents.at(-1)
-        const character : ICharacter = $characterList.find((c : ICharacter) => c.temp.filepath === recent)
-        if( !character ){
-            $fetching = false
-            return
-        }
-        $currentCharacter = character
-        await Server.getChatList( character, true )
-        let tokens = await Server.getCharacterTokens( character );
-        $currentCharacter.temp.tokens = tokens
-        $fetching = false;
-    }
 
     const confirmationMessage = 'Are you sure you want to leave this page?';
 
@@ -95,20 +72,18 @@
 
 {#if $connected }
     <div class="fullscreen" style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
-        {#if !$fetching}
-            {#if $currentCharacter && $currentChat}
-                <Chat/>
-            {/if}
-        {:else}
+        <Chat/>
+        <Browse/>
+        <Editing/>
+        <Options/>
+        <Header/>
+
+        {#if $fetching}
             <div class="fullscreen center loading" transition:fade={{duration:100}}>
                 <Loading width={48} height={48}/>
             </div>
         {/if}
 
-        <Browse/>
-        <Editing/>
-        <Options/>
-        <Header/>
         <Dialog/>
     </div>
 

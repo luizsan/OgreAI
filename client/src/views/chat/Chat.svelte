@@ -406,8 +406,9 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <svelte:body on:keydown={Shortcuts}/>
+
+{#if $currentCharacter && $currentChat}
 
 <div class="container" inert={get(Dialog.data) !== null}>
     <Background/>
@@ -501,6 +502,11 @@
         {/if}
     </div>
 </div>
+
+{:else}
+    <div/>
+{/if}
+
 
 <style>
     .container{

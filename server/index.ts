@@ -9,7 +9,7 @@ import mime from "mime";
 // core modules
 import API from "./core/api.ts"
 import Security from "./core/security.ts"
-import { Initialize, IServerConfig, LoadData, SaveData } from "./core/config.ts"
+import * as Database from "./core/database.ts"
 
 // API modules
 import Anthropic from "./api/anthropic.ts"
@@ -25,7 +25,25 @@ import Chat from "./lib/chat.ts"
 import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
-import type { IChat, IChatMeta, IError, IGenerationData, IPromptConfig, IReply, ISettings, IUser } from "../shared/types.d.ts";
+
+import {
+    Initialize,
+    IServerConfig,
+    LoadData,
+    SaveData
+} from "./core/config.ts"
+
+import type {
+    IChat,
+    IChatMeta,
+    IError,
+    IGenerationData,
+    IPromptConfig,
+    IReply,
+    ISettings,
+    IUser
+} from "../shared/types.d.ts";
+
 
 const server_config: IServerConfig = await Initialize()
 
@@ -42,11 +60,13 @@ const path_dir: Record<string, string> = {
     lorebooks: path.join(_userPath, "/lorebooks/").replace(/\\/g, '/'),
     presets: path.join(_userPath, "/presets/").replace(/\\/g, '/'),
     settings: path.join(_userPath, "/settings/").replace(/\\/g, '/'),
+    database: path.join(_userPath, "/database.db").replace(/\\/g, '/')
 }
 
+const db = Database.Initialize(path_dir.database)
 const app = express()
 const parser = express.json({ limit: "100mb" })
-const port: number = server_config.port || 12480;
+const port = server_config.port || 12480;
 const upload = multer();
 
 var API_MODES: Record<string, API> = {
@@ -59,8 +79,6 @@ var API_MODES: Record<string, API> = {
 }
 
 var API_LIST: Array<{ key: string, title: string }> = []
-
-LoadAPIModes()
 
 app.use(Security.whitelist)
 app.use(cors())
@@ -271,6 +289,10 @@ app.post("/get_chat", parser, function(request: express.Request, response: expre
     response.send(chat)
 })
 
+app.post("/get_chat_metadata", parser, function(request: express.Request, response: express.Response){
+    let chat: IChatMeta = Chat.createMetadata( request.body.chat )
+    response.send(chat)
+})
 
 app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
     try{
@@ -489,6 +511,9 @@ async function LoadAPIModes(){
 // ==============================================================================================
 // Execution
 // ==============================================================================================
+
+LoadAPIModes()
+Database.Create(db);
 
 // Start the server
 app.listen(port, () => {

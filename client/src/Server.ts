@@ -213,6 +213,30 @@ export async function savePrompt(): Promise<void>{
     })
 }
 
+export async function loadLastChat(){
+    if( get(State.characterList).length < 1 )
+        return
+    let settings = get( State.currentSettingsMain )
+    if( !Array.isArray(settings.recents) )
+        return
+    if( settings.recents.length < 1 )
+        return
+    State.fetching.set(true)
+    const recent : string = settings.recents.at(-1)
+    const list: Array<ICharacter> = get( State.characterList )
+    const character : ICharacter = list.find((c : ICharacter) => c.temp.filepath === recent)
+    if( !character ){
+        State.fetching.set(false)
+        return
+    }
+    await getChatList( character, true )
+    let tokens = await getCharacterTokens( character );
+    character.temp.tokens = tokens
+    State.currentCharacter.set(character)
+    State.fetching.set(false);
+}
+
+
 export async function addToRecentlyChatted(character: ICharacter): Promise<void>{
     // parse the recents list if it exists in local storage
     const path : string = character.temp.filepath.replaceAll("../user/characters/", "")

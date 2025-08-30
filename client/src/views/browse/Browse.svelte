@@ -254,6 +254,7 @@
 
         transition: translate 0.2s ease;
         translate: -100% 0 0;
+        z-index: 1;
     }
 
     :global(body.light) .main{
@@ -262,7 +263,7 @@
 
 
     .container{
-        position: absolute;
+        position: relative;
         width: 100%;
         overflow-y: scroll;
         padding: 16px 20px;
