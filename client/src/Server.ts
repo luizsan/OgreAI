@@ -1,7 +1,6 @@
 import type {
     ICharacter,
     IChat,
-    IChatMeta,
     ISettings,
 } from "@shared/types";
 import { get } from "svelte/store";
@@ -142,23 +141,19 @@ export async function getCharacter(filepath : String){
     });
 }
 
-export async function getChatList(character : ICharacter, set_latest = false){
-    let list: Array<IChatMeta> = await request( "/get_chat_list", { character: character });
-    let latest_meta: IChatMeta = null;
+export async function ListChats(character : ICharacter, set_latest = false){
+    let list: Array<IChat> = await request( "/list_chats", { character_id: character.temp.filepath });
     let latest_chat: IChat = null;
-
     if( list && list.length > 0 ){
-        list.sort((a : IChatMeta, b : IChatMeta) => { return b.last_interaction - a.last_interaction });
+        list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
     }
-
     console.debug(`Retrieved chats for ${character.data.name}`)
     State.chatList.set( null )
     State.chatList.set( list )
 
     if( set_latest ){
         if( list.length > 0 ){
-            latest_meta = list.at(0)
-            latest_chat = await request( "/get_chat", { filepath: latest_meta.filepath });
+            latest_chat = await request( "/load_chat", { chat_id: list.at(0).id });
         }else{
             latest_chat = await request( "/new_chat", { character: character });
         }
@@ -229,7 +224,7 @@ export async function loadLastChat(){
         State.fetching.set(false)
         return
     }
-    await getChatList( character, true )
+    await ListChats( character, true )
     let tokens = await getCharacterTokens( character );
     character.temp.tokens = tokens
     State.currentCharacter.set(character)

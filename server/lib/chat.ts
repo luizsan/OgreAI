@@ -1,9 +1,30 @@
-import { ICandidate, ICharacter, IChat, IChatMeta, IMessage } from "../../shared/types.js"
+import {
+    ICandidate,
+    ICharacter,
+    IChat,
+    IMessage
+} from "../../shared/types.js"
 
-import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync, unlinkSync, exists } from "fs"
+
+import {
+    existsSync,
+    readdirSync,
+    readFileSync,
+    mkdirSync,
+    writeFileSync,
+    unlinkSync
+} from "fs"
+
+
+import {
+    IDatabaseChat,
+    IDatabaseCandidate,
+    IDatabaseMessage,
+    db, op
+} from "../core/database.js"
+
 import path from "path"
 import chalk from "chalk"
-
 import * as CAI from "../import/cai.ts"
 import * as Tavern from "../import/tavern.ts"
 import * as Format from "../../shared/format.ts"
@@ -12,7 +33,7 @@ const META_FILE: string = "_index.meta"
 
 export default class Chat{
 
-    static create( character: ICharacter ): IChat{
+    static Create( character: ICharacter ): IChat{
         const timestamp = Date.now()
         let chat: IChat = {
             title: timestamp.toString(),
@@ -59,150 +80,190 @@ export default class Chat{
         chat.messages = source.messages || []
     }
 
-    // Returns an array of IChatMeta for all chats in the character folder
-    static GetAllChats(character: ICharacter, dir: string){
-        let chats: Array<IChatMeta> = []
-        let filename = path.parse( character.temp.filepath).name
-        let target = path.join(dir, filename)
-        target = target.replaceAll("\\", "/")
-        console.debug( chalk.blue( "Reading chats from " + chalk.blue(target)))
-        // folder exists
-        if(!existsSync(target))
-            return chats
+    static New(character: ICharacter): IChat{
+        const chat: IChat = Chat.Create(character)
+        const transaction = db.transaction(() => {
+            // create chat
+            const character_id = path.parse(character.temp.filepath).name
+            const chat_result: IDatabaseChat = op["chat_create"].get(
+                character_id, chat.title, chat.create_date, chat.last_interaction, "{}"
+            ) as IDatabaseChat | undefined
+            if(!chat_result?.id)
+                throw new Error("Failed to create chat");
+            const chat_id: number = chat_result.id;
 
-        // look for _index.meta file
-        let index = path.join(target, META_FILE)
-        try{
-            if(!existsSync(index))
-                throw new Error("Index file not found")
-                // index found
-            let content = readFileSync(index, "utf-8")
-            let parsed = JSON.parse(content)
-            if(Array.isArray(parsed)){
-                parsed.forEach(meta => {
-                    meta.filepath = meta.filepath.replaceAll("\\", "/")
-                    chats.push(meta)
-                })
+            // create initial message
+            const message_result: any = op["message_create"].get(chat_id, 0, null, 0, "{}");
+            if(!message_result.id)
+                throw new Error("Failed to create first message on new chat");
+            const message_id: number = message_result.id;
+
+            // create greetings
+            chat.messages.at(0).candidates.forEach((candidate, _index) => {
+                op["candidate_create"].run(
+                    message_id, candidate.text, null, candidate.timestamp, null, 0, null, "{}"
+                )
+            })
+            return chat_id
+        })
+        chat.id = transaction()
+        if(!!chat.id)
+            console.log(`New chat created with id ${chat.id}`)
+        return chat;
+    }
+
+    static ListChatsForCharacter(character_id: string): Array<IChat>{
+        const chat_entries = op["chat_list"].all(character_id) as Array<IDatabaseChat>
+        const list: Array<IChat> = chat_entries.map((entry: IDatabaseChat) => {
+            let chat: IChat = {
+                id: entry.id,
+                title: entry.title,
+                create_date: entry.create_date,
+                participants: [ entry.character_id ],
+                last_interaction: entry.last_interaction,
+                messages: []
             }
-        }catch(e: any){
-            console.log("Error reading index file: " + e.message)
-            // no index found
-            let files = readdirSync(target)
-            for(let i = 0; i < files.length; i++){
-                try{
-                    let filepath = path.join( target, files[i] )
-                    filepath = filepath.replaceAll("\\", "/")
-                    let new_chat : IChat = this.ReadFromFile( filepath )
-                    if( new_chat ){
-                        let meta : IChatMeta = this.createMetadata( new_chat )
-                        meta.filepath = path.relative(dir, filepath)
-                        meta.filepath = meta.filepath.replaceAll("\\", "/")
-                        chats.push( meta )
+
+            chat.messages = op["message_list"].all(chat.id).map((message: IDatabaseMessage) => {
+                const candidates = op["candidate_list"].all(message.id).map((candidate: IDatabaseCandidate) => {
+                    return {
+                        id: candidate.id,
+                        text: candidate.text_content,
+                        timestamp: candidate.create_date,
+                        model: candidate.model,
+                        reasoning: candidate.text_reasoning,
+                        timer: candidate.timer,
+                        tokens: JSON.parse(candidate.tokens)
                     }
-                }catch(error){
-                    console.warn( chalk.yellow( error ))
+                })
+                return {
+                    id: message.id,
+                    participant: message.participant,
+                    index: message.candidate,
+                    candidates: candidates
                 }
+            })
+            return chat
+        })
+        console.log(`Found ${list.length} chat(s) for character ${character_id}`)
+        return list;
+    }
+
+    static Load(chat_id: number): IChat{
+        const chat_entry: IDatabaseChat = op["chat_get"].get(chat_id) as IDatabaseChat | undefined
+        if(!chat_entry)
+            throw new Error(`Chat with id ${chat_id} not found`)
+
+        const chat: IChat = {
+            id: chat_id,
+            title: chat_entry.title,
+            participants: [ chat_entry.character_id ],
+            create_date: chat_entry.create_date,
+            last_interaction: chat_entry.last_interaction,
+            messages: this.ListMessages(chat_id)
+        }
+
+        return chat
+    }
+
+    static ListMessages(chat_id: number): Array<IMessage>{
+        const messages = op["message_list"].all(chat_id).map((message: IDatabaseMessage) => {
+            const candidates = op["candidate_list"].all(message.id).map((candidate: IDatabaseCandidate) => {
+                return {
+                    id: candidate.id,
+                    text: candidate.text_content,
+                    timestamp: candidate.create_date,
+                    model: candidate.model,
+                    reasoning: candidate.text_reasoning,
+                    timer: candidate.timer,
+                    tokens: JSON.parse(candidate.tokens)
+                }
+            })
+            return {
+                id: message.id,
+                participant: message.participant,
+                index: message.candidate,
+                candidates: candidates
             }
-            // write metadata
-            let meta_content: string = JSON.stringify(chats)
-            let meta_path: string = path.join(target, META_FILE)
-            writeFileSync(meta_path, meta_content)
-        }
-        return chats;
+        })
+        return messages
     }
 
-    static createMetadata( chat: IChat ): IChatMeta{
-        let meta: IChatMeta = {
-            filepath: chat.filepath,
-            title: chat.title,
-            create_date: chat.create_date,
-            last_interaction: chat.last_interaction,
-            participants: chat.participants,
-            message_count: chat.messages.length,
-            last_message: undefined,
-        }
-
-        if (chat.messages.length > 0) {
-            const last: IMessage = chat.messages.at(-1)
-            const current: ICandidate = last.candidates[last.index]
-            meta.last_message = {
-                participant: last.participant,
-                index: last.index,
-                candidates: [current]
-            };
-        }
-
-        return meta
-    }
-
-    static ReadFromFile( filepath: string, dir: string = "" ): IChat | null{
-        try{
-            let extension = path.extname(filepath)
-            let content = readFileSync( path.join(dir, filepath), "utf-8")
-            let parsed: IChat = null
-            switch(extension){
-                case ".json": // OGRE
-                    parsed = JSON.parse(content)
-                    break;
-                case ".jsonl": // TAVERN
-                    parsed = Tavern.parseChat(content )
-                    break;
-                default:
-                    break;
-                }
-            if ( !parsed )
-                throw new Error( "Could not parse chat file" )
-            let new_chat: IChat = parsed
-            this.Validate( new_chat, parsed )
-            new_chat.filepath = filepath.replaceAll("\\", "/" )
-            return new_chat
-        }catch(error){
-            console.warn( chalk.yellow( error ))
-        }
-        return null
-    }
-
-    static Save( chat: IChat, character: ICharacter, dir: string ): boolean{
-        if( !character ) return;
-        if( !character.data.name ) return;
-        let filename = chat.create_date.toString();
-        let folder =  path.join(dir, path.parse( character.temp.filepath ).name )
-        let target = path.join(folder, filename)
-        target = target.replaceAll("\\", "/")
-        try{
-            if(!existsSync(folder)){
-                mkdirSync(folder, { recursive: true });
+    static AddMessage(chat_id: number, message: IMessage){
+        const transaction = db.transaction(() => {
+            // update chat's last interaction
+            const chat = op["chat_get"].get(chat_id) as IDatabaseChat;
+            if (!chat) {
+                throw new Error(`Could not update chat last interaction: ${chat_id} not found`);
             }
-            let json = JSON.stringify(chat, function(key, value){
-                switch(key){
-                    case "dom": return undefined
-                    case "filepath": return undefined
-                    default: return value
-                }
-            });
-            // meta
-            let meta_path = path.join(path.dirname(target), META_FILE)
-            if(existsSync(meta_path)){
-                let new_meta = this.createMetadata(chat)
-                let meta_content = readFileSync(meta_path, "utf-8")
-                let meta_list = JSON.parse(meta_content)
-                let meta_index = meta_list.findIndex((entry: IChatMeta) => entry.filepath == chat.filepath)
-                if( meta_index > -1 ){
-                    meta_list[meta_index] = new_meta
-                }else{
-                    meta_list.push(new_meta)
-                }
-                writeFileSync(meta_path, JSON.stringify(meta_list))
+            op["chat_update"].run( chat.title, Date.now(), "{}", chat_id)
+            // create message
+            const last = op["message_last"].get(chat_id, 1) as IDatabaseMessage;
+            const parent : number = last ? last.id : null;
+            const msg = op["message_create"].get(
+                chat_id, message.participant, parent, message.index, "{}"
+            ) as { id: number } | undefined
+            if (!msg) {
+                throw new Error(`Could not create message in chat ${chat_id}`);
             }
-            writeFileSync(target + ".json", json);
-            console.debug( chalk.blue( `Saved chat at ${target}` ))
-            return true
-        }catch(error){
-            console.warn( chalk.yellow( `Could not save chat at ${target}\n${error}` ))
-        }
-        return false
+            // create candidates
+            const current = message.candidates[0]
+            const candidate = this.AddCandidate(msg.id, current)
+            if (!candidate) {
+                throw new Error(`Could not create candidate in m: ${msg.id}`);
+            }
+            return msg.id;
+        })
+        const msg_id = transaction()
+        if( !!msg_id )
+            console.log(`New message created in chat ${chat_id} with id ${msg_id}`)
+        return msg_id
     }
 
+    static AddCandidate(message_id: number, candidate: ICandidate){
+        const transaction = db.transaction(() => {
+            return op["candidate_create"].run(
+                message_id,
+                candidate.text || "",
+                candidate.reasoning,
+                candidate.timestamp || 0,
+                candidate.model,
+                candidate.timer || 0,
+                candidate.tokens || "{}",
+                "{}"
+            )
+        })
+        return !!transaction()
+    }
+
+    static UpdateCandidate(candidate_id: number, candidate: ICandidate){
+        const transaction = db.transaction(() => {
+            const existing = op["candidate_get"].get(candidate_id)
+            if (!existing) {
+                throw new Error(`Could not update candidate: ${candidate_id} not found`);
+            }
+            return op["candidate_update"].run(
+                candidate_id,
+                candidate.text || "",
+                candidate.reasoning,
+                candidate.timestamp || 0,
+                candidate.model,
+                candidate.timer || 0,
+                candidate.tokens || "{}",
+                "{}"
+            )
+        })
+        return !!transaction()
+    }
+
+    static Delete(chat_id: number){
+        const result = op["chat_delete"].run(chat_id)
+        if(result.changes === 0)
+            throw new Error(`Could not delete chat with id ${chat_id}: not found`)
+        return result.changes > 0
+    }
+
+    /*
     static ImportTavern( character: ICharacter, files: string[], dir: string ): boolean{
         if( !character ) return;
 
@@ -212,7 +273,7 @@ export default class Chat{
                 let content = readFileSync( file, "utf-8")
                 let parsed = Tavern.parseChat( content )
                 if( parsed ){
-                    let new_chat: IChat = this.create(character)
+                    let new_chat: IChat = this.Create(character)
                     this.Validate( new_chat, parsed )
                     this.Save( new_chat, character, dir )
                 }
@@ -231,7 +292,7 @@ export default class Chat{
             let json = JSON.parse( content )
             let chats = CAI.parseChat( json )
             for(let i = 0; i < chats.length; i++){
-                let new_chat: IChat = this.create(character)
+                let new_chat: IChat = this.Create(character)
                 this.Validate( new_chat, chats[i] )
                 this.Save( new_chat, character, dir )
                 return true
@@ -241,23 +302,6 @@ export default class Chat{
             return false
         }
     }
+    */
 
-    static Delete( chat: IChat, dir: string ){
-        try{
-            let target = path.join( dir, chat.filepath )
-            // meta
-            let meta_path = path.join(path.dirname(target), META_FILE)
-            if(existsSync(meta_path)){
-                let meta_content = readFileSync(meta_path, "utf-8")
-                let meta_list = JSON.parse(meta_content)
-                meta_list = meta_list.filter( (entry: IChatMeta) => entry.filepath != chat.filepath )
-                writeFileSync(meta_path, JSON.stringify(meta_list))
-            }
-            unlinkSync(target)
-            return true
-        }catch(error){
-            console.warn("Error trying to delete chat:\n" + error.message)
-            return false
-        }
-    }
 }

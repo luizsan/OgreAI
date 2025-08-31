@@ -60,27 +60,19 @@ export interface ICharacterMetadata{
 
 // chat
 export interface IChat{
+    id? : number;
     title : string;
     participants : Array<string>;
     create_date : number;
     last_interaction : number;
+    length?: number;
     messages : Array<IMessage>;
-    filepath? : string;
-}
-
-// chat indexing
-export interface IChatMeta{
-    title : string;
-    participants : Array<string>;
-    create_date : number;
-    last_interaction : number;
-    message_count : number;
-    filepath? : string;
-    last_message: IMessage;
+    // filepath? : string;
 }
 
 // message entry in chat
 export interface IMessage{
+    id? : number;
     participant : number;
     index : number;
     candidates : Array<ICandidate>;
@@ -102,6 +94,7 @@ export interface IError{
 
 // "swipe"
 export interface ICandidate{
+    id? : number;
     text : string;
     timestamp : number;
     model? : string;

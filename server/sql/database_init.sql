@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS chats (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT,
   character_id TEXT NOT NULL,
-  create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_interaction DATETIME DEFAULT CURRENT_TIMESTAMP,
+  create_date INTEGER NOT NULL,
+  last_interaction INTEGER NOT NULL,
   metadata TEXT DEFAULT '{}'
 );
 
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   text_content TEXT NOT NULL,
   text_reasoning TEXT,
   create_date INTEGER NOT NULL,
-  model TEXT NOT NULL,
+  model TEXT,
   timer INTEGER NOT NULL,
   tokens TEXT,
   metadata TEXT DEFAULT '{}',

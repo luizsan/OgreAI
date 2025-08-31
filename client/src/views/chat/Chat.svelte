@@ -84,27 +84,35 @@
     }
 
     async function SendMessage(){
-        if( userMessage.length > 0 ){
-            let message = {
-                participant: -1,
-                index: 0,
-                candidates: [{
-                    text: userMessage,
-                    timestamp: Date.now(),
-                }]
-            }
-            userMessage = Format.parseMacros(userMessage, $currentChat)
+        if( userMessage.trim().length <= 0)
+            return;
+
+        let message: IMessage = {
+            participant: -1,
+            index: 0,
+            candidates: [{
+                text: Format.parseMacros(userMessage, $currentChat),
+                timestamp: Date.now(),
+            }]
+        }
+
+        console.debug( $currentChat.messages )
+        // await Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
+        $busy = true;
+        const success: boolean = await Server.request("/add_message", {
+            chat_id: $currentChat?.id,
+            message: message,
+        })
+        $busy = false;
+        if( success ){
             $currentChat.messages.push(message)
             userMessage = "";
             $currentChat = $currentChat;
             $currentChat.messages = $currentChat.messages;
             await tick()
             resize( messageBox );
+            await generateMessage()
         }
-
-        console.debug( $currentChat.messages )
-        await Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
-        await generateMessage()
     }
 
     // select messages without cached tokens
@@ -332,7 +340,11 @@
         $currentChat = $currentChat;
         console.debug( "Received stream: %o", candidate )
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+        // Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
+        Server.request( "/add_message", {
+            chat_id: $currentChat?.id,
+            message: $currentChat.messages.at(-1)
+        })
     }
 
     async function RegenerateMessage(){

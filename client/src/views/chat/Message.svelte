@@ -197,7 +197,7 @@
 
             let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch, name: new_name })
             if( result ){
-                await Server.getChatList( $currentCharacter, true )
+                await Server.ListChats( $currentCharacter, true )
                 await Dialog.alert("OgreAI", "Successfully branched chat!")
                 $fetching = false;
             }else{

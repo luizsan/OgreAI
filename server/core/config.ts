@@ -1,6 +1,26 @@
 import fs from "fs";
+import path from "path";
 import { join } from "path";
 import chalk from "chalk";
+
+
+const __dirname: string = path.resolve("./")
+
+export const server: IServerConfig = await InitializeConfig()
+export const userPath: string = path.join(__dirname, server.paths.user, "/").replace(/\\/g, '/');
+export const imgPath: string = path.join(__dirname, './img/').replace(/\\/g, '/');
+export const htmlPath: string = path.join(__dirname, './html/').replace(/\\/g, '/');
+
+export const path_dir: Record<string, string> = {
+    user: path.join(userPath, "/").replace(/\\/g, '/'),
+    avatar: path.join(userPath, "/avatar/").replace(/\\/g, '/'),
+    characters: path.join(userPath, "/characters/").replace(/\\/g, '/'),
+    chats: path.join(userPath, "/chats/").replace(/\\/g, '/'),
+    lorebooks: path.join(userPath, "/lorebooks/").replace(/\\/g, '/'),
+    presets: path.join(userPath, "/presets/").replace(/\\/g, '/'),
+    settings: path.join(userPath, "/settings/").replace(/\\/g, '/'),
+    database: path.join(userPath, "/database.db").replace(/\\/g, '/')
+}
 
 export interface IServerConfig{
     port: number
@@ -9,7 +29,7 @@ export interface IServerConfig{
     }
 }
 
-export async function Initialize(): Promise<IServerConfig>{
+export async function InitializeConfig(): Promise<IServerConfig>{
     let config: IServerConfig = {
         port: 12480,
         paths: {
@@ -46,10 +66,10 @@ export async function LoadData(filepath: string, defaults: any = {}): Promise<an
         const file = Bun.file(filepath);
         const content = await file.text();
         const parsed = JSON.parse(content);
-        console.debug(chalk.green(`Loaded data at ${filepath}`));
+        console.debug(chalk.green(`⚙️  Server configs initialized`));
         return parsed;
     } catch (error) {
-        console.warn(chalk.yellow(`Could not load file at ${filepath}, using default values.`));
+        console.warn(chalk.yellow(`⚙️  Could not load server config file, using default values.`));
     }
     return defaults
 }

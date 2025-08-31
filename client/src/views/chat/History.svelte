@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { IChatMeta } from "@shared/types";
+    import type { IChat} from "@shared/types";
     import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
@@ -8,16 +8,16 @@
     import { tick } from 'svelte';
     import Text from './Content.svelte';
 
-    export let chat : IChatMeta;
+    export let chat : IChat;
     let titleField : HTMLInputElement
     let editingTitle : boolean = false
     let open : boolean = false
 
-    $: author = chat.last_message.participant > -1 ? $currentCharacter.data.name : $currentProfile.name
+    $: author = chat.messages.at(-1).participant > -1 ? $currentCharacter.data.name : $currentProfile.name
     $: created = chat.create_date || 0
     $: modified = chat.last_interaction || 0
     // chat meta only has 1 candidate despite storing the current index correctly
-    $: candidate = chat.last_message?.candidates[0]
+    $: candidate = chat.messages.at(-1)?.candidates[0]
 
     function getFormattedDate(timestamp : number) : string{
         return new Date(timestamp).toLocaleString()
@@ -25,7 +25,8 @@
 
     async function selectHistory(){
         $fetching = true;
-        $currentChat = await Server.request( "/get_chat", { filepath: chat.filepath });
+        // $currentChat = await Server.request( "/get_chat", { filepath: chat.filepath });
+        $currentChat = await Server.request( "/get_chat", { chat_id: chat.id});
         $history = false;
         $fetching = false;
         await tick()
@@ -41,7 +42,7 @@
                 chat: chat,
             })
 
-            await Server.getChatList( $currentCharacter )
+            await Server.ListChats( $currentCharacter )
             $fetching = false;
         }
     }
@@ -50,7 +51,7 @@
         $fetching = true;
         let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: chat })
         if( result ){
-            await Server.getChatList( $currentCharacter )
+            await Server.ListChats( $currentCharacter )
             $fetching = false;
             await Dialog.alert("OgreAI", "Successfully copied chat!")
         }else{
@@ -91,9 +92,9 @@
             {/if}
         </div>
 
-        <div class="sub explanation disabled">{chat.filepath.replaceAll("../user/", "")}</div>
+        <div class="sub explanation disabled">ID {chat.id}</div>
         <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
-        <div class="sub info disabled"><strong>{chat.message_count}</strong> Messages</div>
+        <div class="sub info disabled"><strong>{chat.length}</strong> Messages</div>
     </div>
 
     <hr class="component"/>

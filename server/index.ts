@@ -5,11 +5,13 @@ import fs from "fs";
 import chalk from "chalk"
 import multer from "multer";
 import mime from "mime";
+import os from "os";
 
 // core modules
 import API from "./core/api.ts"
 import Security from "./core/security.ts"
-import * as Database from "./core/database.ts"
+import * as Config from "./core/config.ts"
+import "./core/database.ts"
 
 // API modules
 import Anthropic from "./api/anthropic.ts"
@@ -26,16 +28,8 @@ import Profile from "./lib/profile.ts"
 import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
 
-import {
-    Initialize,
-    IServerConfig,
-    LoadData,
-    SaveData
-} from "./core/config.ts"
-
 import type {
     IChat,
-    IChatMeta,
     IError,
     IGenerationData,
     IPromptConfig,
@@ -44,29 +38,9 @@ import type {
     IUser
 } from "../shared/types.d.ts";
 
-
-const server_config: IServerConfig = await Initialize()
-
-const __dirname: string = path.resolve("./")
-const _userPath: string = path.join(__dirname, server_config.paths.user, "/").replace(/\\/g, '/');
-const _imgPath: string = path.join(__dirname, './img/').replace(/\\/g, '/');
-const _htmlPath: string = path.join(__dirname, './html/').replace(/\\/g, '/');
-
-const path_dir: Record<string, string> = {
-    user: path.join(_userPath, "/").replace(/\\/g, '/'),
-    avatar: path.join(_userPath, "/avatar/").replace(/\\/g, '/'),
-    characters: path.join(_userPath, "/characters/").replace(/\\/g, '/'),
-    chats: path.join(_userPath, "/chats/").replace(/\\/g, '/'),
-    lorebooks: path.join(_userPath, "/lorebooks/").replace(/\\/g, '/'),
-    presets: path.join(_userPath, "/presets/").replace(/\\/g, '/'),
-    settings: path.join(_userPath, "/settings/").replace(/\\/g, '/'),
-    database: path.join(_userPath, "/database.db").replace(/\\/g, '/')
-}
-
-const db = Database.Initialize(path_dir.database)
 const app = express()
 const parser = express.json({ limit: "100mb" })
-const port = server_config.port || 12480;
+const port = Config.server.port || 12480;
 const upload = multer();
 
 var API_MODES: Record<string, API> = {
@@ -92,10 +66,10 @@ app.use(express.static('public', {
 }));
 
 // Static files from the user directory served without any checks
-app.use('/', express.static(_htmlPath, { maxAge: -1  }));
-app.use('/img', express.static(_imgPath, { fallthrough: false, index: false, maxAge: -1  }));
-app.use('/user/avatar', express.static(path_dir.avatar, { fallthrough: false, index: false,  maxAge: -1  }));
-app.use('/user/characters', express.static(path_dir.characters, { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/', express.static(Config.htmlPath, { maxAge: -1  }));
+app.use('/img', express.static(Config.imgPath, { fallthrough: false, index: false, maxAge: -1  }));
+app.use('/user/avatar', express.static(Config.path_dir.avatar, { fallthrough: false, index: false,  maxAge: -1  }));
+app.use('/user/characters', express.static(Config.path_dir.characters, { fallthrough: false, index: false,  maxAge: -1  }));
 
 app.get("/status", parser, function(_: express.Request, response: express.Response){
     response.sendStatus(200)
@@ -103,14 +77,14 @@ app.get("/status", parser, function(_: express.Request, response: express.Respon
 
 app.get("/get_profile", parser, async function(_: express.Request, response: express.Response){
     let user_default: IUser = Profile.create()
-    let user_profile = await LoadData( path.join(path_dir.user, "profile.json"), user_default)
+    let user_profile = await Config.LoadData( path.join(Config.path_dir.user, "profile.json"), user_default)
     Profile.Validate(user_profile, user_default)
     response.send( user_profile )
 })
 
 app.get("/get_main_settings", parser, async function(_: express.Request, response: express.Response){
-    const filepath = path.join(path_dir.settings, "main.json")
-    let settings = await LoadData(filepath)
+    const filepath = path.join(Config.path_dir.settings, "main.json")
+    let settings = await Config.LoadData(filepath)
     Settings.ValidateMain(settings, Object.keys(API_MODES))
     response.send( settings )
 })
@@ -118,8 +92,8 @@ app.get("/get_main_settings", parser, async function(_: express.Request, respons
 app.post("/get_api_settings", parser, async function(request: express.Request, response: express.Response){
     try{
         const mode: string = request.body.api_mode
-        const filepath: string = path.join(path_dir.settings, mode, "main.json")
-        let settings: ISettings = await LoadData(filepath, {})
+        const filepath: string = path.join(Config.path_dir.settings, mode, "main.json")
+        let settings: ISettings = await Config.LoadData(filepath, {})
         Settings.ValidateAPI(settings, API_MODES[mode].API_SETTINGS )
         response.send(settings)
     }catch(error){
@@ -131,8 +105,8 @@ app.post("/get_api_settings", parser, async function(request: express.Request, r
 app.post("/get_api_prompt", parser, async function(request: express.Request, response: express.Response){
     try{
         const mode: string = request.body.api_mode
-        const filepath: string = path.join(path_dir.settings, mode, "prompt.json")
-        let prompt: Array<IPromptConfig> = await LoadData(filepath, null)
+        const filepath: string = path.join(Config.path_dir.settings, mode, "prompt.json")
+        let prompt: Array<IPromptConfig> = await Config.LoadData(filepath, null)
         if( !prompt ){
             prompt = []
             Object.keys(Settings.default_prompt_order).forEach((key: string) => {
@@ -176,13 +150,13 @@ app.post("/save_profile", parser, async function(request: express.Request, respo
     let user_default: IUser = Profile.create()
     let user_profile = request.body
     Profile.Validate(user_profile, user_default)
-    const ok = await SaveData( path.join(path_dir.user, "profile.json"), user_profile )
+    const ok = await Config.SaveData( path.join(Config.path_dir.user, "profile.json"), user_profile )
     response.send(ok)
 })
 
 app.post("/save_main_settings", parser, async function(request: express.Request, response: express.Response){
-    const filepath = path.join(path_dir.settings, "main.json")
-    const ok = await SaveData( filepath, request.body.data )
+    const filepath = path.join(Config.path_dir.settings, "main.json")
+    const ok = await Config.SaveData( filepath, request.body.data )
     response.send(ok)
 })
 
@@ -192,8 +166,8 @@ app.post("/save_api_settings", parser, async function(request: express.Request, 
         return
     }
     const mode = request.body.api_mode
-    const filepath = path.join(path_dir.settings, mode, "main.json")
-    const ok = await SaveData( filepath, request.body.data )
+    const filepath = path.join(Config.path_dir.settings, mode, "main.json")
+    const ok = await Config.SaveData( filepath, request.body.data )
     response.send(ok)
 })
 
@@ -203,8 +177,8 @@ app.post("/save_api_prompt", parser, async function(request: express.Request, re
         return
     }
     const mode = request.body.api_mode
-    const filepath = path.join(path_dir.settings, mode, "prompt.json")
-    const ok = await SaveData( filepath, request.body.data )
+    const filepath = path.join(Config.path_dir.settings, mode, "prompt.json")
+    const ok = await Config.SaveData( filepath, request.body.data )
     response.send(ok)
 })
 
@@ -213,15 +187,15 @@ app.post("/get_presets", parser, async function(request: express.Request, respon
         const obj: Record<string, any[]> = {};
         await Promise.all(
             Settings.default_preset_categories.map(async (type) => {
-                const filepath = path.join(path_dir.presets, `${type}.json`);
-                const data = await LoadData(filepath, []);
+                const filepath = path.join(Config.path_dir.presets, `${type}.json`);
+                const data = await Config.LoadData(filepath, []);
                 obj[type] = data;
             })
         );
         response.send(obj);
     } else {
-        const filepath = path.join(path_dir.presets, `${request.body.type}.json`);
-        const data = await LoadData(filepath, []);
+        const filepath = path.join(Config.path_dir.presets, `${request.body.type}.json`);
+        const data = await Config.LoadData(filepath, []);
         response.send(data)
     }
 })
@@ -233,14 +207,14 @@ app.post("/save_presets", parser, async function(request: express.Request, respo
     }
 
     const type = request.body.type
-    const filepath = path.join(path_dir.presets, type + ".json")
-    const ok = await SaveData( filepath, request.body.data )
+    const filepath = path.join(Config.path_dir.presets, type + ".json")
+    const ok = await Config.SaveData( filepath, request.body.data )
     response.send(ok)
 })
 
 
 app.get("/get_characters", parser, function(_: express.Request, response: express.Response){
-    let dir: string = path.join( _userPath, "characters" ).replaceAll("\\", "/");
+    let dir: string = path.join( Config.userPath, "characters" ).replaceAll("\\", "/");
     console.debug( chalk.blue( `Fetching characters from ${dir}` ))
     let list = Character.LoadFromDirectory(dir)
     response.send(list)
@@ -249,7 +223,7 @@ app.get("/get_characters", parser, function(_: express.Request, response: expres
 app.post("/get_character", parser, function(request: express.Request, response: express.Response){
     let filepath = request.body.filepath
     console.debug( chalk.blue( `Reading character from ${ filepath }` ))
-    let character = Character.ReadFromFile( path.join( path_dir.characters, filepath ))
+    let character = Character.ReadFromFile( path.join( Config.path_dir.characters, filepath ))
     if( character ){
         character.temp.filepath = filepath
     }
@@ -277,54 +251,56 @@ app.post("/get_message_tokens", parser, function(request: express.Request, respo
     response.send(tokens)
 })
 
-app.post("/get_chat_list", parser, function(request: express.Request, response: express.Response){
-    let chats: Array<IChatMeta> = Chat.GetAllChats(request.body.character, path_dir.chats )
-    if( !chats ){ chats = [] }
+app.post("/list_chats", parser, function(request: express.Request, response: express.Response){
+    // let chats: Array<IChatMeta> = Chat.GetAllChats(request.body.character, Config.path_dir.chats )
+    let id: string = path.parse(request.body.character_id).name
+    let chats: Array<IChat> = Chat.ListChatsForCharacter(id)
     response.send(chats)
 });
 
 
-app.post("/get_chat", parser, function(request: express.Request, response: express.Response){
-    let chat: IChat = Chat.ReadFromFile( request.body.filepath, path_dir.chats )
-    response.send(chat)
-})
-
-app.post("/get_chat_metadata", parser, function(request: express.Request, response: express.Response){
-    let chat: IChatMeta = Chat.createMetadata( request.body.chat )
+app.post("/load_chat", parser, function(request: express.Request, response: express.Response){
+    let chat: IChat = Chat.Load( request.body.chat_id)
     response.send(chat)
 })
 
 app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
     try{
-        response.send(Chat.create(request.body.character))
+        response.send(Chat.Create(request.body.character))
     }catch(error){
         console.error( chalk.red( error ))
     }
 })
 
+app.post("/add_message", parser, function(request: express.Request, response: express.Response){
+    console.log("Received message: %o", request.body)
+    let result = Chat.AddMessage(request.body.chat_id, request.body.message)
+    response.send(result)
+})
+
 app.post("/save_chat", parser, function(request: express.Request, response: express.Response){
-    let result = Chat.Save( request.body.chat, request.body.character, path_dir.chats )
-    response.send( result )
+    // let result = Chat.Save( request.body.chat, request.body.character, Config.path_dir.chats )
+    // response.send( result )
 })
 
 app.post("/copy_chat", parser, function(request: express.Request, response: express.Response){
-    const now = Date.now();
-    const character = request.body.character
+    // const now = Date.now();
+    // const character = request.body.character
 
-    let copy = request.body.chat;
-    copy.title = request.body.name ? request.body.name : now;
-    copy.create_date = now;
-    copy.last_interaction = now;
-    copy.filepath = path.join(path.parse(character.temp.filepath).name, now.toString() + ".json");
-    copy.filepath = copy.filepath.replaceAll("\\", "/");
+    // let copy = request.body.chat;
+    // copy.title = request.body.name ? request.body.name : now;
+    // copy.create_date = now;
+    // copy.last_interaction = now;
+    // copy.filepath = path.join(path.parse(character.temp.filepath).name, now.toString() + ".json");
+    // copy.filepath = copy.filepath.replaceAll("\\", "/");
 
-    let result = Chat.Save( copy, character, path_dir.chats )
-    response.send( result )
+    // let result = Chat.Save( copy, character, Config.path_dir.chats )
+    // response.send( result )
 })
 
 app.post("/delete_chat", parser, function(request: express.Request, response: express.Response){
-    let result = Chat.Delete( request.body.chat, path_dir.chats )
-    response.send( result )
+    // let result = Chat.Delete( request.body.chat, Config.path_dir.chats )
+    response.send( 500 )
 })
 
 app.get("/new_character", parser, function(request: express.Request, response: express.Response){
@@ -335,9 +311,9 @@ app.post("/save_character_image", upload.single("file"), async function(request:
     const char = JSON.parse(request.body.character)
     let image = request.file ? request.file.buffer : null
     let filepath = request.body.filepath
-    filepath = path.join( path_dir.characters, filepath )
+    filepath = path.join( Config.path_dir.characters, filepath )
     if( request.body.creating && !image ){
-        image = fs.readFileSync( path.join( _imgPath, "bot_default.png" ))
+        image = fs.readFileSync( path.join( Config.imgPath, "bot_default.png" ))
     }
     if( !filepath.toLowerCase().endsWith(".png")){
         filepath += ".png"
@@ -350,7 +326,7 @@ app.post("/save_character_image", upload.single("file"), async function(request:
 app.post("/save_character", parser, async function(request: express.Request, response: express.Response){
     const char = request.body.character
     let filepath = request.body.filepath || char.temp.filepath
-    filepath = path.join( path_dir.characters, filepath )
+    filepath = path.join( Config.path_dir.characters, filepath )
     if( !filepath.toLowerCase().endsWith(".png")){
         filepath += ".png"
     }
@@ -361,7 +337,7 @@ app.post("/save_character", parser, async function(request: express.Request, res
 
 app.post("/delete_character", parser, function(request: express.Request, response: express.Response){
     let filepath = request.body.filepath
-    const dir: string = path.join( _userPath, "characters" )
+    const dir: string = path.join( Config.userPath, "characters" )
     if( !filepath.toLowerCase().startsWith( dir )){
         filepath = path.join( dir, filepath )
     }
@@ -376,7 +352,7 @@ app.post("/delete_character", parser, function(request: express.Request, respons
 })
 
 app.get("/get_lorebooks", parser, function(_: express.Request, response: express.Response){
-    response.send( Lorebook.GetAllLorebooks(path_dir.lorebooks) )
+    response.send( Lorebook.GetAllLorebooks(Config.path_dir.lorebooks) )
 })
 
 app.post("/save_lorebook", parser, function(request: express.Request, response: express.Response){
@@ -384,7 +360,7 @@ app.post("/save_lorebook", parser, function(request: express.Request, response: 
         response.status(500).send( false )
     }else{
         let book = request.body.book
-        const success = Lorebook.Save( book, path_dir.lorebooks )
+        const success = Lorebook.Save( book, Config.path_dir.lorebooks )
         if( success ){
             response.status(200).send( true )
             return
@@ -396,7 +372,7 @@ app.post("/save_lorebook", parser, function(request: express.Request, response: 
 app.post("/delete_lorebook", parser, function(request: express.Request, response: express.Response){
     try{
         let filepath = request.body.book?.temp?.filepath
-        filepath = path.join( path_dir.lorebooks, filepath )
+        filepath = path.join( Config.path_dir.lorebooks, filepath )
         fs.unlinkSync( filepath )
         response.status(200).send(true)
         return
@@ -494,18 +470,36 @@ app.post("/generate", parser, async function(request: express.Request, response:
 // ==============================================================================================
 
 async function LoadAPIModes(){
-    console.log("---")
+    // console.log( "---" )
     Object.entries(API_MODES).forEach(([key, api]) => {
         if( api instanceof API ){
-            console.debug( chalk.green( `✅ API module "${api.API_NAME}" enabled`))
+            // console.debug( chalk.green( `❖ ${chalk.bold(api.API_NAME)} API enabled`))
             API_LIST.push({ key: key, title: api.API_NAME })
         }
+        // else{
+        //     console.debug( chalk.red( `❖ ${chalk.bold(key)} API disabled`))
+        // }
     })
-    if (API_LIST.length > 0) {
-        console.debug( "---")
-        console.debug( chalk.green( `Loaded ${API_LIST.length} API module(s)`))
-    }
+    // if (API_LIST.length > 0) {
+    //     console.debug( "---" )
+    //     console.debug( chalk.green( `✅ ${chalk.bold(API_LIST.length)} API module(s) available`))
+    // }
     return API_LIST;
+}
+
+function getNetworkInterfaces(): Array<string>{
+    const addresses: Array<string> = [];
+    const interfaces = os.networkInterfaces();
+    for (const [name, nets] of Object.entries(interfaces)) {
+        if (!nets) continue;
+        for (const net of nets) {
+            if (net.internal) continue;
+            if (net.family === 'IPv4') {
+                addresses.push(net.address);
+            }
+        }
+    }
+    return addresses;
 }
 
 // ==============================================================================================
@@ -513,10 +507,22 @@ async function LoadAPIModes(){
 // ==============================================================================================
 
 LoadAPIModes()
-Database.Create(db);
 
 // Start the server
 app.listen(port, () => {
-    console.log( chalk.cyan.bold( "\nStarted OgreAI server at:" ))
-    console.log( chalk.white.bold( " > ") + chalk.blue("http://localhost:" + port + "\n" ))
+    console.log( chalk.cyan(`\n⭐ Started ${chalk.bold("OgreAI")} server at:`))
+    console.log(
+        chalk.green.bold(" ➜ ") +
+        chalk.white.bold("Local:\t") +
+        chalk.blue(`http://localhost:${port}`)
+    )
+    const network: Array<string> = getNetworkInterfaces();
+    network.forEach((address: string) => {
+        console.log(
+            chalk.green.bold(" ➜ ") +
+            chalk.white.bold("Network:\t") +
+            chalk.blue(`http://${address}:${port}`)
+        )
+    })
+    console.log(chalk.gray(`\nPress ${chalk.bold.white("Ctrl + C")} to stop`))
 })

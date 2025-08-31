@@ -1,2 +1,2 @@
 DELETE FROM chats
-WHERE id = ?, character_id = ?
+WHERE id = ? AND character_id = ?
