@@ -32,6 +32,7 @@ import type {
     IChat,
     IError,
     IGenerationData,
+    IMessage,
     IPromptConfig,
     IReply,
     ISettings,
@@ -251,60 +252,80 @@ app.post("/get_message_tokens", parser, function(request: express.Request, respo
     response.send(tokens)
 })
 
+app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
+    const chat = Chat.Create(request.body.character)
+    response.send(chat)
+})
+
 app.post("/list_chats", parser, function(request: express.Request, response: express.Response){
-    // let chats: Array<IChatMeta> = Chat.GetAllChats(request.body.character, Config.path_dir.chats )
     let id: string = path.parse(request.body.character_id).name
     let chats: Array<IChat> = Chat.ListChatsForCharacter(id)
     response.send(chats)
 });
 
-
 app.post("/load_chat", parser, function(request: express.Request, response: express.Response){
-    let chat: IChat = Chat.Load( request.body.chat_id)
+    let chat: IChat = Chat.Load(request.body.id)
     response.send(chat)
 })
 
-app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
-    try{
-        response.send(Chat.Create(request.body.character))
-    }catch(error){
-        console.error( chalk.red( error ))
-    }
+app.post("/update_chat", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.Update(request.body.chat)
+    response.send(success)
 })
 
-app.post("/add_message", parser, function(request: express.Request, response: express.Response){
-    console.log("Received message: %o", request.body)
-    let result = Chat.AddMessage(request.body.chat_id, request.body.message)
-    response.send(result)
+app.post("/duplicate_chat", parser, function(request: express.Request, response: express.Response){
+    const chat_id: number = Chat.Duplicate(request.body.chat, request.body.title)
+    response.send(chat_id)
 })
 
-app.post("/save_chat", parser, function(request: express.Request, response: express.Response){
-    // let result = Chat.Save( request.body.chat, request.body.character, Config.path_dir.chats )
-    // response.send( result )
+app.post("/add_message", parser, function(request: express.Request, response: express.Responseddd){
+    const id: number = Chat.AddMessage(request.body.chat.id, request.body.message)
+    response.send(id)
 })
 
-app.post("/copy_chat", parser, function(request: express.Request, response: express.Response){
-    // const now = Date.now();
-    // const character = request.body.character
+app.post("/add_candidate", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.AddCandidate(request.body.message.id, request.body.candidate)
+    response.send(success)
+})
 
-    // let copy = request.body.chat;
-    // copy.title = request.body.name ? request.body.name : now;
-    // copy.create_date = now;
-    // copy.last_interaction = now;
-    // copy.filepath = path.join(path.parse(character.temp.filepath).name, now.toString() + ".json");
-    // copy.filepath = copy.filepath.replaceAll("\\", "/");
+app.post("/load_message", parser, function(request: express.Request, response: express.Response){
+    const message: IMessage = Chat.GetMessage(request.body.id)
+    response.send(message)
+})
 
-    // let result = Chat.Save( copy, character, Config.path_dir.chats )
-    // response.send( result )
+app.post("/update_message", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.UpdateMessage(request.body.message)
+    response.send(success)
+})
+
+app.post("/swipe_message", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.SwipeMessage(request.body.message, request.body.index)
+    response.send(success)
+})
+
+app.post("/delete_messages", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.DeleteMessages(request.body.ids)
+    response.send(success)
+})
+
+app.post("/update_candidate", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.UpdateCandidate(request.body.candidate)
+    response.send(success)
+})
+
+app.post("/delete_candidate", parser, function(request: express.Request, response: express.Response){
+    const success: boolean = Chat.DeleteCandidate(request.body.id)
+    response.send(success)
 })
 
 app.post("/delete_chat", parser, function(request: express.Request, response: express.Response){
-    // let result = Chat.Delete( request.body.chat, Config.path_dir.chats )
-    response.send( 500 )
+    const success: boolean = Chat.Delete( request.body.id )
+    response.send( success )
 })
 
 app.get("/new_character", parser, function(request: express.Request, response: express.Response){
-    response.send(Character.create())
+    const character = Character.create()
+    response.send(character)
 })
 
 app.post("/save_character_image", upload.single("file"), async function(request: express.Request, response: express.Response){
@@ -387,7 +408,7 @@ app.get("/get_api_modes", parser, async function(_: express.Request, response: e
 })
 
 app.post("/get_api_defaults", parser, function(request: express.Request, response: express.Response){
-    let api: API = API_MODES[request.body.api_mode]
+    const api: API = API_MODES[request.body.api_mode]
     try{
         response.send(JSON.stringify( api.API_SETTINGS ))
     }catch(error: any){
@@ -401,7 +422,7 @@ app.get("/get_default_prompt", parser, function(_: express.Request, response: ex
 })
 
 app.post("/validate_prompt", parser, function(request: express.Request, response: express.Response){
-    let valid = Settings.ValidatePrompt( request.body.prompt, request.body.type )
+    const valid = Settings.ValidatePrompt( request.body.prompt, request.body.type )
     response.status(200).send(valid)
 })
 

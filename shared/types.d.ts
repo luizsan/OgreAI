@@ -75,6 +75,7 @@ export interface IMessage{
     id? : number;
     participant : number;
     index : number;
+    timestamp : number;
     candidates : Array<ICandidate>;
 }
 

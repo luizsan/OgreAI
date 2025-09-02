@@ -24,6 +24,7 @@
     import * as SVG from "@/svg/Common.svelte"
     import { tick } from 'svelte';
     import { get } from 'svelte/store';
+    import type { ICandidate } from '@shared/types';
 
     let self : HTMLElement;
 
@@ -67,7 +68,7 @@
     let postActions = false;
     let editedText = ""
 
-    export function SwipeMessage(step : number){
+    export async function SwipeMessage(step : number){
         if( first && candidates.length === 1){
             return;
         }
@@ -80,6 +81,11 @@
         if($currentChat.messages[id].index < 0){
             $currentChat.messages[id].index = 0;
         }
+
+        await Server.request("/swipe_message", {
+            message: $currentChat.messages[id],
+            index: $currentChat.messages[id].index
+        })
 
         if($currentChat.messages[id].index > candidates.length-1){
             $currentChat.messages[id].index = candidates.length-1;
@@ -130,20 +136,32 @@
         self.scrollIntoView({ block: "nearest" })
     }
 
-    export function ConfirmEdit(){
+    export async function ConfirmEdit(){
         CancelEditing()
-        editedText = editedText.trim()
+        let new_candidate: ICandidate = {
+            id: current.id,
+            text: editedText,
+            timestamp: current.timestamp,
+            model: current.model,
+            reasoning: current.reasoning,
+            timer: current.timer,
+            tokens: current.tokens
+        }
+
+        new_candidate.text = editedText.trim()
+        new_candidate.text = Format.regexReplace(new_candidate.text, ["on_edit"], $currentSettingsMain.formatting.replace)
+        new_candidate.text = Format.randomReplace(new_candidate.text)
+
         if( !editedText ){
             DeleteCandidate();
         }else{
-            editedText = Format.regexReplace(editedText, [ "on_edit" ], $currentSettingsMain.formatting.replace)
-            editedText = Format.randomReplace(editedText)
-            $currentChat.messages[id].candidates[index].text = editedText;
-            $currentChat.messages[id].candidates[index].tokens = {}
-            $currentChat = $currentChat;
-            self.scrollIntoView({ block: "nearest" })
+            const success: boolean = await Server.request( "/update_candidate", { candidate: new_candidate })
+            if( success ){
+                $currentChat.messages[id].candidates[index] = new_candidate
+                $currentChat = $currentChat;
+                self.scrollIntoView({ block: "nearest" })
+            }
         }
-        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
     async function CopyMessage(){
@@ -161,13 +179,16 @@
         if( first ){
             return;
         }
-
         SetPostActions(false)
         const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
         if( ok ){
+            const candidate: ICandidate = $currentChat.messages[id].candidates[index]
+            const success: boolean = await Server.request("/delete_candidate", { id: candidate.id })
+            if( !success )
+                return
+
             $currentChat.messages[ id ].candidates.splice( index, 1 )
             // console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
-
             let num_candidates = $currentChat.messages[id].candidates.length;
             if( num_candidates < 1 ){
                 $currentChat.messages.splice( id, 1 )
@@ -175,10 +196,11 @@
                 index = Math.max(0, Math.min( index, num_candidates-1 ))
                 $currentChat.messages[ id ].index = index;
             }
-
+            await Server.request("/swipe_message", {
+                message: $currentChat.messages[id],
+                index: index
+            })
             $currentChat = $currentChat;
-            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
-
             if( last ){
                 document.dispatchEvent(new CustomEvent("autoscroll"))
             }
@@ -279,11 +301,11 @@
                 break;
             case "ArrowLeft":
                 event.preventDefault()
-                SwipeMessage(-1);
+                await SwipeMessage(-1);
                 break;
             case "ArrowRight":
                 event.preventDefault()
-                SwipeMessage(1);
+                await SwipeMessage(1);
                 break;
             case "Delete":
                 event.preventDefault()
@@ -374,9 +396,9 @@
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     <div class="swipes">
 
-                        <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={() => SwipeMessage(-1)}>{@html SVG.arrow}</button>
+                        <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
-                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={() => SwipeMessage(1)}>{@html SVG.arrow}</button>
+                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={async () => await SwipeMessage(1)}>{@html SVG.arrow}</button>
                     </div>
 
                    <div class="extras">

@@ -153,7 +153,7 @@ export async function ListChats(character : ICharacter, set_latest = false){
 
     if( set_latest ){
         if( list.length > 0 ){
-            latest_chat = await request( "/load_chat", { chat_id: list.at(0).id });
+            latest_chat = await request( "/load_chat", { id: list.at(0).id });
         }else{
             latest_chat = await request( "/new_chat", { character: character });
         }

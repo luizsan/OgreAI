@@ -1,3 +1,3 @@
 SELECT * FROM messages
 WHERE chat_id = ?
-ORDER BY id ASC
+ORDER BY create_date ASC

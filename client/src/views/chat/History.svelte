@@ -26,7 +26,7 @@
     async function selectHistory(){
         $fetching = true;
         // $currentChat = await Server.request( "/get_chat", { filepath: chat.filepath });
-        $currentChat = await Server.request( "/get_chat", { chat_id: chat.id});
+        $currentChat = await Server.request( "/load_chat", { id: chat.id});
         $history = false;
         $fetching = false;
         await tick()
@@ -38,25 +38,29 @@
         if(ok){
             $fetching = true;
             await Server.request("/delete_chat", {
-                character: $currentCharacter,
-                chat: chat,
+                id: chat.id,
             })
-
-            await Server.ListChats( $currentCharacter )
+            await Server.ListChats( $currentCharacter, true )
             $fetching = false;
         }
     }
 
-    async function copyChat(){
+    async function duplicateChat(){
         $fetching = true;
-        let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: chat })
-        if( result ){
-            await Server.ListChats( $currentCharacter )
-            $fetching = false;
-            await Dialog.alert("OgreAI", "Successfully copied chat!")
-        }else{
-            $fetching = false;
+        let new_id = await Server.request("/duplicate_chat", {
+            chat: chat,
+            title: `Copy of ${chat.title}`,
+        })
+        if( new_id ){
+            const new_chat: IChat = await Server.request("/load_chat", { id: new_id })
+            if(new_chat){
+                $currentChat = new_chat
+                $fetching = false;
+                $history = false;
+                await Dialog.alert("OgreAI", "Successfully copied chat!")
+            }
         }
+        $fetching = false;
     }
 
     function toggleEditTitle(){
@@ -73,9 +77,11 @@
         }
     }
 
-    async function saveChanges(){
-        await Server.request("/save_chat", { chat: chat, character: $currentCharacter })
-        editingTitle = false;
+    async function updateTitle(){
+        const success: boolean = await Server.request("/update_chat", { chat: chat })
+        if( success ){
+            editingTitle = false;
+        }
     }
 
 </script>
@@ -83,10 +89,10 @@
 <div class="content">
     <div class="section data">
         <div class="title">
-            <button class="normal" on:click|stopPropagation={/*toggleEditTitle*/ () => {}}>{@html SVG.edit}</button>
+            <button class="normal" on:click|stopPropagation={toggleEditTitle}>{@html SVG.edit}</button>
             {#if editingTitle}
                 <!-- svelte-ignore a11y-autofocus -->
-                <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={saveChanges}>
+                <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={updateTitle}>
             {:else}
                 <span class="label">{chat.title}</span>
             {/if}
@@ -121,7 +127,7 @@
 
     <div class="buttons">
         <button class="component left danger" title="Delete chat" on:click|stopPropagation={deleteChat}>{@html SVG.trashcan}</button>
-        <button class="component left info" title="Duplicate chat" on:click|stopPropagation={copyChat}>{@html SVG.copy}</button>
+        <button class="component left info" title="Duplicate chat" on:click|stopPropagation={duplicateChat}>{@html SVG.copy}</button>
         <button class="component right normal continue" on:click|stopPropagation={selectHistory}>{@html SVG.chat} Continue chat</button>
     </div>
 </div>

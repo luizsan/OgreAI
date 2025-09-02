@@ -1,4 +1,4 @@
 SELECT id FROM messages
 WHERE chat_id = ?
-ORDER BY id DESC
-LIMIT COALESCE(?, 1)
+ORDER BY create_date DESC
+LIMIT 1

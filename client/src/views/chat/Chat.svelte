@@ -74,13 +74,17 @@
         if($deleteList.length > 0){
             const ok: boolean = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${$deleteList.length} message(s)?`);
             if( ok ){
-                $deleteList.sort()
-                $currentChat.messages = $currentChat.messages.filter((_: any, index: number) => index == 0 || !$deleteList.includes(index))
-                $currentChat = $currentChat;
-                Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
-                CancelDeleteMessages();
+                const success: boolean = await Server.request("/delete_messages", {
+                    ids: $deleteList.map(id => $currentChat.messages[id].id)
+                })
+                if( success ){
+                    $deleteList.sort()
+                    $currentChat.messages = $currentChat.messages.filter((_: any, index: number) => index == 0 || !$deleteList.includes(index))
+                    $currentChat = $currentChat;
+                }
             }
         }
+        CancelDeleteMessages();
     }
 
     async function SendMessage(){
@@ -90,6 +94,7 @@
         let message: IMessage = {
             participant: -1,
             index: 0,
+            timestamp: Date.now(),
             candidates: [{
                 text: Format.parseMacros(userMessage, $currentChat),
                 timestamp: Date.now(),
@@ -97,18 +102,17 @@
         }
 
         console.debug( $currentChat.messages )
-        // await Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } ),
         $busy = true;
+        $currentChat.messages.push(message)
+        userMessage = "";
+        $currentChat = $currentChat;
+        $currentChat.messages = $currentChat.messages;
         const success: boolean = await Server.request("/add_message", {
-            chat_id: $currentChat?.id,
+            chat: $currentChat,
             message: message,
         })
         $busy = false;
         if( success ){
-            $currentChat.messages.push(message)
-            userMessage = "";
-            $currentChat = $currentChat;
-            $currentChat.messages = $currentChat.messages;
             await tick()
             resize( messageBox );
             await generateMessage()
@@ -183,10 +187,10 @@
                 const stream = response.body.pipeThrough(new TextDecoderStream());
                 const reader = stream.getReader()
                 console.debug( "Awaiting stream..." )
-                let candidate = receiveStream(swipe)
+                let candidate = startStream(swipe)
                 async function processText({ done, value: input }){
                     if(done || (input && input.done)){
-                        finishStream(candidate)
+                        finishStream(candidate, swipe)
                         return;
                     }
                     await parseStream(candidate, input)
@@ -220,24 +224,13 @@
         incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
         incoming.candidate.text = Format.parseMacros(incoming.candidate.text, $currentChat)
         incoming.candidate.timer = Date.now() - requestTime;
-
-        if( incoming.swipe ){
-            let last = $currentChat.messages.at(-1)
-            if( last.participant > -1 ){
-                last.candidates.push(incoming.candidate)
-                last.index = last.candidates.length-1;
-            }
+        if(incoming.swipe){
+            addCandidate(incoming.candidate)
         }else{
-            $currentChat.messages.push({
-                participant: incoming.participant,
-                index: 0,
-                candidates: [ incoming.candidate ],
-            })
+            let message = newMessage(incoming)
+            addMessage(message)
         }
-        $currentChat.last_interaction = Date.now()
-        $currentChat = $currentChat;
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
     }
 
     function abortMessage(){
@@ -248,7 +241,55 @@
         $busy = false;
     }
 
-    function receiveStream(swipe = false) : ICandidate{
+    function newMessage(incoming: IReply){
+        let new_message: IMessage = {
+            participant: incoming.participant,
+            index: 0,
+            timestamp: Date.now(),
+            candidates: [ incoming.candidate ],
+        }
+        return new_message
+    }
+
+    async function addMessage(message: IMessage){
+        let result_id = await Server.request( "/add_message", {
+            chat: $currentChat,
+            message: message
+        })
+        if( result_id ){
+            message.id = result_id
+            $currentChat.messages.push(message)
+            $currentChat.last_interaction = Date.now()
+            $currentChat = $currentChat;
+        }
+        return result_id
+    }
+
+    async function addCandidate(candidate: ICandidate, stream: boolean = false){
+        let last_message: IMessage = $currentChat.messages.at(-1)
+        if( last_message.participant > -1 ){
+            let success: boolean = await Server.request( "/add_candidate", {
+                message: last_message,
+                candidate: candidate
+            })
+            if( success ){
+                if(!stream){
+                    last_message.candidates.push(candidate)
+                    last_message.index = last_message.candidates.length-1;
+                }
+                $currentChat.last_interaction = Date.now()
+                $currentChat = $currentChat;
+                await Server.request("/swipe_message", {
+                    message: last_message,
+                    index: last_message.index
+                })
+                return true;
+            }
+        }
+        return false
+    }
+
+    function startStream(swipe = false) : ICandidate{
         let candidate = {
             text: "",
             reasoning: "",
@@ -267,6 +308,7 @@
             $currentChat.messages.push({
                 participant: 0,
                 index: 0,
+                timestamp: Date.now(),
                 candidates: [ candidate ],
             })
         }
@@ -274,7 +316,6 @@
         $currentChat = $currentChat;
         return candidate;
     }
-
 
     async function parseStream(candidate: ICandidate, input: string){
         const lines = input.split('\n').filter((line: string) => line.trim() !== '');
@@ -287,11 +328,8 @@
                     candidate.text = candidate.text.trim()
                     await Dialog.alert(obj.error?.type || "Error", obj.error?.message)
                 }
-
                 if( obj.candidate ){
-
                     candidate.timestamp = obj.candidate.timestamp
-
                     // reasoning
                     if( obj.candidate.reasoning ){
                         if( obj.replace ){
@@ -300,7 +338,6 @@
                             candidate.reasoning += obj.candidate.reasoning
                         }
                     }
-
                     // text
                     if( obj.candidate.text ){
                         if( obj.replace ){
@@ -309,7 +346,6 @@
                             candidate.text += obj.candidate.text
                         }
                     }
-
                     // model
                     if( !candidate.model ){
                         if( obj.candidate.model ){
@@ -333,18 +369,19 @@
         }
     }
 
-    function finishStream(candidate: ICandidate){
+    function finishStream(candidate: ICandidate, swipe: boolean = false){
         candidate.timer = new Date().getTime() - requestTime;
         candidate.text = Format.regexReplace(candidate.text, ["on_reply"], $currentSettingsMain.formatting.replace )
         candidate.text = Format.parseMacros(candidate.text, $currentChat)
-        $currentChat = $currentChat;
+        if(swipe){
+            addCandidate(candidate, true)
+        }else{
+            const last_message: IMessage = $currentChat.messages.at(-1)
+            last_message.timestamp = candidate.timestamp
+            addMessage(last_message)
+        }
         console.debug( "Received stream: %o", candidate )
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        // Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter })
-        Server.request( "/add_message", {
-            chat_id: $currentChat?.id,
-            message: $currentChat.messages.at(-1)
-        })
     }
 
     async function RegenerateMessage(){
@@ -374,7 +411,7 @@
         if( state ){
             showMenu = false;
             $fetching = true;
-            // await Server.getChatList( $currentCharacter )
+            await Server.ListChats( $currentCharacter )
             $fetching = false;
             $history = true;
         }else{
@@ -387,9 +424,9 @@
     async function ChangeChatTitle(){
         showMenu = false;
         let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
-        if( new_title ){
+        if( new_title.trim() ){
             $currentChat.title = new_title
-            Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+            // Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
         }
     }
 

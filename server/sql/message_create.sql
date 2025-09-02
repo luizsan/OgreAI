@@ -1,3 +1,3 @@
-INSERT INTO messages (chat_id, participant, parent_id, candidate, metadata)
+INSERT INTO messages (chat_id, create_date, participant, candidate, metadata)
 VALUES (?, ?, ?, ?, ?)
 RETURNING id

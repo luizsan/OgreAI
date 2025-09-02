@@ -15,12 +15,11 @@ CREATE TABLE IF NOT EXISTS chats (
 CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   chat_id INTEGER NOT NULL,
+  create_date INTEGER NOT NULL,
   participant INTEGER NOT NULL,
-  parent_id INTEGER,
   candidate INTEGER NOT NULL,
   metadata TEXT DEFAULT '{}',
-  FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
-  FOREIGN KEY (parent_id) REFERENCES messages(id) ON DELETE CASCADE
+  FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
 );
 
 -- Candidats table
@@ -80,5 +79,4 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 
 CREATE INDEX IF NOT EXISTS idx_chats ON messages(chat_id);
-CREATE INDEX IF NOT EXISTS idx_parents ON messages(parent_id);
 CREATE INDEX IF NOT EXISTS idx_candidates ON candidates(message_id);

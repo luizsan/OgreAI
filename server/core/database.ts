@@ -20,8 +20,8 @@ export interface IDatabaseChat{
 export interface IDatabaseMessage{
     id: number;
     chat_id: number;
+    create_date?: number;
     participant: number;
-    parent_id?: number;
     candidate: number;
     metadata?: number;
 }
