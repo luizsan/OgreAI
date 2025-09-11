@@ -29,7 +29,8 @@
     let self : HTMLElement;
 
     export let id : number = -1
-    export let generateSwipe = () => {}
+    export let swipeAction = () => {}
+    export let deleteAction = () => {}
 
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
@@ -39,7 +40,7 @@
     $: last = id === $currentChat.messages.length - 1;
 
     // author
-    $: author = msg && msg.participant > -1 ? $currentChat.participants[msg.participant] : $currentProfile.name;
+    $: author = msg && msg.participant > -1 ? $currentCharacter.data.name : $currentProfile.name;
     $: authorType = is_bot ? "bot" : "user"
 
     // swipe
@@ -73,25 +74,26 @@
             return;
         }
 
-        if( last ){
-            document.dispatchEvent(new CustomEvent("autoscroll"))
-        }
-
         $currentChat.messages[id].index += step;
         if($currentChat.messages[id].index < 0){
             $currentChat.messages[id].index = 0;
+            return;
         }
-
-        await Server.request("/swipe_message", {
-            message: $currentChat.messages[id],
-            index: $currentChat.messages[id].index
-        })
 
         if($currentChat.messages[id].index > candidates.length-1){
             $currentChat.messages[id].index = candidates.length-1;
             if(!first && id === $currentChat.messages.length-1){
-                generateSwipe();
+                swipeAction();
             }
+        }else{
+            await Server.request("/swipe_message", {
+                message: $currentChat.messages[id],
+                index: $currentChat.messages[id].index
+            })
+        }
+
+        if( last ){
+            document.dispatchEvent(new CustomEvent("autoscroll"))
         }
     }
 
@@ -138,9 +140,13 @@
 
     export async function ConfirmEdit(){
         CancelEditing()
+        let content = editedText.trim()
+        content = Format.regexReplace(content, ["on_edit"], $currentSettingsMain.formatting.replace)
+        content = Format.randomReplace(content).trim()
+
         let new_candidate: ICandidate = {
             id: current.id,
-            text: editedText,
+            text: content.trim(),
             timestamp: current.timestamp,
             model: current.model,
             reasoning: current.reasoning,
@@ -148,14 +154,12 @@
             tokens: current.tokens
         }
 
-        new_candidate.text = editedText.trim()
-        new_candidate.text = Format.regexReplace(new_candidate.text, ["on_edit"], $currentSettingsMain.formatting.replace)
-        new_candidate.text = Format.randomReplace(new_candidate.text)
-
         if( !editedText ){
-            DeleteCandidate();
+            await DeleteCandidate();
         }else{
-            const success: boolean = await Server.request( "/update_candidate", { candidate: new_candidate })
+            const success: boolean = await Server.request( "/update_candidate", {
+                candidate: new_candidate
+            })
             if( success ){
                 $currentChat.messages[id].candidates[index] = new_candidate
                 $currentChat = $currentChat;
@@ -175,6 +179,25 @@
 
     }
 
+    export async function DeleteAction(){
+        if($currentChat.messages[id].candidates.length > 1){
+            await DeleteCandidate();
+        }else{
+            await DeleteMessage();
+        }
+    }
+
+    export async function DeleteMessage(){
+        if( first ){
+            return;
+        }
+        SetPostActions(false)
+        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
+        if( ok ){
+            await Server.deleteMessages([ id ])
+        }
+    }
+
     export async function DeleteCandidate(){
         if( first ){
             return;
@@ -182,25 +205,7 @@
         SetPostActions(false)
         const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
         if( ok ){
-            const candidate: ICandidate = $currentChat.messages[id].candidates[index]
-            const success: boolean = await Server.request("/delete_candidate", { id: candidate.id })
-            if( !success )
-                return
-
-            $currentChat.messages[ id ].candidates.splice( index, 1 )
-            // console.log(`Deleted candidate at message index ${id}, swipe ${index}`)
-            let num_candidates = $currentChat.messages[id].candidates.length;
-            if( num_candidates < 1 ){
-                $currentChat.messages.splice( id, 1 )
-            }else{
-                index = Math.max(0, Math.min( index, num_candidates-1 ))
-                $currentChat.messages[ id ].index = index;
-            }
-            await Server.request("/swipe_message", {
-                message: $currentChat.messages[id],
-                index: index
-            })
-            $currentChat = $currentChat;
+            await Server.deleteCandidate(id, index)
             if( last ){
                 document.dispatchEvent(new CustomEvent("autoscroll"))
             }
@@ -211,20 +216,12 @@
         const new_name = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
         if(new_name !== null){
             $fetching = true;
-            let branch = JSON.parse( JSON.stringify( $currentChat ))
-            branch.messages = branch.messages.slice(0, id + 1)
-            let last = branch.messages.at(-1)
-            last.candidates = [last.candidates[last.index]];
-            last.index = 0
-
-            let result = await Server.request("/copy_chat", { character: $currentCharacter, chat: branch, name: new_name })
+            const result: number | undefined = await Server.branchChat(id)
             if( result ){
                 await Server.ListChats( $currentCharacter, true )
                 await Dialog.alert("OgreAI", "Successfully branched chat!")
-                $fetching = false;
-            }else{
-                $fetching = false;
             }
+            $fetching = false;
         }
     }
 
@@ -232,7 +229,6 @@
         if( !$deleting ){
             return
         }
-
         $deleteList = []
         for( let i = id; i < $currentChat.messages.length; i++ ){
             $deleteList.push(i)
@@ -352,7 +348,7 @@
                 {/if}
 
             </div>
-            <span class="sub index"># {id+1}</span>
+            <span class="sub index">{msg?.id}:{current?.id}#{id+1}</span>
         </div>
 
         {#if isEditing}
@@ -387,23 +383,30 @@
                             <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
                             {#if id > 0}
                                 <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
-                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html SVG.trashcan}</button>
+                                <button class="delete danger" title="Delete message" on:click={deleteAction}>{@html SVG.trashcan}</button>
                             {/if}
                         </div>
                     {/if}
                 </button>
 
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
-                    <div class="swipes">
+                    {@const isGreeting = id === 0}
+                    {@const isLast = index >= candidates.length - 1}
 
+                    <div class="swipes">
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
-                        <button class="right normal" class:invisible={id === 0 && index >= candidates.length - 1} title="Next candidate" on:click={async () => await SwipeMessage(1)}>{@html SVG.arrow}</button>
+                        <button class="right normal" class:invisible={isGreeting && isLast} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
+                            {#if isGreeting && isLast}
+                                {@html SVG.plus}
+                            {:else}
+                                {@html SVG.arrow}
+                            {/if}
+                        </button>
                     </div>
 
                    <div class="extras">
-                        <!-- <button class="up">👍</button>
-                        <button class="down">👎</button> -->
+                        <!-- <button class="favorite normal special">{@html SVG.star}</button> -->
                     </div>
                 {/if}
             </div>
@@ -557,6 +560,12 @@
         visibility: hidden;
         display: flex;
         align-items: center;
+    }
+
+    .extras .id{
+        font-size: 0.75em;
+        white-space: nowrap;
+        width: 0px;
     }
 
 

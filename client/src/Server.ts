@@ -1,9 +1,12 @@
 import type {
     ICharacter,
     IChat,
+    IMessage,
+    ICandidate,
     ISettings,
 } from "@shared/types";
 import { get } from "svelte/store";
+import * as Format from "@shared/format.ts";
 import * as State from "@/State";
 
 let _heartbeat = null;
@@ -186,7 +189,6 @@ export async function getCharacterTokens( character : ICharacter ){
         user: profile.name,
         settings: settings_api
     }
-
     return request( "/get_character_tokens", body )
 }
 
@@ -231,7 +233,6 @@ export async function loadLastChat(){
     State.fetching.set(false);
 }
 
-
 export async function addToRecentlyChatted(character: ICharacter): Promise<void>{
     // parse the recents list if it exists in local storage
     const path : string = character.temp.filepath.replaceAll("../user/characters/", "")
@@ -248,4 +249,96 @@ export async function addToRecentlyChatted(character: ICharacter): Promise<void>
     }
     currentSettingsMain.recents.push(path)
     await request("/save_main_settings", {data: currentSettingsMain})
+}
+
+export async function branchChat(id: number): Promise<number|undefined>{
+    const currentChat: IChat = get( State.currentChat )
+    const branchChat: IChat = JSON.parse( JSON.stringify( currentChat ))
+    branchChat.messages = branchChat.messages.slice(0, id + 1)
+    let last: IMessage = branchChat.messages.at(-1)
+    let focused: ICandidate = last.candidates[last.index];
+    last.candidates = [focused];
+    last.index = 0
+    return await request("/duplicate_chat", {
+        chat: branchChat,
+        title: `Branch of ${currentChat.title} (${focused.id})`,
+        branch: focused
+    })
+}
+
+export async function sendMessage(content: string): Promise<boolean>{
+    const currentChat: IChat = get( State.currentChat )
+    const currentCharacter: ICharacter = get( State.currentCharacter )
+    console.debug( currentChat.messages )
+    let new_message: IMessage = {
+        participant: -1,
+        index: 0,
+        timestamp: Date.now(),
+        candidates: [{
+            text: Format.parseMacros(content, currentChat),
+            timestamp: Date.now(),
+        }]
+    }
+    currentChat.messages.push(new_message)
+    State.currentChat.set( currentChat )
+    let success: boolean = false
+    if(!currentChat.id){
+        let created: IChat = await request("/create_chat", {
+            character: currentCharacter,
+            chat: currentChat
+        })
+        if(created && created.id){
+            State.currentChat.set( created )
+            success = true;
+        }
+    }else{
+        let added: IMessage = await request("/add_message", {
+            chat: currentChat,
+            message: new_message
+        })
+        if(added && added.id){
+            new_message.id = added.id
+            success = true;
+        }
+    }
+    return success
+}
+
+export async function swipeMessage(id: number, step: number){
+}
+
+export async function deleteMessages(message_ids: Array<number>): Promise<boolean>{
+    const currentChat: IChat = get( State.currentChat )
+    const deleteList: Array<number> = get( State.deleteList )
+    const success: boolean = await request("/delete_messages", {
+        ids: message_ids.map(id => currentChat.messages[id].id)
+    })
+    if( success ){
+        currentChat.messages = currentChat.messages.filter((_msg: IMessage, index: number) => {
+            return index == 0 || !deleteList.includes(index)
+        })
+        State.currentChat.set( currentChat )
+    }
+    return success
+}
+
+export async function deleteCandidate(id: number, index: number): Promise<boolean>{
+    const currentChat: IChat = get( State.currentChat )
+    const candidate: ICandidate = currentChat.messages[id].candidates[index]
+    const success: boolean = await request("/delete_candidate", { id: candidate.id })
+    if( !success )
+        return
+    currentChat.messages[id].candidates.splice(index, 1)
+    let num_candidates = currentChat.messages[id].candidates.length;
+    if( num_candidates < 1 ){
+        currentChat.messages.splice(id, 1)
+    }else{
+        currentChat.messages[id].index = Math.max(0, Math.min( index, num_candidates-1 ))
+    }
+    await request("/swipe_message", {
+        message: currentChat.messages[id],
+        index: currentChat.messages[id].index
+    })
+    State.currentChat.set( currentChat )
+    return success
 }

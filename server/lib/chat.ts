@@ -12,6 +12,7 @@ import {
     db, op
 } from "../core/database.js"
 
+import fs from "fs"
 import path from "path"
 import chalk from "chalk"
 
@@ -20,11 +21,11 @@ import * as CAI from "../import/cai.ts"
 import * as Tavern from "../import/tavern.ts"
 import * as Format from "../../shared/format.ts"
 
-const META_FILE: string = "_index.meta"
+const EXT_CHAT = [".json", ".jsonl"]
 
 export default class Chat{
 
-    static Create( character: ICharacter ): IChat{
+    static New( character: ICharacter ): IChat{
         const timestamp = Date.now()
         let chat: IChat = {
             title: timestamp.toString(),
@@ -66,35 +67,33 @@ export default class Chat{
         chat.messages = source.messages || []
     }
 
-    static New(character: ICharacter, empty: boolean = false): IChat{
-        const chat: IChat = Chat.Create(character)
+    static Create(character_id: string, chat: IChat, insert_messages: boolean = false): IChat{
         const transaction = db.transaction(() => {
             // create chat
-            const character_id = path.parse(character.temp.filepath).name
-            const chat_result: IDatabaseChat = op["chat_create"].get(
-                character_id, chat.title, chat.create_date, chat.last_interaction, "{}"
+            const result: IDatabaseChat = op["chat_create"].get(
+                character_id,
+                chat.title || Date.now().toString(),
+                chat.create_date ?? Date.now(),
+                chat.last_interaction ?? Date.now(),
+                "{}"
             ) as IDatabaseChat | undefined
-            if(!chat_result?.id)
+            if(!result?.id)
                 throw new Error("Failed to create chat");
-            const chat_id: number = chat_result.id;
-            if(!empty){
-                // create initial message
-                const message_result: any = op["message_create"].get(chat_id, Date.now(), 0, 0, "{}");
-                if(!message_result.id)
-                    throw new Error("Failed to create first message on new chat");
-                const message_id: number = message_result.id;
+            const chat_id: number = result.id;
+            chat.id = result.id
 
-                // create greetings
-                chat.messages.at(0).candidates.forEach((candidate, _index) => {
-                    op["candidate_create"].run(
-                        message_id, candidate.text, null, candidate.timestamp, null, 0, null, "{}"
-                    )
-                })
+            // create initial message
+            if(insert_messages){
+                let timestamp: number = Date.now()
+                for(let msg of chat.messages){
+                    msg = Chat.AddMessage(chat_id, msg, timestamp)
+                    timestamp += 1
+                }
             }
-            return chat_id
+            return chat
         })
-        chat.id = transaction()
-        if(!!chat.id)
+        chat = transaction()
+        if(chat)
             console.log(`New chat created with id ${chat.id}`)
         return chat;
     }
@@ -132,7 +131,7 @@ export default class Chat{
         return chat
     }
 
-    static Update(chat: IChat){
+    static Update(chat: IChat): boolean{
         const transaction = db.transaction(() => {
             const chat_entry: IDatabaseChat = op["chat_get"].get(chat.id) as IDatabaseChat | undefined
             if(!chat_entry)
@@ -147,7 +146,12 @@ export default class Chat{
         return success
     }
 
-    static Duplicate(chat: IChat, new_title: string, branch: ICandidate = null){
+    static Find(character_id: string, timestamp: number): number | undefined{
+        const chat_id = op["chat_find"].get(character_id, timestamp) as number | undefined
+        return chat_id
+    }
+
+    static Duplicate(chat: IChat, new_title: string, branch: ICandidate = null): number{
         const timestamp = Date.now()
         const transaction = db.transaction(() => {
             const new_chat: IDatabaseChat = op["chat_create"].get(
@@ -163,9 +167,26 @@ export default class Chat{
 
             const new_chat_id: number = new_chat.id
             const messages = Chat.ListMessages(chat.id)
-            messages.forEach((message: IMessage) => {
-                Chat.AddMessage(new_chat_id, message)
-            })
+            console.log("Attempting branch chat with branch %o", branch)
+            for(let i = 0; i < messages.length; i++){
+                // add new messages until it finds a candidate that matches the branch
+                let message = messages[i]
+                let candidates = message.candidates
+                if( branch ){
+                    let index = candidates.findIndex((candidate: ICandidate) => {
+                        return candidate.id == branch.id
+                    })
+                    if(index > -1){
+                        console.log(`Found branch candidate at index ${index}`)
+                        message.candidates = [candidates[index]]
+                        message.index = 0
+                        console.log("Adding message %o", message)
+                        Chat.AddMessage(new_chat_id, message, timestamp)
+                        break
+                    }
+                }
+                Chat.AddMessage(new_chat_id, message, timestamp)
+            }
             return new_chat_id
         })
         const new_chat_id: number = transaction()
@@ -230,7 +251,7 @@ export default class Chat{
         return transaction()
     }
 
-    static AddMessage(chat_id: number, message: IMessage){
+    static AddMessage(chat_id: number, message: IMessage, timestamp: number = Date.now()): IMessage{
         const transaction = db.transaction(() => {
             // update chat's last interaction
             const chat = op["chat_get"].get(chat_id) as IDatabaseChat;
@@ -242,33 +263,34 @@ export default class Chat{
             // create message
             // const last = op["message_last"].get(chat_id) as IDatabaseMessage;
             // const parent : number = last ? last.id : null;
-            const msg = op["message_create"].get(
+            const new_message = op["message_create"].get(
                 chat_id,
-                message.timestamp,
+                message.timestamp ?? timestamp,
                 message.participant,
                 message.index,
                 "{}"
             ) as { id: number } | undefined
-
-            if (!msg) {
+            if (!new_message.id) {
                 throw new Error(`Could not create message in chat ${chat_id}`);
             }
+            message.id = new_message.id
             // create candidates
             for(let candidate of message.candidates){
-                let new_candidate = this.AddCandidate(msg.id, candidate)
+                let new_candidate = this.AddCandidate(message.id, candidate)
                 if (!new_candidate) {
-                    throw new Error(`Could not create new candidate in m: ${msg.id}`);
+                    throw new Error(`Could not create new candidate in message: ${message.id}`);
                 }
+                candidate.id = new_candidate.id
             }
-            return msg.id;
+            return message
         })
-        const msg_id = transaction()
-        if( !!msg_id )
-            console.log(`New message created in chat ${chat_id} with id ${msg_id}`)
-        return msg_id
+        const success = transaction()
+        if( success )
+            console.log(`New message created in chat ${chat_id} with id ${message.id}`)
+        return message
     }
 
-    static UpdateMessage(message: IMessage){
+    static UpdateMessage(message: IMessage): boolean{
         const transaction = db.transaction(() => {
             const existing = op["message_get"].get(message.id)
             if (!existing) {
@@ -315,7 +337,7 @@ export default class Chat{
         return transaction()
     }
 
-    static SwipeMessage(message: IMessage, index: number){
+    static SwipeMessage(message: IMessage, index: number): boolean{
         const transaction = db.transaction(() => {
             const msg = op["message_get"].get(message.id) as IDatabaseMessage
             if (!msg) {
@@ -336,13 +358,9 @@ export default class Chat{
         return transaction()
     }
 
-    static ReparentMessages(chat_id: number){
-        throw new Error("Not implemented")
-    }
-
-    static AddCandidate(message_id: number, candidate: ICandidate){
+    static AddCandidate(message_id: number, candidate: ICandidate): ICandidate{
         const transaction = db.transaction(() => {
-            const id = op["candidate_create"].run(
+            const result = op["candidate_create"].get(
                 message_id,
                 candidate.text ?? "",
                 candidate.reasoning ?? null,
@@ -351,18 +369,19 @@ export default class Chat{
                 candidate.timer ?? 0,
                 JSON.stringify(candidate.tokens) ?? "{}",
                 "{}"
-            )
-            if(!id)
+            ) as { id: number } | undefined
+            if(!result)
                 throw new Error(`Could not create candidate in message: ${message_id}`);
+            candidate.id = result.id
             const num_candidates = op["candidate_list"].all(message_id).length;
             if( num_candidates > 0 )
                 op["message_swipe"].run(message_id, num_candidates - 1)
-            return id
+            return candidate
         })
         return transaction()
     }
 
-    static UpdateCandidate(candidate: ICandidate){
+    static UpdateCandidate(candidate: ICandidate): boolean{
         const result = op["candidate_update"].run(
             candidate.text ?? "",
             candidate.reasoning ?? null,
@@ -381,14 +400,14 @@ export default class Chat{
         return result.changes > 0
     }
 
-    static Delete(chat_id: number){
+    static Delete(chat_id: number): boolean{
         const result = op["chat_delete"].run(chat_id)
         if(result.changes === 0)
             throw new Error(`Could not delete chat with id ${chat_id}: not found`)
         return result.changes > 0
     }
 
-    static DeleteMessages(id_list: Array<number>){
+    static DeleteMessages(id_list: Array<number>): boolean{
         const transaction = db.transaction(() => {
             for(const id of id_list){
                 const result = op["message_delete"].run(id)
@@ -400,57 +419,72 @@ export default class Chat{
         return !!transaction()
     }
 
-    static DeleteCandidate(candidate_id: number){
-        const result = op["candidate_delete"].run(candidate_id)
-        if(result.changes === 0)
-            throw new Error(`Could not delete candidate with id ${candidate_id}: not found`)
-        return result.changes > 0
+    static DeleteCandidate(candidate_id: number): boolean{
+        const transaction = db.transaction(() => {
+            const candidate = op["candidate_get"].get(candidate_id) as IDatabaseCandidate
+            if(!candidate)
+                throw new Error(`Could not delete candidate with id ${candidate_id}: not found`)
+            const siblings = op["candidate_list"].all(candidate.message_id) as Array<IDatabaseCandidate>
+            if(siblings.length > 1){
+                const result = op["candidate_delete"].run(candidate_id)
+                if(result.changes === 0)
+                    throw new Error(`Could not delete candidate with id ${candidate_id}: not found`)
+                return result.changes > 0
+            }else{
+                return this.DeleteMessages([candidate.message_id])
+            }
+        })
+        return !!transaction()
     }
 
-    static ImportLegacyJSON(){
-
+    static Import(dir: string, content: IChat){
+        const transaction = db.transaction(() => {
+            const exists = !!(this.Find(dir, content.create_date))
+            if(exists){
+                throw new Error(`Chat is already imported into the database`);
+            }
+            const chat = Chat.Create(dir, content, true)
+            if(!chat)
+                throw new Error(`Could not insert chat into the database`);
+            console.log(`Imported chat with id ${chat.id} into the database: [${dir} - ${content.title}]`);
+        })
+        return transaction()
     }
 
-
-    /*
-    static ImportTavern( character: ICharacter, files: string[], dir: string ): boolean{
-        if( !character ) return;
-
-        try{
-            for(let i = 0; i < files.length; i++){
-                let file = files[i]
-                let content = readFileSync( file, "utf-8")
-                let parsed = Tavern.parseChat( content )
-                if( parsed ){
-                    let new_chat: IChat = this.Create(character)
-                    this.Validate( new_chat, parsed )
-                    this.Save( new_chat, character, dir )
+    static ImportChats(){
+        let imported = 0
+        const entries = fs.readdirSync(Config.path_dir.chats, {
+            recursive: false, withFileTypes: true
+        })
+        for(const entry of entries){
+            if(!entry.isDirectory())
+                continue
+            const dir = path.join(Config.path_dir.chats, entry.name)
+            const files = fs.readdirSync(dir)
+            for(const file of files){
+                const ext = path.parse(file).ext
+                const filepath = path.join(dir, file)
+                try{
+                    if(!EXT_CHAT.includes(ext) || file.startsWith("."))
+                        continue
+                    const content = fs.readFileSync(filepath, "utf-8")
+                    switch(ext){
+                        case ".json":
+                            this.Import(entry.name, JSON.parse(content))
+                            break
+                        case ".jsonl":
+                            this.Import(entry.name, Tavern.parseChat(content))
+                            break
+                        default:
+                            continue
+                    }
+                    imported += 1
+                }catch(error){
+                    console.warn(chalk.yellow(`Error trying to import chat from ${filepath}}:\n`) + error.message)
                 }
             }
-            return true
-        }catch(error){
-            console.warn("Error trying to import TavernAI chat:\n" + error.message)
-            return false
-        }
-    }
 
-    static ImportCAI( character: ICharacter, filepath: string, dir: string ): boolean{
-        if( !character ) return;
-        try{
-            let content = readFileSync( filepath, "utf-8")
-            let json = JSON.parse( content )
-            let chats = CAI.parseChat( json )
-            for(let i = 0; i < chats.length; i++){
-                let new_chat: IChat = this.Create(character)
-                this.Validate( new_chat, chats[i] )
-                this.Save( new_chat, character, dir )
-                return true
-            }
-        }catch(error){
-            console.warn("Error trying to import Character.AI chat:\n" + error.message)
-            return false
         }
+        console.log(`Imported ${imported} chat(s) into the database`)
     }
-    */
-
 }

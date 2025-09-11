@@ -1,10 +1,9 @@
 <script lang="ts">
     import type {
+        IChat,
         ICandidate,
-        ICharacter,
         IMessage,
         IReply,
-        ILorebook,
     } from "@shared/types";
 
     import { AutoResize, resize } from "@/utils/AutoResize";
@@ -74,14 +73,7 @@
         if($deleteList.length > 0){
             const ok: boolean = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${$deleteList.length} message(s)?`);
             if( ok ){
-                const success: boolean = await Server.request("/delete_messages", {
-                    ids: $deleteList.map(id => $currentChat.messages[id].id)
-                })
-                if( success ){
-                    $deleteList.sort()
-                    $currentChat.messages = $currentChat.messages.filter((_: any, index: number) => index == 0 || !$deleteList.includes(index))
-                    $currentChat = $currentChat;
-                }
+                await Server.deleteMessages($deleteList)
             }
         }
         CancelDeleteMessages();
@@ -90,33 +82,16 @@
     async function SendMessage(){
         if( userMessage.trim().length <= 0)
             return;
-
-        let message: IMessage = {
-            participant: -1,
-            index: 0,
-            timestamp: Date.now(),
-            candidates: [{
-                text: Format.parseMacros(userMessage, $currentChat),
-                timestamp: Date.now(),
-            }]
-        }
-
-        console.debug( $currentChat.messages )
         $busy = true;
-        $currentChat.messages.push(message)
+        let content: string = userMessage;
         userMessage = "";
-        $currentChat = $currentChat;
-        $currentChat.messages = $currentChat.messages;
-        const success: boolean = await Server.request("/add_message", {
-            chat: $currentChat,
-            message: message,
-        })
-        $busy = false;
+        const success = await Server.sendMessage(content);
         if( success ){
             await tick()
             resize( messageBox );
             await generateMessage()
         }
+        $busy = false;
     }
 
     // select messages without cached tokens
@@ -190,7 +165,7 @@
                 let candidate = startStream(swipe)
                 async function processText({ done, value: input }){
                     if(done || (input && input.done)){
-                        finishStream(candidate, swipe)
+                        await finishStream(candidate, swipe)
                         return;
                     }
                     await parseStream(candidate, input)
@@ -199,12 +174,12 @@
                 return reader.read().then(processText)
             }else{
                 response.json().then(async data => {
-                    console.debug("Received message: %o", data)
                     if( data.error ){
                         await Dialog.alert(data.error.type, data.error.message)
                     }else{
-                        receiveMessage( data )
+                        await receiveMessage( data )
                     }
+                    // console.debug("Received message: %o", data)
                 }).catch(error => {
                     console.error(error)
                 })
@@ -219,16 +194,16 @@
         $busy = false;
     }
 
-    function receiveMessage(incoming : IReply){
+    async function receiveMessage(incoming : IReply){
         console.debug($currentChat.messages)
         incoming.candidate.text = Format.regexReplace(incoming.candidate.text, [ "on_reply" ], $currentSettingsMain.formatting.replace )
         incoming.candidate.text = Format.parseMacros(incoming.candidate.text, $currentChat)
         incoming.candidate.timer = Date.now() - requestTime;
         if(incoming.swipe){
-            addCandidate(incoming.candidate)
+            await addCandidate(incoming.candidate)
         }else{
             let message = newMessage(incoming)
-            addMessage(message)
+            await addMessage(message)
         }
         document.dispatchEvent(new CustomEvent("autoscroll"))
     }
@@ -251,29 +226,39 @@
         return new_message
     }
 
-    async function addMessage(message: IMessage){
-        let result_id = await Server.request( "/add_message", {
+    async function addMessage(message: IMessage, silent: boolean = false){
+        const new_message = await Server.request( "/add_message", {
             chat: $currentChat,
             message: message
         })
-        if( result_id ){
-            message.id = result_id
-            $currentChat.messages.push(message)
+        console.log(`Added message: %o`, new_message)
+        if( new_message ){
+            message.id = new_message.id
+            message.timestamp = new_message.timestamp
+            message.index = new_message.index
+            message.participant = new_message.participant
+            message.candidates = new_message.candidates
+
+            if(!silent)
+                $currentChat.messages.push(message)
+
             $currentChat.last_interaction = Date.now()
             $currentChat = $currentChat;
+            $currentChat.messages = $currentChat.messages;
         }
-        return result_id
     }
 
-    async function addCandidate(candidate: ICandidate, stream: boolean = false){
+    async function addCandidate(candidate: ICandidate, silent: boolean = false){
         let last_message: IMessage = $currentChat.messages.at(-1)
         if( last_message.participant > -1 ){
-            let success: boolean = await Server.request( "/add_candidate", {
+            const new_candidate = await Server.request( "/add_candidate", {
                 message: last_message,
                 candidate: candidate
             })
-            if( success ){
-                if(!stream){
+            console.log(`Added candidate: %o`, new_candidate)
+            if( candidate ){
+                candidate.id = new_candidate.id
+                if(!silent){
                     last_message.candidates.push(candidate)
                     last_message.index = last_message.candidates.length-1;
                 }
@@ -283,10 +268,8 @@
                     message: last_message,
                     index: last_message.index
                 })
-                return true;
             }
         }
-        return false
     }
 
     function startStream(swipe = false) : ICandidate{
@@ -369,18 +352,18 @@
         }
     }
 
-    function finishStream(candidate: ICandidate, swipe: boolean = false){
+    async function finishStream(candidate: ICandidate, swipe: boolean = false){
         candidate.timer = new Date().getTime() - requestTime;
         candidate.text = Format.regexReplace(candidate.text, ["on_reply"], $currentSettingsMain.formatting.replace )
         candidate.text = Format.parseMacros(candidate.text, $currentChat)
         if(swipe){
-            addCandidate(candidate, true)
+            await addCandidate(candidate, true)
         }else{
             const last_message: IMessage = $currentChat.messages.at(-1)
             last_message.timestamp = candidate.timestamp
-            addMessage(last_message)
+            await addMessage(last_message, true)
         }
-        console.debug( "Received stream: %o", candidate )
+        console.debug( "Received stream" )
         document.dispatchEvent(new CustomEvent("autoscroll"))
     }
 
@@ -391,16 +374,26 @@
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
             if( last.candidates.length > 1 ){
                 let index = $currentChat.messages.at(-1).index;
-                index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
-                $currentChat.messages.at(-1).candidates.splice( index, 1 )
-                index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
-                $currentChat.messages.at(-1).index = index;
-                $currentChat = $currentChat;
-                await generateMessage(true);
+                const success: boolean = await Server.request("/delete_candidate", {
+                    id: last.candidates[index].id
+                })
+                if( success ){
+                    index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
+                    $currentChat.messages.at(-1).candidates.splice( index, 1 )
+                    index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
+                    $currentChat.messages.at(-1).index = index;
+                    $currentChat = $currentChat;
+                    await generateMessage(true);
+                }
             }else{
-                $currentChat.messages.pop()
-                $currentChat = $currentChat;
-                await generateMessage(false);
+                const success: boolean = await Server.request("/delete_messages", {
+                    ids: [ last.id ]
+                })
+                if( success ){
+                    $currentChat.messages.pop()
+                    $currentChat = $currentChat;
+                    await generateMessage(false);
+                }
             }
         }else{
             await generateMessage(false);
@@ -426,7 +419,12 @@
         let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
         if( new_title.trim() ){
             $currentChat.title = new_title
-            // Server.request( "/save_chat", { chat: $currentChat, character: $currentCharacter } )
+            const success = await Server.request("/update_chat", { chat: $currentChat })
+            if( success ){
+                await Dialog.alert("OgreAI", "Chat title updated!")
+            }else{
+                await Dialog.alert("OgreAI", "Failed to update chat title!")
+            }
         }
     }
 
@@ -467,7 +465,10 @@
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
-                    <Message id={i} generateSwipe={()=>generateMessage(true)}/>
+                    <Message
+                        id={i}
+                        swipeAction={()=>generateMessage(true)}
+                    />
                 {/each}
             {/if}
             </div>
@@ -526,7 +527,7 @@
                 {#if $busy}
                     <Loading/>
                 {:else}
-                    <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
+                    <button class="normal side send" class:disabled={!userMessage} disabled={!userMessage} on:click={SendMessage}>{@html SVG.send}</button>
                 {/if}
             </div>
 

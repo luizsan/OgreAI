@@ -24,6 +24,7 @@
     import * as Theme from '@/modules/Theme';
     import * as Server from '@/Server';
     import Home from './Home.svelte';
+    import Screen from '@/components/Screen.svelte';
 
     function initializeMarked(){
         const quotePattern = /(&quot;|")([^"]+?)(\1)/gi
@@ -80,7 +81,10 @@
 
         {#if $fetching}
             <div class="fullscreen center loading" transition:fade={{duration:100}}>
+                <Screen fullscreen={true}/>
+                <div style="z-index: 2000">
                 <Loading width={48} height={48}/>
+                </div>
             </div>
         {/if}
 
@@ -99,11 +103,10 @@
     </div>
 {/if}
 
-
-
 <style>
     .loading{
         gap: 8px;
         flex-direction: column;
+        z-index: 1000;
     }
 </style>

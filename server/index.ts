@@ -29,6 +29,7 @@ import Settings from "./lib/settings.ts"
 import Lorebook from "./lib/lorebook.ts"
 
 import type {
+    ICandidate,
     IChat,
     IError,
     IGenerationData,
@@ -253,7 +254,13 @@ app.post("/get_message_tokens", parser, function(request: express.Request, respo
 })
 
 app.post("/new_chat", parser, function(request: express.Request, response: express.Response){
-    const chat = Chat.Create(request.body.character)
+    const chat: IChat = Chat.New(request.body.character)
+    response.send(chat)
+})
+
+app.post("/create_chat", parser, function(request: express.Request, response: express.Response){
+    const name: string = path.parse(request.body.character.temp.filepath).name
+    const chat: IChat = Chat.Create(name, request.body.chat, true)
     response.send(chat)
 })
 
@@ -274,18 +281,18 @@ app.post("/update_chat", parser, function(request: express.Request, response: ex
 })
 
 app.post("/duplicate_chat", parser, function(request: express.Request, response: express.Response){
-    const chat_id: number = Chat.Duplicate(request.body.chat, request.body.title)
+    const chat_id: number = Chat.Duplicate(request.body.chat, request.body.title, request.body.branch ?? undefined)
     response.send(chat_id)
 })
 
 app.post("/add_message", parser, function(request: express.Request, response: express.Responseddd){
-    const id: number = Chat.AddMessage(request.body.chat.id, request.body.message)
-    response.send(id)
+    const msg: IMessage = Chat.AddMessage(request.body.chat.id, request.body.message)
+    response.send(msg)
 })
 
 app.post("/add_candidate", parser, function(request: express.Request, response: express.Response){
-    const success: boolean = Chat.AddCandidate(request.body.message.id, request.body.candidate)
-    response.send(success)
+    const candidate: ICandidate = Chat.AddCandidate(request.body.message.id, request.body.candidate)
+    response.send(candidate)
 })
 
 app.post("/load_message", parser, function(request: express.Request, response: express.Response){
