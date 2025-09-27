@@ -69,6 +69,12 @@
         $deleteList = [];
     }
 
+    function ClampIndex(message: IMessage){
+        const index = message.index
+        return Math.min(Math.max(index, 0), message.candidates.length-1 );
+    }
+
+
     async function ConfirmDeleteMessages(){
         if($deleteList.length > 0){
             const ok: boolean = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${$deleteList.length} message(s)?`);
@@ -370,18 +376,19 @@
     async function RegenerateMessage(){
         if( lockinput ) return;
         showMenu = false;
+        $busy = true;
         let last = $currentChat.messages.at(-1)
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
             if( last.candidates.length > 1 ){
-                let index = $currentChat.messages.at(-1).index;
+                let index = last.index;
                 const success: boolean = await Server.request("/delete_candidate", {
                     id: last.candidates[index].id
                 })
                 if( success ){
-                    index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
-                    $currentChat.messages.at(-1).candidates.splice( index, 1 )
-                    index = Math.min(Math.max(index, 0), $currentChat.messages.at(-1).candidates.length-1 );
-                    $currentChat.messages.at(-1).index = index;
+                    index = ClampIndex(last);
+                    last.candidates.splice( index, 1 )
+                    index = ClampIndex(last);
+                    last.index = index;
                     $currentChat = $currentChat;
                     await generateMessage(true);
                 }
@@ -398,6 +405,7 @@
         }else{
             await generateMessage(false);
         }
+        $busy = false;
     }
 
     async function ChatHistory(state : boolean){

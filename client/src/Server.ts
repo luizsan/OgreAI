@@ -251,7 +251,7 @@ export async function addToRecentlyChatted(character: ICharacter): Promise<void>
     await request("/save_main_settings", {data: currentSettingsMain})
 }
 
-export async function branchChat(id: number): Promise<number|undefined>{
+export async function branchChat(id: number, title: string): Promise<number|undefined>{
     const currentChat: IChat = get( State.currentChat )
     const branchChat: IChat = JSON.parse( JSON.stringify( currentChat ))
     branchChat.messages = branchChat.messages.slice(0, id + 1)
@@ -261,7 +261,7 @@ export async function branchChat(id: number): Promise<number|undefined>{
     last.index = 0
     return await request("/duplicate_chat", {
         chat: branchChat,
-        title: `Branch of ${currentChat.title} (${focused.id})`,
+        title: title || `Branch of ${currentChat.title}`,
         branch: focused
     })
 }
@@ -297,7 +297,9 @@ export async function sendMessage(content: string): Promise<boolean>{
             message: new_message
         })
         if(added && added.id){
-            new_message.id = added.id
+            let last_index = currentChat.messages.length - 1
+            currentChat.messages[last_index] = added
+            State.currentChat.set( currentChat )
             success = true;
         }
     }
@@ -335,9 +337,10 @@ export async function deleteCandidate(id: number, index: number): Promise<boolea
     }else{
         currentChat.messages[id].index = Math.max(0, Math.min( index, num_candidates-1 ))
     }
+    const last_id = currentChat.messages.length - 1
     await request("/swipe_message", {
-        message: currentChat.messages[id],
-        index: currentChat.messages[id].index
+        message: currentChat.messages[last_id],
+        index: currentChat.messages[last_id].index
     })
     State.currentChat.set( currentChat )
     return success

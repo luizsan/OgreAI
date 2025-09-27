@@ -30,7 +30,6 @@
 
     export let id : number = -1
     export let swipeAction = () => {}
-    export let deleteAction = () => {}
 
     // basic
     $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
@@ -179,14 +178,6 @@
 
     }
 
-    export async function DeleteAction(){
-        if($currentChat.messages[id].candidates.length > 1){
-            await DeleteCandidate();
-        }else{
-            await DeleteMessage();
-        }
-    }
-
     export async function DeleteMessage(){
         if( first ){
             return;
@@ -205,8 +196,8 @@
         SetPostActions(false)
         const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
         if( ok ){
-            await Server.deleteCandidate(id, index)
-            if( last ){
+            const success: boolean = await Server.deleteCandidate(id, index)
+            if( success && last ){
                 document.dispatchEvent(new CustomEvent("autoscroll"))
             }
         }
@@ -216,7 +207,7 @@
         const new_name = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
         if(new_name !== null){
             $fetching = true;
-            const result: number | undefined = await Server.branchChat(id)
+            const result: number | undefined = await Server.branchChat(id, new_name)
             if( result ){
                 await Server.ListChats( $currentCharacter, true )
                 await Dialog.alert("OgreAI", "Successfully branched chat!")
@@ -325,7 +316,7 @@
 
     <div class="content">
         <div class="section wide horizontal">
-            <div class="author">
+            <div class="author" class:blocked={!msg?.id || !current?.id}>
                 <span class="name {authorType}">{author}</span>
 
                 {#if prefs_show_datetime}
@@ -383,7 +374,7 @@
                             <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
                             {#if id > 0}
                                 <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
-                                <button class="delete danger" title="Delete message" on:click={deleteAction}>{@html SVG.trashcan}</button>
+                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html SVG.trashcan}</button>
                             {/if}
                         </div>
                     {/if}
