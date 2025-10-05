@@ -25,12 +25,11 @@ export default class Mistral extends API{
             title: "Model",
             description: "ID of the model to use.",
             type: "select", default: "mistral-small", choices: [
+                "magistral-medium-latest",
+                "magistral-small-latest",
                 "mistral-large-latest",
                 "mistral-medium-latest",
-                "mistral-small-latest",
-                "open-mixtral-8x22b",
-                "open-mixtral-8x7b",
-                "open-mistral-7b",
+                "mistral-small-latest"
             ]
         },
 

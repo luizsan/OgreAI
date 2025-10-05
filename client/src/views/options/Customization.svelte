@@ -30,7 +30,7 @@
 
 <div class="content wide">
 
-    <div class="section">
+    <div class="section hidden">
         <Heading title="Theme" description="Define your preferred color scheme."/>
         <div class="section" on:change={() => Theme.setTheme($currentTheme)}>
             <Segmented

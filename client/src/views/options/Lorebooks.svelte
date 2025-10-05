@@ -10,7 +10,6 @@
         currentCharacter,
         currentLorebooks,
         selectedLorebooks,
-        currentSettingsMain
     } from "@/State"
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server";
@@ -23,7 +22,7 @@
     let selectedOnly : boolean = false;
     let loading : boolean = false;
 
-    function createLorebook(){
+    function createLorebook(): ILorebook{
         return {
             name: "",
             token_budget: 100,
@@ -36,14 +35,17 @@
     async function addLorebook(){
         let name = await Dialog.prompt("OgreAI", "Choose a name for your new lorebook:", "New lorebook")
         if( name ){
-            let book : any = createLorebook()
+            let book: ILorebook = createLorebook()
             book.name = name
-            book.temp = { filepath: `${Format.toFilename(book.name)}-${new Date().getTime()}.json` }
-            let success = await Server.request("/save_lorebook", { book: book })
+            book.temp = { toggled: false }
+            let success = await Server.request("/save_lorebook", { book: book, overwrite: false })
             if( success ){
+                console.log("?")
                 $currentLorebooks.push(book)
                 $currentLorebooks = $currentLorebooks
                 editingBook = book
+            }else{
+                await Dialog.alert("OgreAI", "Failed to create new lorebook. The lorebook already exists, or some other error occurred.")
             }
         }
     }
@@ -80,7 +82,6 @@
             let result = await Server.request("/delete_lorebook", { book: book })
             if( result ){
                 await loadLorebooks();
-                await saveGlobals();
                 closeLorebook();
             }
         }
@@ -100,12 +101,7 @@
 
     async function saveBook(){
         await tick()
-        await Server.request("/save_lorebook", { book: editingBook })
-    }
-
-    async function saveGlobals(){
-        updateSelected()
-        await Server.request("/save_main_settings", { data: $currentSettingsMain })
+        await Server.request("/save_lorebook", { book: editingBook, overwrite: true })
     }
 
     function sortLorebooks(a,b){
@@ -117,18 +113,14 @@
     }
 
     function initializeSelected(){
-        $selectedLorebooks = $currentSettingsMain.books.map((entry: string) => {
-            return $currentLorebooks.find(book => book?.temp?.filepath == entry)
+        $selectedLorebooks = $currentLorebooks.filter((book: ILorebook) => {
+            return book.temp?.toggled
         })
-        $selectedLorebooks = $selectedLorebooks.filter(item => item)
     }
 
     function updateSelected(){
-        const updated: Array<string> = $selectedLorebooks.map((book : any) => book?.temp?.filepath ?? undefined)
         $selectedLorebooks = $selectedLorebooks
-        $currentSettingsMain.books = updated.filter(item => item) as Array<string>
-        $currentSettingsMain = $currentSettingsMain;
-        return updated
+        searchResults = searchResults
     }
 
     function exportLorebook(book){
@@ -154,16 +146,13 @@
         })
     }
 
-    function toggleLorebook(book: ILorebook){
-        if( $selectedLorebooks.includes(book) ){
-            $selectedLorebooks = $selectedLorebooks.filter(item => item !== book)
-        } else {
-            $selectedLorebooks.push(book)
+    async function toggleLorebook(book: ILorebook){
+        const state: boolean = !(book.temp?.toggled)
+        const success = await Server.request("/toggle_lorebook", { book: book, state: state })
+        if( success ){
+            book.temp.toggled = state
         }
         updateSelected()
-        console.log($selectedLorebooks)
-        console.log($currentSettingsMain.books)
-        Server.request("/save_main_settings", { data: $currentSettingsMain })
     }
 
     onMount(() => {
@@ -200,29 +189,13 @@
             </div>
             <Book bind:book={editingBook}/>
         </div>
+
     {:else}
-        <!-- <div class="section" on:change={saveGlobals}>
-            <Heading
-                title="Global Lorebooks"
-                description={`These lorebooks are enabled globally for all chats and will be inserted in the prompt as 'World Info'.`}
-            />
-
-            <Tags
-                bind:choices={$currentLorebooks}
-                bind:selected={selectedBooks}
-                placeholder="Add lorebooks..."
-                notFound="No lorebooks found matching search criteria"
-                display={(v) => v.name}
-                item={(v) => v.temp?.filepath || v.name }
-            />
-        </div>
-
-        <hr class="component"/> -->
 
         <div class="section header">
+            <Heading title="Collection" description="Create, edit and delete your globally installed lorebooks. Selected lorebooks are enabled for all chats and will be inserted in the prompt as 'World Info'."/>
             <div class="section horizontal wide">
                 <div class="wide">
-                    <Heading title="Collection" description="Create, edit and delete your globally installed lorebooks. Selected lorebooks are enabled for all chats and will be inserted in the prompt as 'World Info'."/>
                 </div>
                 <div class="buttons grow">
                     <button class="component" on:click={importLorebook}>{@html SVG.download} Import</button>
@@ -255,7 +228,7 @@
                 {#if searchResults && searchResults.length > 0}
                     <div class="books">
                         {#each searchResults as book}
-                            {@const selected = $selectedLorebooks.includes(book)}
+                            {@const selected = book.temp?.toggled}
 
                             {#if !selectedOnly || (selectedOnly && selected)}
                             <div class="item">

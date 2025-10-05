@@ -1,5 +1,5 @@
 *{
-    scrollbar-width: thin;
+    scrollbar-width: auto;
     scrollbar-color: var( --accent-color-normal ) transparent;
 }
 

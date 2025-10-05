@@ -3,10 +3,9 @@
     import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, search, localServer } from "@/State";
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
-    import Toggle from "@/components/Toggle.svelte";
+    import Sidebar from "@/components/Sidebar.svelte";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
-    import { clickOutside } from "@/utils/ClickOutside";
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
@@ -50,6 +49,14 @@
                 recent_list.reverse()
                 return recent_list
             }
+        },
+        chat_count: {
+            label: "Chat count",
+            order: (list : Array<ICharacter>) => {
+                let count_list: Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_count > 0)
+                count_list.sort((a,b) => b.temp.chat_count - a.temp.chat_count)
+                return count_list
+            }
         }
     }
 
@@ -59,7 +66,6 @@
     let self : HTMLElement;
     let exclusion : Array<HTMLElement>; // "click outside" excluded elements
 
-    let pinned = false;
     let separator : HTMLElement; // threshold to show "Back to top" button
     let scrolled = 0; // amount of pixels scrolled so far
 
@@ -100,7 +106,7 @@
     }
 
     function Close(){
-        if( pinned || $editing ){
+        if( $editing ){
             return
         }
         $sectionCharacters = false;
@@ -170,13 +176,11 @@
 
 {#if $sectionCharacters}
 
-<div class="main" class:active={$sectionCharacters} class:hidden={!$sectionCharacters} use:clickOutside={{exclude: exclusion}} on:clickout={Close}>
+<Sidebar width={420}>
+
+<div class="main" class:active={$sectionCharacters}>
 
     <div class="container" bind:this={self} on:scroll={refreshScroll}>
-
-        <div class="section horizontal" style="justify-content: end">
-            <Toggle bind:value={pinned} size={20}>{@html SVG.pin}</Toggle>
-        </div>
 
         <div class="section">
             <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.plus}Create Character</button>
@@ -217,7 +221,7 @@
         <div class="section characters">
             {#if searchResults && searchResults.length > 0}
                 {#each searchResults as char, i}
-                    <Character id={i} character={char} label={true} />
+                    <Character id={i} character={char} label={true} sort={currentSortMode}/>
                 {/each}
             {:else}
                 <p class="unavailable deselect">No characters available</p>
@@ -230,7 +234,10 @@
     {/if}
 
 </div>
+</Sidebar>
 
+{:else}
+    <div/>
 {/if}
 
 
@@ -242,31 +249,26 @@
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
-        background: hsl(210, 3%, 15%);
+        background: var( --default-bg-color);
         bottom: 0px;
         box-shadow: 3px 0px transparent;
-        top: var( --header-size );
-        left: 0px;
-
-        position: fixed;
-        width: var( --side-width );
+        inset: 0px;
+        overflow-y: auto;
+        height: 100%;
+        position: relative;
         max-width: 100%;
-
-        transition: translate 0.2s ease;
-        translate: -100% 0 0;
-        z-index: 1;
     }
 
     :global(body.light) .main{
         background: hsl(0, 0%, 90%);
     }
 
-
     .container{
+        background: var( --sub-bg-color );
         position: relative;
         width: 100%;
         overflow-y: scroll;
-        padding: 16px 20px;
+        padding: 20px 20px;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -318,11 +320,7 @@
         display: flex;
         flex-direction: row;
         gap: 8px;
-        box-shadow: 0px 5px 20px 15px hsla(210, 3%, 15%, 1);
-    }
-
-    :global(body.light) .back{
-        box-shadow: 0px 5px 20px 15px hsla(0, 3%, 85%, 1);
+        box-shadow: 0px 5px 30px 30px var(--sub-bg-color);
     }
 
     .back:after{

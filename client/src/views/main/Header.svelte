@@ -5,7 +5,6 @@
     function ToggleSidebar(){
         $sectionCharacters = !$sectionCharacters
         if( $sectionCharacters && $sectionSettings ){
-            $sectionSettings = false
         }else{
             $editing = null
         }
@@ -18,7 +17,6 @@
         }
 
         if( $sectionSettings && $sectionCharacters ){
-            $sectionCharacters = false;
             $editing = null;
         }
     }
@@ -40,8 +38,7 @@
 <style>
     header{
         align-items: center;
-        background: hsl(0, 0%, 10%);
-        border-bottom: 1px solid hsl(0, 0%, 33%);
+        background: var( --sub-bg-color );
         color: hsl(0, 0%, 75%);
         display: grid;
         grid-template-columns: 48px auto 48px;

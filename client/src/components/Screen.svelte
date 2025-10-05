@@ -1,22 +1,15 @@
 <script lang="ts">
-    export let fullscreen: boolean = false
-    export let width: number = 480
-    export let right: boolean = false
+    export let order = 0
+
+    $: sortOrder = 50 + order
 </script>
 
-{#if fullscreen}
-    <div class="container full">
-        <div class="main">
-            <slot></slot>
-        </div>
+<div class="container full" style="z-index: {sortOrder}">
+    <div class="main">
+        <slot></slot>
     </div>
-{:else}
-    <div class="container small" style="max-width: {width}px" class:right={right}>
-        <div class="main">
-            <slot></slot>
-        </div>
-    </div>
-{/if}
+</div>
+
 
 <style>
     .container{
@@ -29,26 +22,9 @@
         position: absolute;
         overflow-x: hidden;
         right: 0px;
-        overflow-y: scroll;
-        top: var( --header-size );
-        z-index: 50;
+        top: 0px;
         width: 100%;
-    }
-
-    .full{
-        left: 0px;
-        right: 0px;
-    }
-
-    .small{
-        max-width: var( --self-width );
-        left: 0px;
-        right: auto;
-    }
-
-    .small.right{
-        left: auto;
-        right: 0px;
+        overflow-y: scroll;
     }
 
     .container .main{
@@ -57,10 +33,6 @@
         flex-direction: column;
         height: 100%;
         width: 100%;
-    }
-
-    .container.full .main{
         max-width: var( --chat-width );
-        width: 100%;
     }
 </style>

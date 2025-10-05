@@ -38,6 +38,38 @@ export interface IDatabaseCandidate{
     metadata?: string;
 }
 
+export interface IDatabaseProfile{
+    id: number;
+    title: string;
+    avatar: string;
+    persona: string;
+    customization: string;
+    metadata?: string;
+}
+
+export interface IDatabaseCredentials{
+    id: number;
+    api_mode: string;
+    title: string;
+    endpoint: string;
+    key: string;
+}
+
+export interface IDatabaseLorebook{
+    id: string;
+    content: string;
+    toggled: boolean;
+    metadata?: string;
+}
+
+export interface IDatabaseSettings{
+    api_mode: string;
+    main: string;
+    prompt: string;
+    formatting: string;
+    metadata?: string;
+}
+
 function CreateDatabase(): Database{
     try{
         const database = new Database(path_dir.database, { create: true });

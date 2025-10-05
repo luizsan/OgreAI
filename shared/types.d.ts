@@ -14,8 +14,10 @@ export interface ICharacter{
     data : ICharacterBaseV2;
     metadata : ICharacterMetadata;
     temp : {
+        filename : string;
         filepath : string;
         avatar : string;
+        chat_count? : number,
         tokens?: Record<string, number>;
         filecreated? : number;
         filemodified? : number;

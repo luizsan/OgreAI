@@ -86,17 +86,18 @@
     }
 
     async function SendMessage(){
-        if( userMessage.trim().length <= 0)
-            return;
         $busy = true;
-        let content: string = userMessage;
-        userMessage = "";
-        const success = await Server.sendMessage(content);
-        if( success ){
-            await tick()
-            resize( messageBox );
-            await generateMessage()
+        if( userMessage.trim().length > 0 ){
+            let content: string = userMessage;
+            const success = await Server.sendMessage(content);
+            if( success ){
+                await tick()
+            }
         }
+        userMessage = "";
+        await tick();
+        resize( messageBox );
+        await generateMessage()
         $busy = false;
     }
 
@@ -163,12 +164,15 @@
         document.dispatchEvent(new CustomEvent("autoscroll"))
         await Server.addToRecentlyChatted($currentCharacter)
         await cacheMessageTokens()
+        // target candidate only if streaming
+        // moved up due to scope issues when aborting
+        let candidate: ICandidate = null
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough(new TextDecoderStream());
                 const reader = stream.getReader()
                 console.debug( "Awaiting stream..." )
-                let candidate = startStream(swipe)
+                candidate = startStream(swipe)
                 async function processText({ done, value: input }){
                     if(done || (input && input.done)){
                         await finishStream(candidate, swipe)
@@ -185,14 +189,17 @@
                     }else{
                         await receiveMessage( data )
                     }
-                    // console.debug("Received message: %o", data)
+                    console.debug("Received message: %o", data)
                 }).catch(error => {
                     console.error(error)
                 })
             }
-        }).catch(error => {
-            if( error instanceof DOMException ){
-                console.log("Message aborted.")
+        }).catch(async error => {
+            if( error.name === "AbortError" ){
+                console.warn("Message aborted.")
+                if(streaming){
+                    await finishStream(candidate, swipe)
+                }
             }else{
                 console.error(error)
             }
@@ -436,7 +443,7 @@
         }
     }
 
-    function Shortcuts(event : KeyboardEvent){
+    async function Shortcuts(event : KeyboardEvent){
         if( event.key === "Escape"){
             abortMessage()
         }
@@ -455,7 +462,7 @@
         const condition = $currentPreferences["enter_sends_message"] ?? false
         if(event.key === "Enter" && (event.shiftKey !== condition)){
             messageBox.blur()
-            SendMessage();
+            await SendMessage();
             event.preventDefault()
         }
     }
@@ -468,17 +475,17 @@
 <div class="container" inert={get(Dialog.data) !== null}>
     <Background/>
 
-    <div class="chat">
+    <div class="main">
         {#if !$history}
             <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
-            {#if $currentChat != null}
-                {#each $currentChat.messages as _, i}
-                    <Message
-                        id={i}
-                        swipeAction={()=>generateMessage(true)}
-                    />
-                {/each}
-            {/if}
+                {#if $currentChat != null}
+                    {#each $currentChat.messages as _, i}
+                        <Message
+                            id={i}
+                            swipeAction={()=>generateMessage(true)}
+                        />
+                    {/each}
+                {/if}
             </div>
         {:else}
             {#if $chatList != null && $chatList.length > 0}
@@ -535,7 +542,7 @@
                 {#if $busy}
                     <Loading/>
                 {:else}
-                    <button class="normal side send" class:disabled={!userMessage} disabled={!userMessage} on:click={SendMessage}>{@html SVG.send}</button>
+                    <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
                 {/if}
             </div>
 
@@ -580,35 +587,44 @@
     }
 
     * {
-        scrollbar-color: #80808020 transparent;
+        scrollbar-color: hsla(0, 0%, 50%, 0.05) transparent;
     }
 
     .container{
         align-items: stretch;
         display: flex;
         flex-direction: column;
-        inset: var( --header-size ) 0px 0px 0px;
         overflow: hidden;
-        position: fixed;
+        position: relative;
+        inset: 0px;
+        min-width: 480px;
+        width: 100%;
+        background: var( --default-bg-color );
     }
 
-    .chat{
+    :global(body.portrait) .container{
+        position:absolute;
+    }
+
+    .main{
         align-self: center;
-        display: grid;
-        grid-template-rows: auto min-content;
-        height: 100%;
-        max-width: var( --chat-width );
+        display: flex;
+        position: absolute;
         width: 100%;
-        position: relative;
+        height: 100%;
+        top: 0px;
+        bottom: 0px;
+        max-width: var( --chat-width );
     }
 
     .messages{
-        display:flex;
+        display: flex;
         flex-direction: column;
         box-sizing: border-box;
+        width: 100%;
         margin: 0px var(--chat-padding);
-        overflow-x: hidden;
         overflow-y: scroll;
+        margin-bottom: 75px;
         padding: 8px 0px 4px 0px;
     }
 
@@ -637,11 +653,13 @@
         grid-template-columns: 48px auto 48px;
         height: fit-content;
         justify-items: center;
-        margin: 0px var(--chat-padding);
-        margin-bottom: 32px;
         padding: 0px;
-        position: relative;
+        position: absolute;
         resize: none;
+        min-height: 40px;
+        left: var( --chat-padding );
+        right: var( --chat-padding );
+        bottom: 32px;
     }
 
     .side{
@@ -766,8 +784,10 @@
     }
 
     .bottom{
-        height: 70px;
+        height: 74px;
+        bottom: 0px;
         width: 100%;
+        position: absolute;
         display: flex;
         flex-direction: row;
         align-items: center;

@@ -1,6 +1,11 @@
 <script lang="ts">
-    import { localServer, currentCharacter, currentPreferences } from "@/State";
+    import {
+        localServer,
+        currentCharacter,
+        currentPreferences
+    } from "@/State";
 
+    $: enabled = !!($currentPreferences["chat_background"]);
     $: vertical = $currentPreferences["chat_background"] === "vertical";
     $: coverage = ($currentPreferences["background_coverage"] ?? 50);
     $: opacity = ($currentPreferences["background_opacity"] ?? 10) * 0.01;
@@ -16,7 +21,7 @@
     const opacity_ratio : number = 1.0
 </script>
 
-{#if $currentPreferences["chat_background"]}
+{#if enabled}
 
 <div class="background" style={`
     --image: url(${backgroundPath});
@@ -33,9 +38,7 @@
 <style>
     .background{
         position: absolute;
-        top: 0px;
-        left: 0px;
-        max-width: 100%;
+        inset: 0px;
         width: var( --width );
         height: var( --height );
         background-image: var( --image );

@@ -74,7 +74,7 @@ export async function initializeData(){
         request( "/get_api_modes" ).then(response => State.availableAPIModes.set(response)),
         request( "/get_profile" ).then(response => State.currentProfile.set(response)),
         request( "/get_main_settings" ).then(response => State.currentSettingsMain.set(response)),
-        request( "/get_characters" ).then(response => State.characterList.set(response)),
+        getCharacterList(),
     ]
 
     for( let i = 0; i < startup_requests.length; i++ ){
@@ -85,6 +85,9 @@ export async function initializeData(){
             console.error(error)
         });
     }
+
+    const chatCount = await request( "/count_chats", {} )
+    State.chatCount.set( chatCount )
 
     getStatus()
     let favs = JSON.parse(window.localStorage.getItem("favorites"))
@@ -130,12 +133,15 @@ export async function getAPIStatus(){
 }
 
 export async function getCharacterList(){
-    await request("/get_characters").then( async response => {
-        if( response ){
-            response.sort((a : ICharacter, b : ICharacter) => { return b.metadata.created - a.metadata.created });
-            State.characterList.set( response )
-        }
+    let list: Array<ICharacter> = await request("/get_characters")
+    const count: Record<string, number> = await request("/count_chats", {})
+    list = list.sort((a : ICharacter, b : ICharacter) => { return b.metadata.created - a.metadata.created });
+    list.forEach((character : ICharacter) => {
+        const id = character.temp.filename
+        character.temp.chat_count = count[id] || 0
     })
+    console.log(`Retrieved character list: %o`, list)
+    State.characterList.set( list )
 }
 
 export async function getCharacter(filepath : String){

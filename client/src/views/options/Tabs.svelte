@@ -1,14 +1,14 @@
 <script lang="ts">
     import { sectionSettings, currentSettingsMain, currentSettingsAPI, tabSettings } from "@/State";
-    import Toggle from "@/components/Toggle.svelte";
-    import Screen from "@/components/Screen.svelte";
-    import Footer from "@/components/Footer.svelte";
-    import Settings from "./Settings.svelte";
+    import User from "./User.svelte";
     import Prompt from "./Prompt.svelte";
+    import Server from "./Server.svelte";
+    import Settings from "./Settings.svelte";
     import Lorebooks from "./Lorebooks.svelte";
     import Formatting from "./Formatting.svelte";
-    import User from "./User.svelte";
     import Customization from "./Customization.svelte";
+    import Footer from "@/components/Footer.svelte";
+    import Sidebar from "@/components/Sidebar.svelte";
     import * as SVG from "@/svg/Common.svelte";
     import { onMount } from "svelte";
 
@@ -42,21 +42,19 @@
             title: "Customization",
             description: "Customize interface and visual preferences",
             icon: SVG.palette, disabled: false
+        },
+        server: {
+            title: "Server",
+            description: "Configure the server and user database.",
+            icon: SVG.server, disabled: false
         }
     }
-
-    let sidebar: boolean = window.localStorage.getItem("fullscreen_settings") == "true"
 
     onMount(() =>{
         if(!$tabSettings){
             $tabSettings = Object.keys(tab_items)[0]
         }
     })
-
-    function setSidebar(b){
-        window.localStorage.setItem("fullscreen_settings", b)
-        sidebar = b
-    }
 
     function setTab(s : string = ""){
         $tabSettings = s;
@@ -65,64 +63,65 @@
 </script>
 
 {#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
-    <Screen fullscreen={!sidebar} width={640} right={true}>
+    <Sidebar side="right">
 
-        <div class="content">
+        <div class="columns">
 
-            <div class="top section">
-                <div class="horizontal wide section">
-                    <div class="section grow">
-                        <h1>{tab_items[$tabSettings].title}</h1>
-                        <p class="explanation">{tab_items[$tabSettings].description}</p>
+            <div class="side section wrap">
+                {#each Object.keys(tab_items) as key}
+                    {#if !tab_items[key].disabled}
+                        <button
+                            class="tab accent"
+                            class:active={key == $tabSettings}
+                            class:disabled={key == $tabSettings}
+                            disabled={tab_items[key].disabled || key == $tabSettings}
+                            on:click={() => setTab(key)}>{@html tab_items[key].icon}
+                        </button>
+                    {/if}
+                {/each}
+            </div>
+
+            <div class="content">
+                <div class="top section">
+                    <div class="horizontal wide section">
+                        <div class="section grow">
+                            <h1>{tab_items[$tabSettings].title}</h1>
+                            <p class="explanation">{tab_items[$tabSettings].description}</p>
+                        </div>
                     </div>
-                    <div class="center">
-                        <Toggle bind:value={sidebar} mirror size={20} toggled={setSidebar} title="Toggle sidebar">{@html SVG.sidebar}</Toggle>
-                    </div>
+                    <hr class="component">
                 </div>
-                <hr class="component">
+
+                <div class="mid">
+                    {#if $tabSettings == "settings"}
+                        <Settings/>
+                    {:else if $tabSettings == "prompt"}
+                        <Prompt/>
+                    {:else if $tabSettings == "lorebooks"}
+                        <Lorebooks/>
+                    {:else if $tabSettings == "formatting"}
+                        <Formatting/>
+                    {:else if $tabSettings == "user"}
+                        <User/>
+                    {:else if $tabSettings == "customization"}
+                        <Customization/>
+                    {:else if $tabSettings == "server"}
+                        <Server/>
+                    {:else}
+                        <div/>
+                    {/if}
+                </div>
+
+                <div class="bottom grow">
+                    <Footer/>
+                </div>
             </div>
 
-            <div class="mid">
-                {#if $tabSettings == "settings"}
-                    <Settings/>
-                {:else if $tabSettings == "prompt"}
-                    <Prompt/>
-                {:else if $tabSettings == "lorebooks"}
-                    <Lorebooks/>
-                {:else if $tabSettings == "formatting"}
-                    <Formatting/>
-                {:else if $tabSettings == "user"}
-                    <User/>
-                {:else if $tabSettings == "customization"}
-                    <Customization/>
-                {:else}
-                    <Settings/>
-                {/if}
-            </div>
-
-            <div class="bottom grow">
-                <Footer/>
-            </div>
         </div>
 
-
-        <div class="side section wrap">
-            <div class="dim disabled"/>
-
-            {#each Object.keys(tab_items) as key}
-                {#if !tab_items[key].disabled}
-                    <button
-                        class="tab accent"
-                        class:active={key == $tabSettings}
-                        class:disabled={key == $tabSettings}
-                        disabled={tab_items[key].disabled || key == $tabSettings}
-                        on:click={() => setTab(key)}>{@html tab_items[key].icon}
-                    </button>
-                {/if}
-            {/each}
-        </div>
-
-    </Screen>
+    </Sidebar>
+{:else}
+    <div/>
 {/if}
 
 <style>
@@ -133,25 +132,27 @@
         font-size: 40px;
     }
 
-    .dim{
-        position: absolute;
-        right: 0px;
-        width: auto;
-        top: 0px;
-        height: 100vh;
-        border: 1px solid gray;
-        background: none;
-        opacity: 0.05;
-        z-index: -1;
+    .columns{
+        display: absolute;
+        inset: 0px;
+        padding: 0px;
+        margin: 0px;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    :global(body.portrait) .columns{
+        background: var( --default-bg-color );
     }
 
     .tab{
         width: 100%;
-        height: 56px;
+        height: 52px;
         padding: 0px;
         display: flex;
-        gap: 0px;
-        flex-direction: row;
+        border-radius: 5px 0px 0px 5px;
         align-items: center;
         justify-content: center;
     }
@@ -165,22 +166,30 @@
         color: var( --component-color-hover );
     }
 
+    .tab.disabled{
+        background: var( --sub-bg-color );
+    }
+
     .side{
         top: var( --header-size );
         gap: 0px;
         padding: 16px 0px;
-        width: 64px;
+        width: 56px;
         position: fixed;
     }
 
     .content{
-        padding: 24px 24px 0px 88px;
+        background: var( --sub-bg-color );
+        padding: 24px;
         display: flex;
         flex-direction: column;
-        position: relative;
-        height: fit-content;
         gap: 32px;
-        height: 100vh;
+        position: absolute;
+        left: 56px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+        overflow-y: scroll;
     }
 
     .bottom{

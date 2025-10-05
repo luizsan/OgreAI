@@ -15,6 +15,8 @@
         currentTheme,
         currentPreferences,
         currentChat,
+        sectionCharacters,
+        sectionSettings,
         fetching,
     } from '@/State';
 
@@ -73,15 +75,22 @@
 
 {#if $connected }
     <div class="fullscreen" style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
-        <Chat/>
-        <Browse/>
-        <Editing/>
-        <Options/>
+        <div class="main">
+            <div class="sidebar" class:open={$sectionCharacters}>
+                <Browse/>
+            </div>
+            <div class="middle">
+                <Chat/>
+                <Editing/>
+            </div>
+            <div class="sidebar" class:open={$sectionSettings}>
+                <Options/>
+            </div>
+        </div>
         <Header/>
-
         {#if $fetching}
             <div class="fullscreen center loading" transition:fade={{duration:100}}>
-                <Screen fullscreen={true}/>
+                <Screen/>
                 <div style="z-index: 2000">
                 <Loading width={48} height={48}/>
                 </div>
@@ -108,5 +117,29 @@
         gap: 8px;
         flex-direction: column;
         z-index: 1000;
+    }
+
+    .main{
+        display: grid;
+        position: absolute;
+        top: var( --header-size );
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        justify-content: center;
+        grid-template-columns: auto 1fr auto;
+    }
+
+    .middle{
+        position: relative;
+        inset: 0px;
+        display: flex;
+    }
+
+    .sidebar{
+        height: 100%;
+        min-width: 0px;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 </style>

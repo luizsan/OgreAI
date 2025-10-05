@@ -8,6 +8,7 @@
     export let id : number = -1
     export let character : ICharacter | null = null
     export let label : boolean = false;
+    export let sort : string = "";
 
     let loaded : boolean = false
 
@@ -16,7 +17,6 @@
     $: address = getImageAddress(filepath)
     $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
     $: favorited = $favoritesList.indexOf(filepath) > -1
-
     $: url = `${address}?${character.metadata.modified}`
 
     function getImageAddress(path){
@@ -75,7 +75,17 @@
         {#if label}
             <div class="label">
                 <div class="name normal">{character.data.name}</div>
-                <div class="sub">{filename}</div>
+                 <div class="sub">
+                    {#if sort.startsWith("creation_date")}
+                        {@const time = character.metadata.created || character.temp.filecreated || 0}
+                        {new Date(time).toLocaleString()}
+                    {:else if sort.startsWith("chat_count")}
+                        {character.temp.chat_count || 0} chat(s)
+                    {:else}
+                        {filename}
+                    {/if}
+                </div>
+
             </div>
 
         {/if}

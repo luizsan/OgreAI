@@ -13,11 +13,14 @@ export function updateRatio(){
     document.body.classList.add(target)
 }
 
+// temporarily disabled light theme until it's properly maintainable
 export function loadTheme(){
-    let theme = window.localStorage.getItem("theme")
-    theme = themeList.includes(theme) ? theme : "dark"
-    setTheme( theme )
-    return theme;
+    // let theme = window.localStorage.getItem("theme")
+    // theme = themeList.includes(theme) ? theme : "dark"
+    // setTheme( theme )
+    // return theme;
+    setTheme("dark")
+    return "dark"
 }
 
 export function setTheme(s: string){

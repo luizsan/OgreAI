@@ -288,7 +288,7 @@
 
 
 {#if $editing }
-    <Screen fullscreen={true}>
+    <Screen>
         <div class="top" on:change={SaveCharacter} >
             <div class="section header">
                 <div class="avatar">
@@ -419,7 +419,7 @@
                     />
                     <Book bind:book={$editing.data.character_book}/>
                 {:else}
-                    <div class="empty">This character doesn't have an embedded lorebook. You can create a new one or copy from a local one.</div>
+                    <div class="empty">This character doesn't have an embedded lorebook. You can create a new one or copy from a local pre-installed book.</div>
                 {/if}
 
             </Accordion>
@@ -511,7 +511,7 @@
         flex-direction: column;
         justify-content: start;
         gap: 16px;
-        box-shadow: 0px 20px 20px -20px #00000040;
+        box-shadow: 0px 20px 20px -20px #00000060;
         position: fixed;
         padding: 0px;
         top: var(--header-height);

@@ -5,7 +5,8 @@
     --code-bg-color: hsl(285, 5%, 12%);
 
     --default-font-color: hsl(0, 0%, 85%);
-    --default-bg-color: hsl(210, 3%, 16%);
+    --default-bg-color: hsl(210, 4%, 14%);
+    --sub-bg-color: hsl(210, 8%, 16%);
 
     --accent-color-dark: rgb(34, 75, 71);
     --accent-color-normal: rgb(34, 138, 124);
@@ -27,6 +28,7 @@
 :root .light{
     --default-font-color: hsl(0, 0%, 15%);
     --default-bg-color: hsl(192, 5%, 90%);
+    --sub-bg-color: hsl(210, 3%, 95%);
 
     --component-color-normal: hsl(0, 0%, 25%);
     --component-color-hover: hsl(0, 0%, 33%);

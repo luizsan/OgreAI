@@ -1,4 +1,4 @@
-import type { IChat } from "../../shared/types.d.ts"
+import type { IChat } from "../../shared/types.js"
 
 const KEY_MAP = {
     "main": "base_prompt",

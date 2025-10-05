@@ -1,0 +1,1 @@
+DELETE FROM lorebooks WHERE id = ?

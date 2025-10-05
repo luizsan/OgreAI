@@ -11,7 +11,7 @@ import os from "os";
 import API from "./core/api.ts"
 import Security from "./core/security.ts"
 import * as Config from "./core/config.ts"
-import "./core/database.ts"
+import * as _Database from "./core/database.ts"
 
 // API modules
 import Anthropic from "./api/anthropic.ts"
@@ -22,11 +22,12 @@ import OpenAI from "./api/openai.ts"
 import xAI from "./api/xai.ts"
 
 // data modules
-import Character from "./lib/character.ts"
-import Chat from "./lib/chat.ts"
+import * as Character from "./lib/character.ts"
+import * as Chat from "./lib/chat.ts"
+import * as Prompt from "./lib/prompt.ts"
 import Profile from "./lib/profile.ts"
-import Settings from "./lib/settings.ts"
-import Lorebook from "./lib/lorebook.ts"
+import * as Settings from "./lib/settings.ts"
+import * as Lorebook from "./lib/lorebook.ts"
 
 import type {
     ICandidate,
@@ -111,12 +112,12 @@ app.post("/get_api_prompt", parser, async function(request: express.Request, res
         let prompt: Array<IPromptConfig> = await Config.LoadData(filepath, null)
         if( !prompt ){
             prompt = []
-            Object.keys(Settings.default_prompt_order).forEach((key: string) => {
+            Object.keys(Prompt.default_order).forEach((key: string) => {
                 if( key === "custom" ) return
-                prompt.push({ key: key, ...Settings.default_prompt_order[key] })
+                prompt.push({ key: key, ...Prompt.default_order[key] })
             })
         }
-        Settings.ValidatePrompt(prompt)
+        Prompt.Validate(prompt)
         response.send(prompt)
     }catch(error){
         console.error(error)
@@ -330,8 +331,8 @@ app.post("/delete_chat", parser, function(request: express.Request, response: ex
     response.send( success )
 })
 
-app.get("/new_character", parser, function(request: express.Request, response: express.Response){
-    const character = Character.create()
+app.get("/new_character", parser, function(_request: express.Request, response: express.Response){
+    const character = Character.Create()
     response.send(character)
 })
 
@@ -380,34 +381,70 @@ app.post("/delete_character", parser, function(request: express.Request, respons
 })
 
 app.get("/get_lorebooks", parser, function(_: express.Request, response: express.Response){
-    response.send( Lorebook.GetAllLorebooks(Config.path_dir.lorebooks) )
+    response.send( Lorebook.List() )
 })
 
 app.post("/save_lorebook", parser, function(request: express.Request, response: express.Response){
-    if( !request.body || !request.body.book ){
-        response.status(500).send( false )
-    }else{
+    try{
         let book = request.body.book
-        const success = Lorebook.Save( book, Config.path_dir.lorebooks )
-        if( success ){
-            response.status(200).send( true )
-            return
-        }
+        const success = Lorebook.Save( book, {}, request.body.overwrite ?? false)
+        response.status(200).send( success )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
     }
-    response.status(500).send( false )
+})
+
+app.post("/toggle_lorebook", parser, function(request: express.Request, response: express.Response){
+    try{
+        const book = request.body.book
+        const state = request.body.state
+        const success = Lorebook.Toggle( book, state )
+        response.status(200).send( success )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
+    }
 })
 
 app.post("/delete_lorebook", parser, function(request: express.Request, response: express.Response){
     try{
-        let filepath = request.body.book?.temp?.filepath
-        filepath = path.join( Config.path_dir.lorebooks, filepath )
-        fs.unlinkSync( filepath )
+        let book = request.body.book
+        Lorebook.Delete( book )
         response.status(200).send(true)
-        return
     }catch(error: any){
         console.error(error)
+        response.status(500).send(false)
     }
-    response.status(500).send(false)
+})
+
+app.post("/count_chats", parser, function(request: express.Request, response: express.Response){
+    try{
+        response.status(200).send( Chat.Count() )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
+    }
+})
+
+app.post("/import_chats", parser, async function(_request: express.Request, response: express.Response){
+    try{
+        Chat.ImportChats()
+        response.status(200).send(true)
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send(false)
+    }
+})
+
+app.post("/import_lorebooks", parser, async function(_request: express.Request, response: express.Response){
+    try{
+        Lorebook.ImportLorebooks()
+        response.status(200).send(true)
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send(false)
+    }
 })
 
 app.get("/get_api_modes", parser, async function(_: express.Request, response: express.Response){
@@ -425,11 +462,11 @@ app.post("/get_api_defaults", parser, function(request: express.Request, respons
 })
 
 app.get("/get_default_prompt", parser, function(_: express.Request, response: express.Response){
-    response.send( Settings.default_prompt_order )
+    response.send( Prompt.default_order )
 })
 
 app.post("/validate_prompt", parser, function(request: express.Request, response: express.Response){
-    const valid = Settings.ValidatePrompt( request.body.prompt, request.body.type )
+    const valid = Prompt.Validate( request.body.prompt, request.body.type )
     response.status(200).send(valid)
 })
 
@@ -533,6 +570,7 @@ function getNetworkInterfaces(): Array<string>{
 // ==============================================================================================
 // Execution
 // ==============================================================================================
+
 
 LoadAPIModes()
 
