@@ -3,11 +3,11 @@ import type {
     IChat,
     IMessage,
     ICandidate,
-    ISettings,
 } from "@shared/types";
 import { get } from "svelte/store";
 import * as Format from "@shared/format.ts";
 import * as State from "@/State";
+import { tick } from "svelte";
 
 let _heartbeat = null;
 
@@ -171,6 +171,8 @@ export async function ListChats(character : ICharacter, set_latest = false){
         character.temp.chat_latest = latest_chat.last_interaction
         State.currentChat.set(null);
         State.currentChat.set(latest_chat);
+        await tick()
+        document.dispatchEvent(new CustomEvent("autoscroll"))
         console.debug(`Applied latest chat for ${character.data.name}`)
     }
 }
