@@ -1,10 +1,14 @@
 <script>
     import { currentCharacter, currentChat, editing, sectionCharacters, sectionSettings, tabSettings } from "@/State";
     import { menu, settings } from "@/svg/Common.svelte"
+    import { displayOrientation } from "@/modules/Theme";
+
+    $: isPortrait = $displayOrientation === "portrait"
 
     function ToggleSidebar(){
         $sectionCharacters = !$sectionCharacters
-        if( $sectionCharacters && $sectionSettings ){
+        if( isPortrait && $sectionCharacters && $sectionSettings ){
+            $sectionSettings = false
         }else{
             $editing = null
         }
@@ -17,6 +21,9 @@
         }
 
         if( $sectionSettings && $sectionCharacters ){
+            if( isPortrait ){
+                $sectionCharacters = false
+            }
             $editing = null;
         }
     }
@@ -29,9 +36,9 @@
 
 
 <header id="header">
-    <button class={$sectionCharacters ? "info" : "normal"} title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
+    <button class={$sectionCharacters ? "accent" : "normal"} title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
     <button class="clear" on:click|stopPropagation={CloseChat}><div class="title deselect">OGRE</div></button>
-    <button class={$sectionSettings ? "info" : "normal"} title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
+    <button class={$sectionSettings ? "accent" : "normal"} title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
 </header>
 
 
@@ -41,7 +48,7 @@
         background: var( --sub-bg-color );
         color: hsl(0, 0%, 75%);
         display: grid;
-        grid-template-columns: 48px auto 48px;
+        grid-template-columns: 56px auto 56px;
         height: var( --header-size );
         justify-items: center;
         left: 0px;
