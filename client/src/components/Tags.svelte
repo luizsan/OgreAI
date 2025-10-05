@@ -24,12 +24,17 @@
         filterTags()
     }
 
-    function checkInput() {
+    function checkInput(event: Event) {
         if (separators.some(s => inputText.endsWith(s))) {
-            const tag = inputText.slice(0, inputText.length - 1).toLowerCase().trim();
+            const tag = inputText.slice(0, inputText.length - 1).trim().toLowerCase();
             addTag(tag)
         }
         filterTags()
+    }
+
+    function submitInput(event: Event) {
+        event.preventDefault();
+        addTag(inputText);
     }
 
     function filterTags() {
@@ -39,8 +44,12 @@
     }
 
     function addTag(tag : string) {
+        tag = tag.toLowerCase().trim();
+        selected = selected.map(s => s.toLowerCase());
+        inputText = "";
+        if(selected.includes(tag.toLowerCase()))
+            return
         selected = [...selected, tag];
-        // inputText = "";
         filterTags();
         self.dispatchEvent(new Event("change", { bubbles: true }))
     }
@@ -56,7 +65,7 @@
 
 
 <div class="section" bind:this={self}>
-    <div class="component container input">
+    <form class="component container input" on:submit={submitInput}>
         <input type="text" class="component borderless wide" bind:value={inputText} on:input={checkInput} placeholder={placeholder}>
 
         {#if choices.length > 0 && selected.length !== choices.length}
@@ -70,7 +79,7 @@
                 {/if}
             </div>
         {/if}
-    </div>
+    </form>
 
     <div class="selected">
         {#if selected.length > 0}
@@ -102,18 +111,18 @@
         position: relative;
         display: flex;
         align-items: center;
-        background-color: var( --accent-color-normal );
+        background-color: var( --accent-color-dark );
         font-size: 0.9em;
         color: #fff;
         padding: 0px 0px 0px 16px;
         height: 28px;
         border-radius: 30px 3px 3px 30px;
-        gap: 4px;
+        gap: 6px;
     }
 
     .tag button{
         position: relative;
-        background-color: var( --accent-color-normal );
+        background-color: var( --accent-color-dark );
         right: -4px;
         width: 32px;
         height: 100%;
@@ -121,7 +130,7 @@
         border-bottom-right-radius: 3px;
     }
 
-    .tag button:hover{ background-color: var( --accent-color-dark ) }
+    .tag button:hover{ background-color: var( --accent-color-normal ) }
     .tag button:active{ background-color: var( --accent-color-light ) }
 
     .tag :global(svg){
