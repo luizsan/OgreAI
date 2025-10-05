@@ -5,19 +5,15 @@
     export let elements : Array<any> = []
     export let results : Array<any> = []
     export let placeholder : string = ""
-    // what to search in the array
-    // assumes it's an Array of strings by default
-    // override to access object fields
-    export let item = (item : any) => item;
     // the condition to filter items
-    export let condition = (obj : any, arg : string) => obj.indexOf(arg) >- 1
+    export let condition = (item : any, arg : string) => item.indexOf(arg) >- 1
     // "post-process" the search results (can sort here)
     export let after = (list : Array<any>) => list;
 
     $: results = update()
 
     function update(){
-        results = elements.filter((element) => condition(item(element), search))
+        results = elements.filter((element) => condition(element, search))
         results = after(results)
         return results
     }

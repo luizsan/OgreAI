@@ -6,7 +6,6 @@
     import Sidebar from "@/components/Sidebar.svelte";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
-    import { onMount } from "svelte";
     import { fly } from "svelte/transition";
 
     const sortModes = {
@@ -149,6 +148,7 @@
         window.localStorage.setItem("sort_mode", currentSortMode)
         searchResults = Array.from($characterList)
         searchResults = orderResults(searchResults)
+        $search = $search
     }
 
     function refreshScroll(){
@@ -160,6 +160,25 @@
             return
         }
         self.scrollTo({top: 0, behavior: "smooth"})
+    }
+
+    function searchCondition(char : ICharacter, search : string){
+        search = search.toLowerCase()
+
+        if(search.startsWith("#")){
+            search = search.slice(1)
+            return char.data.tags.length > 0 && char.data.tags.some((tag) => {
+               return tag.toLowerCase().includes(search)
+            })
+        }
+
+        if(search.startsWith("@")){
+            search = search.slice(1)
+            const creator = char.data.creator.toLowerCase()
+            return !!(creator) && creator.includes(search)
+        }
+
+        return char.data.name.toLowerCase().includes(search)
     }
 
 </script>
@@ -201,8 +220,7 @@
                 elements={$characterList}
                 bind:results={searchResults}
                 placeholder="Search characters..."
-                item={(char) => char.data.name}
-                condition={(obj, arg) => obj.toLowerCase().includes(arg.toLowerCase())}
+                condition={searchCondition}
                 after={(list) => orderResults(list)}
             />
         </div>

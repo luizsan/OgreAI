@@ -86,7 +86,7 @@
             {#each selected as tag, index}
                 <div class="tag accent">
                     <span>{display(tag)}</span>
-                    <button on:click={() => removeTag(index)}>{@html SVG.close}</button>
+                    <button class="accent" on:click={() => removeTag(index)}>{@html SVG.close}</button>
                 </div>
             {/each}
         {:else}
@@ -111,9 +111,9 @@
         position: relative;
         display: flex;
         align-items: center;
-        background-color: var( --accent-color-dark );
-        font-size: 0.9em;
-        color: #fff;
+        background-color: var( --component-bg-normal );
+        font-size: 0.85em;
+        color: var( --commponent-color-normal );
         padding: 0px 0px 0px 16px;
         height: 28px;
         border-radius: 30px 3px 3px 30px;
@@ -122,7 +122,7 @@
 
     .tag button{
         position: relative;
-        background-color: var( --accent-color-dark );
+        background-color: var( --component-bg-normal  );
         right: -4px;
         width: 32px;
         height: 100%;
@@ -130,8 +130,8 @@
         border-bottom-right-radius: 3px;
     }
 
-    .tag button:hover{ background-color: var( --accent-color-normal ) }
-    .tag button:active{ background-color: var( --accent-color-light ) }
+    .tag button:hover{ background-color: var( --accent-color-dark ) }
+    .tag button:active{ background-color: var( --accent-color-dark ) }
 
     .tag :global(svg){
         width: 12px;
