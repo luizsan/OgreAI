@@ -218,44 +218,26 @@ export async function savePrompt(): Promise<void>{
 }
 
 export async function loadLastChat(){
-    if( get(State.characterList).length < 1 )
+    const charactersList = get( State.characterList )
+    if( charactersList.length < 1 )
         return
-    let settings = get( State.currentSettingsMain )
-    if( !Array.isArray(settings.recents) )
+
+    let recently_chatted = charactersList.sort((a : ICharacter, b : ICharacter) => {
+        return b.temp.chat_latest - a.temp.chat_latest
+    })
+
+    if( recently_chatted.length < 1 )
         return
-    if( settings.recents.length < 1 )
+    if( recently_chatted.at(0).temp.chat_latest === 0 )
         return
+
     State.fetching.set(true)
-    const recent : string = settings.recents.at(-1)
-    const list: Array<ICharacter> = get( State.characterList )
-    const character : ICharacter = list.find((c : ICharacter) => c.temp.filepath === recent)
-    if( !character ){
-        State.fetching.set(false)
-        return
-    }
+    const character : ICharacter = recently_chatted.at(0)
     await ListChats( character, true )
     let tokens = await getCharacterTokens( character );
     character.temp.tokens = tokens
     State.currentCharacter.set(character)
     State.fetching.set(false);
-}
-
-export async function addToRecentlyChatted(character: ICharacter): Promise<void>{
-    // parse the recents list if it exists in local storage
-    const path : string = character.temp.filepath.replaceAll("../user/characters/", "")
-    const currentSettingsMain: ISettings = get( State.currentSettingsMain )
-    if( !currentSettingsMain.recents || !Array.isArray( currentSettingsMain.recents )){
-        currentSettingsMain.recents = []
-    }
-    if (currentSettingsMain.recents.at(-1) === path){
-        return
-    }
-    const index = currentSettingsMain.recents.findIndex((item : string) => item === path)
-    if(index > -1){
-        currentSettingsMain.recents.splice(index, 1)
-    }
-    currentSettingsMain.recents.push(path)
-    await request("/save_main_settings", {data: currentSettingsMain})
 }
 
 export async function branchChat(id: number, title: string): Promise<number|undefined>{
@@ -311,9 +293,6 @@ export async function sendMessage(content: string): Promise<boolean>{
         }
     }
     return success
-}
-
-export async function swipeMessage(id: number, step: number){
 }
 
 export async function deleteMessages(message_ids: Array<number>): Promise<boolean>{

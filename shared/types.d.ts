@@ -150,8 +150,6 @@ export interface ISettings{
     model : string;
     formatting?: Record<string, any>;
     prompt: Array<IPromptConfig>;
-    books?: Array<string>;
-    recents?: Array<string>;
 }
 
 export interface IAPISettings{

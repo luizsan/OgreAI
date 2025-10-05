@@ -162,7 +162,6 @@
         requestTime = new Date().getTime()
         await tick()
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        await Server.addToRecentlyChatted($currentCharacter)
         await cacheMessageTokens()
         // target candidate only if streaming
         // moved up due to scope issues when aborting

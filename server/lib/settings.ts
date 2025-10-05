@@ -3,14 +3,8 @@ import {
     IAPISettings
 } from "../../shared/types.js"
 
-import fs from "fs"
-import path from "path"
-
-import * as Config from "../core/config.ts"
 import * as Prompt from "./prompt.ts"
 
-
-export const recents_list_size = 20
 export const default_prompt_categories = Object.keys(Prompt.default_order)
 export const default_preset_categories = [ "api_auth", "base_prompt", "sub_prompt", "prefill_prompt", "persona" ]
 
@@ -25,10 +19,6 @@ export function ValidateMain(obj: ISettings, api_modes: string[]){
 
     if( !obj.formatting?.replace || !Array.isArray(obj.formatting?.replace)){
         obj.formatting = { replace: [] }
-    }
-
-    if( !obj.recents ){
-        obj.recents = []
     }
 }
 
