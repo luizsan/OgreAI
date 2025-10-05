@@ -343,7 +343,7 @@
 
                 <div class="section wide">
                     <Heading title="Tags" description="Tags to categorize the character."/>
-                    <Tags bind:selected={$editing.data.tags} choices={[]}/>
+                    <Tags bind:selected={$editing.data.tags}/>
                 </div>
             </Accordion>
 

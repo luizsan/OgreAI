@@ -5,7 +5,7 @@
     let self : HTMLElement;
     const numDropdown : number = 5
 
-    export let choices : Array<any> = [ "Apples", "Bananas", "Coconuts", "Durians", "Eggplants" ]
+    export let choices : Array<any> = []
     export let selected : Array<any> = [];
     export let placeholder : string = "Add tags..."
     export let notFound : string = "No tags found"
