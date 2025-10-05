@@ -214,7 +214,9 @@
                             bind:elements={$currentLorebooks}
                             bind:results={searchResults}
                             placeholder="Search lorebooks..."
-                            item={(item) => item.name.toLowerCase()}
+                            condition={(item, arg) => {
+                                return item.name.toLowerCase().includes(arg.toLowerCase())
+                            }}
                             after={(list) => list.toSorted(sortLorebooks)}
                         />
                         <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
