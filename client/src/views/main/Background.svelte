@@ -37,7 +37,7 @@
 
 <style>
     .background{
-        position: absolute;
+        position: fixed;
         inset: 0px;
         width: var( --width );
         height: var( --height );
