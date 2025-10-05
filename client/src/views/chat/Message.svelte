@@ -388,7 +388,7 @@
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <div class="count deselect">{index+1} / {candidates.length}</div>
                         <button class="right normal" class:invisible={isGreeting && isLast} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
-                            {#if isGreeting && isLast}
+                            {#if !isGreeting && isLast}
                                 {@html SVG.plus}
                             {:else}
                                 {@html SVG.arrow}
