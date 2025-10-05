@@ -30,10 +30,6 @@ export function ValidateMain(obj: ISettings, api_modes: string[]){
     if( !obj.recents ){
         obj.recents = []
     }
-
-    if( obj.recents.length > recents_list_size ){
-        obj.recents.length = recents_list_size
-    }
 }
 
 export function ValidateAPI(obj: any, api_settings: Record<string, IAPISettings>){
