@@ -502,7 +502,12 @@ export function ImportChats(){
     console.log(`Imported ${imported} chat(s) into the database`)
 }
 
-export function UpdateInteractions(){
+export function UpdateChatInteraction(chat: IChat, timestamp: number){
+    const result = op["chat_update"].run(chat.title, timestamp, "{}", chat.id)
+    return result.changes > 0
+}
+
+export function UpdateAllChatInteractions(){
     const result = op["chat_interactions"].run()
     return result.changes > 0
 }

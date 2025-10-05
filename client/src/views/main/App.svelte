@@ -125,7 +125,6 @@
         left: 0px;
         right: 0px;
         bottom: 0px;
-        height: 100svh;
         justify-content: center;
         grid-template-columns: auto 1fr auto;
     }

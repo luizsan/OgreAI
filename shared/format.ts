@@ -116,7 +116,7 @@ export function relativeTime(datetime: string | number | Date, precise = false )
             return hours > 1 ? `${hours} hours ago` : `An hour ago`;
         }else if( minutes > 0 ){
             return minutes > 1 ? `${minutes} minutes ago` : `A minute ago`;
-        }else if( seconds > 0 ){
+        }else if( seconds >= 0 ){
             return seconds > 5 ? `${seconds} seconds ago` : `Just now`;
         }else{
             return `Today `;

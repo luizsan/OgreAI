@@ -1,6 +1,5 @@
 <script lang="ts">
     import type {
-        IChat,
         ICandidate,
         IMessage,
         IReply,
@@ -27,6 +26,7 @@
         fetching,
         history,
         localServer,
+        characterList,
     } from "@/State";
 
 
@@ -239,25 +239,34 @@
     }
 
     async function addMessage(message: IMessage, silent: boolean = false){
-        const new_message = await Server.request( "/add_message", {
+        const now = Date.now()
+        await Server.request( "/add_message", {
             chat: $currentChat,
             message: message
+        }).then(new_message => {
+            if(!new_message) return
+            console.log(`Added message: %o`, new_message)
+            if( new_message ){
+                message.id = new_message.id
+                message.timestamp = new_message.timestamp
+                message.index = new_message.index
+                message.participant = new_message.participant
+                message.candidates = new_message.candidates
+                if(!silent)
+                    $currentChat.messages.push(message)
+                UpdateInteraction()
+                $currentChat.messages = $currentChat.messages;
+            }
         })
-        console.log(`Added message: %o`, new_message)
-        if( new_message ){
-            message.id = new_message.id
-            message.timestamp = new_message.timestamp
-            message.index = new_message.index
-            message.participant = new_message.participant
-            message.candidates = new_message.candidates
 
-            if(!silent)
-                $currentChat.messages.push(message)
-
-            $currentChat.last_interaction = Date.now()
-            $currentChat = $currentChat;
-            $currentChat.messages = $currentChat.messages;
-        }
+        // update last interaction
+        await Server.request("/chat_interaction", {
+            chat: $currentChat,
+            timestamp: now
+        }).then((success) => {
+            if( !success ) return
+            UpdateInteraction()
+        })
     }
 
     async function addCandidate(candidate: ICandidate, silent: boolean = false){
@@ -279,6 +288,13 @@
                 await Server.request("/swipe_message", {
                     message: last_message,
                     index: last_message.index
+                })
+                await Server.request("/chat_interaction", {
+                    chat: $currentChat,
+                    timestamp: candidate.timestamp
+                }).then((success) => {
+                    if( !success ) return
+                    UpdateInteraction()
                 })
             }
         }
@@ -440,6 +456,16 @@
                 await Dialog.alert("OgreAI", "Failed to update chat title!")
             }
         }
+    }
+
+    function UpdateInteraction(timestamp : number = Date.now()){
+        $currentChat.last_interaction = timestamp
+        $currentChat = $currentChat
+        $chatList = $chatList
+        $currentCharacter.temp.chat_latest = timestamp
+        $currentCharacter = $currentCharacter
+        $characterList = $characterList
+        console.log("Updated interaction for %s", $currentChat.title)
     }
 
     async function Shortcuts(event : KeyboardEvent){

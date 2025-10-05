@@ -436,9 +436,19 @@ app.post("/latest_chats", parser, function(request: express.Request, response: e
     }
 })
 
+app.post("/chat_interaction", parser, function(request: express.Request, response: express.Response){
+    try{
+        const success = Chat.UpdateChatInteraction(request.body.chat, request.body.timestamp)
+        response.status(200).send( success )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
+    }
+})
+
 app.post("/update_interactions", parser, function(request: express.Request, response: express.Response){
     try{
-        const success = Chat.UpdateInteractions()
+        const success = Chat.UpdateAllChatInteractions()
         response.status(200).send( success )
     }catch(error: any){
         console.error(error)
