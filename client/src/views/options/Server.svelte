@@ -15,6 +15,13 @@
         console.log(success)
         $fetching = false;
     }
+
+    async function UpdateInteractions(){
+        $fetching = true;
+        const success = await Server.request("/update_interactions", {})
+        console.log(success)
+        $fetching = false;
+    }
 </script>
 
 
@@ -26,4 +33,5 @@
     <div/>
     <button class="component wide" on:click={ImportChats}>Import Legacy Chats</button>
     <button class="component wide" on:click={ImportLorebooks}>Import Legacy Lorebooks</button>
+    <button class="component wide" on:click={UpdateInteractions}>Update Chat Last Interactions</button>
 </div>

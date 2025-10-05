@@ -1,6 +1,23 @@
 <script lang="ts">
-    import type { ICharacter } from "@shared/types";
-    import { fetching, editing, favoritesList, characterList, currentCharacter, creating, localServer, history, deleting, busy, tabEditing } from "@/State";
+    import type {
+        ICharacter
+    } from "@shared/types";
+
+    import {
+        fetching,
+        editing,
+        favoritesList,
+        characterList,
+        currentCharacter,
+        creating,
+        localServer,
+        history,
+        deleting,
+        busy,
+        tabEditing
+    } from "@/State";
+
+    import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
     import { LazyLoad } from "@/utils/LazyLoad";
@@ -18,6 +35,7 @@
     $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
     $: favorited = $favoritesList.indexOf(filepath) > -1
     $: url = `${address}?${character.metadata.modified}`
+    $: labelCount = `${character.temp.chat_count == 1 ? "chat" : "chats"}`
 
     function getImageAddress(path){
         if( !path )
@@ -76,14 +94,29 @@
             <div class="label">
                 <div class="name normal">{character.data.name}</div>
                  <div class="sub">
+
                     {#if sort.startsWith("creation_date")}
                         {@const time = character.metadata.created || character.temp.filecreated || 0}
-                        {new Date(time).toLocaleString()}
+                        {@const date = new Date(time).toLocaleString()}
+                        <p title={date}>{Format.relativeTime(time, true)}</p>
+
+                    {:else if sort.startsWith("recently_chatted")}
+                        {@const time = character.temp.chat_latest || 0}
+                        {@const date = new Date(time).toLocaleString()}
+                        {#if time > 0}
+                            <p title={date}>{Format.relativeTime(time, true)}</p>
+                        {:else}
+                            <p>Never</p>
+                        {/if}
+
                     {:else if sort.startsWith("chat_count")}
-                        {character.temp.chat_count || 0} chat(s)
+                        {character.temp.chat_count || 0} {labelCount}
+
                     {:else}
                         {filename}
+
                     {/if}
+
                 </div>
 
             </div>

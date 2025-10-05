@@ -515,7 +515,10 @@
         position: fixed;
         padding: 0px;
         top: var(--header-height);
+        left: auto;
+        right: auto;
         width: 100%;
+        min-width: 360px;
         max-width: var( --chat-width );
         z-index: 1;
     }
@@ -557,9 +560,11 @@
 
     .meter{
         display: grid;
+        position: relative;
         height: 6px;
         margin: 4px 0px;
-        max-width: 340px;
+        left: 0px;
+        width: 45%;
     }
 
     .meter div{

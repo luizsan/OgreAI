@@ -18,6 +18,7 @@ export interface ICharacter{
         filepath : string;
         avatar : string;
         chat_count? : number,
+        chat_latest? : number,
         tokens?: Record<string, number>;
         filecreated? : number;
         filemodified? : number;

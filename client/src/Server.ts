@@ -135,10 +135,11 @@ export async function getAPIStatus(){
 export async function getCharacterList(){
     let list: Array<ICharacter> = await request("/get_characters")
     const count: Record<string, number> = await request("/count_chats", {})
-    list = list.sort((a : ICharacter, b : ICharacter) => { return b.metadata.created - a.metadata.created });
+    const latest: Record<string, number> = await request("/latest_chats", {})
     list.forEach((character : ICharacter) => {
         const id = character.temp.filename
         character.temp.chat_count = count[id] || 0
+        character.temp.chat_latest = latest[id] || 0
     })
     console.log(`Retrieved character list: %o`, list)
     State.characterList.set( list )

@@ -201,6 +201,11 @@ export function Count(): Record<string, number>{
     return Object.fromEntries(rows.map((row: any) => [row.character_id, row.count]))
 }
 
+export function Latest(): Record<string, number>{
+    const rows = op["chat_latest"].all()
+    return Object.fromEntries(rows.map((row: any) => [row.character_id, row.last_interaction]))
+}
+
 export function ListMessages(chat_id: number): Array<IMessage>{
     const messages = op["message_list"].all(chat_id).map((message: IDatabaseMessage) => {
         const candidates = op["candidate_list"].all(message.id).map((candidate: IDatabaseCandidate) => {
@@ -495,4 +500,9 @@ export function ImportChats(){
         }
     }
     console.log(`Imported ${imported} chat(s) into the database`)
+}
+
+export function UpdateInteractions(){
+    const result = op["chat_interactions"].run()
+    return result.changes > 0
 }

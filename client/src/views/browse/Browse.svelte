@@ -42,11 +42,8 @@
         recently_chatted: {
             label: "Recently chatted",
             order: (list : Array<ICharacter>) => {
-                let recent_list : Array<ICharacter> = $currentSettingsMain.recents.map((path : string) => $characterList.find((char : ICharacter) => {
-                    return char.temp.filepath == path;
-                }));
-                recent_list = recent_list.filter((item : ICharacter) => item && list.includes(item))
-                recent_list.reverse()
+                let recent_list : Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_latest > 0)
+                recent_list = recent_list.sort((a,b) => b.temp.chat_latest - a.temp.chat_latest)
                 return recent_list
             }
         },
@@ -64,8 +61,6 @@
     let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
 
     let self : HTMLElement;
-    let exclusion : Array<HTMLElement>; // "click outside" excluded elements
-
     let separator : HTMLElement; // threshold to show "Back to top" button
     let scrolled = 0; // amount of pixels scrolled so far
 
@@ -82,10 +77,6 @@
     }
 
     $: size = searchResults.length < $characterList.length ? `${searchResults.length} / ${$characterList.length}` : $characterList.length;
-
-    onMount(() => {
-        exclusion = [document.getElementById("header")]
-    })
 
     async function NewCharacter(){
         $fetching = true;

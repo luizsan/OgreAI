@@ -2,11 +2,11 @@
     --selection-color: hsl(220, 100%, 50% );
 
     --code-text-color: orange;
-    --code-bg-color: hsl(285, 5%, 12%);
+    --code-bg-color: hsl(285, 5%, 8%);
 
     --default-font-color: hsl(0, 0%, 85%);
-    --default-bg-color: hsl(210, 4%, 14%);
-    --sub-bg-color: hsl(210, 8%, 16%);
+    --default-bg-color: hsl(192, 4%, 16%);
+    --sub-bg-color: hsl(192, 6%, 14%);
 
     --accent-color-dark: rgb(34, 75, 71);
     --accent-color-normal: rgb(34, 138, 124);

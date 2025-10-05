@@ -427,6 +427,25 @@ app.post("/count_chats", parser, function(request: express.Request, response: ex
     }
 })
 
+app.post("/latest_chats", parser, function(request: express.Request, response: express.Response){
+    try{
+        response.status(200).send( Chat.Latest() )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
+    }
+})
+
+app.post("/update_interactions", parser, function(request: express.Request, response: express.Response){
+    try{
+        const success = Chat.UpdateInteractions()
+        response.status(200).send( success )
+    }catch(error: any){
+        console.error(error)
+        response.status(500).send( false )
+    }
+})
+
 app.post("/import_chats", parser, async function(_request: express.Request, response: express.Response){
     try{
         Chat.ImportChats()

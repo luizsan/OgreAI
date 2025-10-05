@@ -157,6 +157,10 @@
         justify-content: center;
     }
 
+    .tab:first-child{
+        border-radius: 0px 0px 0px 5px;
+    }
+
     .tab :global(svg){
         width: 24px;
         height: 24px;
@@ -173,7 +177,7 @@
     .side{
         top: var( --header-size );
         gap: 0px;
-        padding: 16px 0px;
+        padding: 0px 0px;
         width: 56px;
         position: fixed;
     }
