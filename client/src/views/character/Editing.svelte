@@ -9,6 +9,7 @@
     import * as Server from "@/Server"
     import * as SVG from "@/svg/Common.svelte";
     import * as Format from "@shared/format.ts";
+    import Tags from "@/components/Tags.svelte";
 
     let uploadInput : HTMLInputElement;
     let uploadedURL : string = null;
@@ -338,6 +339,11 @@
                 <div class="section wide">
                     <Heading title="Author's Notes" description="General information about the character."/>
                     <textarea class="component wide" rows=6 bind:value={$editing.data.creator_notes}></textarea>
+                </div>
+
+                <div class="section wide">
+                    <Heading title="Tags" description="Tags to categorize the character."/>
+                    <Tags bind:selected={$editing.data.tags} choices={[]}/>
                 </div>
             </Accordion>
 

@@ -157,6 +157,7 @@ export async function ListChats(character : ICharacter, set_latest = false){
     if( list && list.length > 0 ){
         list.sort((a : IChat, b : IChat) => { return b.last_interaction - a.last_interaction });
     }
+    character.temp.chat_count = list.length
     console.debug(`Retrieved chats for ${character.data.name}`)
     State.chatList.set( null )
     State.chatList.set( list )
@@ -167,6 +168,7 @@ export async function ListChats(character : ICharacter, set_latest = false){
         }else{
             latest_chat = await request( "/new_chat", { character: character });
         }
+        character.temp.chat_latest = latest_chat.last_interaction
         State.currentChat.set(null);
         State.currentChat.set(latest_chat);
         console.debug(`Applied latest chat for ${character.data.name}`)

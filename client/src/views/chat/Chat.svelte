@@ -537,7 +537,6 @@
                 </div>
 
                 <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
-
                 {#if $busy}
                     <Loading/>
                 {:else}
@@ -585,10 +584,6 @@
         --input-outline-normal: 1px solid hsla(0, 0%, 33%, 0.5);
     }
 
-    * {
-        scrollbar-color: hsla(0, 0%, 50%, 0.05) transparent;
-    }
-
     .container{
         align-items: stretch;
         display: flex;
@@ -630,12 +625,13 @@
     .history{
         display:flex;
         flex-direction: column;
-        gap: 16px;
         box-sizing: border-box;
-        margin: 0px var(--chat-padding);
-        overflow-x: hidden;
         overflow-y: scroll;
-        padding: 8px 6px 8px 0px;
+        position: relative;
+        gap: 16px;
+        margin: 0px var(--chat-padding);
+        margin-bottom: 75px;
+        padding: 8px 0px 8px 0px;
     }
 
     .input{

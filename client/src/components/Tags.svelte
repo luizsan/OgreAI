@@ -15,6 +15,7 @@
     export let item = (v : string | any) => v;
 
     let inputText : string = "";
+    let separators : Array<string> = [ ",", ";" ];
     let filtered = choices;
 
     $: {
@@ -23,16 +24,21 @@
         filterTags()
     }
 
+    function checkInput() {
+        if (separators.some(s => inputText.endsWith(s))) {
+            const tag = inputText.slice(0, inputText.length - 1).toLowerCase().trim();
+            addTag(tag)
+        }
+        filterTags()
+    }
+
     function filterTags() {
-        selected = selected.filter(s => choices.some(c => item(c) == item(s)))
+        // selected = selected.filter(s => choices.some(c => item(c) == item(s)))
         filtered = choices.filter(e => item(e) && item(e).toLowerCase().includes(inputText.toLowerCase()));
         filtered = filtered.filter(e => !selected.some((s) => item(e) == item(s)))
     }
 
     function addTag(tag : string) {
-        if(selected.includes(tag)){
-            return
-        }
         selected = [...selected, tag];
         // inputText = "";
         filterTags();
@@ -51,9 +57,9 @@
 
 <div class="section" bind:this={self}>
     <div class="component container input">
-        <input type="text" class="component borderless wide" bind:value={inputText} on:input={filterTags} placeholder={placeholder}>
+        <input type="text" class="component borderless wide" bind:value={inputText} on:input={checkInput} placeholder={placeholder}>
 
-        {#if selected.length !== choices.length}
+        {#if choices.length > 0 && selected.length !== choices.length}
             <div class="component container dropdown wide ellipsis">
                 {#if filtered.length > 0}
                     {#each filtered.slice(0, numDropdown) as element}
@@ -67,21 +73,29 @@
     </div>
 
     <div class="selected">
-        {#each selected as tag, index}
-            <div class="tag accent">
-                <span>{display(tag)}</span>
-                <button on:click={() => removeTag(index)}>{@html SVG.close}</button>
-            </div>
-        {/each}
+        {#if selected.length > 0}
+            {#each selected as tag, index}
+                <div class="tag accent">
+                    <span>{display(tag)}</span>
+                    <button on:click={() => removeTag(index)}>{@html SVG.close}</button>
+                </div>
+            {/each}
+        {:else}
+            <div class="explanation">No tags selected.</div>
+        {/if}
     </div>
 </div>
 
 
 <style>
+    .section{
+        gap: 16px;
+    }
+
     .selected{
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 16px;
     }
 
     .tag {
@@ -89,17 +103,19 @@
         display: flex;
         align-items: center;
         background-color: var( --accent-color-normal );
-        font-size: 0.8em;
+        font-size: 0.9em;
         color: #fff;
-        padding: 0px 32px 0px 8px;
-        height: 24px;
-        border-radius: 3px;
+        padding: 0px 0px 0px 16px;
+        height: 28px;
+        border-radius: 30px 3px 3px 30px;
+        gap: 4px;
     }
 
     .tag button{
-        position: absolute;
-        right: 0px;
-        width: 24px;
+        position: relative;
+        background-color: var( --accent-color-normal );
+        right: -4px;
+        width: 32px;
         height: 100%;
         border-top-right-radius: 3px;
         border-bottom-right-radius: 3px;
@@ -109,8 +125,8 @@
     .tag button:active{ background-color: var( --accent-color-light ) }
 
     .tag :global(svg){
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
     }
 
 

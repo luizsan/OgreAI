@@ -142,6 +142,7 @@
         gap: 8px;
         text-align: left;
         border-left: 2px solid #808080;
+        margin: 4px 4px;
     }
 
     :global(body.light) .content{

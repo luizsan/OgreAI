@@ -25,7 +25,6 @@
     import * as Preferences from '@/modules/Preferences';
     import * as Theme from '@/modules/Theme';
     import * as Server from '@/Server';
-    import Home from './Home.svelte';
     import Screen from '@/components/Screen.svelte';
 
     function initializeMarked(){

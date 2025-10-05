@@ -17,7 +17,7 @@ function getAddress(){
 
 export const localServer = getAddress()
 
-// SERVER STATE
+// #region Server State
 // local server status
 export const connected = writable<boolean>( false )
 // target api status
@@ -26,8 +26,9 @@ export const api = writable<boolean>( false )
 export const busy = writable<boolean>( false )
 // waiting for server fetch
 export const fetching = writable<boolean>( false )
+// #endregion
 
-// CLIENT STATE
+// #region Client State
 // current character being edited
 export const editing = writable<ICharacter>( null )
 // whether a character is being created
@@ -38,8 +39,9 @@ export const deleting = writable<boolean>( false )
 export const history = writable<boolean>( false )
 // stores the current search query
 export const search = writable<string>( "" )
+// #endregion
 
-// LISTS
+// #region Lists
 // stores the global list of characters
 export const characterList = writable< Array<ICharacter> >( [] )
 // stores the list of chats for the current character
@@ -52,6 +54,7 @@ export const deleteList = writable< Array<number> >( [] )
 export const favoritesList = writable< Array<string> >( [] )
 // stores the list of available API modes by title
 export const availableAPIModes = writable< Array<string> >( [] )
+// #endregion
 
 // DEFAULTS
 // default schema for the selected API settings
@@ -59,7 +62,7 @@ export const defaultSettingsAPI = writable< Record<string, IAPISettings> >( null
 // default prompt order schema
 export const defaultPrompt = writable< Record<string, IPromptConfig> >( null )
 
-// STORAGE
+// #region Storage
 // current overall settings
 export const currentSettingsMain = writable<ISettings>( null )
 // current API-specific settings
@@ -74,20 +77,23 @@ export const currentProfile = writable<IUser>( null )
 export const currentLorebooks = writable< Array<ILorebook> >( [] )
 // list of selected lorebooks
 export const selectedLorebooks = writable< Array<ILorebook> >( [] )
+// #endregion
 
-// USER SELECTION
+// #region User Selection
 // currently selected character
 export const currentCharacter = writable<ICharacter>( null )
 // currently selected chat
 export const currentChat = writable<IChat>( null )
+// #endregion
 
-// CUSTOMIZATION
+// #region Customization
 // currently selected theme (dark or light)
 export const currentTheme = writable<string>( "" )
 // customization data
 export const currentPreferences = writable< Record<string, any> >( {} )
+// #endregion
 
-// VIEWS
+// #region Interface
 // toggles the state of the sidebar
 export const sectionCharacters = writable<boolean>( false )
 // toggles the state of the settings screen
@@ -96,3 +102,4 @@ export const sectionSettings = writable<boolean>( false )
 export const tabSettings = writable<string>( "" )
 // stores the state of the current character tab (not yet implemented)
 export const tabEditing = writable( 0 )
+// #endregion
