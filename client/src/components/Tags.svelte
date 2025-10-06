@@ -10,9 +10,9 @@
     export let placeholder : string = "Add tags..."
     export let notFound : string = "No tags found"
 
+    export let display = (v : string | any) => tagDisplay(v)
     // use custom functions to retrieve object properties if choices aren't strings
-    export let display = (v : string | any) => v.toLowerCase();
-    export let item = (v : string | any) => v;
+    export let item = (v : any) => v;
 
     let inputText : string = "";
     let separators : Array<string> = [ ",", ";" ];
@@ -45,8 +45,10 @@
 
     function addTag(tag : string) {
         tag = tag.toLowerCase().trim();
-        selected = selected.map(s => s.toLowerCase());
+        if(!tag)
+            return
         inputText = "";
+        selected = selected.map(s => s.toLowerCase());
         if(selected.includes(tag.toLowerCase()))
             return
         selected = [...selected, tag];
@@ -58,6 +60,22 @@
         selected = selected.filter((_, i) => i !== index);
         filterTags()
         self.dispatchEvent(new Event("change", { bubbles: true }))
+    }
+
+    function tagDisplay(tag: string){
+        if(tag.includes(":"))
+            tag = tag.split(":").pop()
+        return tag.toUpperCase()
+    }
+
+    function tagStyles(tag: string){
+        tag = tag.toLowerCase()
+        if(tag.startsWith("series:")){
+            return "series"
+        }else if(tag.startsWith("artist:")){
+            return "artist"
+        }
+        return ""
     }
 
     onMount(filterTags);
@@ -85,7 +103,7 @@
         {#if selected.length > 0}
             {#each selected as tag, index}
                 <div class="tag accent">
-                    <span>{display(tag)}</span>
+                    <span class={tagStyles(tag)}>{display(tag)}</span>
                     <button class="accent" on:click={() => removeTag(index)}>{@html SVG.close}</button>
                 </div>
             {/each}
@@ -104,7 +122,7 @@
     .selected{
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 12px;
     }
 
     .tag {
@@ -112,10 +130,11 @@
         display: flex;
         align-items: center;
         background-color: var( --component-bg-normal );
-        font-size: 0.85em;
+        font-size: 0.7em;
+        font-weight: bold;
         color: var( --commponent-color-normal );
         padding: 0px 0px 0px 16px;
-        height: 28px;
+        height: 24px;
         border-radius: 30px 3px 3px 30px;
         gap: 6px;
     }
@@ -138,6 +157,13 @@
         height: 12px;
     }
 
+    .tag span.series{
+        color: hsl(286, 100%, 75%);
+    }
+
+    .tag span.artist{
+        color:rgb(94, 226, 94)
+    }
 
     .candidate{
         padding: 4px 16px;
