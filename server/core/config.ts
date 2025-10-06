@@ -36,14 +36,19 @@ export async function InitializeConfig(): Promise<IServerConfig>{
             user: "../user",
         }
     }
-    // check if config file exists at root folder
-    if (fs.existsSync("./config.json")){
-        config = await LoadData("./config.json", config)
-    }else{
-        await SaveData("./config.json", config)
-    }
-    if( !fs.existsSync(config.paths?.user ?? "./user") ){
-        fs.mkdirSync(config.paths?.user ?? "./user", { recursive: true });
+    try{
+        // check if config file exists at root folder
+        if (fs.existsSync("./config.json")){
+            config = await LoadData("./config.json", config)
+        }else{
+            await SaveData("./config.json", config)
+        }
+        if( !fs.existsSync(config.paths?.user ?? "./user") ){
+            fs.mkdirSync(config.paths?.user ?? "./user", { recursive: true });
+        }
+        console.log(chalk.green(`⚙️  Server configs initialized`));
+    }catch(error){
+        console.warn(chalk.red(`⚙️  Could not load server config file:\n${error}`));
     }
     return config
 }
@@ -55,7 +60,7 @@ export async function SaveData(filepath: string, content: any): Promise<boolean>
         console.debug(chalk.green(`Saved file at ${filepath}`));
         return true
     } catch (error) {
-        console.error(chalk.red("Could not save data\n" + error));
+        console.error(chalk.red("Could not save data:\n" + error));
     }
     return false
 }
@@ -66,10 +71,9 @@ export async function LoadData(filepath: string, defaults: any = {}): Promise<an
         const file = Bun.file(filepath);
         const content = await file.text();
         const parsed = JSON.parse(content);
-        console.debug(chalk.green(`⚙️  Server configs initialized`));
         return parsed;
     } catch (error) {
-        console.warn(chalk.yellow(`⚙️  Could not load server config file, using default values.`));
+        console.error(chalk.red("Could not load data:\n" + error));
     }
     return defaults
 }

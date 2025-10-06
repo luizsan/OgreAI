@@ -19,7 +19,7 @@ import {
 } from "../core/database.js"
 
 import API from "../core/api.ts";
-import * as Config from "../core/config.ts"
+import { path_dir } from "../core/config.ts"
 
 const EXT_LORE = [".json"]
 
@@ -188,7 +188,7 @@ export function Import(contents: ILorebook, metadata: any = {}){
 
 export function ImportLorebooks(){
     let imported = 0
-    const dir = Config.path_dir.lorebooks
+    const dir = path_dir.lorebooks
     const files = fs.readdirSync(dir)
     for(const file of files){
         const ext = path.parse(file).ext

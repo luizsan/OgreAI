@@ -16,7 +16,7 @@ import fs from "fs"
 import path from "path"
 import chalk from "chalk"
 
-import * as Config from "../core/config.ts"
+import { path_dir } from "../core/config.ts"
 import * as Tavern from "../external/tavern.ts"
 import * as Format from "../../shared/format.ts"
 
@@ -466,13 +466,13 @@ export function Import(dir: string, content: IChat, overwrite: boolean = false){
 
 export function ImportChats(){
     let imported = 0
-    const entries = fs.readdirSync(Config.path_dir.chats, {
+    const entries = fs.readdirSync(path_dir.chats, {
         recursive: false, withFileTypes: true
     })
     for(const entry of entries){
         if(!entry.isDirectory())
             continue
-        const dir = path.join(Config.path_dir.chats, entry.name)
+        const dir = path.join(path_dir.chats, entry.name)
         const files = fs.readdirSync(dir)
         for(const file of files){
             const ext = path.parse(file).ext
