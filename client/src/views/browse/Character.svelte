@@ -14,8 +14,14 @@
         history,
         deleting,
         busy,
-        tabEditing
+        tabEditing,
+        sectionCharacters
+
     } from "@/State";
+
+    import{
+        displayOrientation
+    } from "@/modules/Theme";
 
     import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte";
@@ -29,13 +35,15 @@
 
     let loaded : boolean = false
 
-    $: name = character.data.name
-    $: filepath = character.temp.filepath
-    $: address = getImageAddress(filepath)
-    $: filename = character.temp.filepath.replaceAll("../user/characters/", "")
-    $: favorited = $favoritesList.indexOf(filepath) > -1
-    $: url = `${address}?${character.metadata.modified}`
-    $: labelCount = `${character.temp.chat_count == 1 ? "chat" : "chats"}`
+    $: filepath = (character?.temp?.filepath ?? "") as string
+    $: favorited = ($favoritesList.indexOf(filepath) > -1) as boolean
+
+    $: createdTime = (character?.metadata?.created ?? character?.temp ?? 0) as number
+    $: chatLatest = (character?.temp?.chat_latest ?? 0) as number
+    $: chatCount = (character?.temp?.chat_count ?? 0) as number
+    $: labelCount = `${chatCount == 1 ? "chat" : "chats"}`
+
+    $: isPortrait = ($displayOrientation === "portrait") as boolean
 
     function getImageAddress(path){
         if( !path )
@@ -44,6 +52,15 @@
         path = path.replace(/%2F/g, '/')
         path = path.replace(/%3A/g, ':')
         return localServer + "/user/characters/" + path
+    }
+
+    function getFilename(path){
+        return path.replaceAll("../user/characters/", "")
+    }
+
+    function getImageURL(path){
+        const address = getImageAddress(path)
+        return `${address}?${character.metadata.modified}`
     }
 
     async function SelectCharacter(filepath : string){
@@ -71,6 +88,10 @@
         $currentCharacter = $currentCharacter
 
         console.debug(`Selected character ${name} (ID: ${id})`)
+
+        if(isPortrait)
+            $sectionCharacters = false;
+
         $fetching = false;
     }
 
@@ -89,32 +110,28 @@
 
 <div class="container" use:LazyLoad on:lazyload={() => loaded = true}>
     <button class="main" on:click={() => SelectCharacter(filepath)}>
-        <div class="avatar" style="background-image: url({loaded ? url : ""})"/>
+        <div class="avatar" style="background-image: url({loaded ? getImageURL(filepath) : ""})"/>
         {#if label}
             <div class="label">
                 <div class="name normal">{character.data.name}</div>
                  <div class="sub">
 
                     {#if sort.startsWith("creation_date")}
-                        {@const time = character.metadata.created || character.temp.filecreated || 0}
-                        {@const date = new Date(time).toLocaleString()}
-                        <p title={date}>{Format.relativeTime(time, true)}</p>
+                        {@const date = new Date(createdTime).toLocaleString()}
+                        <p title={date}>{Format.relativeTime(createdTime, true)}</p>
 
                     {:else if sort.startsWith("recently_chatted")}
-                        {@const time = character.temp.chat_latest || 0}
-                        {@const date = new Date(time).toLocaleString()}
-                        {#if time > 0}
-                            <p title={date}>{Format.relativeTime(time, true)}</p>
+                        {@const date = new Date(chatLatest).toLocaleString()}
+                        {#if chatLatest > 0}
+                            <p title={date}>{Format.relativeTime(chatLatest, true)}</p>
                         {:else}
                             <p>Never</p>
                         {/if}
 
                     {:else if sort.startsWith("chat_count")}
-                        {character.temp.chat_count || 0} {labelCount}
-
+                        {chatCount} {labelCount}
                     {:else}
-                        {filename}
-
+                        {getFilename(filepath)}
                     {/if}
 
                 </div>

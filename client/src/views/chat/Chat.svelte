@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {
         ICandidate,
+        ICharacter,
         IMessage,
         IReply,
     } from "@shared/types";
@@ -459,13 +460,18 @@
     }
 
     function UpdateInteraction(timestamp : number = Date.now()){
+        $currentCharacter.temp.chat_latest = timestamp
         $currentChat.last_interaction = timestamp
         $currentChat = $currentChat
-        $chatList = $chatList
-        $currentCharacter.temp.chat_latest = timestamp
         $currentCharacter = $currentCharacter
+        // find the current character in character list, update temp
+        // this is necessary for proper reactivity in character list
+        const index = $characterList.findIndex((character: ICharacter) => {
+            return character.temp.filepath === $currentCharacter.temp.filepath
+        })
+        $characterList[index].temp.chat_latest = timestamp
         $characterList = $characterList
-        console.log("Updated interaction for %s", $currentChat.title)
+        console.log("Updated interaction for [%s]", $currentChat.title)
     }
 
     async function Shortcuts(event : KeyboardEvent){

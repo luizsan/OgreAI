@@ -103,10 +103,10 @@
     }
 
     async function reloadCharacterList(){
+        $fetching = true
         await Server.getCharacterList()
-        searchResults = []
-        searchResults = $characterList
-
+        searchResults = orderResults(searchResults)
+        $fetching = false
     }
 
     function sortByName(a : ICharacter, b : ICharacter){
