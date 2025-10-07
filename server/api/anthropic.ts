@@ -27,6 +27,7 @@ export default class Anthropic extends API {
             type: "select", default: "claude-v1.2", choices: [
                 "claude-opus-4-1",
                 "claude-opus-4-0",
+                "claude-sonnet-4-5",
                 "claude-sonnet-4-0",
                 "claude-3-7-sonnet-latest",
                 "claude-3-5-sonnet-latest",
@@ -115,6 +116,20 @@ export default class Anthropic extends API {
         return list
     }
 
+    sanitizeExclusiveParameters( settings: ISettings, outgoing_data: Record<string, any> ): void {
+        // temperature and top_p cannot both be specified for these models
+        const models = [ "opus-4-1", "sonnet-4-5" ]
+        models.forEach((model) => {
+            if( !settings.model.includes(model))
+                return;
+            if( outgoing_data.top_p < 1.0 ){
+                outgoing_data.temperature = undefined
+            }else{
+                outgoing_data.top_p = undefined
+            }
+        })
+    }
+
     async generate( data: IGenerationData ): Promise<any> {
         const settings: ISettings & Record<string, any> = data.settings;
         const character: ICharacter = data.character;
@@ -131,14 +146,7 @@ export default class Anthropic extends API {
             stream: settings.stream,
         };
 
-        // temperature and top_p cannot both be specified for opus 4.1
-        if( settings.model.includes("opus-4-1")){
-            if( outgoing_data.top_p < 1.0 ){
-                outgoing_data.temperature = undefined
-            }else{
-                outgoing_data.top_p = undefined
-            }
-        }
+        this.sanitizeExclusiveParameters(settings, outgoing_data)
 
         // caching rules
         if( settings.caching && settings.caching_size && settings.caching_size > 0){
