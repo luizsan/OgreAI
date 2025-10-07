@@ -173,8 +173,8 @@ export function squashEntries(entries: Array<ILorebookEntry>): string {
 export function Import(contents: ILorebook, metadata: any = {}){
     const transaction = db.transaction(() => {
         const raw: string = JSON.stringify(contents)
-        const result = op["lorebook_create"].get(
-            contents.name, raw, true, JSON.stringify(metadata)
+        const result = op["lorebook_save"].get(
+            contents.name, raw, JSON.stringify(metadata)
         ) as number | undefined
         if(!result)
             throw new Error("Failed to import lorebook");
