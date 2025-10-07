@@ -224,7 +224,7 @@
     }
 
     function OpenImage(){
-        window.open( localServer + "/" + $editing.temp.filepath.replace("../", "") ,  "_blank");
+        window.open( localServer + "/user/characters/" + $editing.temp.filepath.replace("../", "") ,  "_blank");
     }
 
     function AddGreeting(){
