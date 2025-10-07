@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS prompts (
 );
 
 -- Lorebooks table
-CREATE TABLE "lorebooks" (
+CREATE TABLE IF NOT EXISTS lorebooks (
   id TEXT NOT NULL PRIMARY KEY,
   content TEXT NOT NULL,
   toggled BOOLEAN DEFAULT FALSE,
