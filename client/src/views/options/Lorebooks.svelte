@@ -390,7 +390,9 @@
         font-size: 1em;
         color: gray;
         font-style: italic;
-        white-space: break-spaces;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .empty{
