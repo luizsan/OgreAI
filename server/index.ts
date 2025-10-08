@@ -620,4 +620,5 @@ app.listen(port, () => {
         )
     })
     console.log(chalk.gray(`\nPress ${chalk.bold.white("Ctrl + C")} to stop`))
+    console.log("\n")
 })

@@ -209,7 +209,8 @@
             $fetching = true;
             const result: number | undefined = await Server.branchChat(id, new_name)
             if( result ){
-                await Server.ListChats( $currentCharacter, true )
+                await Server.listChats( $currentCharacter, true )
+                Server.updateChats();
                 await Dialog.alert("OgreAI", "Successfully branched chat!")
             }
             $fetching = false;

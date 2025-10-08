@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { IChat} from "@shared/types";
-    import { currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
+    import { characterList, currentCharacter, currentChat, currentProfile, fetching, history } from "@/State";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from '@/Server';
@@ -40,7 +40,9 @@
             await Server.request("/delete_chat", {
                 id: chat.id,
             })
-            await Server.ListChats( $currentCharacter, true )
+            await Server.listChats( $currentCharacter, true )
+            $currentCharacter = $currentCharacter
+            $characterList = $characterList
             $fetching = false;
         }
     }
@@ -55,6 +57,7 @@
             const new_chat: IChat = await Server.request("/load_chat", { id: new_id })
             if(new_chat){
                 $currentChat = new_chat
+                Server.updateChats();
                 $fetching = false;
                 $history = false;
                 await Dialog.alert("OgreAI", "Successfully copied chat!")

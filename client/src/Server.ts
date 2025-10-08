@@ -151,7 +151,7 @@ export async function getCharacter(filepath : String){
     });
 }
 
-export async function ListChats(character : ICharacter, set_latest = false){
+export async function listChats(character : ICharacter, set_latest = false){
     let list: Array<IChat> = await request( "/list_chats", { character_id: character.temp.filepath });
     let latest_chat: IChat = null;
     if( list && list.length > 0 ){
@@ -175,6 +175,37 @@ export async function ListChats(character : ICharacter, set_latest = false){
         document.dispatchEvent(new CustomEvent("autoscroll"))
         console.debug(`Applied latest chat for ${character.data.name}`)
     }
+}
+
+export function updateChats(timestamp : number = Date.now()){
+    const currentCharacter: ICharacter = get( State.currentCharacter )
+    const currentChat: IChat = get( State.currentChat )
+    const characterList = get( State.characterList )
+    const chatList = get( State.chatList )
+
+    currentCharacter.temp.chat_latest = timestamp
+    currentChat.last_interaction = timestamp
+
+    const chatIndex = chatList.findIndex((entry: IChat) => {
+        return entry.id === currentChat.id
+    })
+    const characterIndex = characterList.findIndex((character: ICharacter) => {
+        return character.temp.filepath === currentCharacter.temp.filepath
+    })
+
+    // update the entry on characterlist
+    characterList[characterIndex].temp.chat_latest = timestamp
+    // update current chat if not indexed
+    if( chatIndex < 0 ){
+        chatList.push( currentChat )
+        currentCharacter.temp.chat_count = chatList.length
+        characterList[characterIndex].temp.chat_count = chatList.length
+    }
+
+    State.currentChat.set( currentChat )
+    State.chatList.set( chatList )
+    State.currentCharacter.set( currentCharacter )
+    State.characterList.set( characterList )
 }
 
 export async function newChat(){
@@ -237,7 +268,7 @@ export async function loadLastChat(){
 
     State.fetching.set(true)
     const character : ICharacter = recently_chatted.at(0)
-    await ListChats( character, true )
+    await listChats( character, true )
     let tokens = await getCharacterTokens( character );
     character.temp.tokens = tokens
     State.currentCharacter.set(character)

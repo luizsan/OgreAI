@@ -255,7 +255,7 @@
                 message.candidates = new_message.candidates
                 if(!silent)
                     $currentChat.messages.push(message)
-                UpdateInteraction()
+                Server.updateChats()
                 $currentChat.messages = $currentChat.messages;
             }
         })
@@ -266,7 +266,7 @@
             timestamp: now
         }).then((success) => {
             if( !success ) return
-            UpdateInteraction()
+            Server.updateChats()
         })
     }
 
@@ -295,7 +295,7 @@
                     timestamp: candidate.timestamp
                 }).then((success) => {
                     if( !success ) return
-                    UpdateInteraction()
+                    Server.updateChats()
                 })
             }
         }
@@ -435,7 +435,7 @@
         if( state ){
             showMenu = false;
             $fetching = true;
-            await Server.ListChats( $currentCharacter )
+            await Server.listChats( $currentCharacter )
             $fetching = false;
             $history = true;
         }else{
@@ -457,21 +457,6 @@
                 await Dialog.alert("OgreAI", "Failed to update chat title!")
             }
         }
-    }
-
-    function UpdateInteraction(timestamp : number = Date.now()){
-        $currentCharacter.temp.chat_latest = timestamp
-        $currentChat.last_interaction = timestamp
-        $currentChat = $currentChat
-        $currentCharacter = $currentCharacter
-        // find the current character in character list, update temp
-        // this is necessary for proper reactivity in character list
-        const index = $characterList.findIndex((character: ICharacter) => {
-            return character.temp.filepath === $currentCharacter.temp.filepath
-        })
-        $characterList[index].temp.chat_latest = timestamp
-        $characterList = $characterList
-        console.log("Updated interaction for [%s]", $currentChat.title)
     }
 
     async function Shortcuts(event : KeyboardEvent){
