@@ -64,7 +64,7 @@
 
 
 <Sidebar side="right" enabled={$sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null}>
-    <div class="columns">
+    <div class="main">
         <div class="side section">
             {#each Object.keys(tab_items) as key}
                 {#if !tab_items[key].disabled}
@@ -80,38 +80,40 @@
         </div>
 
         <div class="content">
-            <div class="top section">
-                <div class="horizontal wide section">
-                    <div class="section grow">
-                        <h1>{tab_items[$tabSettings].title}</h1>
-                        <p class="explanation">{tab_items[$tabSettings].description}</p>
+            <div class="inner section">
+                <div class="top section">
+                    <div class="horizontal wide section">
+                        <div class="section grow">
+                            <h1>{tab_items[$tabSettings].title}</h1>
+                            <p class="explanation">{tab_items[$tabSettings].description}</p>
+                        </div>
                     </div>
+                    <hr class="component">
                 </div>
-                <hr class="component">
-            </div>
 
-            <div class="mid">
-                {#if $tabSettings == "settings"}
-                    <Settings/>
-                {:else if $tabSettings == "prompt"}
-                    <Prompt/>
-                {:else if $tabSettings == "lorebooks"}
-                    <Lorebooks/>
-                {:else if $tabSettings == "formatting"}
-                    <Formatting/>
-                {:else if $tabSettings == "user"}
-                    <User/>
-                {:else if $tabSettings == "customization"}
-                    <Customization/>
-                {:else if $tabSettings == "server"}
-                    <Server/>
-                {:else}
-                    <div/>
-                {/if}
-            </div>
+                <div class="mid">
+                    {#if $tabSettings == "settings"}
+                        <Settings/>
+                    {:else if $tabSettings == "prompt"}
+                        <Prompt/>
+                    {:else if $tabSettings == "lorebooks"}
+                        <Lorebooks/>
+                    {:else if $tabSettings == "formatting"}
+                        <Formatting/>
+                    {:else if $tabSettings == "user"}
+                        <User/>
+                    {:else if $tabSettings == "customization"}
+                        <Customization/>
+                    {:else if $tabSettings == "server"}
+                        <Server/>
+                    {:else}
+                        <div/>
+                    {/if}
+                </div>
 
-            <div class="bottom grow">
-                <Footer/>
+                <div class="bottom grow">
+                    <Footer/>
+                </div>
             </div>
         </div>
 
@@ -127,7 +129,7 @@
         font-size: 40px;
     }
 
-    .columns{
+    .main{
         display: absolute;
         inset: 0px;
         padding: 0px;
@@ -136,9 +138,11 @@
         height: 100%;
         position: relative;
         overflow: hidden;
+        --scrollbar-bg: var( --sub-bg-color );
+
     }
 
-    :global(body.portrait) .columns{
+    :global(body.portrait) .main{
         background: var( --default-bg-color );
     }
 
@@ -150,6 +154,7 @@
         border-radius: 5px 0px 0px 5px;
         align-items: center;
         justify-content: center;
+        pointer-events: all;
     }
 
     .tab:first-child{
@@ -170,25 +175,39 @@
     }
 
     .side{
-        top: 0px;;
+        top: 0px;
+        left: 0px;
         gap: 0px;
         padding: 0px 0px;
         width: 56px;
+        height: 100%;
         position: absolute;
+        pointer-events: none;;
+        background: var( --default-bg-color );
+        z-index: 1;
+
     }
 
     .content{
-        background: var( --sub-bg-color );
-        padding: 24px;
         display: flex;
         flex-direction: column;
         gap: 32px;
         position: absolute;
-        left: 56px;
+        left: 0px;
         right: 0px;
         top: 0px;
         bottom: 0px;
-        overflow-y: scroll;
+        background: var( --sub-bg-color );
+
+    }
+
+    .inner{
+        gap: 24px;
+        height: 100%;
+        padding: 24px;
+        padding-left: 80px;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     .bottom{
