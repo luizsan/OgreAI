@@ -185,13 +185,14 @@
             }else{
                 response.json().then(async data => {
                     if( data.error ){
+                        console.error("Received error: %o", data.error)
                         await Dialog.alert(data.error.type, data.error.message)
                     }else{
                         await receiveMessage( data )
                     }
                     console.debug("Received message: %o", data)
                 }).catch(error => {
-                    console.error(error)
+                    console.error("Received error: %o", error)
                 })
             }
         }).catch(async error => {
@@ -201,7 +202,7 @@
                     await finishStream(candidate, swipe)
                 }
             }else{
-                console.error(error)
+                console.error("Received error: %o", error)
             }
         })
         $busy = false;
