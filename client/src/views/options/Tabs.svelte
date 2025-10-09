@@ -62,67 +62,62 @@
 
 </script>
 
-{#if $sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null }
-    <Sidebar side="right">
 
-        <div class="columns">
-
-            <div class="side section wrap">
-                {#each Object.keys(tab_items) as key}
-                    {#if !tab_items[key].disabled}
-                        <button
-                            class="tab accent"
-                            class:active={key == $tabSettings}
-                            class:disabled={key == $tabSettings}
-                            disabled={tab_items[key].disabled || key == $tabSettings}
-                            on:click={() => setTab(key)}>{@html tab_items[key].icon}
-                        </button>
-                    {/if}
-                {/each}
-            </div>
-
-            <div class="content">
-                <div class="top section">
-                    <div class="horizontal wide section">
-                        <div class="section grow">
-                            <h1>{tab_items[$tabSettings].title}</h1>
-                            <p class="explanation">{tab_items[$tabSettings].description}</p>
-                        </div>
-                    </div>
-                    <hr class="component">
-                </div>
-
-                <div class="mid">
-                    {#if $tabSettings == "settings"}
-                        <Settings/>
-                    {:else if $tabSettings == "prompt"}
-                        <Prompt/>
-                    {:else if $tabSettings == "lorebooks"}
-                        <Lorebooks/>
-                    {:else if $tabSettings == "formatting"}
-                        <Formatting/>
-                    {:else if $tabSettings == "user"}
-                        <User/>
-                    {:else if $tabSettings == "customization"}
-                        <Customization/>
-                    {:else if $tabSettings == "server"}
-                        <Server/>
-                    {:else}
-                        <div/>
-                    {/if}
-                </div>
-
-                <div class="bottom grow">
-                    <Footer/>
-                </div>
-            </div>
-
+<Sidebar side="right" enabled={$sectionSettings && $currentSettingsMain != null && currentSettingsAPI != null}>
+    <div class="columns">
+        <div class="side section">
+            {#each Object.keys(tab_items) as key}
+                {#if !tab_items[key].disabled}
+                    <button
+                        class="tab accent"
+                        class:active={key == $tabSettings}
+                        class:disabled={key == $tabSettings}
+                        disabled={tab_items[key].disabled || key == $tabSettings}
+                        on:click={() => setTab(key)}>{@html tab_items[key].icon}
+                    </button>
+                {/if}
+            {/each}
         </div>
 
-    </Sidebar>
-{:else}
-    <div/>
-{/if}
+        <div class="content">
+            <div class="top section">
+                <div class="horizontal wide section">
+                    <div class="section grow">
+                        <h1>{tab_items[$tabSettings].title}</h1>
+                        <p class="explanation">{tab_items[$tabSettings].description}</p>
+                    </div>
+                </div>
+                <hr class="component">
+            </div>
+
+            <div class="mid">
+                {#if $tabSettings == "settings"}
+                    <Settings/>
+                {:else if $tabSettings == "prompt"}
+                    <Prompt/>
+                {:else if $tabSettings == "lorebooks"}
+                    <Lorebooks/>
+                {:else if $tabSettings == "formatting"}
+                    <Formatting/>
+                {:else if $tabSettings == "user"}
+                    <User/>
+                {:else if $tabSettings == "customization"}
+                    <Customization/>
+                {:else if $tabSettings == "server"}
+                    <Server/>
+                {:else}
+                    <div/>
+                {/if}
+            </div>
+
+            <div class="bottom grow">
+                <Footer/>
+            </div>
+        </div>
+
+    </div>
+</Sidebar>
+
 
 <style>
     h1{
@@ -175,11 +170,11 @@
     }
 
     .side{
-        top: var( --header-size );
+        top: 0px;;
         gap: 0px;
         padding: 0px 0px;
         width: 56px;
-        position: fixed;
+        position: absolute;
     }
 
     .content{

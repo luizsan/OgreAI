@@ -181,7 +181,7 @@
     .dropdown {
         display: none;
         position: absolute;
-        z-index: 1000;
+        z-index: 500;
         top: calc( 100% + 4px );
         border: none;
         left: 0;

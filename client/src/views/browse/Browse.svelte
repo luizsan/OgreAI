@@ -184,9 +184,7 @@
 </script>
 
 
-{#if $sectionCharacters}
-
-<Sidebar width={420}>
+<Sidebar width={420} enabled={$sectionCharacters}>
 
 <div class="main" class:active={$sectionCharacters}>
 
@@ -244,10 +242,6 @@
 
 </div>
 </Sidebar>
-
-{:else}
-    <div/>
-{/if}
 
 
 <style>

@@ -1,16 +1,27 @@
 <script lang="ts">
+    import { fly } from "svelte/transition";
+
+    export let enabled: boolean = true;
     export let side: string = "left";
     export let width: number = 600
     export let sort: number = 0;
 
+    const transition_schema = {
+        duration: 250,
+        opacity: 1,
+        x: side == "left" ? "-100%" : "100%"
+    }
+
     $: sortOrder = 25 + sort;
 </script>
 
-<div class="container small {side}" style="--self-width: {width}px; z-index:{sortOrder}">
+{#if enabled}
+<div class="container small {side}" style="--self-width: {width}px; z-index:{sortOrder}" transition:fly={transition_schema}>
     <div class="main">
         <slot></slot>
     </div>
 </div>
+{/if}
 
 <style>
     .container{
