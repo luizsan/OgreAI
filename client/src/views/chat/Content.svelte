@@ -81,6 +81,33 @@
         line-height: 1.2em;
     }
 
+    .text :global(th){
+        font-size: 80%;
+        background: var( --component-bg-hover );
+        outline: 1px solid var( --component-bg-normal );
+    }
+
+    .text :global(td){
+        font-size: 90%;
+        background: var( --component-bg-normal );
+        outline: 1px solid var( --component-bg-hover );
+    }
+
+    .text :global(td), .text :global(th){
+        width: max-content;
+        word-break: keep-all;
+        min-width: 0px;
+        padding: 6px 8px;
+    }
+
+    .text :global(table){
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: auto;
+        outline: 2px solid var( --component-bg-normal );
+    }
+
+
     .text :global(img){
         max-width: 100%;
     }
