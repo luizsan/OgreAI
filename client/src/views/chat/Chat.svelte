@@ -1,7 +1,6 @@
 <script lang="ts">
     import type {
         ICandidate,
-        ICharacter,
         IMessage,
         IReply,
     } from "@shared/types";
@@ -27,11 +26,9 @@
         fetching,
         history,
         localServer,
-        characterList,
     } from "@/State";
 
 
-    import History from "./History.svelte";
     import Message from './Message.svelte';
     import Loading from '@/components/Loading.svelte';
 
@@ -493,41 +490,21 @@
     <Background/>
 
     <div class="main">
-        {#if !$history}
-            <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
-                {#if $currentChat != null}
-                    {#each $currentChat.messages as _, i}
-                        <Message
-                            id={i}
-                            swipeAction={()=>generateMessage(true)}
-                        />
-                    {/each}
-                {/if}
-            </div>
-        {:else}
-            {#if $chatList != null && $chatList.length > 0}
-                <div class="history">
-                {#each $chatList as chat}
-                    <History chat={chat}/>
+        <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
+            {#if $currentChat != null}
+                {#each $currentChat.messages as _, i}
+                    <Message
+                        id={i}
+                        swipeAction={()=>generateMessage(true)}
+                    />
                 {/each}
-                </div>
-            {:else}
-                <div class="center">
-                    No chats available
-                </div>
             {/if}
-        {/if}
-
+        </div>
 
         {#if $deleting}
             <div class="bottom">
                 <button class="component normal" on:click={CancelDeleteMessages}>Cancel</button>
                 <button class="component danger" on:click={ConfirmDeleteMessages}>Delete</button>
-            </div>
-
-        {:else if $history}
-            <div class="bottom">
-                <button class="component normal" on:click={() => ChatHistory(false)}>Back</button>
             </div>
 
         {:else}
@@ -638,18 +615,6 @@
         overflow-y: scroll;
         margin-bottom: 75px;
         padding: 8px 0px 4px 0px;
-    }
-
-    .history{
-        display:flex;
-        flex-direction: column;
-        box-sizing: border-box;
-        overflow-y: scroll;
-        position: relative;
-        gap: 16px;
-        margin: 0px var(--chat-padding);
-        margin-bottom: 75px;
-        padding: 8px 0px 8px 0px;
     }
 
     .input{

@@ -1,14 +1,17 @@
 <script lang="ts">
     import { marked } from 'marked';
 
+    // svelte
+    import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
+
     // components
     import Browse from '@/views/browse/Browse.svelte'
     import Editing from '@/views/character/Editing.svelte';
+    import History from '@/views/history/History.svelte';
     import Options from '@/views/options/Tabs.svelte';
-    import Header from './Header.svelte'
+    import Header from '@/views/main/Header.svelte'
     import Chat from '@/views/chat/Chat.svelte';
-    import { onMount } from 'svelte';
-    import { fade } from 'svelte/transition';
 
     import {
         connected,
@@ -18,14 +21,15 @@
         sectionCharacters,
         sectionSettings,
         fetching,
+        history,
     } from '@/State';
 
     import Dialog from '@/components/Dialog.svelte';
     import Loading from '@/components/Loading.svelte';
+    import Screen from '@/components/Screen.svelte';
     import * as Preferences from '@/modules/Preferences';
     import * as Theme from '@/modules/Theme';
     import * as Server from '@/Server';
-    import Screen from '@/components/Screen.svelte';
 
     function initializeMarked(){
         const quotePattern = /(&quot;|")([^"]+?)(\1)/gi
@@ -79,8 +83,12 @@
                 <Browse/>
             </div>
             <div class="middle">
-                <Chat/>
-                <Editing/>
+                {#if $history}
+                    <History/>
+                {:else}
+                    <Chat/>
+                    <Editing/>
+                {/if}
             </div>
             <div class="sidebar" class:open={$sectionSettings}>
                 <Options/>
@@ -95,7 +103,6 @@
                 </div>
             </div>
         {/if}
-
         <Dialog/>
     </div>
 
