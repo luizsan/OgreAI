@@ -5,6 +5,7 @@
 
     import {
         characterList,
+        chatList,
         currentCharacter,
         currentChat,
         currentProfile,
@@ -62,8 +63,10 @@
                 id: chat.id,
             })
             await Server.listChats( $currentCharacter, true )
+            await tick()
             $currentCharacter = $currentCharacter
             $characterList = $characterList
+            $chatList = $chatList
             $fetching = false;
         }
     }
@@ -79,9 +82,9 @@
             if(new_chat){
                 $currentChat = new_chat
                 Server.updateChats();
+                await Dialog.alert("OgreAI", "Successfully copied chat!")
                 $fetching = false;
                 $history = false;
-                await Dialog.alert("OgreAI", "Successfully copied chat!")
             }
         }
         $fetching = false;
@@ -119,6 +122,10 @@
                 <input type="text" class="edit borderless" autofocus bind:this={titleField} bind:value={chat.title} on:change={updateTitle}>
             {:else}
                 <span class="label">{chat.title}</span>
+            {/if}
+
+            {#if displayLevel() <= 0}
+                <span class="sub info disabled">({chat.length})</span>
             {/if}
         </div>
 
@@ -189,6 +196,7 @@
     .list .section.data{
         flex-shrink: 1;
         flex-grow: 1;
+        min-width: 0px;
     }
 
     .title{
@@ -202,7 +210,7 @@
 
     }
 
-    .list .title span{
+    .list span.label{
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;

@@ -19,7 +19,12 @@
     import Search from "@/components/Search.svelte";
 
     let displayMode : string = window.localStorage.getItem("history_display") || "extended"
+    let searchTerm : string = ""
     let searchResults : Array<IChat> = Array.from($chatList) || []
+
+    $: if( $chatList ){
+        searchResults = $chatList.filter((chat: IChat) => searchCondition(chat, searchTerm))
+    }
 
     function setDisplayMode(mode: string){
         displayMode = mode
@@ -44,6 +49,7 @@
         <div class="top">
             <Search
                 elements={$chatList}
+                bind:search={searchTerm}
                 bind:results={searchResults}
                 condition={searchCondition}
                 placeholder="Search chats..."
@@ -69,7 +75,7 @@
         {/if}
 
         <div class="bottom">
-            <button class="component normal" on:click={closeHistory}>Back</button>
+            <button class="component normal" title="Close" on:click={closeHistory}>Back</button>
         </div>
     </div>
 </div>
