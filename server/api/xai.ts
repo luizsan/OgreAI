@@ -24,6 +24,8 @@ export default class xAI extends API {
             title: "Model",
             description: "Both grok-3 and grok-3-fast use the exact same underlying model and deliver identical response quality. The difference lies in how they're served: grok-3-fast is served on faster infrastructure, offering response times that are significantly faster than the standard grok-3. The increased speed comes at a higher cost per output token.",
             type: "select", default: "grok-3-beta", choices: [
+                "grok-4-fast-reasoning",
+                "grok-4-fast-non-reasoning",
                 "grok-4-0709",
                 "grok-3",
                 "grok-3-fast",
@@ -88,6 +90,8 @@ export default class xAI extends API {
     }
 
     REASONING_MODELS = [
+        "grok-4-fast-reasoning",
+        "grok-4-fast-non-reasoning",
         "grok-4-0709",
         "grok-3-mini",
         "grok-3-mini-fast"
