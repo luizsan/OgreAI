@@ -122,7 +122,7 @@
                     {/if}
 
                     <div class="section horizontal">
-                        <button class="component normal add" on:click={() => addKeyTo(target) }>{@html SVG.plus}Add key</button>
+                        <button class="component normal add" on:click={() => addKeyTo(target) }>{@html SVG.add}Add key</button>
                         <button class="component danger add" on:click={() => clearKeys(target) }>{@html SVG.close}Clear keys</button>
                     </div>
                 </Accordion>

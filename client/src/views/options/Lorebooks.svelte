@@ -199,7 +199,7 @@
                 </div>
                 <div class="buttons grow">
                     <button class="component" on:click={importLorebook}>{@html SVG.download} Import</button>
-                    <button class="component confirm" on:click={addLorebook}>{@html SVG.plus}Create Lorebook</button>
+                    <button class="component confirm" on:click={addLorebook}>{@html SVG.add}Create Lorebook</button>
                 </div>
             </div>
 

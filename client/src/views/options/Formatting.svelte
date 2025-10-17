@@ -29,7 +29,7 @@
             remove={() => RemoveItem("replace", i)}
         />
     {/each}
-    <button class="component normal" on:click={() => AddItem("replace")}>{@html SVG.plus}Add Text Replace</button>
+    <button class="component normal" on:click={() => AddItem("replace")}>{@html SVG.add}Add Text Replace</button>
 </div>
 
 

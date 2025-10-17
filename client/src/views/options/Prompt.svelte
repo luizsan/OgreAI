@@ -68,7 +68,7 @@
         />
 
         <div class="buttons">
-            <button class="component confirm" on:click={addItem}>{@html SVG.plus} Add Item</button>
+            <button class="component confirm" on:click={addItem}>{@html SVG.add} Add Item</button>
         </div>
     </div>
 </div>

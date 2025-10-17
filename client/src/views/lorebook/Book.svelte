@@ -81,7 +81,7 @@
             {/if}
 
             {#if !editingEntry}
-                <button class="component normal add" on:click={addEntry}>{@html SVG.plus}Add entry</button>
+                <button class="component normal add" on:click={addEntry}>{@html SVG.add}Add entry</button>
             {/if}
         </Accordion>
     </div>

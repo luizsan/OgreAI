@@ -201,7 +201,7 @@
     <div class="container" bind:this={self} on:scroll={refreshScroll}>
 
         <div class="section">
-            <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.plus}Create Character</button>
+            <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.add}Create Character</button>
 
             <div class="section horizontal">
                 <button class="component normal wide blocked" title="Import">{@html SVG.download}Import</button>

@@ -178,7 +178,7 @@
                                     <input type="text" class="component wide" placeholder="Empty item" bind:value={item} style="flex: 1 1 auto">
                                 </div>
                             {/each}
-                            <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.plus}Add</button>
+                            <button class="component normal" on:click={() => addListItem(key, "", entry.limit)}>{@html SVG.add}Add</button>
                         </Accordion>
                         </div>
 
@@ -198,7 +198,7 @@
                                     {/if}
                                 </div>
                             {/each}
-                            <button class="component normal" on:click={() => addListItem(key, { "key": "", "value": 0}, entry.limit)}>{@html SVG.plus}Add</button>
+                            <button class="component normal" on:click={() => addListItem(key, { "key": "", "value": 0}, entry.limit)}>{@html SVG.add}Add</button>
                         </Accordion>
                         </div>
 

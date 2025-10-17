@@ -362,7 +362,7 @@
                         <textarea class="component wide" rows=8 bind:value={alt}></textarea>
                     </div>
                 {/each}
-                <button class="component normal" on:click={AddGreeting}>{@html SVG.plus}Add greeting</button>
+                <button class="component normal" on:click={AddGreeting}>{@html SVG.add}Add greeting</button>
             </Accordion>
 
             <div class="section wide description">
@@ -411,7 +411,7 @@
                         <button class="component confirm" on:click={installLorebook}>{@html SVG.download} Install</button>
                         <button class="component danger" on:click={removeLorebook}>{@html SVG.trashcan} Delete</button>
                     {:else}
-                        <button class="component confirm" on:click={createLorebook}>{@html SVG.plus} Create</button>
+                        <button class="component confirm" on:click={createLorebook}>{@html SVG.add} Create</button>
                     {/if}
 
                     <!-- <button class="component info" >{@html SVG.copy} Copy from local</button> -->
