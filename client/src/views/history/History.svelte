@@ -8,22 +8,23 @@
 
     import {
         history,
-        chatList
+        chatList,
+        chatSearch,
     } from "@/State";
+
 
     import Record from "@/views/history/Record.svelte";
     import Background from "@/views/main/Background.svelte";
 
+    import * as Server from "@/Server";
     import * as Dialog from "@/modules/Dialog";
-    import * as SVG from "@/svg/Common.svelte";
     import Search from "@/components/Search.svelte";
 
     let displayMode : string = window.localStorage.getItem("history_display") || "extended"
-    let searchTerm : string = ""
     let searchResults : Array<IChat> = Array.from($chatList) || []
 
     $: if( $chatList ){
-        searchResults = $chatList.filter((chat: IChat) => searchCondition(chat, searchTerm))
+        searchResults = $chatList.filter((chat: IChat) => searchCondition(chat, $chatSearch))
     }
 
     function setDisplayMode(mode: string){
@@ -49,7 +50,7 @@
         <div class="top">
             <Search
                 elements={$chatList}
-                bind:search={searchTerm}
+                bind:search={$chatSearch}
                 bind:results={searchResults}
                 condition={searchCondition}
                 placeholder="Search chats..."
@@ -70,7 +71,10 @@
             </div>
         {:else}
             <div class="center">
-                No chats available
+                <div class="none">
+                    No chats found for this character.
+                    <button class="component normal" title="Close" on:click={Server.newChat}>New Chat</button>
+                </div>
             </div>
         {/if}
 
@@ -141,8 +145,25 @@
         overflow-y: scroll;
         position: relative;
         gap: 8px;
+        height: 100%;
         margin: 0px var(--chat-padding);
-        padding: 8px 4px 8px 16px;
+        padding: 16px 4px 16px 16px;
+    }
+
+    .center{
+        display: flex;
+        min-height: 72px;
+        height: 100%;
+        place-items: center;
+    }
+
+    .none{
+        color: gray;
+        font-size: 85%;
+        display: flex;
+        flex-direction: column;
+        place-items: center;
+        gap: 8px;
     }
 
     .bottom{

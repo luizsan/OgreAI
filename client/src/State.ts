@@ -7,6 +7,7 @@ import type {
     IPromptConfig,
     IUser,
     ILorebook,
+    IMessage,
 } from "@shared/types"
 
 function getAddress(){
@@ -35,10 +36,14 @@ export const editing = writable<ICharacter>( null )
 export const creating = writable<boolean>( false )
 // toggles the state of batch deleting messages in chat
 export const deleting = writable<boolean>( false )
+// toggles the expanded swipe viewer
+export const swipes = writable<IMessage>( null )
 // toggles the state of viewing chat history
 export const history = writable<boolean>( false )
-// stores the current search query
-export const search = writable<string>( "" )
+// stores the current search query for characters
+export const characterSearch = writable<string>( "" )
+// stores the current search query for chats
+export const chatSearch = writable<string>( "" )
 // #endregion
 
 // #region Lists

@@ -130,7 +130,6 @@
     }
 
     .main{
-        display: absolute;
         inset: 0px;
         padding: 0px;
         margin: 0px;

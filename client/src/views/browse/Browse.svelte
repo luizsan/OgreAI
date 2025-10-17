@@ -1,6 +1,16 @@
 <script lang="ts">
     import type { ICharacter } from "@shared/types";
-    import { characterList, favoritesList, creating, editing, fetching, sectionCharacters, currentProfile, currentSettingsMain, search, localServer } from "@/State";
+    import {
+        characterList,
+        favoritesList,
+        creating,
+        editing,
+        fetching,
+        sectionCharacters,
+        currentProfile,
+        characterSearch,
+        localServer
+    } from "@/State";
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
     import Sidebar from "@/components/Sidebar.svelte";
@@ -148,7 +158,7 @@
         window.localStorage.setItem("sort_mode", currentSortMode)
         searchResults = Array.from($characterList)
         searchResults = orderResults(searchResults)
-        $search = $search
+        $characterSearch = $characterSearch
     }
 
     function refreshScroll(){
@@ -214,7 +224,7 @@
             </div>
 
             <Search
-                search={$search}
+                bind:search={$characterSearch}
                 elements={$characterList}
                 bind:results={searchResults}
                 placeholder="Search characters..."

@@ -215,6 +215,7 @@ export async function newChat(){
     }
     await request( "/new_chat", { character: character }).then( data => {
         State.currentChat.set( data )
+        State.history.set( false )
     }).catch( error => {
         console.error(error)
         State.currentChat.set( null )

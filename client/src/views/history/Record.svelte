@@ -180,7 +180,7 @@
         flex-direction: column;
         gap: 12px;
         text-align: left;
-        border-left: 2px solid #808080;
+        border-left: 3px solid var( --accent-color-normal );
     }
 
     :global(body.light) .content{
@@ -204,13 +204,13 @@
         gap: 8px;
         height: 100%;
         flex-direction: row;
-        font-weight: bolder;
         align-items: center;
         position: relative;
 
     }
 
     .list span.label{
+        font-weight: normal;
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
@@ -234,7 +234,7 @@
         min-height: 24px;
         top: 0px;
         bottom: 0px;
-        color: #D0D0D0;
+        color: var( --code-text-color );
         font-size: 80%;
         background: #000000C0;
         border-radius: 4px;
