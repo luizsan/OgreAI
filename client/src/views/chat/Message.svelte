@@ -1,9 +1,7 @@
 <script lang="ts">
-    import { AutoResize } from '@/utils/AutoResize';
     import {
         currentProfile,
         currentPreferences,
-        currentSettingsMain,
         currentCharacter,
         currentChat,
         busy,
@@ -13,20 +11,28 @@
         editing,
         sectionSettings,
         tabSettings,
-        tabEditing
+        tabEditing,
+
+        editList,
+        currentSettingsMain
     } from '@/State';
-    import { clickOutside } from '@/utils/ClickOutside';
+
     import Avatar from '@/components/Avatar.svelte';
     import Content from './Content.svelte';
+
+    import * as Actions from "@/modules/Actions";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from '@/Server';
     import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte"
-    import { tick } from 'svelte';
-    import { get } from 'svelte/store';
-    import type { ICandidate } from '@shared/types';
+
+    import { AutoResize } from '@/utils/AutoResize';
+    import { clickOutside } from '@/utils/ClickOutside';
 
     let self : HTMLElement;
+    let actions : boolean = false;
+    let actionsButton : HTMLElement;
+    let editText = ""
 
     export let id : number = -1
     export let swipeAction = () => {}
@@ -64,9 +70,11 @@
     $: prefs_show_timer = $currentPreferences["show_timer"] ?? false
 
     // ---
-    let isEditing = false
-    let postActions = false;
-    let editedText = ""
+    $: isEditing = $editList && $editList.includes(msg)
+
+    $: if(actions){
+        editText = current?.text
+    }
 
     export async function SwipeMessage(step : number){
         if( first && candidates.length === 1){
@@ -111,14 +119,19 @@
     function SetPostActions(b : boolean){
         // small hack to allow deletion via action buttons and keyboard event
         if(this){
-            this.postActions = b;
+            this.actions = b;
         }else{
-            postActions = b;
+            actions = b;
+        }
+        if( b ){
+            Actions.open(actionsButton, msg, id)
+        }else{
+            Actions.close()
         }
     }
 
-    function TogglePostActions(){
-        SetPostActions(!postActions)
+    function togglePostActions(){
+        SetPostActions(!actions)
     }
 
     function CancelEditing(){
@@ -128,93 +141,9 @@
         isEditing = false;
     }
 
-    async function StartEditing(){
-        document.body.dispatchEvent(new CustomEvent("startedit", { detail: { id: index }}))
-        editedText = current.text;
-        isEditing = true
-        await tick()
-        SetPostActions(false)
+    export async function confirmEdit(){
+        await Server.confirmMessageEdit(msg, editText, $currentSettingsMain.formatting.replace)
         self.scrollIntoView({ block: "nearest" })
-    }
-
-    export async function ConfirmEdit(){
-        CancelEditing()
-        let content = editedText.trim()
-        content = Format.regexReplace(content, ["on_edit"], $currentSettingsMain.formatting.replace)
-        content = Format.randomReplace(content).trim()
-
-        let new_candidate: ICandidate = {
-            id: current.id,
-            text: content.trim(),
-            timestamp: current.timestamp,
-            model: current.model,
-            reasoning: current.reasoning,
-            timer: current.timer,
-            tokens: current.tokens
-        }
-
-        if( !editedText ){
-            await DeleteCandidate();
-        }else{
-            const success: boolean = await Server.request( "/update_candidate", {
-                candidate: new_candidate
-            })
-            if( success ){
-                $currentChat.messages[id].candidates[index] = new_candidate
-                $currentChat = $currentChat;
-                self.scrollIntoView({ block: "nearest" })
-            }
-        }
-    }
-
-    async function CopyMessage(){
-        SetPostActions(false)
-        navigator.clipboard.writeText(current.text).then(async function(){
-            await Dialog.alert("OgreAI", 'Text copied to clipboard!');
-        }).catch(async function(err) {
-            console.error('Failed to copy text: ', err);
-            await Dialog.alert("OgreAI", 'Failed to copy text to clipboard.\n' + err);
-        });
-
-    }
-
-    export async function DeleteMessage(){
-        if( first ){
-            return;
-        }
-        SetPostActions(false)
-        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
-        if( ok ){
-            await Server.deleteMessages([ id ])
-        }
-    }
-
-    export async function DeleteCandidate(){
-        if( first ){
-            return;
-        }
-        SetPostActions(false)
-        const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
-        if( ok ){
-            const success: boolean = await Server.deleteCandidate(id, index)
-            if( success && last ){
-                document.dispatchEvent(new CustomEvent("autoscroll"))
-            }
-        }
-    }
-
-    async function BranchChat(){
-        const new_name = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
-        if(new_name !== null){
-            $fetching = true;
-            const result: number | undefined = await Server.branchChat(id, new_name)
-            if( result ){
-                await Server.listChats( $currentCharacter, true )
-                Server.updateChats();
-                await Dialog.alert("OgreAI", "Successfully branched chat!")
-            }
-            $fetching = false;
-        }
     }
 
     function SelectMessageBatch(){
@@ -258,7 +187,7 @@
             return
         }
 
-        if( last ){
+        if( last || (first && $currentChat.messages.length === 1)){
             if( activeElement.nodeName !== "INPUT" && activeElement.nodeName !== "TEXTAREA" ){
                 await LastMessageShortcuts(event)
             }
@@ -273,7 +202,7 @@
             case "Enter":
                 const condition = $currentPreferences["enter_sends_message"] ?? false
                 if(event.shiftKey !== condition){
-                    ConfirmEdit()
+                    confirmEdit()
                 }
                 break;
             default:
@@ -285,7 +214,7 @@
         switch(event.key){
             case "ArrowUp":
                 event.preventDefault()
-                StartEditing();
+                Server.startMessageEdit(msg);
                 break;
             case "ArrowLeft":
                 event.preventDefault()
@@ -297,7 +226,7 @@
                 break;
             case "Delete":
                 event.preventDefault()
-                await DeleteCandidate();
+                await Server.deleteCandidate(id, index);
                 break;
             default:
                 break;
@@ -340,17 +269,17 @@
                 {/if}
 
             </div>
-            <span class="sub index">{msg?.id}:{current?.id}#{id+1}</span>
+            <span class="sub index" title={`Message: ${msg?.id}\nCandidate: ${current?.id}`}>#{id+1}</span>
         </div>
 
-        {#if isEditing}
+        {#if isEditing }
             <div class="section editing">
                 <p class="explanation">Editing message</p>
                 <!-- svelte-ignore a11y-autofocus -->
-                <textarea autofocus use:AutoResize={{ container: self }} bind:value={editedText}></textarea>
+                <textarea autofocus use:AutoResize={{ container: self }} bind:value={editText}></textarea>
                 <div class="section horizontal wrap">
-                    <button on:click={CancelEditing} class="component borderless danger">{@html SVG.close} Cancel</button>
-                    <button on:click={ConfirmEdit} class="component borderless confirm">{@html SVG.confirm} Confirm</button>
+                    <button on:click={() => Server.cancelMessageEdit(msg)} class="component borderless danger">{@html SVG.close} Cancel</button>
+                    <button on:click={confirmEdit} class="component borderless confirm">{@html SVG.confirm} Confirm</button>
                 </div>
             </div>
         {:else}
@@ -366,30 +295,21 @@
 
 
         {#if !isEditing}
-            <div class="footer" class:hidden={isEditing}>
-                <button class="dots normal" disabled={postActions} use:clickOutside on:click={TogglePostActions} on:clickout={() => SetPostActions(false)}>
+            <div class="footer" class:hidden={isEditing} inert={actions}>
+                <button class="dots normal" disabled={actions} bind:this={actionsButton} use:clickOutside on:click={togglePostActions} on:clickout={() => SetPostActions(false)}>
                     <div class="icon" title="More actions">{@html SVG.dots}</div>
-                        {#if postActions}
-                        <div class="actions">
-                            <button class="copy {navigator.clipboard ? "info" : "normal"}" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} title="Copy text" on:click={CopyMessage}>{@html SVG.copy}</button>
-                            <button class="edit confirm" title="Edit message" on:click={StartEditing}>{@html SVG.edit}</button>
-                            {#if id > 0}
-                                <button class="branch special" title="Branch from this message" on:click={BranchChat}>{@html SVG.split}</button>
-                                <button class="delete danger" title="Delete message" on:click={DeleteCandidate}>{@html SVG.trashcan}</button>
-                            {/if}
-                        </div>
-                    {/if}
                 </button>
 
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     {@const isGreeting = id === 0}
-                    {@const isLast = index >= candidates.length - 1}
+                    {@const isLastCandidate = index >= candidates.length - 1}
+                    {@const canSwipe = (isGreeting && isLastCandidate) || (!isGreeting && !last)}
 
                     <div class="swipes">
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
-                        <div class="count deselect">{index+1} / {candidates.length}</div>
-                        <button class="right normal" class:invisible={isGreeting && isLast} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
-                            {#if !isGreeting && isLast}
+                        <button class="count normal">{index+1} / {candidates.length}</button>
+                        <button class="right normal" class:invisible={canSwipe} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
+                            {#if !isGreeting && isLastCandidate}
                                 {@html SVG.plus}
                             {:else}
                                 {@html SVG.arrow}
@@ -543,7 +463,8 @@
         justify-content: space-between;
     }
 
-    .msg:hover .extras, .msg:hover .swipes, .msg:hover .dots{
+    .msg:hover .extras, .msg:hover .swipes, .msg:hover .dots,
+    .footer[inert] .extras, .footer[inert] .swipes, .footer[inert] .dots{
         visibility: visible;
     }
 
@@ -566,12 +487,9 @@
         visibility: hidden;
         color: gray;
         height: 100%;
+        gap: 8px;
         align-items: center;
         justify-content: center;
-    }
-
-    .swipes .right{
-        transform: scaleX(-1)
     }
 
     .swipes button{
@@ -585,27 +503,36 @@
     .swipes :global(svg){
         width: 20px;
         height: 20px;
-        translate: 8px 0px;
     }
 
     .swipes .count{
         display: flex;
-        align-items: baseline;
+        align-items: center;
         justify-content: center;
+        background: hsla(0, 0%, 0%, 0.2);
         word-spacing: 0.25em;
         font-size: 0.8rem;
-        width: 72px;
+        font-weight: bold;
+        min-width: 80px;
+        width: fit-content;
+        padding: 4px 12px;
+        border-radius: 100px;
     }
 
-    .swipes button{
+    .swipes .left, .swipes .right{
+        min-width: 40px;
         padding: 0px;
     }
 
+    .swipes .right{
+        transform: scaleX(-1)
+    }
+
     .dots{
-        width: 30px;
+        width: 36px;
         height: 20px;
-        background: #00000020;
-        border-radius: 4px;
+        background: hsla(0, 0%, 0%, 0.2);
+        border-radius: 100px;
         visibility: hidden;
         display: flex;
         place-items: center;
@@ -624,7 +551,7 @@
         height: fit-content;
         background: hsl(0, 0%, 10%);
         border-radius: 4px;
-        box-shadow: 0px 2px 0px #00000020;
+        box-shadow: 0px 2px 0px hsla(0, 0%, 0%, 0.2);
         display: flex;
         flex-direction: row-reverse;
         translate: 0px -40px;
@@ -640,10 +567,6 @@
         width: 40px;
         height: 36px;
         border-radius: 4px;
-    }
-
-    .actions button.disabled{
-        opacity: 0.5;
     }
 
     .actions button :global(svg){

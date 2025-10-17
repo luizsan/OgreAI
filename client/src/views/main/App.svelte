@@ -11,6 +11,7 @@
     import History from '@/views/history/History.svelte';
     import Options from '@/views/options/Tabs.svelte';
     import Header from '@/views/main/Header.svelte'
+    import Swipes from '@/views/chat/Swipes.svelte';
     import Chat from '@/views/chat/Chat.svelte';
 
     import {
@@ -18,13 +19,12 @@
         currentTheme,
         currentPreferences,
         currentChat,
-        sectionCharacters,
-        sectionSettings,
         fetching,
         history,
     } from '@/State';
 
-    import Dialog from '@/components/Dialog.svelte';
+    import Dialog from '@/views/modal/Dialog.svelte';
+    import Actions from '@/views/modal/Actions.svelte';
     import Loading from '@/components/Loading.svelte';
     import Screen from '@/components/Screen.svelte';
     import * as Preferences from '@/modules/Preferences';
@@ -79,7 +79,7 @@
 {#if $connected }
     <div class="fullscreen" style="--chat-width: {$currentPreferences["content_width"] ?? 900}px">
         <div class="main">
-            <div class="sidebar" class:open={$sectionCharacters}>
+            <div class="sidebar">
                 <Browse/>
             </div>
             <div class="middle">
@@ -90,7 +90,8 @@
                     <Editing/>
                 {/if}
             </div>
-            <div class="sidebar" class:open={$sectionSettings}>
+            <div class="sidebar">
+                <Swipes/>
                 <Options/>
             </div>
         </div>
@@ -103,6 +104,8 @@
                 </div>
             </div>
         {/if}
+
+        <Actions/>
         <Dialog/>
     </div>
 

@@ -201,7 +201,7 @@
 
     .title{
         display: flex;
-        gap: 8px;
+        gap: 4px;
         height: 100%;
         flex-direction: row;
         align-items: center;
@@ -214,6 +214,7 @@
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
+        align-self: center;
     }
 
     .title button{
@@ -223,8 +224,9 @@
     }
 
     .title :global(svg){
-        width: 20px;
-        height: 20px;
+        place-self: center;
+        width: 16px;
+        height: 16px;
     }
 
     .edit{

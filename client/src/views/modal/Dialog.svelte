@@ -13,9 +13,9 @@
         }
     }
 
-    const unsubscribe = data.subscribe(data => {
-        state = data
-        input = data?.type === "prompt" ? data.initial : "";
+    const unsubscribe = data.subscribe(v => {
+        state = v
+        input = v?.type === "prompt" ? v.initial : "";
     })
 
     function close(result?: any): void{

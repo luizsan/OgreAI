@@ -4,7 +4,10 @@ import type {
     IMessage,
     ICandidate,
 } from "@shared/types";
+
+
 import { get } from "svelte/store";
+import * as Dialog from "@/modules/Dialog.ts";
 import * as Format from "@shared/format.ts";
 import * as State from "@/State";
 import { tick } from "svelte";
@@ -18,16 +21,9 @@ export async function request( url : string, json = null, timeout_seconds: numbe
         "Cache-Control": "no-cache"
     }
     if( json ){
-        req = {
-            method: "POST",
-            body: JSON.stringify(json),
-            headers: headers
-        }
+        req = { method: "POST", body: JSON.stringify(json), headers: headers }
     }else{
-        req = {
-            method: "GET",
-            headers: headers
-        }
+        req = { method: "GET", headers: headers }
     }
     if( timeout_seconds > 0 ){
         req.signal = AbortSignal.timeout(timeout_seconds * 1000)
@@ -276,19 +272,34 @@ export async function loadLastChat(){
     State.fetching.set(false);
 }
 
-export async function branchChat(id: number, title: string): Promise<number|undefined>{
+export async function branchChat(index: number): Promise<number|undefined>{
+    // confirmation
+    const title = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
+    if(title?.trim() == null)
+        return
+    State.fetching.set(true)
+    // operations
     const currentChat: IChat = get( State.currentChat )
     const branchChat: IChat = JSON.parse( JSON.stringify( currentChat ))
-    branchChat.messages = branchChat.messages.slice(0, id + 1)
+    branchChat.messages = branchChat.messages.slice(0, index + 1)
     let last: IMessage = branchChat.messages.at(-1)
     let focused: ICandidate = last.candidates[last.index];
     last.candidates = [focused];
     last.index = 0
-    return await request("/duplicate_chat", {
+    await request("/duplicate_chat", {
         chat: branchChat,
         title: title || `Branch of ${currentChat.title}`,
         branch: focused
+    }).then(async new_id => {
+        if (!new_id){
+            await Dialog.alert("OgreAI", "Failed to branch chat!")
+        }else{
+            await listChats( get(State.currentCharacter), true )
+            updateChats();
+            await Dialog.alert("OgreAI", "Successfully branched chat!")
+        }
     })
+    State.fetching.set(false)
 }
 
 export async function sendMessage(content: string): Promise<boolean>{
@@ -331,11 +342,16 @@ export async function sendMessage(content: string): Promise<boolean>{
     return success
 }
 
-export async function deleteMessages(message_ids: Array<number>): Promise<boolean>{
+export async function deleteMessages(message_indices: Array<number>): Promise<boolean>{
+    if( message_indices.includes(0) )
+        return
+    const ok = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${message_indices.length}} message(s)?`)
+    if( !ok )
+        return
     const currentChat: IChat = get( State.currentChat )
     const deleteList: Array<number> = get( State.deleteList )
     const success: boolean = await request("/delete_messages", {
-        ids: message_ids.map(id => currentChat.messages[id].id)
+        ids: message_indices.map(id => currentChat.messages[id].id)
     })
     if( success ){
         currentChat.messages = currentChat.messages.filter((_msg: IMessage, index: number) => {
@@ -346,24 +362,96 @@ export async function deleteMessages(message_ids: Array<number>): Promise<boolea
     return success
 }
 
-export async function deleteCandidate(id: number, index: number): Promise<boolean>{
-    const currentChat: IChat = get( State.currentChat )
-    const candidate: ICandidate = currentChat.messages[id].candidates[index]
-    const success: boolean = await request("/delete_candidate", { id: candidate.id })
-    if( !success )
+export async function deleteCandidate(msg_index: number, candidate_index: number): Promise<boolean>{
+    if( msg_index == 0 )
         return
-    currentChat.messages[id].candidates.splice(index, 1)
-    let num_candidates = currentChat.messages[id].candidates.length;
-    if( num_candidates < 1 ){
-        currentChat.messages.splice(id, 1)
-    }else{
-        currentChat.messages[id].index = Math.max(0, Math.min( index, num_candidates-1 ))
+    const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
+    if( !ok )
+        return
+    State.fetching.set(true)
+    const currentChat: IChat = get( State.currentChat )
+    const candidate: ICandidate = currentChat.messages[msg_index].candidates[candidate_index]
+    const success: boolean = await request("/delete_candidate", { id: candidate.id })
+    State.fetching.set(false)
+    if( success ){
+        currentChat.messages[msg_index].candidates.splice(candidate_index, 1)
+        let num_candidates = currentChat.messages[msg_index].candidates.length;
+        if( num_candidates < 1 ){
+            currentChat.messages.splice(msg_index, 1)
+        }else{
+            currentChat.messages[msg_index].index = Math.max(0, Math.min( candidate_index, num_candidates-1 ))
+        }
+        const last_id = currentChat.messages.length - 1
+        await request("/swipe_message", {
+            message: currentChat.messages[last_id],
+            index: currentChat.messages[last_id].index
+        })
+        State.currentChat.set( currentChat )
+        if( success && last_id == msg_index ){
+            document.dispatchEvent(new CustomEvent("autoscroll"))
+        }
     }
-    const last_id = currentChat.messages.length - 1
-    await request("/swipe_message", {
-        message: currentChat.messages[last_id],
-        index: currentChat.messages[last_id].index
-    })
-    State.currentChat.set( currentChat )
     return success
+}
+
+export async function copyMessage(msg_index: number, candidate_index: number): Promise<void>{
+    const currentChat: IChat = get( State.currentChat )
+    const message: IMessage = currentChat.messages[msg_index]
+    const candidate: ICandidate = message.candidates[candidate_index];
+    navigator.clipboard.writeText(candidate.text).then(async function(){
+        await Dialog.alert("OgreAI", 'Text copied to clipboard!');
+    }).catch(async function(err) {
+        console.error('Failed to copy text: ', err);
+        await Dialog.alert("OgreAI", 'Failed to copy text to clipboard.\n' + err);
+    });
+}
+
+export function startMessageEdit(message: IMessage){
+    const editList = get( State.editList )
+    if(!editList.includes(message)){
+        editList.push(message)
+        State.editList.set( editList )
+    }
+}
+
+export function cancelMessageEdit(message: IMessage){
+    const editList = get( State.editList )
+    if(editList.includes(message)){
+        editList.splice(editList.indexOf(message), 1)
+        State.editList.set( editList )
+    }
+}
+
+export async function confirmMessageEdit(message: IMessage, content: string, rules?: any){
+    content = content.trim()
+    content = Format.regexReplace(content, ["on_edit"], rules)
+    content = Format.randomReplace(content).trim()
+
+    const currentChat: IChat = get( State.currentChat )
+    const index = currentChat.messages.indexOf(message)
+    const candidate = message.candidates[message.index]
+
+    let new_candidate: ICandidate = {
+        id: candidate.id,
+        text: content.trim(),
+        timestamp: candidate.timestamp,
+        model: candidate.model,
+        reasoning: candidate.reasoning,
+        timer: candidate.timer,
+        tokens: candidate.tokens
+    }
+
+    if( !content ){
+        await deleteCandidate(index, message.index);
+    }else{
+        await request( "/update_candidate", {
+            candidate: new_candidate
+        }).then(ok => {
+            if( ok ){
+                currentChat.messages[index].candidates[message.index] = new_candidate
+                State.currentChat.set( currentChat )
+            }
+        })
+    }
+    cancelMessageEdit(message)
 }

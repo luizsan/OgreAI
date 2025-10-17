@@ -53,7 +53,9 @@ export const characterList = writable< Array<ICharacter> >( [] )
 export const chatList = writable< Array<IChat> >( [] )
 // stores the chat count for each available character
 export const chatCount = writable< Record<string, number> >( {} )
-// stores the list of messages indices to be deleted
+// stores the list of messages currently being edited
+export const editList = writable< Array<IMessage> >( [] )
+// stores the list of message indices to be deleted
 export const deleteList = writable< Array<number> >( [] )
 // stores the list of favorite characters by filepath
 export const favoritesList = writable< Array<string> >( [] )

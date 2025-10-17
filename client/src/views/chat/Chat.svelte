@@ -32,6 +32,7 @@
     import Message from './Message.svelte';
     import Loading from '@/components/Loading.svelte';
 
+    import { data } from "@/modules/Actions";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Format from "@shared/format.ts";
     import * as Server from "@/Server";
@@ -41,7 +42,7 @@
     import { tick } from "svelte";
     import { get } from "svelte/store";
 
-    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen()
+    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen() || !!$data
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
@@ -486,10 +487,10 @@
 
 {#if $currentCharacter && $currentChat}
 
-<div class="container" inert={get(Dialog.data) !== null}>
+<div class="container">
     <Background/>
 
-    <div class="main">
+    <div class="main" inert={lockinput}>
         <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
