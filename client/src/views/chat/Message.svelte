@@ -62,7 +62,7 @@
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
-    $: lockinput = !$currentChat || $fetching || $busy
+    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen() || Actions.isOpen()
 
     // prefs
     $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
@@ -176,12 +176,7 @@
             return;
         }
 
-        if( Dialog.isOpen() ){
-            return
-        }
-
         let activeElement = document.activeElement;
-
         if( isEditing ){
             EditingShortcuts(event)
             return
@@ -197,7 +192,7 @@
     function EditingShortcuts(event : KeyboardEvent){
         switch(event.key){
             case "Escape":
-                CancelEditing();
+                Server.cancelMessageEdit(msg);
                 break;
             case "Enter":
                 const condition = $currentPreferences["enter_sends_message"] ?? false
@@ -214,6 +209,7 @@
         switch(event.key){
             case "ArrowUp":
                 event.preventDefault()
+                editText = current?.text;
                 Server.startMessageEdit(msg);
                 break;
             case "ArrowLeft":
@@ -303,12 +299,12 @@
                 {#if is_bot && (id > 0 || (id === 0 && candidates.length > 1))}
                     {@const isGreeting = id === 0}
                     {@const isLastCandidate = index >= candidates.length - 1}
-                    {@const canSwipe = (isGreeting && isLastCandidate) || (!isGreeting && !last)}
+                    {@const swipeBlocked = (!last && isLastCandidate) || (isGreeting && isLastCandidate )}
 
                     <div class="swipes">
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
                         <button class="count normal">{index+1} / {candidates.length}</button>
-                        <button class="right normal" class:invisible={canSwipe} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
+                        <button class="right normal" class:invisible={swipeBlocked} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
                             {#if !isGreeting && isLastCandidate}
                                 {@html SVG.plus}
                             {:else}

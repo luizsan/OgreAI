@@ -62,7 +62,7 @@
         $deleteList = [];
     }
 
-    function CancelDeleteMessages(){
+    function cancelDeleteMessages(){
         showMenu = false;
         $deleting = false;
         $deleteList = [];
@@ -74,14 +74,9 @@
     }
 
 
-    async function ConfirmDeleteMessages(){
-        if($deleteList.length > 0){
-            const ok: boolean = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${$deleteList.length} message(s)?`);
-            if( ok ){
-                await Server.deleteMessages($deleteList)
-            }
-        }
-        CancelDeleteMessages();
+    async function confirmDeleteMessages(){
+        await Server.deleteMessages($deleteList)
+        cancelDeleteMessages();
     }
 
     async function SendMessage(){
@@ -490,8 +485,8 @@
 <div class="container">
     <Background/>
 
-    <div class="main" inert={lockinput}>
-        <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll>
+    <div class="main" >
+        <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll inert={lockinput}>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
                     <Message
@@ -504,8 +499,8 @@
 
         {#if $deleting}
             <div class="bottom">
-                <button class="component normal" on:click={CancelDeleteMessages}>Cancel</button>
-                <button class="component danger" on:click={ConfirmDeleteMessages}>Delete</button>
+                <button class="component normal" on:click={cancelDeleteMessages}>Cancel</button>
+                <button class="component danger" on:click={confirmDeleteMessages}>Delete</button>
             </div>
 
         {:else}

@@ -344,12 +344,14 @@ export async function sendMessage(content: string): Promise<boolean>{
 
 export async function deleteMessages(message_indices: Array<number>): Promise<boolean>{
     if( message_indices.includes(0) )
-        return
-    const ok = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${message_indices.length}} message(s)?`)
-    if( !ok )
-        return
-    const currentChat: IChat = get( State.currentChat )
+        return false
     const deleteList: Array<number> = get( State.deleteList )
+    if( deleteList.length <= 0 )
+        return false
+    const ok = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${message_indices.length} message(s)?`)
+    if( !ok )
+        return false
+    const currentChat: IChat = get( State.currentChat )
     const success: boolean = await request("/delete_messages", {
         ids: message_indices.map(id => currentChat.messages[id].id)
     })
