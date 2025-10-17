@@ -1,3 +1,4 @@
+import util from "util"
 import API from "../core/api.ts"
 import * as Tokenizer from "../tokenizer/gpt.ts"
 import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js"
@@ -136,7 +137,7 @@ export default class Google extends API{
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         const mode = settings.stream ? "streamGenerateContent?alt=sse&key=" : "generateContent?key="
         const target: string = `${url}/v1beta/models/${settings.model}:${mode}${settings.api_auth}`
-        console.debug(`Sending prompt\n > ${target}\n\n%o`, outgoing_data)
+        console.debug(`Sending prompt\n > ${target}\n\n%o`, util.inspect(outgoing_data, { depth: 4, colors: true }))
         return await fetch(target, options)
     }
 
