@@ -26,7 +26,7 @@
 
     function checkInput(event: Event) {
         if (separators.some(s => inputText.endsWith(s))) {
-            const tag = inputText.slice(0, inputText.length - 1).trim().toLowerCase();
+            const tag = inputText.slice(0, inputText.length - 1)
             addTag(tag)
         }
         filterTags()
@@ -49,7 +49,7 @@
             return
         inputText = "";
         selected = selected.map(s => s.toLowerCase());
-        if(selected.includes(tag.toLowerCase()))
+        if(selected.includes(tag))
             return
         selected = [...selected, tag];
         filterTags();
@@ -65,12 +65,12 @@
     function tagDisplay(tag: string){
         if(tag.includes(":"))
             tag = tag.split(":").pop()
-        return tag.toUpperCase()
+        return tag.toUpperCase().trim()
     }
 
     function tagStyles(tag: string){
-        tag = tag.toLowerCase()
-        if(tag.startsWith("series:")){
+        tag = tag.toLowerCase().trim()
+        if(tag.startsWith("copyright:")){
             return "series"
         }else if(tag.startsWith("artist:")){
             return "artist"
