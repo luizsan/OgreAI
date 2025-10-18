@@ -14,6 +14,7 @@
     $: height = vertical ? `${coverage}%` : "100%"
     $: position = vertical ? "top center" : "center left";
     $: rotation = vertical ? "0.5turn" : "0.25turn";
+    $: fade = vertical ? "top" : "left";
 
     $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
     $: backgroundPath = localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime();
@@ -30,6 +31,7 @@
     --position: ${position};
     --rotation: ${rotation};
     --opacity: ${opacity * opacity_ratio};
+    --fade: ${fade};
     `}
 ></div>
 
@@ -45,17 +47,9 @@
         background-size: cover;
         background-position: var( --position );
         background-repeat: no-repeat;
+        -webkit-mask-image: linear-gradient(to var( --fade ), transparent, white);
+        mask-image: linear-gradient(to var( --fade ), transparent, white);
         opacity: var( --opacity );
     }
 
-    .background::after{
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient( var(--rotation), rgba(255, 255, 255, 0), var( --default-bg-color));
-        pointer-events: none;
-    }
 </style>

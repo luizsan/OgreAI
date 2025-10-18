@@ -584,7 +584,6 @@
         inset: 0px;
         min-width: 480px;
         width: 100%;
-        background: var( --default-bg-color );
     }
 
     :global(body.portrait) .container{
