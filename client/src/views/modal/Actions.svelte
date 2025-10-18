@@ -11,7 +11,6 @@
 
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte"
-    import { editList } from "@/State";
 
     let self: HTMLElement;
     let x: number = 0;
@@ -56,19 +55,17 @@
 
 
 {#if !!$data}
+{@const isGreeting = $index == 0}
+
 <div class="main" transition:fly={{duration:250, y: 10}}>
     <div bind:this={self} class="actions" style="left: {x}px; top: {y}px">
-        {#if $index > 0}
-            <button class="component borderless star disabled" disabled><span>Add To Favorites</span> {@html SVG.star}</button>
-        {/if}
-
+        <button class="component borderless star disabled" class:hidden={isGreeting} disabled><span>Add To Favorites</span> {@html SVG.star}</button>
         <button class="component borderless list normal disabled" disabled title="List swipes"><span>List Swipes</span> {@html SVG.menu}</button>
         <hr class="component">
         <button class="component borderless copy normal" title="Copy text" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} on:click={copyMessage}><span>Copy Text</span>{@html SVG.copy}</button>
+        <button class="component borderless branch normal" title="Branch from this message" class:hidden={isGreeting} on:click={branchChat}><span>Branch Chat</span> {@html SVG.split}</button>
         <button class="component borderless edit normal" title="Edit message" on:click={editMessage}><span>Edit Message</span> {@html SVG.edit}</button>
-
-        {#if $index > 0}
-            <button class="component borderless branch normal" title="Branch from this message" on:click={branchChat}><span>Branch Chat</span> {@html SVG.split}</button>
+        {#if !isGreeting}
             <hr class="component">
             <button class="component borderless delete danger" title="Delete message" on:click={deleteCandidate}><span>Delete Message</span> {@html SVG.trashcan}</button>
             <button class="component borderless id normal hidden" title="Copy message ID" on:click={() => {}}><span>Copy Message ID</span> {@html SVG.settings}</button>
