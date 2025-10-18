@@ -233,7 +233,7 @@
 
 <svelte:body on:keydown={Shortcuts} on:startedit={CancelEditing}/>
 
-<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} bind:this={self}>
+<div class="msg {authorType}" class:delete={$deleting && selected} class:disabled={$busy} inert={actions} bind:this={self}>
 
     <button class="avatar" on:click={EditCharacter}>
         <Avatar size={54} is_bot={is_bot} character={$currentCharacter}/>
@@ -347,7 +347,7 @@
         margin-top: auto;
     }
 
-    .msg:hover{
+    .msg:hover, .msg[inert]{
         background: rgb(128, 128, 128, 0.1);
     }
 
@@ -355,11 +355,11 @@
         background: rgb(255, 255, 255, 0.5);
     }
 
-    .msg:hover.user{
+    .msg:hover.user, .msg[inert].user{
         border-color: rgb(240, 240, 144);
     }
 
-    .msg:hover.bot{
+    .msg:hover.bot, .msg[inert].bot{
         border-color: rgb(135, 206, 235);
     }
 
