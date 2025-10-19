@@ -137,8 +137,6 @@
         height: 100%;
         position: relative;
         overflow: hidden;
-        --scrollbar-bg: var( --sub-bg-color );
-
     }
 
     :global(body.portrait) .main{
@@ -182,7 +180,6 @@
         height: 100%;
         position: absolute;
         pointer-events: none;;
-        background: var( --default-bg-color );
         z-index: 1;
 
     }
@@ -191,22 +188,22 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        position: absolute;
-        left: 0px;
-        right: 0px;
-        top: 0px;
-        bottom: 0px;
-        background: var( --sub-bg-color );
-
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        scrollbar-color: var( --accent-color-normal ) var( --sub-bg-color );
     }
 
     .inner{
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
         gap: 24px;
-        height: 100%;
         padding: 24px;
-        padding-left: 80px;
-        overflow-x: hidden;
-        overflow-y: auto;
+        margin-left: 56px;
+        background: var( --sub-bg-color );
+        background-repeat: repeat;
     }
 
     .bottom{
