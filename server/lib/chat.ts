@@ -244,6 +244,7 @@ export function GetLastMessage(chat_id: number): IMessage | undefined{
         return {
             id: message.id,
             participant: message.participant,
+            timestamp: message.create_date,
             index: message.candidate,
             candidates: [{
                 id: current.id,
