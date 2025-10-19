@@ -249,6 +249,20 @@ export async function savePrompt(): Promise<void>{
     })
 }
 
+export async function loadChat(chat: IChat){
+    State.fetching.set(true)
+    const new_chat: IChat = await request( "/load_chat", { id: chat?.id});
+    if( !new_chat ){
+        await Dialog.alert("OgreAI", "Failed to load chat!")
+    }else{
+        State.currentChat.set( new_chat )
+        await tick()
+        document.dispatchEvent(new CustomEvent("autoscroll"));
+    }
+    State.history.set(false)
+    State.fetching.set(false)
+}
+
 export async function loadLastChat(){
     const charactersList = get( State.characterList )
     if( charactersList.length < 1 )
@@ -272,33 +286,51 @@ export async function loadLastChat(){
     State.fetching.set(false);
 }
 
+export async function changeChatTitle(chat?: IChat) : Promise<boolean> {
+    const currentChat: IChat = chat || get( State.currentChat )
+    let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", currentChat.title)
+    if( new_title?.trim() && new_title !== currentChat.title ){
+        currentChat.title = new_title
+        const success = await request("/update_chat", { chat: currentChat })
+        if( success ){
+            await Dialog.alert("OgreAI", "Chat title updated!")
+            if( !chat )
+                State.currentChat.set( currentChat )
+            return true
+        }else{
+            await Dialog.alert("OgreAI", "Failed to update chat title!")
+        }
+    }
+    return false
+}
+
 export async function branchChat(index: number): Promise<number|undefined>{
     // confirmation
-    const title = await Dialog.prompt("OgreAI", "Create a new chat from start until this message?\nYou can assign a chat title in the following field:")
+    const currentChat: IChat = get( State.currentChat )
+    const defaultTitle = `Branch of ${currentChat.title}`
+    const title = await Dialog.prompt("OgreAI", "Creating a new chat from the selected message. Insert the new chat title:", defaultTitle)
     if(title?.trim() == null)
         return
     State.fetching.set(true)
     // operations
-    const currentChat: IChat = get( State.currentChat )
-    const branchChat: IChat = JSON.parse( JSON.stringify( currentChat ))
-    branchChat.messages = branchChat.messages.slice(0, index + 1)
-    let last: IMessage = branchChat.messages.at(-1)
+    const branch: IChat = JSON.parse( JSON.stringify( currentChat ))
+    branch.messages = branch.messages.slice(0, index + 1)
+    let last: IMessage = branch.messages.at(-1)
     let focused: ICandidate = last.candidates[last.index];
     last.candidates = [focused];
     last.index = 0
-    await request("/duplicate_chat", {
-        chat: branchChat,
-        title: title || `Branch of ${currentChat.title}`,
+    const new_id = await request("/duplicate_chat", {
+        chat: branch,
+        title: title || defaultTitle,
         branch: focused
-    }).then(async new_id => {
-        if (!new_id){
-            await Dialog.alert("OgreAI", "Failed to branch chat!")
-        }else{
-            await listChats( get(State.currentCharacter), true )
-            updateChats();
-            await Dialog.alert("OgreAI", "Successfully branched chat!")
-        }
     })
+    if (!new_id){
+        await Dialog.alert("OgreAI", "Failed to branch chat!")
+    }else{
+        await listChats( get(State.currentCharacter), true )
+        updateChats();
+        await Dialog.alert("OgreAI", "Successfully branched chat!")
+    }
     State.fetching.set(false)
 }
 

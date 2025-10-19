@@ -439,20 +439,6 @@
         }
     }
 
-    async function ChangeChatTitle(){
-        showMenu = false;
-        let new_title = await Dialog.prompt("OgreAI", "Insert the new chat title:", $currentChat.title)
-        if( new_title?.trim() ){
-            $currentChat.title = new_title
-            const success = await Server.request("/update_chat", { chat: $currentChat })
-            if( success ){
-                await Dialog.alert("OgreAI", "Chat title updated!")
-            }else{
-                await Dialog.alert("OgreAI", "Failed to update chat title!")
-            }
-        }
-    }
-
     async function Shortcuts(event : KeyboardEvent){
         if( event.key === "Escape"){
             abortMessage()
@@ -475,6 +461,10 @@
             await SendMessage();
             event.preventDefault()
         }
+    }
+
+    function closeMenu(){
+        showMenu = false
     }
 </script>
 
@@ -509,8 +499,8 @@
                     <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
                     {#if showMenu}
-                    <div class="chatmenu">
-                        <button class="item normal title" on:click={ChangeChatTitle}>
+                    <div class="chatmenu" role="menu" tabindex={0} on:click={closeMenu} on:keypress={closeMenu} >
+                        <button class="item normal title" on:click={() => Server.changeChatTitle($currentChat)}>
                             {@html SVG.chat}
                             <div>
                                 <p class="subtitle">Current chat</p>
