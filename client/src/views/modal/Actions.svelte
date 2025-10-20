@@ -17,6 +17,7 @@
     let y: number = 0;
     let offset: number = 6;
     let gap: number = 12;
+    let padding: number = 64;
 
     onMount(() => {
         if( $data ){
@@ -35,12 +36,8 @@
         if( !data?.opener )
             return;
         const opener_rect: DOMRect = data.opener.getBoundingClientRect();
-        if( opener_rect.right > window.innerWidth * 0.5 ){
-            x = opener_rect.right - self.offsetWidth + offset;
-        }else{
-            x = opener_rect.left - offset;
-        }
-        if( opener_rect.bottom > window.innerHeight * 0.5 ){
+        x = opener_rect.right - self.offsetWidth + offset;
+        if( opener_rect.bottom > self.offsetHeight + padding ){
             y = opener_rect.top - self.offsetHeight - gap;
         }else{
             y = opener_rect.bottom + gap;
@@ -56,11 +53,10 @@
 
 {#if !!$data}
 {@const isGreeting = $index == 0}
-
 <div class="main" transition:fly={{duration:250, y: 10}}>
     <div bind:this={self} class="actions" style="left: {x}px; top: {y}px">
-        <button class="component borderless star disabled" class:hidden={isGreeting} disabled><span>Add To Favorites</span> {@html SVG.star}</button>
-        <button class="component borderless list normal disabled" disabled title="List swipes"><span>List Swipes</span> {@html SVG.menu}</button>
+        <!-- <button class="component borderless star disabled" class:hidden={isGreeting} disabled><span>Add To Favorites</span> {@html SVG.star}</button> -->
+        <button class="component borderless list normal disabled" disabled title="List swipes"><span>See All Swipes</span> {@html SVG.menu}</button>
         <hr class="component">
         <button class="component borderless copy normal" title="Copy text" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} on:click={copyMessage}><span>Copy Text</span>{@html SVG.copy}</button>
         <button class="component borderless branch normal" title="Branch from this message" class:hidden={isGreeting} on:click={branchChat}><span>Branch Chat</span> {@html SVG.split}</button>
@@ -68,8 +64,8 @@
         {#if !isGreeting}
             <hr class="component">
             <button class="component borderless delete danger" title="Delete message" on:click={deleteCandidate}><span>Delete Message</span> {@html SVG.trashcan}</button>
-            <button class="component borderless id normal hidden" title="Copy message ID" on:click={() => {}}><span>Copy Message ID</span> {@html SVG.settings}</button>
-        {/if}
+            {/if}
+        <span class="debug hidden">{$message.id} | {$message.candidates[$message?.index]?.id}</span>
     </div>
 </div>
 {/if}
@@ -127,5 +123,13 @@
     .actions hr{
         margin: 4px 12px;
         width: calc(100% - 24px);
+    }
+
+    .debug{
+        font-size: 75%;
+        padding: 0px 12px 4px 12px;
+        color: gray;
+        opacity: 0.5;
+        width: 100%;
     }
 </style>
