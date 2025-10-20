@@ -200,7 +200,7 @@
         flex-direction: column;
         flex: 1 1 auto;
         gap: 24px;
-        padding: 24px;
+        padding: 24px 24px 0px 24px;
         margin-left: 56px;
         background: var( --sub-bg-color );
         background-repeat: repeat;
