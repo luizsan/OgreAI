@@ -15,8 +15,8 @@
         deleting,
         busy,
         tabEditing,
-        sectionCharacters
-
+        sectionCharacters,
+        generating
     } from "@/State";
 
     import{
@@ -34,6 +34,8 @@
     export let sort : string = "";
 
     let loaded : boolean = false
+
+    $: lockinput = $busy || $generating || $fetching
 
     $: filepath = (character?.temp?.filepath ?? "") as string
     $: favorited = ($favoritesList.indexOf(filepath) > -1) as boolean
@@ -64,7 +66,7 @@
     }
 
     async function SelectCharacter(filepath : string){
-        if( $fetching || $busy ){
+        if( lockinput ){
             return;
         }
 
@@ -108,7 +110,7 @@
 </script>
 
 
-<div class="container" use:LazyLoad on:lazyload={() => loaded = true}>
+<div class="container" use:LazyLoad on:lazyload={() => loaded = true} class:blocked={lockinput}>
     <button class="main" on:click={() => SelectCharacter(filepath)}>
         <div class="avatar" style="background-image: url({loaded ? getImageURL(filepath) : ""})"/>
         {#if label}

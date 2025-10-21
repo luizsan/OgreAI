@@ -27,6 +27,7 @@
     pointer-events: none !important;
     user-select: none !important;
     opacity: 0.25 !important;
+    cursor: not-allowed !important;
 }
 
 .deselect{
@@ -39,4 +40,8 @@
 
 .wait{
     cursor: wait !important;
+}
+
+.forbidden{
+    cursor: not-allowed !important;
 }

@@ -224,7 +224,6 @@
         abortController.abort()
         abortController = new AbortController()
         abortSignal = abortController.signal
-        $generating = false;
     }
 
     function newMessage(incoming: IReply){
@@ -239,6 +238,7 @@
 
     async function addMessage(message: IMessage, silent: boolean = false){
         const now = Date.now()
+        $busy = true;
         await Server.request( "/add_message", {
             chat: $currentChat,
             message: message
@@ -266,11 +266,13 @@
             if( !success ) return
             Server.updateChats()
         })
+        $busy = false;
     }
 
     async function addCandidate(candidate: ICandidate, silent: boolean = false){
         let last_message: IMessage = $currentChat.messages.at(-1)
         if( last_message.participant > -1 ){
+            $busy = true;
             const new_candidate = await Server.request( "/add_candidate", {
                 message: last_message,
                 candidate: candidate
@@ -296,6 +298,7 @@
                     Server.updateChats()
                 })
             }
+            $busy = false;
         }
     }
 

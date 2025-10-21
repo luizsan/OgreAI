@@ -210,11 +210,11 @@
 
 <Sidebar width={460} enabled={$sectionCharacters}>
 
-<div class="main" class:active={$sectionCharacters} class:locked={lockinput}>
+<div class="main" class:active={$sectionCharacters}>
 
-    <div class="container" bind:this={self} on:scroll={refreshScroll} class:disabled={lockinput}>
+    <div class="container" bind:this={self} on:scroll={refreshScroll}>
 
-        <div class="section">
+        <div class="section top" class:blocked={lockinput}>
             <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.add}Create Character</button>
 
             <div class="section horizontal">
@@ -294,8 +294,8 @@
         max-width: 100%;
     }
 
-    .main.locked{
-        cursor: not-allowed;
+    .disabled{
+        opacity: 0.3;
     }
 
     :global(body.light) .main{
@@ -313,9 +313,6 @@
         height: 100%;
     }
 
-    .container.disabled{
-        opacity: 0.3;
-    }
 
     .active{
         translate: 0 0 0;

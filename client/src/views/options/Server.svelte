@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Server from "@/Server";
-    import { busy, fetching } from "@/State";
+    import { busy, fetching, generating } from "@/State";
 
     const actions = [
         {
@@ -20,6 +20,8 @@
             "description": "This action will update the last interaction timestamp for all chats. This action cannot be undone. Are you sure you want to update interactions?"
         },
     ]
+
+    $: lockinput = $busy || $fetching || $generating || Dialog.isOpen()
 
     async function ActionTemplate(endpoint: string, description: string){
         if($busy ||$fetching){
@@ -48,7 +50,7 @@
             potentially resulting in permanent data loss.</p>
     </div>
     <div style="height: 16px"/>
-    <div class="section center actions">
+    <div class="section center actions" class:blocked={lockinput}>
         {#each actions as action}
             <button class="component wide" on:click={() => ActionTemplate(action.endpoint, action.description)}>{action.name}</button>
         {/each}
