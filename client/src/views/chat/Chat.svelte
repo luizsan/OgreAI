@@ -12,7 +12,7 @@
     import Background from "@/views/main/Background.svelte";
     import {
         busy,
-        chatList,
+        generating,
         currentCharacter,
         currentChat,
         selectedLorebooks,
@@ -40,14 +40,17 @@
     import * as Logo from "@/svg/Logo.svelte";
 
     import { tick } from "svelte";
-    import { get } from "svelte/store";
 
-    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen() || !!$data
+    $: lockinput = !$currentChat || $fetching || $busy || $generating || Dialog.isOpen() || !!$data
+
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
     let showMenu : boolean = false;
     let requestTime : number = 0;
+
+    $: placeholder_idle = `Type a message to ${$currentCharacter?.data?.name || "character"}...`;
+    $: placeholder_wait = "Awaiting response...";
 
     let abortController : AbortController = new AbortController()
     let abortSignal = abortController.signal;
@@ -80,7 +83,7 @@
     }
 
     async function SendMessage(){
-        $busy = true;
+        $generating = true;
         if( userMessage.trim().length > 0 ){
             let content: string = userMessage;
             const success = await Server.sendMessage(content);
@@ -92,7 +95,7 @@
         await tick();
         resize( messageBox );
         await generateMessage()
-        $busy = false;
+        $generating = false;
     }
 
     // select messages without cached tokens
@@ -150,7 +153,7 @@
             body: JSON.stringify(body)
         }
 
-        $busy = true;
+        $generating = true;
         // console.debug( "Request:\n%o", body)
         let streaming = $currentSettingsAPI.stream;
         requestTime = new Date().getTime()
@@ -198,7 +201,7 @@
                 console.error("Received error: %o", error)
             }
         })
-        $busy = false;
+        $generating = false;
     }
 
     async function receiveMessage(incoming : IReply){
@@ -216,11 +219,12 @@
     }
 
     function abortMessage(){
-        if(!$busy) return;
+        if(!$generating)
+            return;
         abortController.abort()
         abortController = new AbortController()
         abortSignal = abortController.signal
-        $busy = false;
+        $generating = false;
     }
 
     function newMessage(incoming: IReply){
@@ -393,7 +397,7 @@
     async function RegenerateMessage(){
         if( lockinput ) return;
         showMenu = false;
-        $busy = true;
+        $generating = true;
         let last = $currentChat.messages.at(-1)
         if( last.participant > -1 && $currentChat.messages.length > 1 ){
             if( last.candidates.length > 1 ){
@@ -422,7 +426,7 @@
         }else{
             await generateMessage(false);
         }
-        $busy = false;
+        $generating = false;
     }
 
     async function ChatHistory(state : boolean){
@@ -475,8 +479,8 @@
 <div class="container">
     <Background/>
 
-    <div class="main" >
-        <div class="messages" class:disabled={$busy} class:deselect={$busy} use:AutoScroll inert={lockinput}>
+    <div class="main" class:wait={$generating || $busy}>
+        <div class="messages" class:disabled={lockinput} class:deselect={lockinput} use:AutoScroll inert={lockinput}>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
                     <Message
@@ -494,7 +498,9 @@
             </div>
 
         {:else}
-            <div class="input" class:disabled={$busy}>
+            {@const placeholder = $generating ? placeholder_wait : placeholder_idle}
+
+            <div class="input" class:disabled={lockinput} inert={lockinput}>
                 <div use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; showMenu = false; }}>
                     <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
@@ -517,8 +523,8 @@
 
                 </div>
 
-                <textarea placeholder="Type a message..." bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
-                {#if $busy}
+                <textarea placeholder={placeholder} bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
+                {#if $generating}
                     <Loading/>
                 {:else}
                     <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
@@ -537,7 +543,7 @@
                     {/if}
                 </div>
                 <div>
-                    {#if $busy}
+                    {#if $generating}
                         <button class="abort danger side" on:click={abortMessage}>Abort Message {@html SVG.stop}</button>
                     {/if}
                 </div>
@@ -600,6 +606,7 @@
         overflow-y: scroll;
         margin-bottom: 75px;
         padding: 8px 0px 4px 0px;
+        scrollbar-color: hsla(0, 0%, 50%, 0.2) transparent;
     }
 
     .input{
@@ -765,9 +772,10 @@
 
     .under{
         position: absolute;
-        bottom: 6px;
+        bottom: 2px;
         left: 0px;
         right: 0px;
+        height: 28px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         padding: 0px 24px;

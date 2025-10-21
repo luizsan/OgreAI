@@ -9,6 +9,11 @@
         type ContextData
     } from "@/modules/Actions";
 
+    import {
+        busy,
+        generating
+    } from "@/State";
+
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte"
 
@@ -18,6 +23,8 @@
     let offset: number = 6;
     let gap: number = 12;
     let padding: number = 64;
+
+    $: lockinput = $busy || $generating
 
     onMount(() => {
         if( $data ){
@@ -53,7 +60,7 @@
 
 {#if !!$data}
 {@const isGreeting = $index == 0}
-<div class="main" transition:fly={{duration:250, y: 10}}>
+<div class="main" transition:fly={{duration:250, y: 10}} inert={lockinput}>
     <div bind:this={self} class="actions" style="left: {x}px; top: {y}px">
         <!-- <button class="component borderless star disabled" class:hidden={isGreeting} disabled><span>Add To Favorites</span> {@html SVG.star}</button> -->
         <button class="component borderless list normal disabled" disabled title="List swipes"><span>See All Swipes</span> {@html SVG.menu}</button>

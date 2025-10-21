@@ -112,7 +112,7 @@
     <button class="main" on:click={() => SelectCharacter(filepath)}>
         <div class="avatar" style="background-image: url({loaded ? getImageURL(filepath) : ""})"/>
         {#if label}
-            <div class="label">
+            <div class="label" class:invisible={!loaded}>
                 <div class="name normal">{character.data.name}</div>
                  <div class="sub">
 
@@ -135,9 +135,7 @@
                     {/if}
 
                 </div>
-
             </div>
-
         {/if}
         <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
     </button>

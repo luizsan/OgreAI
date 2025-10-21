@@ -12,9 +12,10 @@
         sectionSettings,
         tabSettings,
         tabEditing,
-
         editList,
-        currentSettingsMain
+        currentSettingsMain,
+        generating
+
     } from '@/State';
 
     import Avatar from '@/components/Avatar.svelte';
@@ -62,7 +63,7 @@
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
-    $: lockinput = !$currentChat || $fetching || $busy || Dialog.isOpen() || Actions.isOpen()
+    $: lockinput = !$currentChat || $fetching || $busy || $generating || Dialog.isOpen() || Actions.isOpen()
 
     // prefs
     $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
@@ -86,21 +87,21 @@
             $currentChat.messages[id].index = 0;
             return;
         }
-
+        if( last ){
+            document.dispatchEvent(new CustomEvent("autoscroll"))
+        }
         if($currentChat.messages[id].index > candidates.length-1){
             $currentChat.messages[id].index = candidates.length-1;
             if(!first && id === $currentChat.messages.length-1){
                 swipeAction();
             }
         }else{
+            $busy = true;
             await Server.request("/swipe_message", {
                 message: $currentChat.messages[id],
                 index: $currentChat.messages[id].index
             })
-        }
-
-        if( last ){
-            document.dispatchEvent(new CustomEvent("autoscroll"))
+            $busy = false;
         }
     }
 
@@ -142,8 +143,10 @@
     }
 
     export async function confirmEdit(){
+        $busy = true;
         await Server.confirmMessageEdit(msg, editText, $currentSettingsMain.formatting.replace)
         self.scrollIntoView({ block: "nearest" })
+        $busy = false;
     }
 
     function SelectMessageBatch(){

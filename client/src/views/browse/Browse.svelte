@@ -9,7 +9,13 @@
         sectionCharacters,
         currentProfile,
         characterSearch,
-        localServer
+        localServer,
+
+        generating,
+
+        busy
+
+
     } from "@/State";
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
@@ -19,59 +25,59 @@
     import { fly } from "svelte/transition";
 
     const sortModes = {
-        creation_date_new: {
-            label: "Creation date (newest)",
+        creation_date: {
+            label: "Creation date",
             order: (list : Array<ICharacter>) => {
                 list.sort((a,b) => b.metadata.created - a.metadata.created)
+                if( isReverse ){
+                    list.reverse()
+                }
                 return list
             }
         },
-        creation_date_old: {
-            label: "Creation date (oldest)",
-            order: (list : Array<ICharacter>) => {
-                list.sort((a,b) => a.metadata.created - b.metadata.created)
-                return list
-            }
-        },
-        alphabetical_ascending: {
-            label: "Alphabetical (ascending)",
+        alphabetical: {
+            label: "Alphabetical",
             order: (list : Array<ICharacter>) => {
                 list.sort(sortByName)
-                return list
-            }
-        },
-        alphabetical_descending: {
-            label: "Alphabetical (descending)",
-            order: (list : Array<ICharacter>) => {
-                list.sort(sortByName)
-                list.reverse()
+                if( isReverse ){
+                    list.reverse()
+                }
                 return list
             }
         },
         recently_chatted: {
             label: "Recently chatted",
             order: (list : Array<ICharacter>) => {
-                let recent_list : Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_latest > 0)
-                recent_list = recent_list.sort((a,b) => b.temp.chat_latest - a.temp.chat_latest)
-                return recent_list
+                // let recent_list : Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_latest > 0)
+                list = list.sort((a,b) => b.temp.chat_latest - a.temp.chat_latest)
+                if( isReverse ){
+                    list.reverse()
+                }
+                return list
             }
         },
         chat_count: {
             label: "Chat count",
             order: (list : Array<ICharacter>) => {
-                let count_list: Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_count > 0)
-                count_list.sort((a,b) => b.temp.chat_count - a.temp.chat_count)
-                return count_list
+                // let count_list: Array<ICharacter> = list.filter((char: ICharacter) => char.temp.chat_count > 0)
+                list.sort((a,b) => b.temp.chat_count - a.temp.chat_count)
+                if( isReverse ){
+                    list.reverse()
+                }
+                return list
             }
         }
     }
 
     let searchResults : Array<ICharacter> = Array.from($characterList) || []
     let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
+    let isReverse : boolean = (window.localStorage.getItem("order_mode")) === "true"
 
     let self : HTMLElement;
     let separator : HTMLElement; // threshold to show "Back to top" button
     let scrolled = 0; // amount of pixels scrolled so far
+
+    $: lockinput = $generating || $busy
 
     $: {
         // reactively check for changes in $characterList and $favoritesList
@@ -161,6 +167,14 @@
         $characterSearch = $characterSearch
     }
 
+    function changeOrder(){
+        isReverse = !isReverse
+        window.localStorage.setItem("order_mode", String(isReverse))
+        searchResults = Array.from($characterList)
+        searchResults = orderResults(searchResults)
+        $characterSearch = $characterSearch
+    }
+
     function refreshScroll(){
         scrolled = self ? self.scrollTop : -1;
     }
@@ -194,11 +208,11 @@
 </script>
 
 
-<Sidebar width={420} enabled={$sectionCharacters}>
+<Sidebar width={460} enabled={$sectionCharacters}>
 
-<div class="main" class:active={$sectionCharacters}>
+<div class="main" class:active={$sectionCharacters} class:locked={lockinput}>
 
-    <div class="container" bind:this={self} on:scroll={refreshScroll}>
+    <div class="container" bind:this={self} on:scroll={refreshScroll} class:disabled={lockinput}>
 
         <div class="section">
             <button class="component normal wide confirm" title="Create" on:click={NewCharacter}>{@html SVG.add}Create Character</button>
@@ -214,13 +228,21 @@
         <div class="section">
             <div class="label explanation">Character List — {size}</div>
             <div class="section horizontal wide select">
-                <select class="component wide" bind:value={currentSortMode} on:change={changeSort}>
+                <select class="component wide small-icon" bind:value={currentSortMode} on:change={changeSort}>
                     {#each Object.keys(sortModes) as key}
                     <option value={key}>{sortModes[key].label}</option>
                     {/each}
                 </select>
+
                 <div class="icon disabled">{@html SVG.sort}</div>
 
+                <button class="component normal deselect compact" on:click={changeOrder}>
+                {#if isReverse}
+                    {@html SVG.ascending}
+                {:else}
+                    {@html SVG.descending}
+                {/if}
+                </button>
             </div>
 
             <Search
@@ -262,7 +284,7 @@
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
-        background: var( --default-bg-color);
+        background: var( --sub-bg-color);
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         inset: 0px;
@@ -272,12 +294,15 @@
         max-width: 100%;
     }
 
+    .main.locked{
+        cursor: not-allowed;
+    }
+
     :global(body.light) .main{
         background: hsl(0, 0%, 90%);
     }
 
     .container{
-        background: var( --sub-bg-color );
         position: relative;
         width: 100%;
         overflow-y: scroll;
@@ -286,6 +311,10 @@
         flex-direction: column;
         gap: 12px;
         height: 100%;
+    }
+
+    .container.disabled{
+        opacity: 0.3;
     }
 
     .active{
@@ -314,7 +343,14 @@
 
     select{
         position: relative;
+    }
+
+    select.small-icon{
         padding-left: 32px;
+    }
+
+    button.component.compact{
+        padding: 6px 8px;
     }
 
     .unavailable{

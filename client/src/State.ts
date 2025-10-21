@@ -27,6 +27,8 @@ export const api = writable<boolean>( false )
 export const busy = writable<boolean>( false )
 // waiting for server fetch
 export const fetching = writable<boolean>( false )
+// waiting for a message to be generated
+export const generating = writable<boolean>( false )
 // #endregion
 
 // #region Client State

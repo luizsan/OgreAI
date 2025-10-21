@@ -36,3 +36,7 @@
 .pointer{
     cursor: pointer !important;
 }
+
+.wait{
+    cursor: wait !important;
+}
