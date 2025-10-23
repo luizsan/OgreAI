@@ -14,8 +14,8 @@
         tabEditing,
         editList,
         currentSettingsMain,
-        generating
-
+        generating,
+        swipes
     } from '@/State';
 
     import Avatar from '@/components/Avatar.svelte';
@@ -39,7 +39,7 @@
     export let swipeAction = () => {}
 
     // basic
-    $: msg = $currentChat && $currentChat.messages ? $currentChat.messages[id] : null;
+    $: msg = $currentChat?.messages[id];
     $: is_bot = msg ? msg.participant > -1 : false;
 
     $: first = id === 0;
@@ -147,6 +147,10 @@
         await Server.confirmMessageEdit(msg, editText, $currentSettingsMain.formatting.replace)
         self.scrollIntoView({ block: "nearest" })
         $busy = false;
+    }
+
+    function setSwipeView(){
+        $swipes = msg;
     }
 
     function SelectMessageBatch(){
@@ -308,7 +312,7 @@
 
                     <div class="swipes">
                         <button class="left normal" class:invisible={index < 1} title="Previous candidate" on:click={async () => await SwipeMessage(-1)}>{@html SVG.arrow}</button>
-                        <button class="count normal">{index+1} / {candidates.length}</button>
+                        <button class="count normal" on:click={setSwipeView}>{index+1} / {candidates.length}</button>
                         <button class="right normal" class:invisible={swipeBlocked} title="Next candidate" on:click={async () => await SwipeMessage(1)}>
                             {#if !isGreeting && isLastCandidate}
                                 {@html SVG.plus}
