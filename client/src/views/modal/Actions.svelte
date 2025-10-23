@@ -11,7 +11,8 @@
 
     import {
         busy,
-        generating
+        generating,
+        swipes
     } from "@/State";
 
     import * as Server from "@/Server";
@@ -51,6 +52,10 @@
         }
     }
 
+    function setSwipeView(){
+        $swipes = $message
+    }
+
     const deleteCandidate = () => { Server.deleteCandidate($index, $message.index) }
     const branchChat = () => { Server.branchChat($index) }
     const copyMessage = () => { Server.copyMessage($index, $message.index) }
@@ -60,11 +65,11 @@
 
 {#if !!$data}
 {@const isGreeting = $index == 0}
+{@const isBot = $message.participant >= 0}
 <div class="main" transition:fly={{duration:250, y: 10}} inert={lockinput}>
     <div bind:this={self} class="actions" style="left: {x}px; top: {y}px">
-        <!-- <button class="component borderless star disabled" class:hidden={isGreeting} disabled><span>Add To Favorites</span> {@html SVG.star}</button> -->
-        <button class="component borderless list normal disabled" disabled title="List swipes"><span>See All Swipes</span> {@html SVG.menu}</button>
-        <hr class="component">
+        <button class="component borderless list normal" class:hidden={!isBot} title="See all swipes" on:click={setSwipeView}><span>See All Swipes</span> {@html SVG.menu}</button>
+        <hr class="component" class:hidden={!isBot}>
         <button class="component borderless copy normal" title="Copy text" class:disabled={!navigator.clipboard} disabled={!navigator.clipboard} on:click={copyMessage}><span>Copy Text</span>{@html SVG.copy}</button>
         <button class="component borderless branch normal" title="Branch from this message" class:hidden={isGreeting} on:click={branchChat}><span>Branch Chat</span> {@html SVG.split}</button>
         <button class="component borderless edit normal" title="Edit message" on:click={editMessage}><span>Edit Message</span> {@html SVG.edit}</button>

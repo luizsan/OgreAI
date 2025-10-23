@@ -282,6 +282,7 @@
                 </div>
             </div>
         {:else}
+            <div class="text">
             <Content
                 author={author}
                 content={displayText}
@@ -290,6 +291,7 @@
                 bot={$currentCharacter.data.name}
                 chat={$currentChat}
             />
+            </div>
         {/if}
 
 
@@ -379,6 +381,11 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+    }
+
+    .text{
+        width: 100%;
+        margin-bottom: 1em;
     }
 
     .avatar{

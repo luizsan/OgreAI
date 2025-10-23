@@ -26,10 +26,12 @@
         fetching,
         history,
         localServer,
+        swipes,
     } from "@/State";
 
 
     import Message from './Message.svelte';
+    import Swipes from "./Swipes.svelte";
     import Loading from '@/components/Loading.svelte';
 
     import { data } from "@/modules/Actions";
@@ -41,8 +43,7 @@
 
     import { tick } from "svelte";
 
-    $: lockinput = !$currentChat || $fetching || $busy || $generating || Dialog.isOpen() || !!$data
-
+    $: lockinput = !$currentChat || $fetching || $busy || $generating || !!$swipes || Dialog.isOpen() || !!$data
 
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
@@ -482,7 +483,7 @@
 <div class="container">
     <Background/>
 
-    <div class="main" class:wait={$generating || $busy}>
+    <div class="main" class:wait={$generating || $busy} class:unfocus={!!$swipes}>
         <div class="messages" class:disabled={lockinput} class:deselect={lockinput} use:AutoScroll inert={lockinput}>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
@@ -508,7 +509,7 @@
                     <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
                     {#if showMenu}
-                    <div class="chatmenu" role="menu" tabindex={0} on:click={closeMenu} on:keypress={closeMenu} >
+                    <div class="chatmenu deselect" role="menu" tabindex={0} on:click={closeMenu} on:keypress={closeMenu} >
                         <button class="item normal title" on:click={() => Server.changeChatTitle($currentChat)}>
                             {@html SVG.chat}
                             <div>
@@ -551,9 +552,10 @@
                     {/if}
                 </div>
             </div>
-
         {/if}
     </div>
+
+    <Swipes/>
 </div>
 
 {:else}
@@ -598,6 +600,11 @@
         top: 0px;
         bottom: 0px;
         max-width: var( --chat-width );
+    }
+
+    .unfocus{
+        filter: blur(4px);
+        opacity: 0.5;
     }
 
     .messages{

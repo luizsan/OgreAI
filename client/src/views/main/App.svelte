@@ -11,7 +11,6 @@
     import History from '@/views/history/History.svelte';
     import Options from '@/views/options/Tabs.svelte';
     import Header from '@/views/main/Header.svelte'
-    import Swipes from '@/views/chat/Swipes.svelte';
     import Chat from '@/views/chat/Chat.svelte';
 
     import {
@@ -91,7 +90,6 @@
                 {/if}
             </div>
             <div class="sidebar">
-                <Swipes/>
                 <Options/>
             </div>
         </div>

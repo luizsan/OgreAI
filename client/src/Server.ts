@@ -212,6 +212,7 @@ export async function newChat(){
     await request( "/new_chat", { character: character }).then( data => {
         State.currentChat.set( data )
         State.history.set( false )
+        State.swipes.set( null )
     }).catch( error => {
         console.error(error)
         State.currentChat.set( null )
@@ -259,6 +260,7 @@ export async function loadChat(chat: IChat){
         await tick()
         document.dispatchEvent(new CustomEvent("autoscroll"));
     }
+    State.swipes.set(null)
     State.history.set(false)
     State.fetching.set(false)
 }
@@ -393,6 +395,39 @@ export async function deleteMessages(message_indices: Array<number>): Promise<bo
         })
         State.currentChat.set( currentChat )
     }
+    return success
+}
+
+export async function swipeMessage(message: IMessage, new_index: number): Promise<boolean> {
+    const currentChat: IChat = get( State.currentChat )
+    const candidates = message.candidates
+    const last = message.candidates.length-1
+
+    if( new_index < 0 )
+        new_index = 0;
+    if( new_index > candidates.length-1 )
+        new_index = candidates.length-1;
+
+    if( last ){
+        document.dispatchEvent(new CustomEvent("autoscroll"))
+    }
+
+    let success = true
+    if( message.id ){
+        State.busy.set(true)
+        success = await request("/swipe_message", {
+            message: message,
+            index: new_index
+        })
+        console.log("ogey!")
+        State.busy.set(false)
+    }
+
+    if( success ){
+        message.index = new_index
+        State.currentChat.set( currentChat )
+    }
+
     return success
 }
 

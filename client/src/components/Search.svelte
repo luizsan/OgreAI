@@ -26,7 +26,7 @@
 
 
 <div class="section wide">
-    <input type="text" class="component wide" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
+    <input type="text" class="component wide search" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
     {#if search}
         <button class="normal icon cancel" on:click={clear}>{@html SVG.close}</button>
     {:else}

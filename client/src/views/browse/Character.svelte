@@ -16,7 +16,10 @@
         busy,
         tabEditing,
         sectionCharacters,
-        generating
+        generating,
+
+        swipes
+
     } from "@/State";
 
     import{
@@ -81,6 +84,7 @@
         $fetching = true;
         await Server.getCharacter( filepath );
         await Server.listChats( $currentCharacter, true )
+        $swipes = null;
         $history = false;
         $deleting = false;
         $editing = null;

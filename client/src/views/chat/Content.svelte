@@ -48,7 +48,6 @@
     .text{
         display: flex;
         flex-direction: column;
-        margin-bottom: 1em;
         white-space: normal;
         gap: 1em;
     }
