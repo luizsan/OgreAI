@@ -17,7 +17,9 @@
     $: fade = vertical ? "top" : "left";
 
     $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
-    $: backgroundPath = localServer + "/user/characters/" + uri.replace("../", "") + "?" + new Date().getTime();
+    $: backgroundPath = $currentCharacter ? localServer + "/user/characters/" + uri.replace("../", "") : ""
+    // hack to un-cache the URL
+    $: timestamp = $currentCharacter ? new Date().getTime() : 0;
 
     const opacity_ratio : number = 1.0
 </script>
@@ -25,7 +27,7 @@
 {#if enabled}
 
 <div class="background" style={`
-    --image: url(${backgroundPath});
+    --image: url(${backgroundPath}?${timestamp});
     --width: ${width};
     --height: ${height};
     --position: ${position};
