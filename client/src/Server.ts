@@ -513,14 +513,14 @@ export async function confirmMessageEdit(message: IMessage, content: string, rul
     if( !content ){
         await deleteCandidate(index, message.index);
     }else{
-        await request( "/update_candidate", {
-            candidate: new_candidate
-        }).then(ok => {
-            if( ok ){
-                currentChat.messages[index].candidates[message.index] = new_candidate
-                State.currentChat.set( currentChat )
-            }
-        })
+        let ok = true
+        if(candidate.id){
+            ok = await request( "/update_candidate", { candidate: new_candidate })
+        }
+        if( ok ){
+            currentChat.messages[index].candidates[message.index] = new_candidate
+            State.currentChat.set( currentChat )
+        }
     }
     cancelMessageEdit(message)
 }
