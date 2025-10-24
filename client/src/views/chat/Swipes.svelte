@@ -18,10 +18,11 @@
     import Content from "@/views/chat/Content.svelte";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
-    import { fade, fly, scale } from "svelte/transition";
+    import { scale } from "svelte/transition";
 
     let searchTerm : string = ""
     let searchResults : Array<ICandidate> = $swipes?.candidates || []
+    let messageIndex : number = -1
 
     $: lockinput = $busy || $generating
     $: if( $swipes ){
@@ -29,6 +30,7 @@
     }
 
     async function initialize(){
+        messageIndex = $currentChat.messages.findIndex(m => m.id === $swipes?.id)
         await tick()
         const searchBar = document.querySelector("#swipe_viewer .search")
         const currentSwipe = document.getElementById("swipe_" + $swipes.index)
@@ -43,9 +45,20 @@
         return candidate.text.toLowerCase().includes(search)
     }
 
-    async function selectSwipe(index : number){
+    async function deleteSwipe(candidateIndex: number){
+        await Server.deleteCandidate(messageIndex, candidateIndex)
+        $swipes = $swipes;
+    }
+
+    async function branchSwipe(candidateIndex: number){
+        await Server.branchChat(messageIndex, candidateIndex)
+        closeSwipeView()
+        document.dispatchEvent(new CustomEvent("autoscroll"))
+    }
+
+    async function selectSwipe(candidateIndex : number){
         const last = $currentChat.messages.at(-1) == $swipes
-        await Server.swipeMessage($swipes, index)
+        await Server.swipeMessage($swipes, candidateIndex)
         closeSwipeView()
         if( last ){
             document.dispatchEvent(new CustomEvent("autoscroll"))
@@ -75,11 +88,22 @@
     <div class="middle">
         {#each searchResults as candidate, i}
         {@const index = $swipes.candidates.findIndex(c => c === candidate)}
+        {@const selected = index === $swipes.index}
 
             <div class="candidate" id="swipe_{index}">
-                <button class="select normal" title="Select swipe" on:click={async () => await selectSwipe(index)}>{@html SVG.arrow}</button>
                 <div class="content">
-                    <h2># {index + 1}</h2>
+                    <div class="header section horizontal">
+                        <span class="index"># {index + 1}</span>
+                        <div style="margin-left: auto"></div>
+                        <button class="component danger small" on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
+                        <button class="component normal small" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
+                        {#if selected}
+                            <button class="component confirm medium" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
+                        {:else}
+                            <button class="component normal medium" on:click={async () => await selectSwipe(index)}>Select Swipe<div style="transform: scaleX(-1) translateY(2px);">{@html SVG.arrow}</div></button>
+                        {/if}
+                    </div>
+
                     <Content
                         reasoning={candidate.reasoning}
                         content={candidate.text.trim()}
@@ -129,10 +153,6 @@
         cursor: wait;
     }
 
-    h2{
-        margin: 0px;
-    }
-
     .top{
         padding: 20px;
         display: flex;
@@ -153,42 +173,49 @@
         overflow-x: hidden;
         overflow-y: scroll;
         background: var( --component-bg-normal );
-
+        gap: 16px;
         display: flex;
         flex-direction: column;
     }
 
     .candidate{
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         gap: 8px;
         font-size: 1em;
         align-items: flex-start;
     }
 
     .content{
-        padding: 20px;
+        padding: 20px 32px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-    }
-
-    .select{
-        height: 100%;
-        min-width: 56px;
-    }
-
-    .select :global(svg){
-        width: 32px;
-        height: 32px;
-    }
-
-    .select:hover{
-        background: var( --component-bg-hover );
+        gap: 16px;
     }
 
     .bottom{
         padding: 20px;
         width: 100%;
+    }
+
+    .header .index{
+        font-size: 2em;
+        font-weight: 900;
+        text-wrap: nowrap;
+        align-self: center;
+        transform: translateY(4px);
+    }
+
+    button.component{
+        height: 32px;
+    }
+
+    button.component.small{
+        padding: 6px 10px;
+    }
+
+    button.component.medium{
+        padding: 6px 12px;
+        width: 128px;
     }
 </style>

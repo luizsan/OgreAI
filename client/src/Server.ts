@@ -169,7 +169,7 @@ export async function listChats(character : ICharacter, set_latest = false){
         State.currentChat.set(latest_chat);
         await tick()
         document.dispatchEvent(new CustomEvent("autoscroll"))
-        console.debug(`Applied latest chat for ${character.data.name}`)
+        console.debug(`Applied latest chat for ${character.data.name}: %o`, latest_chat)
     }
 }
 
@@ -263,6 +263,7 @@ export async function loadChat(chat: IChat){
     State.swipes.set(null)
     State.history.set(false)
     State.fetching.set(false)
+    console.debug(`Loaded chat: %o`, new_chat)
 }
 
 export async function loadLastChat(){
@@ -306,7 +307,7 @@ export async function changeChatTitle(chat?: IChat) : Promise<boolean> {
     return false
 }
 
-export async function branchChat(index: number): Promise<number|undefined>{
+export async function branchChat(msg_index: number, candidate_index?: number): Promise<number|undefined>{
     // confirmation
     const currentChat: IChat = get( State.currentChat )
     const defaultTitle = `Branch of ${currentChat.title}`
@@ -316,9 +317,10 @@ export async function branchChat(index: number): Promise<number|undefined>{
     State.fetching.set(true)
     // operations
     const branch: IChat = JSON.parse( JSON.stringify( currentChat ))
-    branch.messages = branch.messages.slice(0, index + 1)
+    branch.messages = branch.messages.slice(0, msg_index + 1)
     let last: IMessage = branch.messages.at(-1)
-    let focused: ICandidate = last.candidates[last.index];
+    let new_index: number = candidate_index && candidate_index > -1 ? candidate_index : last.index
+    let focused: ICandidate = last.candidates[new_index];
     last.candidates = [focused];
     last.index = 0
     const new_id = await request("/duplicate_chat", {
