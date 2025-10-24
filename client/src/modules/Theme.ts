@@ -19,14 +19,11 @@ export function updateRatio(){
     }
 }
 
-// temporarily disabled light theme until it's properly maintainable
 export function loadTheme(){
-    // let theme = window.localStorage.getItem("theme")
-    // theme = themeList.includes(theme) ? theme : "dark"
-    // setTheme( theme )
-    // return theme;
-    setTheme("dark")
-    return "dark"
+    let theme = window.localStorage.getItem("theme")
+    theme = themeList.includes(theme) ? theme : "dark"
+    setTheme( theme )
+    return theme;
 }
 
 export function setTheme(s: string){

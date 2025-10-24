@@ -45,7 +45,7 @@
 <style>
     header{
         align-items: center;
-        background: var( --sub-bg-color );
+        background: var( --header-bg-color );
         color: hsl(0, 0%, 75%);
         display: grid;
         grid-template-columns: 56px auto 56px;

@@ -1,0 +1,72 @@
+.min{
+    align-self: flex-start;
+}
+
+.wide{
+    width: 100%;
+}
+
+.fullscreen{
+    position: fixed;
+    inset: 0px;
+}
+
+.center{
+    display: flex;
+    place-content: center;
+    place-items: center;
+}
+
+.end{
+    display: flex;
+    place-content: flex-end;
+}
+
+.section{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section .title{
+    font-weight: 600;
+    margin: 0px;
+    line-height: 1.5rem;
+}
+
+.section .explanation{
+    color: #606060;
+    font-size: 0.85em;
+    white-space: pre-line;
+    line-height: 1.2rem;
+}
+
+.empty{
+    color: gray;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.ellipsis{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.horizontal{
+    flex-direction: row;
+}
+
+.wrap{
+    flex-wrap: wrap;
+}
+
+.grow{
+    flex-grow: 1;
+}
+
+.tabs{
+    padding: 24px 16px 0px 16px;
+    display: flex;
+    flex-direction: row;
+}

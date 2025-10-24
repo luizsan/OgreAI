@@ -284,7 +284,7 @@
     .main{
         --scrollbar-bg: hsl(0, 0%, 15%);
 
-        background: var( --sub-bg-color);
+        background: var( --sub-bg-color );
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         inset: 0px;
@@ -296,10 +296,6 @@
 
     .disabled{
         opacity: 0.3;
-    }
-
-    :global(body.light) .main{
-        background: hsl(0, 0%, 90%);
     }
 
     .container{

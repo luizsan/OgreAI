@@ -1,99 +1,106 @@
 .component{
     position: relative;
-    font-family: var( --default-font-face );
-    color: var( --component-color-normal );
-    background: var( --component-bg-normal );
-    border-color: var( --component-border-normal );
-    outline-color: var( --component-border-normal );
+    font-family: var(--default-font-face);
+    color: var(--main-color );
+    background: var(--component-bg-normal);
+    border-color: var(--component-border-normal);
+    outline-color: var(--component-border-normal);
     scrollbar-width: auto;
-    --scrollbar-bg: var( --component-bg-normal )
+    --scrollbar-bg: var(--component-bg-normal);
+    transition: color .125s ease, border-color .125s ease, outline-color .125s ease;
+    box-sizing: border-box;
 }
 
-.component:focus, .component.focus:focus-within, .component.focus:focus-within *:is(.cover, input, select){
-    --scrollbar-bg: var( --component-bg-hover );
-    background: var( --component-bg-hover );
-    color: var( --component-color-hover );
-    outline-color: var( --component-border-hover );
+.component:focus,
+.component.focus:focus-within,
+.component.focus:focus-within *:is(.cover, input, select){
+    --scrollbar-bg: var(--component-bg-hover);
+    background: var(--component-bg-hover);
+    color: var(--component-color-hover);
+    outline-color: var(--component-border-hover);
 }
 
-.component::-webkit-resizer {
-    background: var( --component-bg-normal );
+.component::-webkit-resizer{
+    background: var(--component-bg-normal);
     border-style: outset;
     border-width: 100px;
     border-top-color: transparent;
-    border-right-color: var( --component-color-normal );
-    border-bottom-color: var( --component-color-normal );
+    border-right-color: var(--component-color-normal);
+    border-bottom-color: var(--component-color-normal);
     border-left-color: transparent;
 }
 
 .component:focus::-webkit-resizer{
-    background: var( --component-bg-hover );
-    border-right-color: var( --component-color-hover );
-    border-bottom-color: var( --component-color-hover );
+    background: var(--component-bg-hover);
+    border-right-color: var(--component-color-hover);
+    border-bottom-color: var(--component-color-hover);
 }
 
-.component.container{
+/* Containers and inputs/textarea/select share many properties */
+.component.container,
+input:not([type="range"],[type="checkbox"],[type="radio"]).component,
+textarea.component,
+select.component{
     border-style: solid;
-    border-width: 0px 0px 0px 4px;
-    border-radius: 3px;
-    box-shadow: 0px 4px 8px 0px #00000030;
+    outline-width: 1px;
+    outline-style: solid;
+    border-width: 0 0 0 4px;
+    border-radius: var( --radius-field );
+    box-shadow: 0 4px 8px 0 #00000030;
+    padding: 4px 8px;
+    min-height: 30px;
+}
+
+/* Specific container tweaks */
+.component.container{
+    padding: 0;
     box-sizing: border-box;
-    transition-property: color;
-    transition-property: border-color;
-    transition-property: outline-color;
-    transition-duration: 0.125s;
-    transition-timing-function: ease;
+    box-shadow: 0 4px 8px 0 #00000030;
+}
+.component.container *{ position: relative; }
+.component.container hr{
+    margin: 0;
+    width: calc(100% - 16px);
+    left: 8px;
+    right: 8px;
+    color: gray;
+    opacity: .2;
 }
 
-.component:disabled, .component.disabled{
-    color: var( --component-color-disabled );
-    border-color: var( --component-border-disabled );
-    outline-color: var( --component-border-disabled );
-    opacity: 0.5;
+/* Disabled state */
+.component:disabled,
+.component.disabled{
+    color: var(--component-color-disabled);
+    border-color: var(--component-border-disabled);
+    outline-color: var(--component-border-disabled);
+    opacity: .5;
 }
 
-.component::placeholder{
-    color: #808080A0;
-}
+/* Placeholder */
+.component::placeholder{ color: #808080A0; }
 
+/* Number input without spin */
 input[type="number"].no-spin{
     -moz-appearance: textfield;
     appearance: textfield;
     margin: 0;
 }
-
-input[type=number].no-spin::-webkit-inner-spin-button, input[type=number].no-spin::-webkit-outer-spin-button {
+input[type="number"].no-spin::-webkit-inner-spin-button,
+input[type="number"].no-spin::-webkit-outer-spin-button{
     -webkit-appearance: none;
     margin: 0;
 }
 
-input:not([type="range"], [type="checkbox"], [type="radio"]).component, select.component{
-    height: 30px;
-}
+/* Heights and fonts */
+input:not([type="range"],[type="checkbox"],[type="radio"]).component,
+.component.dropdown{ height: 30px; }
 
-input:not([type="range"], [type="checkbox"], [type="radio"]).component, textarea.component, select.component, .component.container{
-    border-style: solid;
-    outline-width: 1px;
-    outline-style: solid;
-    border-width: 0px 0px 0px 4px;
-    border-radius: 3px;
-    box-shadow: 0px 4px 8px 0px #00000030;
-    box-sizing: border-box;
-    padding: 4px 8px;
-    transition-property: color;
-    transition-property: border-color;
-    transition-property: outline-color;
-    transition-duration: 0.125s;
-    transition-timing-function: ease;
-}
+input[type="text"].component,
+input[type="number"].component,
+textarea.component{ min-height: 30px; }
 
-input[type="text"].component, input[type="number"].component, textarea.component{
-    min-height: 30px;
-}
-
-input[type="text"].component, textarea.component{
-    font-size: 0.9em;
-}
+input[type="text"].component,
+textarea.component{ font-size: .9em; }
 
 textarea.component{
     line-height: 1.333333em;
@@ -102,30 +109,22 @@ textarea.component{
     resize: vertical;
 }
 
-input[type="checkbox"].component{
-    align-self: center;
-}
+/* Checkboxes, radios, selects */
+input[type="checkbox"].component{ width:24px; height:24px; align-self:center; }
+select.component,
+input[type="checkbox"].component,
+input[type="radio"].component{ cursor: pointer; }
+select.component option{ font-size: 1em; }
 
-select.component, input[type="checkbox"].component, input[type="radio"].component{
-    cursor: pointer;
-}
-
-select.component option{
-    font-size: 1em;
-}
-
-input[type="checkbox"].component{
-    width: 24px;
-    height: 24px;
-}
-
-button.component, label.component{
+/* Buttons and labels */
+button.component,
+label.component{
     padding: 6px 20px;
     outline-width: 1px;
     outline-style: solid;
-    border-radius: 3px;
-    transition-duration: 0.125s;
-    box-shadow: 0px 4px 2px 0px #00000030;
+    border-radius: var( --radius-field );
+    transition-duration: .125s;
+    box-shadow: 0 4px 2px 0 #00000030;
     display: flex;
     white-space: nowrap;
     place-items: center;
@@ -134,136 +133,39 @@ button.component, label.component{
     gap: 4px;
 }
 
-button.component:hover, label:has(input[type="radio"]:checked).component{
-    background: var( --component-bg-hover );
-    border-color: var( --component-border-hover);
-    outline-color: var( --component-border-hover );
+button.component:hover,
+label:has(input[type="radio"]:checked).component{
+    background: var(--component-bg-hover);
+    border-color: var(--component-border-hover);
+    outline-color: var(--component-border-hover);
 }
 
+/* Horizontal rule */
 hr.component{
     width: 100%;
     border: 1px solid gray;
-    opacity: 0.1;
-    margin: 0px;
+    opacity: .1;
+    margin: 0;
 }
 
-.component.container{
-    padding: 0px;
-}
-
-.component.container *{
-    position: relative;
-}
-
-.component.container hr{
-    margin: 0px;
-    width: calc( 100% - 16px );
-    left: 8px;
-    right: 8px;
-    color: gray;
-    opacity: 0.2;
-}
-
-.component.dropdown{
-    height: 30px;
-}
-
-.component.dropdown select{
-    padding-right: 24px;
-    height: 100%;
-}
-
-.component.dropdown input, .component .cover{
+/* Dropdown specific */
+.component.dropdown select{ padding-right: 24px; height: 100%; }
+.component.dropdown input,
+.component .cover{
     position: absolute;
     padding-right: 4px;
-    width: calc( 100% - 22px );
-    font-size: 0.825em;
+    width: calc(100% - 22px);
+    font-size: .825em;
     height: 100%;
-    left: 0px;
-    top: 0px;
-    height: 100%;
+    left: 0;
+    top: 0;
     outline: none;
     border: none;
     box-shadow: none;
-    border-radius:0px;
+    border-radius: 0;
     border-right-width: 1px;
     border-right-style: solid;
-    border-right-color: var( --component-border-normal );
+    border-right-color: var(--component-border-normal);
 }
 
-.component:focus-within.dropdown input{
-    border-right-color: var( --component-border-hover );
-}
-
-.min{
-    align-self: flex-start;
-}
-
-.wide{
-    width: 100%;
-}
-
-.fullscreen{
-    position: fixed;
-    inset: 0px;
-}
-
-.center{
-    display: flex;
-    place-content: center;
-    place-items: center;
-}
-
-.end{
-    display: flex;
-    place-content: flex-end;
-}
-
-.section{
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.section .title{
-    font-weight: 600;
-    margin: 0px;
-    line-height: 1.5rem;
-}
-
-.section .explanation{
-    color: #606060;
-    font-size: 0.85em;
-    white-space: pre-line;
-    line-height: 1.2rem;
-}
-
-.empty{
-    color: gray;
-    font-size: 0.9em;
-    font-style: italic;
-}
-
-.ellipsis{
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.horizontal{
-    flex-direction: row;
-}
-
-.wrap{
-    flex-wrap: wrap;
-}
-
-.grow{
-    flex-grow: 1;
-}
-
-.tabs{
-    padding: 24px 16px 0px 16px;
-    display: flex;
-    flex-direction: row;
-}
+.component:focus-within.dropdown input{ border-right-color: var(--component-border-hover); }
