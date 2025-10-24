@@ -95,7 +95,7 @@
             if(!first && id === $currentChat.messages.length-1){
                 swipeAction();
             }
-        }else{
+        }else if(msg.id){
             $busy = true;
             await Server.request("/swipe_message", {
                 message: $currentChat.messages[id],
