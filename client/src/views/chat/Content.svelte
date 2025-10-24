@@ -110,7 +110,7 @@
     }
 
     .text :global(blockquote){
-        border-left: 4px solid var( --default-font-color );
+        border-left: 4px solid var( --component-color-normal );
         padding-left: 1em;
     }
 

@@ -660,7 +660,7 @@
 
         background: none;
         border: none;
-        color: var( --default-font-color );
+        color: var( --component-color-normal );
         font-family: inherit;
         height: 20px;
         margin: 8px 0px;

@@ -200,10 +200,8 @@
         font-family: var( --default-font-face );
         font-size: 100%;
         gap: 2px;
-
         overflow: hidden;
         white-space: nowrap;
-
         margin-right: 40px;
     }
 
@@ -211,6 +209,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-weight: bolder;
+        color: var( --default-font-color );
     }
 
     .sub{
