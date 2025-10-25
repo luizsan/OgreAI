@@ -125,6 +125,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
         if( !item.key ) return
         if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
         let added: boolean = item.enabled
+        let what: string = ""
 
         switch(item.key){
             case "base_prompt":
@@ -161,6 +162,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 if( messages_list.length > 0 ){
                     prompt_entries = prompt_entries.concat(messages_list)
                     added = true
+                    what = `(${messages_list.length})`
                 }
                 break;
 
@@ -172,6 +174,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     world_entry.content = parseNames(world_entry.content, data.user.name, data.character.data.name )
                     prompt_entries.push(world_entry)
                     added = true
+                    what = `(${world_entries.length})`
                 }
                 break;
 
@@ -183,6 +186,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                     book_entry.content = parseNames(book_entry.content, data.user.name, data.character.data.name )
                     prompt_entries.push(book_entry)
                     added = true
+                    what = `(${character_entries.length})`
                 }
                 break;
 
@@ -201,9 +205,9 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
         }
 
         if( added ){
-            console.debug(chalk.cyan(chalk.bold( " + ")) + chalk.blue(item.key))
+            console.debug(`${chalk.cyan(" + ")} ${chalk.blue(item.key)} ${chalk.magenta(what)}`)
         }else{
-            console.debug(chalk.gray(chalk.bold( " - " ) + item.key))
+            console.debug(chalk.gray(`${" - "} ${item.key} ${what}`))
         }
 
     })

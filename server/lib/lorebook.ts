@@ -85,13 +85,16 @@ export function findKeysInMessage(keys: string[], message: IMessage, case_sensit
 }
 
 export function matchMessage(entry: ILorebookEntry, message: IMessage){
-    if( !entry.enabled )
+    if( !entry.enabled ){
         return false;
-    if( entry.constant )
+    }
+    if( entry.constant ){
         return true;
-    if( entry.keys?.length == 0 )
+    }
+    if( entry.keys?.length == 0 ){
         return false
-    const has_primary_key = this.findKeysInMessage(entry.keys, message, entry.case_sensitive);
+    }
+    const has_primary_key = findKeysInMessage(entry.keys, message, entry.case_sensitive);
     if( has_primary_key ){
         if( entry.selective && entry.secondary_keys?.length > 0 ){
             const has_secondary_key = this.findKeysInMessage(entry.secondary_keys, message, entry.case_sensitive);
@@ -105,7 +108,7 @@ export function matchMessage(entry: ILorebookEntry, message: IMessage){
 export function getGlobalLoreEntries(api: API, data: IGenerationData): Array<ILorebookEntry>{
     let entries_triggered: Array<ILorebookEntry> = []
     data.books?.forEach(book => {
-        const entries = this.getEntriesFromBook( api, book, data )
+        const entries = getEntriesFromBook( api, book, data )
         entries_triggered = entries_triggered.concat(entries)
     })
     return entries_triggered
@@ -132,7 +135,7 @@ export function getEntriesFromBook(api: API, book: ILorebook, data: IGenerationD
             return
         }
         const match = messages_scanned.some((message) => {
-            this.matchMessage(entry, message)
+            return matchMessage(entry, message)
         })
         if(match) {
             entries_triggered.push(entry);

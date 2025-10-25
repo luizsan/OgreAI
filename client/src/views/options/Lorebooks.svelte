@@ -15,7 +15,6 @@
     import * as Server from "@/Server";
     import * as Data from "@/modules/Data.ts"
     import * as SVG from "@/svg/Common.svelte"
-    import * as Format from "@shared/format.ts";
 
     let editingBook : any = null;
     let searchResults : Array<ILorebook> = [];
@@ -95,8 +94,8 @@
             searchResults.sort(sortLorebooks)
             searchResults = searchResults
             updateSelected()
-            loading = false;
         })
+        loading = false;
     }
 
     async function saveBook(){
