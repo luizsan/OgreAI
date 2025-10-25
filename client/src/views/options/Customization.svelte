@@ -43,7 +43,10 @@
 
     {#each Preferences.prefsList as key}
         {@const entry = Preferences.prefs[key] }
-        <div class="setting" class:blocked={entry.disabled($currentPreferences)} on:change={() => applyPreference(key, buffer[key])}>
+        <div class="setting" class:blocked={entry.disabled($currentPreferences)}
+            on:input={() => applyPreference(key, buffer[key])}
+            on:change={() => applyPreference(key, buffer[key])}
+        >
             {#if entry.type == "range"}
                 <Slider
                     bind:value={buffer[key]}
