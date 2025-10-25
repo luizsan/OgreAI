@@ -136,9 +136,10 @@ export default class Google extends API{
 
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         const mode = settings.stream ? "streamGenerateContent?alt=sse&key=" : "generateContent?key="
-        const target: string = `${url}/v1beta/models/${settings.model}:${mode}${settings.api_auth}`
-        console.debug(`Sending prompt\n > ${target}\n\n%o`, util.inspect(outgoing_data, { depth: 4, colors: true }))
-        return await fetch(target, options)
+        const target: string = `${url}/v1beta/models/${settings.model}:${mode}`
+        const hidden = settings.api_url ? url : settings.api_auth.slice(-4).padStart(settings.api_auth.length, '*')
+        console.debug(`Sending prompt\n > ${target}${hidden}\n\n%o`, util.inspect(outgoing_data, { depth: 4, colors: true }))
+        return await fetch(target + settings.api_auth, options)
     }
 
     receiveData(raw: string, swipe: boolean): IReply | IError {
