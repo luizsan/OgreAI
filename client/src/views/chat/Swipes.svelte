@@ -95,8 +95,8 @@
                     <div class="header section horizontal">
                         <span class="index"># {index + 1}</span>
                         <div style="margin-left: auto"></div>
-                        <button class="component danger small" on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
-                        <button class="component normal small" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
+                        <button class="component danger small" title="Delete swipe"on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
+                        <button class="component normal small" title="Branch from swipe" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
                         {#if selected}
                             <button class="component confirm medium" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
                         {:else}
@@ -203,7 +203,6 @@
         font-weight: 900;
         text-wrap: nowrap;
         align-self: center;
-        transform: translateY(4px);
     }
 
     button.component{
