@@ -131,7 +131,7 @@
                         }
 
                         if( $currentChat && $currentCharacter ){
-                            $currentChat.participants[0] = $currentCharacter.data.name
+                            $currentChat.participants[0] = $currentCharacter.temp.filename
                             if( $currentChat.messages.length == 1 && $currentChat.messages[0].participant > -1 ){
                                 $currentChat.messages[0].candidates[0].text = $currentCharacter.data.first_mes;
                                 $currentChat.messages[0].candidates[0].text = Format.parseMacros($currentChat.messages[0].candidates[0].text, $currentChat)

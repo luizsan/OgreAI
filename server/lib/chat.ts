@@ -36,7 +36,7 @@ export function New( character: ICharacter ): IChat{
     if( !character )
         return chat
 
-    chat.participants.push( character.data.name )
+    chat.participants.push( character.temp?.filename || character.data.name )
 
     let first: IMessage = { participant: 0, index: 0, timestamp: timestamp, candidates: [] }
     let first_mes: string= character.data.first_mes || "Hello, {{user}}!"
