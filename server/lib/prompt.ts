@@ -124,25 +124,26 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
     data.prompt.forEach((item: IPromptConfig) => {
         if( !item.key ) return
         if( item.key !== "messages" && item.enabled !== undefined && item.enabled === false ) return
-        let added: boolean = item.enabled
-        let what: string = ""
+        let added_item: boolean = item.enabled
+        let added_what: string = ""
 
         switch(item.key){
             case "base_prompt":
                 const entry_main_prompt: IPromptEntry = getMainPrompt(item, data)
-                if ( entry_main_prompt.content.length > 0 ){
+                added_item = entry_main_prompt.content.length > 0
+                if ( added_item ){
                     prompt_entries.push(entry_main_prompt)
-                    added = true
                 }
                 break;
 
             case "persona":
-                if ( user?.persona?.trim().length > 0 ){
+                const content_persona = user?.persona?.trim()
+                added_item = content_persona && content_persona.length > 0
+                if ( added_item ){
                     let persona_entry: IPromptEntry = { role: "system", content: user.persona }
                     persona_entry.content = parseMacros(persona_entry.content, data.chat)
                     persona_entry.content = parseNames(persona_entry.content, user.name, character.data.name )
                     prompt_entries.push({ role: "system", content: user.persona })
-                    added = true
                 }
                 break;
 
@@ -151,43 +152,43 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
             case "scenario":
             case "mes_example":
                 const entry_property: IPromptEntry = getCharacterProperty(item, data)
-                if ( entry_property.content ){
+                added_item = !!entry_property.content
+                if ( added_item ){
                     prompt_entries.push(entry_property)
-                    added = true
                 }
                 break;
 
             case "messages":
                 const messages_list: Array<IPromptEntry> = getMessages(api, data, offset)
-                if( messages_list.length > 0 ){
+                added_item = messages_list.length > 0
+                if( added_item ){
                     prompt_entries = prompt_entries.concat(messages_list)
-                    added = true
-                    what = `(${messages_list.length})`
                 }
+                added_what = `(${messages_list.length})`
                 break;
 
             case "world_info":
                 const world_entries: Array<ILorebookEntry> = Lorebook.getGlobalLoreEntries(api, data)
-                if( world_entries.length > 0 ){
+                added_item = world_entries.length > 0
+                if( added_item ){
                     let world_entry: IPromptEntry = { role: "system", content: Lorebook.squashEntries(world_entries) }
                     world_entry.content = parseMacros(world_entry.content, data.chat)
                     world_entry.content = parseNames(world_entry.content, data.user.name, data.character.data.name )
                     prompt_entries.push(world_entry)
-                    added = true
-                    what = `(${world_entries.length})`
                 }
+                added_what = `(${world_entries.length})`
                 break;
 
             case "character_book":
                 const character_entries: Array<ILorebookEntry> = Lorebook.getEntriesFromBook(api, character.data.character_book, data)
-                if( character_entries.length > 0 ){
+                added_item = character_entries.length > 0
+                if( added_item ){
                     let book_entry: IPromptEntry = { role: "system", content: Lorebook.squashEntries(character_entries) }
                     book_entry.content = parseMacros(book_entry.content, data.chat)
                     book_entry.content = parseNames(book_entry.content, data.user.name, data.character.data.name )
                     prompt_entries.push(book_entry)
-                    added = true
-                    what = `(${character_entries.length})`
                 }
+                added_what = `(${character_entries.length})`
                 break;
 
             case "custom":
@@ -198,16 +199,16 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
                 custom_entry.content = parseMacros(custom_entry.content, data.chat )
                 custom_entry.content = parseNames(custom_entry.content, data.user.name, data.character.data.name )
                 prompt_entries.push(custom_entry)
-                added = true
+                added_item = true
 
             default:
                 break;
         }
 
-        if( added ){
-            console.debug(`${chalk.cyan(" + ")} ${chalk.blue(item.key)} ${chalk.magenta(what)}`)
+        if( added_item ){
+            console.debug(`${chalk.cyan(" + ")} ${chalk.blue(item.key)} ${chalk.magenta(added_what)}`)
         }else{
-            console.debug(chalk.gray(`${" - "} ${item.key} ${what}`))
+            console.debug(chalk.gray(`${" - "} ${item.key} ${added_what}`))
         }
 
     })
