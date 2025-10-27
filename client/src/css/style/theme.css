@@ -2,8 +2,8 @@
   --selection-color: hsl(220, 100%, 50% );
   /* --- */
   --background-neutral-100: hsl(213, 18%, 10%);
-  --background-neutral-200: hsl(192, 4%, 16%);
-  --background-neutral-300: hsl(192, 6%, 14%);
+  --background-neutral-200: hsl(192, 6%, 14%);
+  --background-neutral-300: hsl(192, 4%, 16%);
   --background-neutral-400: hsl(192, 5%, 20%);
   /* --- */
   --surface-primary-100: rgb(35, 51, 51);
@@ -27,8 +27,8 @@
   --content-primary-200: hsl(60, 10%, 75%);
   --content-primary-300: hsl(67, 31%, 94%);
 
-  --content-secondary-100: hsl(199, 23%, 38%);
-  --content-secondary-200: hsl(200, 22%, 55%);
+  --content-secondary-100: hsl(177, 23%, 38%);
+  --content-secondary-200: hsl(180, 22%, 55%);
   --content-secondary-300: hsl(199, 68%, 88%);
 
   --content-neutral-100: hsl(0, 0%, 35%);

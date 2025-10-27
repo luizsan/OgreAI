@@ -140,7 +140,7 @@
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        border: 1px solid var( --surface-neutral-300 );
+        border: 1px solid var( --background-neutral-400 );
         box-shadow: 2px 4px 20px 0px #00000040;
         width: calc( 100% - 64px );
         max-width: calc( var( --chat-width) - 64px);
@@ -158,7 +158,7 @@
         flex-direction: column;
         gap: 8px;
         padding-bottom: 12px;
-        border-bottom: 1px solid var( --surface-neutral-300 );
+        border-bottom: 1px solid var( --background-neutral-400 );
     }
 
     .results{
@@ -196,7 +196,7 @@
     .bottom{
         padding: 20px;
         width: 100%;
-        border-top: 1px solid var( --surface-neutral-300 );
+        border-top: 1px solid var( --background-neutral-400 );
     }
 
     .header .index{
