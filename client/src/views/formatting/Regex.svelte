@@ -125,7 +125,8 @@
     }
 
     input[type="checkbox"]{
-        align-self: center;
+        top: 12px;
+        translate: 0 -50%;
         width: 20px;
         height: 20px;
     }
