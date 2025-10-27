@@ -8,6 +8,8 @@ select.component.editable{
   padding-right: 24px;
 }
 
+/* cover rules */
+/* simulates an editable <select> */
 select.component.editable ~input[type="text"]{
   --cover-border-radius: calc(var( --field-border-radius ) + 2px);
   position: absolute;
@@ -16,7 +18,7 @@ select.component.editable ~input[type="text"]{
   left: 2px;
   top: 2px;
   min-height: unset;
-  width: calc(100% - 24px);
+  width: calc(100% - 20px);
   height: calc(var(--field-height, 30px) - 4px);
   outline: none;
   border: none;
@@ -27,20 +29,38 @@ select.component.editable ~input[type="text"]{
   border-right-color: var( --field-normal-outline );
 }
 
-select.component.editable:active ~input[type="text"],
-select.component.editable:focus ~input[type="text"],
-select.component.editable:focus-within ~input[type="text"]{
-  color: var ( --field-focus-content );
-  background: var( --field-focus-background );
+/* change cover when hovering itself (rule not present elsewhere) */
+select.component.editable ~input[type="text"]:hover{
+  color: var ( --field-hover-content );
+  background: var( --field-hover-background );
+  outline: var( --field-hover-outline );
 }
 
+/* change cover when hovering or focusing dropdown */
+select.component.editable:hover ~input[type="text"],
+select.component.editable:focus ~input[type="text"]{
+  color: var ( --field-hover-content );
+  background: var( --field-hover-background );
+  outline: var( --field-hover-outline );
+}
+
+/* change dropdown when hovering cover */
 select.component.editable:has(
-  ~input[type="text"]:hover,
+  ~input[type="text"]:hover
+){
+  background: var( --field-hover-background );
+  outline: 1px solid var(--field-hover-outline );
+  box-shadow: 0px 2px 2px 2px var( --field-hover-shadow );
+}
+
+/* change dropdown when focusing cover */
+select.component.editable:has(
   ~input[type="text"]:active,
   ~input[type="text"]:focus,
   ~input[type="text"]:focus-within
 ){
-  background: var( --surface-neutral-200 );
-  outline: 1px solid var(--surface-primary-400);
-  box-shadow: 0px 2px 2px 2px var( --surface-primary-100 );
+  background: var( --field-focus-background );
+  outline: 1px solid var(--field-focus-outline );
+  box-shadow: 0px 2px 2px 2px var( --field-focus-shadow );
 }
+

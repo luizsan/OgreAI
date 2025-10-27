@@ -35,18 +35,7 @@ button.component{
   transition-duration: .125s;
 }
 
-input:not(
-[type="submit"],
-[type="reset"],
-[type="checkbox"],
-[type="file"],
-[type="image"],
-[type="range"],
-[type="color"]
-).component:hover,
 select.component:hover,
-textarea.component:hover,
-label.component:hover,
 button.component:hover{
   color: var( --field-hover-content );
   background: var( --field-hover-background );
