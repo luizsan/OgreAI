@@ -14,14 +14,14 @@
 <style>
     .loading-outer{
         fill: none;
-        stroke: var( --accent-color-normal);
+        stroke: var( --surface-primary-300 );
         stroke-linecap: round;
         stroke-width: 12;
     }
 
     .loading-inner{
         fill: none;
-        stroke: var( --accent-color-light);
+        stroke: var( --surface-primary-400);
         stroke-linecap: round;
         stroke-width: 12;
     }

@@ -95,12 +95,12 @@
                     <div class="header section horizontal">
                         <span class="index"># {index + 1}</span>
                         <div style="margin-left: auto"></div>
-                        <button class="component danger small" title="Delete swipe"on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
-                        <button class="component normal small" title="Branch from swipe" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
+                        <button class="component danger compact" title="Delete swipe"on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
+                        <button class="component normal compact" title="Branch from swipe" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
                         {#if selected}
-                            <button class="component confirm medium" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
+                            <button class="component confirm large" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
                         {:else}
-                            <button class="component normal medium" on:click={async () => await selectSwipe(index)}>Select Swipe<div style="transform: scaleX(-1) translateY(2px);">{@html SVG.arrow}</div></button>
+                            <button class="component normal large" on:click={async () => await selectSwipe(index)}>Select Swipe<div style="transform: scaleX(-1) translateY(2px);">{@html SVG.arrow}</div></button>
                         {/if}
                     </div>
 
@@ -136,12 +136,11 @@
         margin: 0px;
         position: absolute;
         overflow: hidden;
-        --scrollbar-bg: var( --sub-bg-color );
-        background: var( --sub-bg-color );
+        background: var( --background-neutral-200 );
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        border: 1px solid hsla(0, 0%, 50%, 0.5);
+        border: 1px solid var( --surface-neutral-300 );
         box-shadow: 2px 4px 20px 0px #00000040;
         width: calc( 100% - 64px );
         max-width: calc( var( --chat-width) - 64px);
@@ -159,6 +158,7 @@
         flex-direction: column;
         gap: 8px;
         padding-bottom: 12px;
+        border-bottom: 1px solid var( --surface-neutral-300 );
     }
 
     .results{
@@ -172,7 +172,7 @@
         flex-grow: 1;
         overflow-x: hidden;
         overflow-y: scroll;
-        background: var( --component-bg-normal );
+        background: var( --background-neutral-300 );
         gap: 16px;
         display: flex;
         flex-direction: column;
@@ -196,6 +196,7 @@
     .bottom{
         padding: 20px;
         width: 100%;
+        border-top: 1px solid var( --surface-neutral-300 );
     }
 
     .header .index{
@@ -205,15 +206,7 @@
         align-self: center;
     }
 
-    button.component{
-        height: 32px;
-    }
-
-    button.component.small{
-        padding: 6px 10px;
-    }
-
-    button.component.medium{
+    button.large{
         padding: 6px 12px;
         width: 128px;
     }

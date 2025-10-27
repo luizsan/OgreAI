@@ -221,7 +221,7 @@
                         <button class="component normal" on:click={loadLorebooks}>{@html SVG.refresh}Refresh</button>
                     </div>
                     <label class="component borderless clear toggle deselect pointer">
-                        <input type="checkbox" bind:checked={selectedOnly}>Display selected only
+                        <input type="checkbox" class="component small" bind:checked={selectedOnly}>Display selected only
                     </label>
                 </div>
 
@@ -361,6 +361,7 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        min-height: 80px;
         align-items: flex-start;
         justify-content: flex-start;
         padding: 12px 16px 16px 64px;

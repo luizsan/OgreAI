@@ -36,16 +36,16 @@
 
 
 <header id="header">
-    <button class={$sectionCharacters ? "accent" : "normal"} title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
+    <button class={$sectionCharacters ? "primary" : "normal"} title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
     <button class="clear" on:click|stopPropagation={CloseChat}><div class="title deselect">OGRE</div></button>
-    <button class={$sectionSettings ? "accent" : "normal"} title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
+    <button class={$sectionSettings ? "primary" : "normal"} title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
 </header>
 
 
 <style>
     header{
         align-items: center;
-        background: var( --header-bg-color );
+        background: var( --background-neutral-100 );
         color: hsl(0, 0%, 75%);
         display: grid;
         grid-template-columns: 56px auto 56px;
@@ -74,7 +74,7 @@
 
     .title{
         position: relative;
-        color: var( --accent-color-light );
+        color: var( --surface-primary-400 );
         letter-spacing: 0.05em;
         font-size: 12px;
         transition: all 0.2s ease;

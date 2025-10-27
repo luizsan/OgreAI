@@ -152,7 +152,7 @@
         flex-direction: column;
         gap: 12px;
         text-align: left;
-        border-left: 3px solid var( --accent-color-normal );
+        border-left: 3px solid var( --surface-primary-300 );
     }
 
     :global(body.light) .content{
@@ -208,7 +208,7 @@
         min-height: 24px;
         top: 0px;
         bottom: 0px;
-        color: var( --code-text-color );
+        color: var( --code-color-text );
         font-size: 80%;
         background: #000000C0;
         border-radius: 4px;

@@ -50,19 +50,19 @@
 <div class="content" bind:this={self}>
 
     <div class="section">
-        <input type="text" class="component" placeholder="Insert lorebook name" bind:value={book.name}>
-        <textarea class="component" placeholder="Insert lorebook description" rows={4} bind:value={book.description}></textarea>
+        <input type="text" class="component colored" placeholder="Insert lorebook name" bind:value={book.name}>
+        <textarea class="component colored" placeholder="Insert lorebook description" rows={4} bind:value={book.description}></textarea>
     </div>
 
     <div class="grid">
         <div class="section">
             <Heading title="Token budget" description="Tokens added by this lorebook will not exceed this amount."/>
-            <input type="number" class="component min" min={0} step={1} bind:value={book.token_budget}>
+            <input type="number" class="component colored min" min={0} step={1} bind:value={book.token_budget}>
         </div>
 
         <div class="section">
             <Heading title="Scan depth" description="Maximum amount of chat messages scanned for entries."/>
-            <input type="number" class="component min" min={0} step={1} bind:value={book.scan_depth}>
+            <input type="number" class="component colored min" min={0} step={1} bind:value={book.scan_depth}>
         </div>
     </div>
 

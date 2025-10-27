@@ -327,18 +327,18 @@
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
             <div class="section wide">
                 <Heading title="Name" description="The name of the character displayed in chat."/>
-                <input type="text" class="component wide" bind:value={$editing.data.name}>
+                <input type="text" class="component colored wide" bind:value={$editing.data.name}>
             </div>
 
             <Accordion name="General Information">
                 <div class="section wide">
                     <Heading title="Author" description="The name of the creator."/>
-                    <input type="text" class="component wide" placeholder="Unknown author" bind:value={$editing.data.creator}>
+                    <input type="text" class="component colored wide" placeholder="Unknown author" bind:value={$editing.data.creator}>
                 </div>
 
                 <div class="section wide">
                     <Heading title="Author's Notes" description="General information about the character."/>
-                    <textarea class="component wide" rows=6 bind:value={$editing.data.creator_notes}></textarea>
+                    <textarea class="component colored wide" rows=6 bind:value={$editing.data.creator_notes}></textarea>
                 </div>
 
                 <div class="section wide">
@@ -349,7 +349,7 @@
 
             <div class="section wide greeting">
                 <Heading title="Greeting" description="The character will start a chat with this message."/>
-                <textarea class="component wide" rows=12 bind:value={$editing.data.first_mes}></textarea>
+                <textarea class="component colored wide" rows=12 bind:value={$editing.data.first_mes}></textarea>
             </div>
 
             <Accordion name="Alternate Greetings">
@@ -359,7 +359,7 @@
                             <button class="component info" title="Duplicate" on:click={() => DuplicateGreeting(i, alt)}>{@html SVG.copy}</button>
                             <button class="component danger" title="Remove greeting" on:click={() => RemoveGreeting(i)}>{@html SVG.trashcan}</button>
                         </div>
-                        <textarea class="component wide" rows=8 bind:value={alt}></textarea>
+                        <textarea class="component colored wide" rows=8 bind:value={alt}></textarea>
                     </div>
                 {/each}
                 <button class="component normal" on:click={AddGreeting}>{@html SVG.add}Add greeting</button>
@@ -367,39 +367,39 @@
 
             <div class="section wide description">
                 <Heading title="Description" description="Description of personality and other characteristics."/>
-                <textarea class="component wide" rows=16 bind:value={$editing.data.description}></textarea>
+                <textarea class="component colored wide" rows=16 bind:value={$editing.data.description}></textarea>
             </div>
 
             <div class="section wide personality">
                 <Heading title="Personality" description="A brief description of the personality."/>
-                <textarea class="component wide" rows=4 bind:value={$editing.data.personality}></textarea>
+                <textarea class="component colored wide" rows=4 bind:value={$editing.data.personality}></textarea>
             </div>
 
             <div class="section wide scenario">
                 <Heading title="Scenario" description="Circumstances and context of the dialogue."/>
-                <textarea class="component wide" rows=4 bind:value={$editing.data.scenario}></textarea>
+                <textarea class="component colored wide" rows=4 bind:value={$editing.data.scenario}></textarea>
             </div>
 
             <div class="section wide dialogue">
                 <Heading title="Example dialogue" description="Forms a personality more clearly."/>
-                <textarea class="component wide" rows=8 bind:value={$editing.data.mes_example}></textarea>
+                <textarea class="component colored wide" rows=8 bind:value={$editing.data.mes_example}></textarea>
             </div>
 
             <Accordion name="Advanced Settings">
 
                 <div class="section wide">
                     <Heading title="Version" description="The version of this character's iteration, if applicable."/>
-                    <input type="text" class="component wide" bind:value={$editing.data.character_version}>
+                    <input type="text" class="component colored wide" bind:value={$editing.data.character_version}>
                 </div>
 
                 <div class="section wide">
                     <Heading title="System Prompt" description="Overrides the main prompt defined by your API settings."/>
-                    <textarea class="component wide" rows=6 bind:value={$editing.data.system_prompt}></textarea>
+                    <textarea class="component colored wide" rows=6 bind:value={$editing.data.system_prompt}></textarea>
                 </div>
 
                 <div class="section wide">
                     <Heading title="Post-History Instructions" description={`Also known as "jailbreak", overrides the jailbreak prompt defined by your API settings.`}/>
-                    <textarea class="component wide" rows=6 bind:value={$editing.data.post_history_instructions}></textarea>
+                    <textarea class="component colored wide" rows=6 bind:value={$editing.data.post_history_instructions}></textarea>
                 </div>
 
             </Accordion>
@@ -511,7 +511,7 @@
     }
 
     .top{
-        background: var( --default-bg-color );
+        background: var( --background-neutral-200 );
         border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
         display: flex;
         flex-direction: column;

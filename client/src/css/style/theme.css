@@ -1,0 +1,137 @@
+:root{
+  --selection-color: hsl(220, 100%, 50% );
+  /* --- */
+  --background-neutral-100: hsl(213, 18%, 10%);
+  --background-neutral-200: hsl(192, 4%, 16%);
+  --background-neutral-300: hsl(192, 6%, 14%);
+  --background-neutral-400: hsl(192, 5%, 20%);
+  /* --- */
+  --surface-primary-100: rgb(35, 51, 51);
+  --surface-primary-200: rgb(34, 75, 71);
+  --surface-primary-300: rgb(34, 138, 124);
+  --surface-primary-400: rgb(51, 233, 193);
+  --surface-primary-500: rgb(133, 255, 229);
+
+  --surface-secondary-100: rgb(54, 45, 27);
+  --surface-secondary-200: rgb(134, 122, 87);
+  --surface-secondary-300: rgb(214, 199, 147);
+  --surface-secondary-400: rgb(241, 232, 183);
+  --surface-secondary-500: rgb(255, 251, 220);
+
+  --surface-neutral-100: hsl(0, 0%, 12%);
+  --surface-neutral-200: hsl(247, 10%, 18%);
+  --surface-neutral-300: hsl(0, 0%, 33%);
+  --surface-neutral-400: hsl(0, 0%, 50%);
+  /* --- */
+  --content-primary-100: hsl(40, 8%, 44%);
+  --content-primary-200: hsl(60, 10%, 75%);
+  --content-primary-300: hsl(67, 31%, 94%);
+
+  --content-secondary-100: hsl(199, 23%, 38%);
+  --content-secondary-200: hsl(200, 22%, 55%);
+  --content-secondary-300: hsl(199, 68%, 88%);
+
+  --content-neutral-100: hsl(0, 0%, 35%);
+  --content-neutral-200: hsl(0, 0%, 40%);
+  --content-neutral-300: hsl(0, 0%, 60%);
+  /* --- */
+  --content-danger-100: rgba(192, 64, 64, 0.5);
+  --content-danger-200: rgb(255, 64, 64);
+  --content-danger-300: rgb(255, 128, 128);
+
+  --content-info-100: rgba(48, 128, 192, 0.5);
+  --content-info-200: rgb(64, 128, 255);
+  --content-info-300: rgb(128, 192, 255);
+
+  --content-confirm-100: rgba(48, 128, 96, 0.5);
+  --content-confirm-200: rgb(54, 221, 151);
+  --content-confirm-300: rgb(144, 255, 220);
+
+  --content-special-100: rgba(128, 120, 48, 0.5);
+  --content-special-200: rgb(255, 220, 64);
+  --content-special-300: rgb(255, 246, 164);
+  /* --- */
+  --chat-input-background: hsl(0, 0%, 30%);
+  --chat-input-border: 1px solid hsla(0, 0%, 50%, 0.5);
+  --chat-input-outline: 1px solid hsla(0, 0%, 10%, 0.5);
+
+  --code-color-text: orange;
+  --code-color-background: hsl(285, 5%, 8%);
+  /* --- */
+  --field-normal-content: var( --content-primary-200 );
+  --field-normal-background: var( --surface-neutral-100 );
+  --field-normal-outline: var( --surface-neutral-300 );
+  --field-normal-shadow: var( --surface-neutral-100 );
+
+  --field-hover-content: var( --content-primary-300 );
+  --field-hover-background: var( --surface-neutral-200 );
+  --field-hover-outline: var( --surface-neutral-400 );
+  --field-hover-shadow: var( --surface-neutral-100 );
+
+  --field-focus-content: var( --content-primary-300 );
+  --field-focus-background: var( --surface-neutral-200 );
+  --field-focus-outline: var( --surface-primary-400 );
+  --field-focus-shadow: var( --surface-primary-100 );
+
+  --field-height: 30px;
+  --field-border-radius: 5px;
+  /* --- */
+  --scrollbar-color: var( --surface-primary-300 );
+  --scrollbar-background: transparent;
+}
+
+.primary{
+  --field-normal-content: var( --surface-primary-300 );
+  --field-hover-content: var( --surface-primary-400 );
+  --field-focus-content: var( --surface-primary-400 );
+}
+
+.secondary{
+  --field-normal-content: var( --surface-secondary-300 );
+  --field-hover-content: var( --surface-secondary-400 );
+  --field-focus-content: var( --surface-secondary-400 );
+}
+
+.normal{
+  --field-normal-content: var( --content-primary-200 );
+  --field-hover-content: var( --content-primary-300 );
+  --field-focus-content: var( --content-primary-300 );
+}
+
+.danger{
+  --field-normal-content: var( --content-danger-200 );
+  --field-hover-content: var( --content-danger-300 );
+  --field-focus-content: var( --content-danger-300 );
+}
+
+.info{
+  --field-normal-content: var( --content-info-200 );
+  --field-hover-content: var( --content-info-300 );
+  --field-focus-content: var( --content-info-300 );
+}
+
+.confirm{
+  --field-normal-content: var( --content-confirm-200 );
+  --field-hover-content: var( --content-confirm-300 );
+  --field-focus-content: var( --content-confirm-300 );
+}
+
+.special{
+  --field-normal-content: var( --content-special-200 );
+  --field-hover-content: var( --content-special-300 );
+  --field-focus-content: var( --content-special-300 );
+}
+
+
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent){
+  color: var( --field-normal-content );
+}
+
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):hover{
+  color: var( --field-hover-content );
+}
+
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):active,
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):hover{
+  color: var( --field-focus-content );
+}

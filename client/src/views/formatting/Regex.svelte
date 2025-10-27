@@ -125,7 +125,9 @@
     }
 
     input[type="checkbox"]{
-        align-self: flex-start;
+        align-self: center;
+        width: 20px;
+        height: 20px;
     }
 
     label{

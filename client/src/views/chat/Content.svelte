@@ -49,6 +49,7 @@
         display: flex;
         flex-direction: column;
         white-space: normal;
+        color: var( --content-primary-300 );
         gap: 1em;
     }
 
@@ -62,32 +63,32 @@
     }
 
     .text :global(em){
-        color: rgb(106, 135, 149);
+        color: var( --content-secondary-200 );
     }
 
     .text :global(code){
-        color: var( --code-text-color );
-        font-size: 0.85em;
-        background: var( --code-bg-color );
+        color: var( --code-color-text );
+        font-size: 0.8em;
+        background: var( --code-color-background );
     }
 
     .text :global(pre){
         background: hsl(285, 5%, 12%);
         white-space: pre-wrap;
-        background: var( --code-bg-color );
+        background: var( --code-color-background );
         border-radius: 6px;
-        padding: 8px;
+        padding: 8px 12px;
         line-height: 1.2em;
     }
 
     .text :global(th){
         font-size: 80%;
-        background: var( --component-bg-hover );
+        background: var( --surface-neutral-200 );
     }
 
     .text :global(td){
         font-size: 90%;
-        background: var( --component-bg-normal );
+        background: var( --surface-neutral-100 );
         vertical-align: top;
     }
 
@@ -96,7 +97,7 @@
         word-break: keep-all;
         min-width: 0px;
         padding: 6px 12px;
-        border: 2px solid color-mix(in srgb, var( --component-bg-hover ) 85%, black 15%);
+        border: 2px solid color-mix(in srgb, var( --surface-neutral-200 ) 85%, black 15%);
     }
 
     .text :global(table){
@@ -110,7 +111,7 @@
     }
 
     .text :global(blockquote){
-        border-left: 4px solid var( --component-color-normal );
+        border-left: 4px solid var( --content-primary-200 );
         padding-left: 1em;
     }
 
@@ -127,9 +128,9 @@
         gap: 4px;
         padding: 10px 16px;
         border-radius: 6px;
-        color: var( --component-color-normal );
-        background: color-mix(in srgb, var( --component-color-normal ) 10%, transparent 100%);
-        border: 1px dashed color-mix(in srgb, var( --component-color-normal ) 25%, transparent 100%);
+        color: var( --content-secondary-300 );
+        background: color-mix(in srgb, var( --content-secondary-300 ) 10%, transparent 100%);
+        border: 1px dashed color-mix(in srgb, var( --content-secondary-300 ) 25%, transparent 100%);
         user-select: text;
     }
 

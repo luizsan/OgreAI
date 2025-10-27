@@ -25,31 +25,23 @@
 </script>
 
 
-<div class="section wide">
-    <input type="text" class="component wide search" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
+<div class="anchor section wide">
+    <input type="text" class="component wide" autocomplete="off" placeholder={placeholder} bind:value={search} on:input={update}>
     {#if search}
-        <button class="normal icon cancel" on:click={clear}>{@html SVG.close}</button>
+        <button class="normal cancel" on:click={clear}>
+            <div class="normal icon">{@html SVG.close}</div>
+        </button>
     {:else}
-        <div class="normal disabled icon">{@html SVG.search}</div>
+        <div class="normal icon disabled">{@html SVG.search}</div>
     {/if}
 </div>
 
-
 <style>
-    input[type="text"]{
-        position: relative;
-        height: 30px;
-        padding-left: 32px;
-    }
-
-    .icon{
+    button.cancel{
         position: absolute;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        translate: 4px -1px;
-        width: 32px;
-        height: 32px;
-        opacity: 0.75;
+        top: 0px;
+        left: 0px;
+        width: 36px;
+        height: 100%;
     }
 </style>

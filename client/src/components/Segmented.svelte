@@ -14,7 +14,8 @@
 
     {#each elements as item}
         <label class="component deselect pointer" class:wide={wide}>
-            <input type="radio" class="component deselect" bind:group={value} value={key(item)} checked={value == key(item)}>{label(item)}
+            <input type="radio" class="deselect disabled" bind:group={value} value={key(item)} checked={value == key(item)}>
+            {label(item)}
         </label>
     {/each}
 
@@ -27,10 +28,20 @@
     }
 
     input[type="radio"]{
-        position: absolute;
-        margin: 0px;
+        -webkit-appearance: none;
+        -moz-appearance: none;;
         appearance: none;
-        -moz-appearance: none;
+        margin: 0px;
+        width: 0px;
+        height: 0px;
+        position: absolute;
+        opacity: 0;
+    }
+
+    label:has(input[type="radio"]:checked).component{
+        background: var(--surface-neutral-200);
+        border-color: var(--surface-neutral-400);
+        outline-color: var(--surface-neutral-400);
     }
 
     label:has(input[type="radio"]:checked){
@@ -38,18 +49,22 @@
     }
 
     label{
-        padding: 0px 20px;
+        position: relative;
+        padding: 0px 16px;
         border-radius: 0px;
-        font-size: 0.9em;
+        font-size: 0.85em;
+        display: flex;
+        box-sizing: border-box;
+        box-shadow: none;
     }
 
     label:first-child{
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
     }
 
     label:last-child{
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
     }
 </style>

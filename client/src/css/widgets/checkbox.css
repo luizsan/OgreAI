@@ -1,0 +1,61 @@
+input[type="checkbox"].component {
+  --checkbox-color-primary: var(--surface-primary-300);
+  --checkbox-color-secondary: var(--surface-primary-400);
+  --checkbox-color-tertiary: var(--surface-primary-200);
+  --checkbox-size: 20px;
+  --checkbox-border-radius: 4px;
+  --checkbox-checkmark-thickness: 4px;
+  --checkbox-checkmark-size: 10px;
+
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: var(--checkbox-size);
+  min-height: var(--checkbox-size);
+  background: var(--checkbox-color-tertiary);
+  border-radius: var(--checkbox-border-radius);
+
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"].component.small {
+  --checkbox-size: 16px;
+  --checkbox-border-radius: 3px;
+  --checkbox-checkmark-thickness: 2px;
+  --checkbox-checkmark-size: 8px;
+}
+
+input[type="checkbox"].component:checked {
+  background: var(--checkbox-color-secondary);
+}
+
+input[type="checkbox"].component::before {
+  content: '';
+  position: absolute;
+  width: var(--checkbox-checkmark-size);
+  height: calc(var(--checkbox-checkmark-size) / 2);
+  border-left: var(--checkbox-checkmark-thickness) solid var( --checkbox-color-tertiary );
+  border-bottom: var(--checkbox-checkmark-thickness)  solid var( --checkbox-color-tertiary );
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -65%) rotate(-45deg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+input[type="checkbox"].component:checked::before {
+  opacity: 1;
+}
+
+input[type="checkbox"].component:focus {
+  box-shadow: 0 0 0 3px var( --selection-color );
+}
+
+input[type="checkbox"].component:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  filter: grayscale(1.0);
+}

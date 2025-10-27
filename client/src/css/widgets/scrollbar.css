@@ -1,0 +1,27 @@
+*{
+  scrollbar-width: auto;
+  scrollbar-color: var( --scrollbar-color ) var( --scrollbar-background );
+}
+
+*::-webkit-scrollbar{
+  width: 14px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var( --scrollbar-bg );
+  background-color: var( --background-primary-300 );
+  margin: 4px;
+}
+
+*:focus::-webkit-scrollbar-thumb {
+  border-color: var( --scrollbar-bg );
+  background-color: var( --surface-primary-400);
+}

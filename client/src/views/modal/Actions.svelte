@@ -102,7 +102,7 @@
         place-items: flex-start;
         display: flex;
         flex-direction: column;
-        background: var( --component-bg-normal );
+        background: var( --surface-neutral-100 );
         height: fit-content;
         padding: 4px;
         border-radius: 8px;

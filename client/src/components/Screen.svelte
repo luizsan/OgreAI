@@ -13,8 +13,7 @@
 
 <style>
     .container{
-        --scrollbar-bg: hsl(0, 0%, 15%);
-        background: var( --default-bg-color);
+        background: var( --background-neutral-200 );
         bottom: 0px;
         display: flex;
         flex-direction: column;

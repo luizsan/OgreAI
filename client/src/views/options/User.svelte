@@ -17,7 +17,7 @@
 <div class="content wide" on:change={() => Server.request("/save_profile", $currentProfile)}>
     <div class="section">
         <Heading title="Display Name" description="User's name displayed in chat."/>
-        <input type="text" class="component wide" bind:value={$currentProfile.name}>
+        <input type="text" class="component colored wide" bind:value={$currentProfile.name}>
     </div>
 
     <div class="section avatar grid">
@@ -28,7 +28,7 @@
         <div class="section" style="gap: 24px">
             <div class="section">
                 <Heading title="Avatar Image" description="User avatar URL."/>
-                <input type="text" class="component wide" bind:value={$currentProfile.avatar}>
+                <input type="text" class="component colored wide" bind:value={$currentProfile.avatar}>
             </div>
 
             <div class="section">

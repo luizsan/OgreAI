@@ -1,0 +1,161 @@
+input:not(
+[type="submit"],
+[type="reset"],
+[type="checkbox"],
+[type="file"],
+[type="image"],
+[type="range"],
+[type="color"]
+).component,
+select.component,
+textarea.component,
+label.component,
+button.component{
+  box-sizing: border-box;
+  font-size: .85em;
+  line-height: normal;
+
+  font-family: var( --default-font-face );
+  min-height: var( --field-height );
+  height: var( --field-height );
+  color: var( --field-normal-content );
+
+  border-radius: var( --field-border-radius );
+  border-style: solid;
+  border: 0px solid transparent;
+  background: var( --field-normal-background );
+  outline: 1px solid var( --field-normal-outline );
+  border-radius: var(--field-border-radius);
+
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+
+  box-shadow: 0px 2px 2px 2px var( --field-normal-shadow );
+  transition-duration: .125s;
+}
+
+input:not(
+[type="submit"],
+[type="reset"],
+[type="checkbox"],
+[type="file"],
+[type="image"],
+[type="range"],
+[type="color"]
+).component:hover,
+select.component:hover,
+textarea.component:hover,
+label.component:hover,
+button.component:hover{
+  color: var( --field-hover-content );
+  background: var( --field-hover-background );
+  outline: 1px solid var(--field-hover-outline);
+  box-shadow: 0px 2px 2px 2px var( --field-hover-shadow );
+}
+
+input:not(
+[type="submit"],
+[type="reset"],
+[type="checkbox"],
+[type="file"],
+[type="image"],
+[type="range"],
+[type="color"]
+).component:focus,
+select.component:focus,
+textarea.component:focus,
+label.component:focus,
+button.component:focus{
+  color: var( --field-focus-content );
+  background: var( --field-focus-background );
+  outline: 1px solid var(--field-focus-outline);
+  box-shadow: 0px 2px 2px 2px var( --field-focus-shadow );
+}
+
+.anchor:has(.icon) select,
+.anchor:has(.icon) input[type="text"],
+.anchor:has(.icon) input[type="number"]{
+  padding-left: 36px;
+}
+
+.anchor .icon:first-of-type{
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+}
+
+textarea.component{
+  line-height: 1.333333em;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  resize: vertical;
+  height: unset;
+}
+
+input[type="text"].component,
+input[type="number"].component,
+textarea.component{
+  font-size: .9em;
+}
+
+input[type="text"].component.colored,
+input[type="number"].component.colored,
+textarea.component.colored{
+  border-left-width: 6px;
+  border-left-color: var( --surface-neutral-200 );
+}
+
+input[type="text"].component.colored:focus,
+input[type="number"].component.colored:focus,
+textarea.component.colored:focus{
+  border-left-width: 6px;
+  border-left-color: var( --surface-neutral-300 );
+}
+
+input[type="number"] ~.unit{
+  width: 20px;
+  font-size: 0.8em;
+  color: gray;
+  position: absolute;
+  left: -2px;
+  translate: calc( 128px - 100%) 0px;
+  height: 30px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+input[type="number"].no-spin{
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0;
+}
+
+input[type="number"].no-spin::-webkit-inner-spin-button,
+input[type="number"].no-spin::-webkit-outer-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+*.component::-webkit-resizer{
+    background: var(--surface-neutral-100);
+    border-style: outset;
+    border-width: 100px;
+    border-top-color: transparent;
+    border-right-color: var(--surface-neutral-100);
+    border-bottom-color: var(--surface-neutral-100);
+    border-left-color: transparent;
+}
+
+*.component:focus::-webkit-resizer{
+    background: var(--surface-neutral-200);
+    border-right-color: var(--surface-neutral-200);
+    border-bottom-color: var(--surface-neutral-200);
+}
+

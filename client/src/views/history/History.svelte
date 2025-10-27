@@ -107,7 +107,7 @@
         inset: 0px;
         min-width: 480px;
         width: 100%;
-        background: var( --default-bg-color );
+        background: var( --background-neutral-200 );
     }
 
     :global(body.portrait) .container{
@@ -129,7 +129,7 @@
     .top{
         display: flex;
         position: relative;
-        border-bottom: 1px solid #80808024;
+        border-bottom: 1px solid var( --surface-neutral-300 );
         padding: 24px;
         gap: 16px;
     }
@@ -176,7 +176,7 @@
         align-items: center;
         place-content: center;
         gap: 16px;
-        border-top: 1px solid #80808024;
+        border-top: 1px solid var( --surface-neutral-300 );
     }
 
     .bottom *{

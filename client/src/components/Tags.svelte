@@ -84,7 +84,7 @@
 
 <div class="section" bind:this={self}>
     <form class="component container input" on:submit={submitInput}>
-        <input type="text" class="component borderless wide" bind:value={inputText} on:input={checkInput} placeholder={placeholder}>
+        <input type="text" class="component colored wide" bind:value={inputText} on:input={checkInput} placeholder={placeholder}>
 
         {#if choices.length > 0 && selected.length !== choices.length}
             <div class="component container dropdown wide ellipsis">
@@ -129,11 +129,12 @@
         position: relative;
         display: flex;
         align-items: center;
-        background-color: var( --component-bg-normal );
+        background-color: var( --surface-neutral-100 );
         font-size: 0.7em;
         font-weight: bold;
+        outline: 1px solid var( --surface-neutral-200 );
         color: var( --commponent-color-normal );
-        padding: 0px 0px 0px 16px;
+        padding: 0px 4px 0px 16px;
         height: 24px;
         border-radius: 30px 3px 3px 30px;
         gap: 6px;
@@ -141,16 +142,16 @@
 
     .tag button{
         position: relative;
-        background-color: var( --component-bg-normal  );
+        background-color: var( --surface-neutral-100  );
         right: -4px;
         width: 32px;
         height: 100%;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
     }
 
-    .tag button:hover{ background-color: var( --accent-color-dark ) }
-    .tag button:active{ background-color: var( --accent-color-dark ) }
+    .tag button:hover{ background-color: var( --surface-primary-200 ) }
+    .tag button:active{ background-color: var( --surface-primary-200 ) }
 
     .tag :global(svg){
         width: 12px;

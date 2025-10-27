@@ -31,11 +31,11 @@
 <div class="section">
     <Heading title={title} description={description}/>
     <div class="input wide horizontal" bind:this={self}>
-        <input type="number" class="component no-spin" class:padding={unit} step={step} bind:value={value}>
+        <input type="number" class="component with-icon unit no-spin" class:padding={unit} step={step} bind:value={value}>
         <input type="range" class="component" bind:value={value} min={min} max={max} step={step}>
         <button class="reset danger" title="Reset to default ({original})" on:click={reset}>{@html SVG.refresh}</button>
         {#if unit}
-            <div class="unit disabled deselect">{unit}</div>
+            <div class="unit">{unit}</div>
         {/if}
     </div>
 </div>
@@ -63,27 +63,17 @@
     }
 
     .reset{
+        --sector-color: hsla(0, 0%, 50%, 0.15);
         position: absolute;
+        padding-left: 6px;
         width: 32px;
         height: 30px;
-        translate: 4px 0px;
-        background: #80808016;
+        border-radius: var( --field-border-radius ) 0px 0px var( --field-border-radius );
+        background: var( --sector-color );
     }
+
 
     .reset :global(svg){
-        translate: 0px 1px;
-    }
-
-    .unit{
-        width: 20px;
-        font-size: 0.8em;
-        color: gray;
-        position: absolute;
-        left: -2px;
-        translate: calc( 128px - 100%) 0px;
-        height: 30px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
+        translate: 0px 2px;
     }
 </style>

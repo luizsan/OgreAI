@@ -421,13 +421,12 @@
     }
 
     .sub{
+        color: var( --content-primary-100 );
         font-weight: 400;
         font-size: 0.8em;
-        color: gray;
     }
 
     .editing .explanation{
-        color: gray;
         font-size: 80%;
         font-weight: bolder;
 
@@ -440,10 +439,10 @@
         resize: none;
         border: none;
         outline: none;
-        color: var( --code-text-color );
+        color: var( --code-color-text );
         font-size: 80%;
         overflow-y: hidden;
-        background: var( --code-bg-color );
+        background: var( --code-color-background );
         border-radius: 4px;
         margin: -4px 0px 0px 0px;
     }

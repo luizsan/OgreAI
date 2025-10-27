@@ -62,7 +62,7 @@ export const deleteList = writable< Array<number> >( [] )
 // stores the list of favorite characters by filepath
 export const favoritesList = writable< Array<string> >( [] )
 // stores the list of available API modes by title
-export const availableAPIModes = writable< Array<string> >( [] )
+export const availableAPIModes = writable< Array<{ key: string, title: string}> >( [] )
 // #endregion
 
 // DEFAULTS

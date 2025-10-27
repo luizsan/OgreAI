@@ -565,18 +565,6 @@
 
 <style>
     .container{
-        --input-bg-normal: hsl(0, 0%, 33%);
-        --input-border-normal: 1px solid hsla(0, 0%, 50%, 0.5);
-        --input-outline-normal: 1px solid hsla(0, 0%, 10%, 0.5);
-    }
-
-    :global(body.light) .container{
-        --input-bg-normal: hsl(0, 0%, 100%);
-        --input-border-normal: 1px solid hsla(0, 0%, 75%, 0.5);
-        --input-outline-normal: 1px solid hsla(0, 0%, 33%, 0.5);
-    }
-
-    .container{
         align-items: stretch;
         display: flex;
         flex-direction: column;
@@ -616,17 +604,15 @@
         overflow-y: scroll;
         margin-bottom: 75px;
         padding: 8px 0px 4px 0px;
-        scrollbar-color: hsla(0, 0%, 50%, 0.2) transparent;
+        --scrollbar-color: hsla(0, 0%, 50%, 0.2);
     }
 
     .input{
-        --scrollbar-bg: var( --input-bg-normal );
-
         align-items: center;
         border-radius: 6px;
-        background: var( --input-bg-normal );
-        border: var( --input-border-normal );
-        outline: var( --input-outline-normal );
+        background: var( --chat-input-background );
+        border: var( --chat-input-border );
+        outline: var( --chat-input-outline );
         box-shadow: 0px 4px 12px #18181840;
         column-gap: 0px;
         display: grid;
@@ -656,11 +642,9 @@
     }
 
     .input textarea{
-        scrollbar-color: var( --accent-color-normal ) transparent;
-
         background: none;
         border: none;
-        color: var( --component-color-normal );
+        color: var( --content-primary-300 );
         font-family: inherit;
         height: 20px;
         margin: 8px 0px;
@@ -706,9 +690,9 @@
         translate: -1px calc( -100% - 3px) 0;
         border-radius: 5px;
         box-shadow: 2px 2px 0px 0px #00000040;
-        background: var( --input-bg-normal );
-        border: var( --input-border-normal );
-        outline: var( --input-outline-normal );
+        background: var( --chat-input-background );
+        border: var( --chat-input-border );
+        outline: var( --chat-input-outline );
     }
 
     .chatmenu hr{

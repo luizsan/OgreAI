@@ -365,7 +365,7 @@
     }
 
     .inside textarea, .inside input[type="text"], select{
-        background-color: var( --component-bg-hover );
+        background-color: var( --surface-neutral-200);
         padding: 10px 12px;
         border-radius: 4px;
         min-height: 36px;
@@ -397,7 +397,7 @@
     }
 
     .item:not(.locked):hover{
-        background: var( --component-bg-hover );
+        background: var( --surface-neutral-200);
     }
 
     button.custom.delete{

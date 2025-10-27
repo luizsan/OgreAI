@@ -1,0 +1,57 @@
+:root {
+  line-height: 1.3em;
+  font-weight: 400;
+
+  box-sizing: border-box;
+  font-size: var( --default-font-size );
+  font-family: var( --default-font-face );
+
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+::selection, ::-moz-selection{
+    color: white;
+    background: var( --selection-color );
+}
+
+html, body{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+  display: flex;
+  place-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+
+  color: var( --content-primary-200 );
+  background-color: var( --background-neutral-200 );
+
+  zoom: 1;
+}
+
+p{
+  margin: 0px;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var( --default-font-face );
+  width: fit-content;
+}
+
+svg{
+  width: 16px;
+  height: 16px;
+}

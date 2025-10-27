@@ -210,7 +210,7 @@
 
 <Sidebar width={460} enabled={$sectionCharacters}>
 
-<div class="main" class:active={$sectionCharacters}>
+<div class="main anchor">
 
     <div class="container" bind:this={self} on:scroll={refreshScroll}>
 
@@ -227,8 +227,8 @@
 
         <div class="section">
             <div class="label explanation">Character List — {size}</div>
-            <div class="section horizontal wide select">
-                <select class="component wide small-icon" bind:value={currentSortMode} on:change={changeSort}>
+            <div class="anchor section horizontal wide">
+                <select class="component wide" bind:value={currentSortMode} on:change={changeSort}>
                     {#each Object.keys(sortModes) as key}
                     <option value={key}>{sortModes[key].label}</option>
                     {/each}
@@ -282,9 +282,7 @@
     }
 
     .main{
-        --scrollbar-bg: hsl(0, 0%, 15%);
-
-        background: var( --sub-bg-color );
+        background: var( --background-neutral-300 );
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         inset: 0px;
@@ -292,10 +290,8 @@
         height: 100%;
         position: relative;
         max-width: 100%;
-    }
 
-    .disabled{
-        opacity: 0.3;
+        border-right: 1px solid var( --background-neutral-400 );
     }
 
     .container{
@@ -309,41 +305,13 @@
         height: 100%;
     }
 
-
-    .active{
-        translate: 0 0 0;
-    }
-
-    .icon{
-        position: absolute;
-        display: flex;
-        place-items: center;
-        top: 0px;
-        left: 12px;
-        width: 16px;
-        height: 100%;
-        color: gray;
-    }
-
     .label{
         font-weight: bold;
         font-size: 0.75em;
     }
 
-    .select{
-        position: relative;
-    }
-
-    select{
-        position: relative;
-    }
-
-    select.small-icon{
-        padding-left: 32px;
-    }
-
-    button.component.compact{
-        padding: 6px 8px;
+    .explanation{
+        color: var( --content-primary-100 );
     }
 
     .unavailable{
@@ -355,14 +323,14 @@
     }
 
     .back{
-        position: fixed;
+        position: absolute;
         top: 32px;
         left: 50%;
         translate: -50% 0;
         display: flex;
         flex-direction: row;
         gap: 8px;
-        box-shadow: 0px 5px 30px 30px var(--sub-bg-color);
+        box-shadow: 0px 5px 30px 30px var( --background-neutral-300 );
     }
 
     .back:after{

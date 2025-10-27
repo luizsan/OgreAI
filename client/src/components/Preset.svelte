@@ -93,7 +93,7 @@
 
 
 <div class="main" bind:this={self}>
-    <div class="component container focus" class:borderless class:highlighted>
+    <div class="anchor component container section focus" class:borderless class:highlighted>
         {#if elements}
             <div class="top">
                 <div class="list">
@@ -115,10 +115,8 @@
                     <button class="component clear normal" title="Clear" on:click={clear}>{@html SVG.close} Clear</button>
                 </div>
             </div>
-
-            <hr>
+            <hr/>
         {/if}
-
         <textarea class="component clear wide" class:resizable={resizable} rows={rows > 0 ? rows : 0} bind:value={content}></textarea>
     </div>
 </div>
@@ -126,21 +124,23 @@
 
 <style>
     hr{
-        position: absolute;
-        left: 50%;
-        translate: -50% 0px;
-        width: calc( 100% - 20px );
+        position: relative;
+        left: 8px;
+        right: 8px;
         margin: 0px;
         border: none;
         border-bottom: 2px dotted gray;
-        opacity: 0.2;
+        opacity: 0.25;
     }
 
     .main{
         display: flex;
         width: 100%;
         flex-direction: column;
-        gap: 8px;
+    }
+
+    .anchor{
+        gap: 0px;
     }
 
     select{
@@ -185,9 +185,5 @@
         display: flex;
         align-items: center;
         padding: 4px 16px;
-    }
-
-    .highlighted, .highlighted select{
-        background-color: var(--component-bg-hover);
     }
 </style>

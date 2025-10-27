@@ -120,16 +120,18 @@
                 </div>
             </div>
 
-            <hr>
+
         {/if}
 
         <div class="group">
-            <div class="field">
+            <div class="anchor field">
+                <hr>
                 <div class="icon normal disabled">{@html SVG.link}</div>
                 <input type="text" class="component clear wide" placeholder="Insert API URL..." bind:value={url} style="flex: 1 1 auto">
             </div>
-            <hr>
-            <div class="field">
+
+            <div class="anchor field">
+                <hr>
                 <div class="icon normal disabled">{@html SVG.key}</div>
                 <input type="password" class="component clear wide" placeholder="Insert API authentication..." bind:value={auth} style="flex: 1 1 auto">
             </div>
@@ -141,13 +143,12 @@
 <style>
     hr{
         position: absolute;
-        left: 50%;
-        translate: -50% 0px;
-        width: calc( 100% - 24px );
+        left: 8px;
+        right: 8px;
         margin: 0px;
         border: none;
         border-bottom: 2px dotted gray;
-        opacity: 0.2;
+        opacity: 0.25;
     }
 
     .main{

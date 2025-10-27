@@ -68,23 +68,23 @@
 
         <div class="section">
             <Heading title="Entry name"/>
-            <input type="text" class="component" placeholder="Insert lore name" bind:value={entry.name}/>
+            <input type="text" class="component colored" placeholder="Insert lore name" bind:value={entry.name}/>
         </div>
 
         <div class="section">
             <Heading title="Content" description="Description that will be inserted in the prompt."/>
-            <textarea class="component" rows={6} placeholder="Insert lore content" bind:value={entry.content}></textarea>
+            <textarea class="component colored" rows={6} placeholder="Insert lore content" bind:value={entry.content}></textarea>
         </div>
 
         <div class="grid">
             <div class="section">
                 <Heading title="Priority" description="If the token budget of the lorebook is reached, a lower priority means the entry will be discarded first."/>
-                <input type="number" class="component" bind:value={entry.priority}/>
+                <input type="number" class="component colored" bind:value={entry.priority}/>
             </div>
 
             <div class="section">
                 <Heading title="Insertion order" description="Activated entries are sorted by this value. Lower values means it's inserted first."/>
-                <input type="number" class="component" bind:value={entry.insertion_order}/>
+                <input type="number" class="component colored" bind:value={entry.insertion_order}/>
             </div>
         </div>
 

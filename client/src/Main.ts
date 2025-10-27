@@ -1,10 +1,18 @@
-import './css/const.css'
-import './css/main.css'
-import './css/layout.css'
-import './css/colors.css'
-import './css/components.css'
-import './css/scrollbar.css'
-import './css/overrides.css'
+import './css/core/const.css'
+import './css/core/main.css'
+
+import './css/widgets/box.css'
+import './css/widgets/field.css'
+import './css/widgets/button.css'
+import './css/widgets/range.css'
+import './css/widgets/checkbox.css'
+import './css/widgets/dropdown.css'
+import './css/widgets/decoration.css'
+import './css/widgets/scrollbar.css'
+
+import './css/style/layout.css'
+import './css/style/overrides.css'
+import './css/style/theme.css'
 
 import App from './views/main/App.svelte'
 

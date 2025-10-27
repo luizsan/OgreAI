@@ -209,25 +209,24 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-weight: bolder;
-        color: var( --default-font-color );
+        color: var( --content-primary-200 );
     }
 
     .sub{
-        /* direction: rtl; */
         overflow: hidden;
         text-overflow: ellipsis;
 
         padding: 0px;
         font-size: 80%;
-        color: gray;
+        color: var( --content-primary-100 );
     }
 
     .main:hover .sub{
-        color: var( --accent-color-light );
+        color: var( --surface-primary-400 );
     }
 
     :global(body.light) .main:hover .sub{
-        color: var( --accent-color-normal );
+        color: var( --surface-primary-300  );
     }
 
     .favorite{

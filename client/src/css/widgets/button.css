@@ -1,0 +1,28 @@
+button.component,
+label.component{
+  display: flex;
+  place-items: center;
+  place-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  text-wrap: nowrap ;
+}
+
+label.component:hover,
+button.component:hover,
+input[type="button"].component:hover{
+  background: var( --field-hover-background );
+  outline: 1px solid var(--field-hover-outline );
+}
+
+label.component:focus,
+button.component:focus,
+input[type="button"].component:focus{
+  background: var( --field-focus-background );
+  outline: 1px solid var(--field-focus-outline );
+}
+
+
+button.component.compact{
+  padding: 8px;
+}

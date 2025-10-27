@@ -68,11 +68,13 @@
         <div class="side section">
             {#each Object.keys(tab_items) as key}
                 {#if !tab_items[key].disabled}
+                {@const selected = key == $tabSettings}
                     <button
-                        class="tab accent"
-                        class:active={key == $tabSettings}
-                        class:disabled={key == $tabSettings}
-                        disabled={tab_items[key].disabled || key == $tabSettings}
+                        class="tab"
+                        class:inactive={!selected}
+                        class:active={selected}
+                        class:secondary={!selected}
+                        inert={selected}
                         on:click={() => setTab(key)}>{@html tab_items[key].icon}
                     </button>
                 {/if}
@@ -140,7 +142,7 @@
     }
 
     :global(body.portrait) .main{
-        background: var( --default-bg-color );
+        background: var( --background-neutral-200 );
     }
 
     .tab{
@@ -154,32 +156,39 @@
         pointer-events: all;
     }
 
-    .tab:first-child{
-        border-radius: 0px 0px 0px 5px;
-    }
-
     .tab :global(svg){
         width: 24px;
         height: 24px;
     }
 
-    .tab.active{
-        color: var( --component-color-hover );
+    .tab.inactive :global(svg){
+        filter: brightness(0.666)
     }
 
-    .tab.disabled{
-        background: var( --sub-bg-color );
+    .tab.inactive:hover :global(svg){
+        filter: brightness(1)
+    }
+
+    .tab.active{
+        background: var( --background-neutral-300);
+        border: 1px solid var( --background-neutral-400 );
+        border-right: none;
+        width: 57px;
+    }
+
+    .tab.active :global(svg){
+        translate: -1px 0px;
     }
 
     .side{
         top: 0px;
         left: 0px;
         gap: 0px;
-        padding: 0px 0px;
+        padding: 16px 0px;
         width: 56px;
         height: 100%;
         position: absolute;
-        pointer-events: none;;
+        pointer-events: none;
         z-index: 1;
 
     }
@@ -192,7 +201,7 @@
         width: 100%;
         height: 100%;
         overflow-x: hidden;
-        scrollbar-color: var( --accent-color-normal ) var( --sub-bg-color );
+        scrollbar-color: var( --scrollbar-color ) var( --background-neutral-300 );
     }
 
     .inner{
@@ -202,8 +211,9 @@
         gap: 24px;
         padding: 24px 24px 0px 24px;
         margin-left: 56px;
-        background: var( --sub-bg-color );
+        background: var( --background-neutral-300 );
         background-repeat: repeat;
+        border-left: 1px solid var( --background-neutral-400 );
     }
 
     .bottom{

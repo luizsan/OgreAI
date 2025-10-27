@@ -1,0 +1,77 @@
+input[type="range"].component {
+  --slider-color-primary: var(--surface-primary-400 );
+  --slider-color-secondary: var(--surface-primary-200 );
+  --slider-color-tertiary: var(--surface-primary-300);
+  --slider-track-height: 3px;
+  --slider-thumb-size: 12px;
+  --slider-thumb-border: 3px;
+  --slider-height: 30px;
+  --slider-border-radius: 15px;
+
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+
+  width: 100%;
+  height: var( --slider-height );
+  border-radius: var( --slider-border-radius );
+  background: none;
+  outline: none;
+  cursor: pointer;
+  overflow: visible;
+}
+
+input[type="range"].component:focus,
+input[type="range"].component:active{
+  outline: none;
+  background: none;
+  --slider-color-primary: var( --surface-primary-500 );
+  --slider-color-secondary: var( --surface-primary-300 );
+}
+
+/* Track */
+input[type="range"].component::-moz-range-track {
+  height: var(--slider-track-height);
+  border-radius: var( --slider-border-radius );
+  background: var(--slider-color-secondary);
+}
+
+/* Progress fill (WebKit) */
+input[type="range"].component::-webkit-slider-runnable-track {
+  height: var(--slider-track-height);
+  border-radius: var( --slider-border-radius );
+  background: linear-gradient(to right, var(--slider-color-secondary), var(--slider-color-primary));
+  box-sizing: border-box;
+}
+
+/* Progress fill (Firefox) */
+input[type="range"].component::-moz-range-progress {
+  height: var(--slider-track-height);
+  background: var(--slider-color-primary);
+  border-radius: var( --slider-border-radius );
+}
+
+/* Thumb */
+/* Thumb (WebKit) */
+input[type="range"].component::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  border: var(--slider-thumb-border) solid var(--slider-color-primary);
+  border-radius: 50%;
+  background: var(--slider-color-secondary);
+  transform: translateY(calc((var(--slider-track-height) - var(--slider-thumb-size)) / 2));
+}
+
+/* keep your firefox rules too */
+input[type="range"].component::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  border: var(--slider-thumb-border) solid var(--slider-color-primary);
+  border-radius: 50%;
+  background: var(--slider-color-secondary);
+
+}
