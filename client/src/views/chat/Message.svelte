@@ -27,6 +27,7 @@
     import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte"
 
+    import { clamp } from '@/utils/Math';
     import { AutoResize } from '@/utils/AutoResize';
     import { clickOutside } from '@/utils/ClickOutside';
 
@@ -50,7 +51,7 @@
     $: authorType = is_bot ? "bot" : "user"
 
     // swipe
-    $: index = msg ? msg.index : 0;
+    $: index = msg ? clamp(msg.index, 0, msg.candidates?.length || 0) : 0;
     $: candidates = msg && msg.candidates ? msg.candidates : []
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
     $: displayReasoning = current ? current.reasoning : ""
