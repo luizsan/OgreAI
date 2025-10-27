@@ -39,9 +39,9 @@
     }
 
     label:has(input[type="radio"]:checked).component{
-        background: var(--surface-neutral-200);
-        border-color: var(--surface-neutral-400);
-        outline-color: var(--surface-neutral-400);
+        background: var(--surface-neutral-300);
+        border-color: var(--surface-neutral-500);
+        outline-color: var(--surface-neutral-500);
     }
 
     label:has(input[type="radio"]:checked){

@@ -129,10 +129,10 @@
         position: relative;
         display: flex;
         align-items: center;
-        background-color: var( --surface-neutral-100 );
+        background-color: var( --surface-neutral-200 );
         font-size: 0.7em;
         font-weight: bold;
-        outline: 1px solid var( --surface-neutral-200 );
+        outline: 1px solid var( --surface-neutral-300 );
         color: var( --commponent-color-normal );
         padding: 0px 4px 0px 16px;
         height: 24px;
@@ -142,7 +142,7 @@
 
     .tag button{
         position: relative;
-        background-color: var( --surface-neutral-100  );
+        background-color: var( --surface-neutral-200  );
         right: -4px;
         width: 32px;
         height: 100%;

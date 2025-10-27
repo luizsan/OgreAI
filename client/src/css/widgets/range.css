@@ -1,12 +1,12 @@
 input[type="range"].component {
   --slider-color-primary: var(--surface-primary-400 );
-  --slider-color-secondary: var(--surface-primary-200 );
-  --slider-color-tertiary: var(--surface-primary-300);
+  --slider-color-secondary: var(--surface-primary-100 );
+  --slider-color-tertiary: var(--surface-primary-200);
   --slider-track-height: 3px;
   --slider-thumb-size: 12px;
   --slider-thumb-border: 3px;
   --slider-height: 30px;
-  --slider-border-radius: 15px;
+  --slider-border-radius: 16px;
 
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -21,6 +21,12 @@ input[type="range"].component {
   overflow: visible;
 }
 
+:root .light input[type="range"]{
+  --slider-color-primary: var(--surface-primary-300 );
+  --slider-color-secondary: var(--surface-primary-400 );
+  --slider-color-tertiary: var(--surface-primary-200);
+}
+
 input[type="range"].component:focus,
 input[type="range"].component:active{
   outline: none;
@@ -33,7 +39,7 @@ input[type="range"].component:active{
 input[type="range"].component::-moz-range-track {
   height: var(--slider-track-height);
   border-radius: var( --slider-border-radius );
-  background: var(--slider-color-secondary);
+  background: var(--slider-color-tertiary);
 }
 
 /* Progress fill (WebKit) */

@@ -129,7 +129,7 @@
     .top{
         display: flex;
         position: relative;
-        border-bottom: 1px solid var( --surface-neutral-300 );
+        border-bottom: 1px solid var( --surface-neutral-400 );
         padding: 24px;
         gap: 16px;
     }
@@ -176,7 +176,7 @@
         align-items: center;
         place-content: center;
         gap: 16px;
-        border-top: 1px solid var( --surface-neutral-300 );
+        border-top: 1px solid var( --surface-neutral-400 );
     }
 
     .bottom *{

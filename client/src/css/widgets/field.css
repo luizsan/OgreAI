@@ -31,7 +31,7 @@ button.component{
   align-items: center;
   padding: 4px 10px;
 
-  box-shadow: 0px 2px 2px 2px var( --field-normal-shadow );
+  box-shadow: 0px 2px 2px 0px var( --field-normal-shadow );
   transition-duration: .125s;
 }
 
@@ -40,7 +40,7 @@ button.component:hover{
   color: var( --field-hover-content );
   background: var( --field-hover-background );
   outline: 1px solid var(--field-hover-outline);
-  box-shadow: 0px 2px 2px 2px var( --field-hover-shadow );
+  box-shadow: 0px 2px 2px 0px var( --field-hover-shadow );
 }
 
 input:not(
@@ -59,7 +59,7 @@ button.component:focus{
   color: var( --field-focus-content );
   background: var( --field-focus-background );
   outline: 1px solid var(--field-focus-outline);
-  box-shadow: 0px 2px 2px 2px var( --field-focus-shadow );
+  box-shadow: 0px 2px 2px 0px var( --field-focus-shadow );
 }
 
 .anchor:has(.icon) select,
@@ -95,14 +95,14 @@ input[type="text"].component.colored,
 input[type="number"].component.colored,
 textarea.component.colored{
   border-left-width: 6px;
-  border-left-color: var( --surface-neutral-200 );
+  border-left-color: var( --field-hover-background );
 }
 
 input[type="text"].component.colored:focus,
 input[type="number"].component.colored:focus,
 textarea.component.colored:focus{
   border-left-width: 6px;
-  border-left-color: var( --surface-neutral-300 );
+  border-left-color: var( --field-normal-outline );
 }
 
 input[type="number"] ~.unit{
@@ -133,18 +133,18 @@ input[type="number"].no-spin::-webkit-outer-spin-button{
 }
 
 *.component::-webkit-resizer{
-    background: var(--surface-neutral-100);
+    background: var(--surface-neutral-200);
     border-style: outset;
     border-width: 100px;
     border-top-color: transparent;
-    border-right-color: var(--surface-neutral-100);
-    border-bottom-color: var(--surface-neutral-100);
+    border-right-color: var(--surface-neutral-200);
+    border-bottom-color: var(--surface-neutral-200);
     border-left-color: transparent;
 }
 
 *.component:focus::-webkit-resizer{
-    background: var(--surface-neutral-200);
-    border-right-color: var(--surface-neutral-200);
-    border-bottom-color: var(--surface-neutral-200);
+    background: var(--surface-neutral-300);
+    border-right-color: var(--surface-neutral-300);
+    border-bottom-color: var(--surface-neutral-300);
 }
 

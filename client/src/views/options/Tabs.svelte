@@ -71,8 +71,9 @@
                 {@const selected = key == $tabSettings}
                     <button
                         class="tab"
-                        class:inactive={!selected}
                         class:active={selected}
+                        class:normal={selected}
+                        class:inactive={!selected}
                         class:secondary={!selected}
                         inert={selected}
                         on:click={() => setTab(key)}>{@html tab_items[key].icon}
@@ -162,7 +163,7 @@
     }
 
     .tab.inactive :global(svg){
-        filter: brightness(0.666)
+        filter: brightness(0.5)
     }
 
     .tab.inactive:hover :global(svg){

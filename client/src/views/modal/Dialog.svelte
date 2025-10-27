@@ -73,8 +73,7 @@
         z-index: 1000;
         min-width: 360px;
         max-width: var( --chat-width );
-        background: var( --surface-neutral-100 );
-        color: var( --content-neutral-200 );
+        background: var( --surface-neutral-200 );
         overflow-x: hidden;
         overflow-y: hidden;
         font-family: var( --system-font-face );

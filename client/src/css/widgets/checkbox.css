@@ -1,6 +1,6 @@
 input[type="checkbox"].component {
-  --checkbox-color-primary: var(--surface-primary-300);
-  --checkbox-color-secondary: var(--surface-primary-400);
+  --checkbox-color-primary: var(--surface-primary-400);
+  --checkbox-color-secondary: var(--surface-primary-200);
   --checkbox-color-tertiary: var(--surface-primary-100);
   --checkbox-size: 20px;
   --checkbox-border-radius: 4px;
@@ -22,6 +22,13 @@ input[type="checkbox"].component {
   flex-shrink: 0;
 }
 
+:root .light input[type="checkbox"].component {
+  --checkbox-color-primary: var(--surface-primary-300);
+  --checkbox-color-secondary: var(--surface-primary-400);
+  --checkbox-color-tertiary: var(--surface-primary-200);
+}
+
+
 input[type="checkbox"].component.small {
   --checkbox-size: 16px;
   --checkbox-border-radius: 3px;
@@ -30,8 +37,8 @@ input[type="checkbox"].component.small {
 }
 
 input[type="checkbox"].component:checked {
-  border: 1px solid var(--checkbox-color-secondary);
-  background: var(--checkbox-color-secondary);
+  border: 1px solid var(--checkbox-color-primary);
+  background: var(--checkbox-color-primary);
 }
 
 input[type="checkbox"].component::before {
@@ -39,8 +46,8 @@ input[type="checkbox"].component::before {
   position: absolute;
   width: var(--checkbox-checkmark-size);
   height: calc(var(--checkbox-checkmark-size) / 2);
-  border-left: var(--checkbox-checkmark-thickness) solid var( --checkbox-color-tertiary );
-  border-bottom: var(--checkbox-checkmark-thickness)  solid var( --checkbox-color-tertiary );
+  border-left: var(--checkbox-checkmark-thickness) solid var( --checkbox-color-secondary );
+  border-bottom: var(--checkbox-checkmark-thickness)  solid var( --checkbox-color-secondary );
   top: 50%;
   left: 50%;
   transform: translate(-50%, -65%) rotate(-45deg);

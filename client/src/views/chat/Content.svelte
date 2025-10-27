@@ -83,12 +83,12 @@
 
     .text :global(th){
         font-size: 80%;
-        background: var( --surface-neutral-200 );
+        background: var( --surface-neutral-300 );
     }
 
     .text :global(td){
         font-size: 90%;
-        background: var( --surface-neutral-100 );
+        background: var( --surface-neutral-200 );
         vertical-align: top;
     }
 
@@ -97,7 +97,7 @@
         word-break: keep-all;
         min-width: 0px;
         padding: 6px 12px;
-        border: 2px solid color-mix(in srgb, var( --surface-neutral-200 ) 85%, black 15%);
+        border: 2px solid color-mix(in srgb, var( --surface-neutral-300 ) 85%, black 15%);
     }
 
     .text :global(table){
@@ -129,8 +129,8 @@
         padding: 10px 16px;
         border-radius: 6px;
         color: var( --content-secondary-300 );
-        background: color-mix(in srgb, var( --content-secondary-300 ) 10%, transparent 100%);
-        border: 1px dashed color-mix(in srgb, var( --content-secondary-300 ) 25%, transparent 100%);
+        background: color-mix(in srgb, var( --content-secondary-100 ) 10%, transparent 100%);
+        border: 1px dashed color-mix(in srgb, var( --content-secondary-100 ) 25%, transparent 100%);
         user-select: text;
     }
 

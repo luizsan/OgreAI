@@ -1,14 +1,14 @@
 div.container.component{
-  --field-color-primary: var(--surface-neutral-100);
-  --field-color-secondary: var(--surface-neutral-200);
-  --field-color-tertiary: var(--surface-neutral-300);
+  --field-color-primary: var(--surface-neutral-200);
+  --field-color-secondary: var(--surface-neutral-300);
+  --field-color-tertiary: var(--surface-neutral-400);
   --field-border-radius: 5px;
 
   border-style: solid;
   border-width: 0px;
-  border-color: var( --surface-neutral-200 );
+  border-color: var( --surface-neutral-300 );
   border-radius: var( --field-border-radius );
-  outline: 1px solid var( --surface-neutral-300 );
+  outline: 1px solid var( --surface-neutral-400 );
   padding: 4px 4px;
   min-height: 30px;
   background: var( --field-color-primary );
@@ -23,9 +23,9 @@ div.container.component select{
 }
 
 div.container.component.focus:focus-within{
-  background: var( --surface-neutral-200 );
-  border-color: var( --surface-neutral-300 );
-  outline: 1px solid var( --surface-neutral-400 );
+  background: var( --surface-neutral-300 );
+  border-color: var( --surface-neutral-400 );
+  outline: 1px solid var( --surface-neutral-500 );
 }
 
 .component.container hr{

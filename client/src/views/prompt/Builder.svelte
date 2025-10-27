@@ -187,9 +187,9 @@
         <!-- toggle -->
         <div class="center toggle" class:disabled={!ref.toggleable}>
             {#if ref.toggleable}
-                <input class="component" type="checkbox" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
+                <input type="checkbox" class="component" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
             {:else}
-                <input class="component" type="checkbox" disabled checked={true}>
+                <input type="checkbox" class="component" disabled checked={true}>
             {/if}
         </div>
 
@@ -315,7 +315,6 @@
         padding: 0px;
         width: 16px;
         height: 16px;
-        border: none;
     }
 
     .item {
@@ -365,7 +364,7 @@
     }
 
     .inside textarea, .inside input[type="text"], select{
-        background-color: var( --surface-neutral-200);
+        background-color: var( --surface-neutral-300);
         padding: 10px 12px;
         border-radius: 4px;
         min-height: 36px;
@@ -397,7 +396,7 @@
     }
 
     .item:not(.locked):hover{
-        background: var( --surface-neutral-200);
+        background: var( --surface-neutral-300);
     }
 
     button.custom.delete{
