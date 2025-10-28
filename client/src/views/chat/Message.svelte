@@ -363,7 +363,7 @@
     }
 
     :global(body.light) .msg:hover{
-        background: rgb(255, 255, 255, 0.5);
+        background: rgb(255, 255, 255, 0.25);
     }
 
     .msg:hover.user, .msg[inert].user{
@@ -466,12 +466,17 @@
 
 
     .footer{
+        --footer-button: hsla(0, 0%, 0%, 0.2);
         height: 24px;
         width: 100%;
         position: relative;
         display: flex;
         flex-direction: row-reverse;
         justify-content: space-between;
+    }
+
+    :global(body.light) .footer{
+        --footer-button: hsla(0, 0%, 0%, 0.05);
     }
 
     .msg:hover .extras, .msg:hover .swipes, .msg:hover .dots,
@@ -520,7 +525,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: hsla(0, 0%, 0%, 0.2);
+        background: var( --footer-button );
         word-spacing: 0.25em;
         font-size: 0.8rem;
         font-weight: bold;
@@ -542,7 +547,7 @@
     .dots{
         width: 36px;
         height: 20px;
-        background: hsla(0, 0%, 0%, 0.2);
+        background: var( --footer-button );
         border-radius: 100px;
         visibility: hidden;
         display: flex;
@@ -562,7 +567,7 @@
         height: fit-content;
         background: hsl(0, 0%, 10%);
         border-radius: 4px;
-        box-shadow: 0px 2px 0px hsla(0, 0%, 0%, 0.2);
+        box-shadow: 0px 2px 0px var( --footer-button );
         display: flex;
         flex-direction: row-reverse;
         translate: 0px -40px;

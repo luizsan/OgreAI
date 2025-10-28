@@ -88,7 +88,7 @@
 
     .text :global(td){
         font-size: 90%;
-        background: var( --surface-neutral-200 );
+        background: var( --background-neutral-200 );
         vertical-align: top;
     }
 
@@ -97,7 +97,7 @@
         word-break: keep-all;
         min-width: 0px;
         padding: 6px 12px;
-        border: 2px solid color-mix(in srgb, var( --surface-neutral-300 ) 85%, black 15%);
+        border: 2px solid var( --background-neutral-400 );
     }
 
     .text :global(table){
