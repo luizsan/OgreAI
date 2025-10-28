@@ -88,9 +88,10 @@ export function loadAllPreferences(){
     return obj;
 }
 
-export function setPreference(key : string, value : any){
-    if(!prefsList.includes(key)){
-        return;
-    }
+export function getPreference(key : string, value? : any){
+    return window.localStorage.getItem(key) || value
+}
+
+export function setPreference(key : string, value: any){
     window.localStorage.setItem(key, value)
 }

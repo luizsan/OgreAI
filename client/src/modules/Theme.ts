@@ -1,4 +1,5 @@
 import { get, writable } from "svelte/store"
+import * as Prefs from "./Preferences"
 
 export const themes = {
     "dark": { label: "Dark" },
@@ -20,7 +21,7 @@ export function updateRatio(){
 }
 
 export function loadTheme(){
-    let theme = window.localStorage.getItem("theme")
+    let theme = Prefs.getPreference("theme")
     theme = themeList.includes(theme) ? theme : "dark"
     setTheme( theme )
     return theme;
@@ -33,7 +34,7 @@ export function setTheme(s: string){
         }
         return
     }
-    window.localStorage.setItem("theme", s)
+    Prefs.setPreference("theme", s)
     for(let i = 0; i < themeList.length; i++){
         document.body.classList.remove( themeList[i] )
     }

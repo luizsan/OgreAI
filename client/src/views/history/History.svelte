@@ -12,15 +12,16 @@
         chatSearch,
     } from "@/State";
 
-
     import Record from "@/views/history/Record.svelte";
     import Background from "@/views/main/Background.svelte";
 
+    import * as Prefs from "@/modules/Preferences";
     import * as Server from "@/Server";
     import * as Dialog from "@/modules/Dialog";
+
     import Search from "@/components/Search.svelte";
 
-    let displayMode : string = window.localStorage.getItem("history_display") || "extended"
+    let displayMode : string = Prefs.getPreference("history_display", "extended")
     let searchResults : Array<IChat> = Array.from($chatList) || []
 
     $: if( $chatList ){
@@ -29,7 +30,7 @@
 
     function setDisplayMode(mode: string){
         displayMode = mode
-        window.localStorage.setItem("history_display", mode.toString())
+        Prefs.setPreference("history_display", mode.toString())
     }
 
     function searchCondition(item : IChat, arg : string) : boolean{

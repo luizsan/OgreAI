@@ -10,16 +10,15 @@
         currentProfile,
         characterSearch,
         localServer,
-
         generating,
-
         busy
-
-
     } from "@/State";
+
     import Character from './Character.svelte'
     import Search from '@/components/Search.svelte'
     import Sidebar from "@/components/Sidebar.svelte";
+
+    import * as Prefs from "@/modules/Preferences";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
     import { fly } from "svelte/transition";
@@ -70,8 +69,8 @@
     }
 
     let searchResults : Array<ICharacter> = Array.from($characterList) || []
-    let currentSortMode : string = window.localStorage.getItem("sort_mode") || Object.keys(sortModes)[0]
-    let isReverse : boolean = (window.localStorage.getItem("order_mode")) === "true"
+    let currentSortMode : string = Prefs.getPreference("sort_mode", Object.keys(sortModes).at(0))
+    let isReverse : boolean = (Prefs.getPreference("order_mode")) === "true"
 
     let self : HTMLElement;
     let separator : HTMLElement; // threshold to show "Back to top" button
@@ -161,7 +160,7 @@
     }
 
     function changeSort(){
-        window.localStorage.setItem("sort_mode", currentSortMode)
+        Prefs.setPreference("sort_mode", currentSortMode)
         searchResults = Array.from($characterList)
         searchResults = orderResults(searchResults)
         $characterSearch = $characterSearch
@@ -169,7 +168,7 @@
 
     function changeOrder(){
         isReverse = !isReverse
-        window.localStorage.setItem("order_mode", String(isReverse))
+        Prefs.setPreference("order_mode", String(isReverse))
         searchResults = Array.from($characterList)
         searchResults = orderResults(searchResults)
         $characterSearch = $characterSearch

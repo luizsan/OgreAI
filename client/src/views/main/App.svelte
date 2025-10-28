@@ -26,7 +26,8 @@
     import Actions from '@/views/modal/Actions.svelte';
     import Loading from '@/components/Loading.svelte';
     import Screen from '@/components/Screen.svelte';
-    import * as Preferences from '@/modules/Preferences';
+
+    import * as Prefs from '@/modules/Preferences';
     import * as Theme from '@/modules/Theme';
     import * as Server from '@/Server';
 
@@ -53,7 +54,7 @@
     onMount(async () => {
         Theme.updateRatio()
         $currentTheme = Theme.loadTheme()
-        $currentPreferences = Preferences.loadAllPreferences()
+        $currentPreferences = Prefs.loadAllPreferences()
         initializeMarked()
         await Server.initializeData()
         if( $currentPreferences["load_last_chat"] ){

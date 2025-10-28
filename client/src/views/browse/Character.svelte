@@ -17,18 +17,19 @@
         tabEditing,
         sectionCharacters,
         generating,
-
         swipes
-
     } from "@/State";
 
     import{
         displayOrientation
     } from "@/modules/Theme";
 
+
+    import * as Prefs from "@/modules/Preferences"
     import * as Format from "@shared/format.ts";
     import * as SVG from "@/svg/Common.svelte";
     import * as Server from "@/Server";
+
     import { LazyLoad } from "@/utils/LazyLoad";
 
     export let id : number = -1
@@ -109,7 +110,7 @@
             $favoritesList.push(s)
         }
         $favoritesList = $favoritesList.filter((fav) => $characterList.find((char) => char.temp.filepath == fav))
-        window.localStorage.setItem("favorites", JSON.stringify($favoritesList))
+        Prefs.setPreference("favorites", JSON.stringify($favoritesList))
     }
 </script>
 
