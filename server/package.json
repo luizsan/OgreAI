@@ -18,7 +18,7 @@
   "private": true,
   "scripts": {
     "run": "bun run index.ts",
-    "build": "bun build --compile --target=bun ./index.ts"
+    "build": "bun build ./index.ts --compile --minify --sourcemap --target=bun --outfile ../output/ogreai && bun run build.ts"
   },
   "type": "module",
   "module": "index.ts",
