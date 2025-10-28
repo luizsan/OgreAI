@@ -27,6 +27,16 @@
         gap: 1px;
     }
 
+    label{
+        position: relative;
+        padding: 0px 16px;
+        border-radius: 0px;
+        font-size: 0.85em;
+        display: flex;
+        box-sizing: border-box;
+        box-shadow: none;
+    }
+
     input[type="radio"]{
         -webkit-appearance: none;
         -moz-appearance: none;;
@@ -39,23 +49,17 @@
     }
 
     label:has(input[type="radio"]:checked).component{
+        color: var( --surface-primary-400 );
         background: var(--surface-neutral-300);
-        border-color: var(--surface-neutral-500);
-        outline-color: var(--surface-neutral-500);
+        outline-color: var(--surface-primary-400);
     }
 
     label:has(input[type="radio"]:checked){
         z-index: 1;
     }
 
-    label{
-        position: relative;
-        padding: 0px 16px;
-        border-radius: 0px;
-        font-size: 0.85em;
-        display: flex;
-        box-sizing: border-box;
-        box-shadow: none;
+    label:hover{
+        z-index: 1;
     }
 
     label:first-child{

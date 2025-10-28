@@ -546,7 +546,7 @@
         flex-direction: column;
         gap: 32px;
         padding: 128px 20px 24px 20px;
-        scrollbar-color: #303030 transparent;
+        --scrollbar-color: var( --scrollbar-neutral );
         scrollbar-width: thin;
     }
 

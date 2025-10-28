@@ -23,5 +23,5 @@
 
 *:focus::-webkit-scrollbar-thumb {
   border-color: var( --scrollbar-bg );
-  background-color: var( --surface-primary-400);
+  background-color: var( --surface-primary-400 );
 }

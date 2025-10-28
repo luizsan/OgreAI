@@ -202,7 +202,9 @@
         width: 100%;
         height: 100%;
         overflow-x: hidden;
-        scrollbar-color: var( --scrollbar-color ) var( --background-neutral-300 );
+        overflow-y: scroll;
+        --scrollbar-color: var( --scrollbar-primary );
+        --scrollbar-background: var( --background-neutral-300 );
     }
 
     .inner{

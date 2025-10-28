@@ -205,6 +205,7 @@
             case "Enter":
                 const condition = $currentPreferences["enter_sends_message"] ?? false
                 if(event.shiftKey !== condition){
+                    event.preventDefault()
                     confirmEdit()
                 }
                 break;

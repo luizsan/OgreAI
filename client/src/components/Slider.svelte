@@ -63,17 +63,19 @@
     }
 
     .reset{
-        --sector-color: hsla(0, 0%, 50%, 0.15);
+        --sector-color: hsla(0, 0%, 50%, 0.1);
         position: absolute;
         padding-left: 6px;
         width: 32px;
         height: 30px;
-        border-radius: var( --field-border-radius ) 0px 0px var( --field-border-radius );
+        border-radius: var( --field-border-radius );
         background: var( --sector-color );
     }
 
 
     .reset :global(svg){
+        width: 16px;
+        height: 16px;
         translate: 0px 2px;
     }
 </style>

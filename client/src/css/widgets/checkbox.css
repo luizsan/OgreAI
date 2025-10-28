@@ -1,6 +1,6 @@
 input[type="checkbox"].component {
   --checkbox-color-primary: var(--surface-primary-400);
-  --checkbox-color-secondary: var(--surface-primary-200);
+  --checkbox-color-secondary: var(--surface-primary-300);
   --checkbox-color-tertiary: var(--surface-primary-100);
   --checkbox-size: 20px;
   --checkbox-border-radius: 4px;
@@ -13,7 +13,8 @@ input[type="checkbox"].component {
   min-height: var(--checkbox-size);
   background: var(--checkbox-color-tertiary);
   border-radius: var(--checkbox-border-radius);
-  border: 1px solid var(--checkbox-color-primary);
+  border: 1px solid var(--checkbox-color-secondary);
+  box-shadow: var( --field-shadow-shape ) var( --checkbox-color-tertiary );
 
   position: relative;
   cursor: pointer;
@@ -23,11 +24,11 @@ input[type="checkbox"].component {
 }
 
 :root .light input[type="checkbox"].component {
-  --checkbox-color-primary: var(--surface-primary-300);
-  --checkbox-color-secondary: var(--surface-primary-400);
-  --checkbox-color-tertiary: var(--surface-primary-200);
+  --checkbox-color-primary: var(--surface-neutral-200);
+  --checkbox-color-secondary: var(--surface-neutral-400);
+  --checkbox-color-tertiary: var(--surface-neutral-500);
+  box-shadow: var( --field-shadow-shape ) var(--surface-neutral-500);
 }
-
 
 input[type="checkbox"].component.small {
   --checkbox-size: 16px;
@@ -46,8 +47,8 @@ input[type="checkbox"].component::before {
   position: absolute;
   width: var(--checkbox-checkmark-size);
   height: calc(var(--checkbox-checkmark-size) / 2);
-  border-left: var(--checkbox-checkmark-thickness) solid var( --checkbox-color-secondary );
-  border-bottom: var(--checkbox-checkmark-thickness)  solid var( --checkbox-color-secondary );
+  border-left: var(--checkbox-checkmark-thickness) solid var( --checkbox-color-tertiary );
+  border-bottom: var(--checkbox-checkmark-thickness)  solid var( --checkbox-color-tertiary );
   top: 50%;
   left: 50%;
   transform: translate(-50%, -65%) rotate(-45deg);
@@ -60,7 +61,7 @@ input[type="checkbox"].component:checked::before {
 }
 
 input[type="checkbox"].component:focus {
-  box-shadow: 0 0 0 3px var( --selection-color );
+  box-shadow: 0 0 0px 2px var( --selection-color );
 }
 
 input[type="checkbox"].component:disabled {

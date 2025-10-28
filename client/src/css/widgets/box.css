@@ -12,6 +12,7 @@ div.container.component{
   padding: 4px 4px;
   min-height: 30px;
   background: var( --field-color-primary );
+  --scrollbar-background: var( --field-color-primary );
 }
 
 div.container.component.colored{
@@ -26,6 +27,7 @@ div.container.component.focus:focus-within{
   background: var( --surface-neutral-300 );
   border-color: var( --surface-neutral-400 );
   outline: 1px solid var( --surface-neutral-500 );
+  --scrollbar-background: var( --surface-neutral-300 );
 }
 
 .component.container hr{

@@ -565,6 +565,7 @@
 
 <style>
     .container{
+        --chat-padding: 8px;
         align-items: stretch;
         display: flex;
         flex-direction: column;
@@ -604,7 +605,7 @@
         overflow-y: scroll;
         margin-bottom: 75px;
         padding: 8px 0px 4px 0px;
-        --scrollbar-color: hsla(0, 0%, 50%, 0.2);
+        --scrollbar-color: var( --scrollbar-neutral )
     }
 
     .input{

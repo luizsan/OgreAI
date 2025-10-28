@@ -6,10 +6,10 @@
   --background-neutral-300: hsl(192, 4%, 16%); /* side menus */
   --background-neutral-400: hsl(192, 5%, 20%); /* side menus outline */
 
-  --surface-primary-100: rgb(35, 51, 51); /* slider thumb, unchecked box, UI component focus shadow */
-  --surface-primary-200: rgb(34, 75, 71); /* slider track, checkmark */
-  --surface-primary-300: rgb(34, 138, 124); /* primary normal, scrollbar */
-  --surface-primary-400: rgb(51, 233, 193); /* slider progress, logo, primary hover, UI component focus */
+  --surface-primary-100: rgb(35, 51, 51); /* slider thumb, checkbox unchecked, checkmark, UI component focus shadow */
+  --surface-primary-200: rgb(34, 75, 71); /* slider track */
+  --surface-primary-300: rgb(34, 138, 124); /* primary normal, checkbox outline, scrollbar */
+  --surface-primary-400: rgb(51, 233, 193); /* slider progress, logo, primary hover, checkbox checked, UI component focus */
   --surface-primary-500: rgb(133, 255, 229); /* slider focus */
 
   --surface-secondary-100: rgb(54, 45, 27); /* (unused) */
@@ -19,14 +19,14 @@
   --surface-secondary-500: rgb(255, 251, 220); /* (unused) */
 
   --surface-neutral-100: hsl(0, 0%, 5%); /*UI component shadow */
-  --surface-neutral-200: hsl(0, 0%, 12%); /* UI component background */
+  --surface-neutral-200: hsl(247, 4%, 14%); /* UI component background */
   --surface-neutral-300: hsl(247, 10%, 18%); /* UI component background hover */
   --surface-neutral-400: hsl(0, 0%, 33%); /* UI component outline */
   --surface-neutral-500: hsl(0, 0%, 50%); /* UI component outline hover */
 
   --content-primary-100: hsl(40, 8%, 44%); /* description and explanation */
-  --content-primary-200: hsl(60, 10%, 75%); /* menu, settings and general UI components text */
-  --content-primary-300: hsl(67, 31%, 94%); /* chat normal text, UI components text focus */
+  --content-primary-200: hsl(60, 10%, 70%); /* menu, settings and general UI components text */
+  --content-primary-300: hsl(48, 15%, 85%); /* chat normal text, UI components text focus */
 
   --content-secondary-100: hsl(177, 23%, 38%); /* thinking block */
   --content-secondary-200: hsl(180, 22%, 55%); /* chat narrative text */
@@ -59,26 +59,31 @@
   --field-normal-content: var( --content-primary-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
-  --field-normal-shadow: var(  --surface-neutral-100 );
+  --field-normal-shadow: var(  --surface-neutral-400 );
 
   /* component colors hover */
   --field-hover-content: var( --content-primary-300 );
   --field-hover-background: var( --surface-neutral-300 );
-  --field-hover-outline: var( --surface-neutral-400 );
-  --field-hover-shadow: var( --surface-neutral-100 );
+  --field-hover-outline: var( --surface-neutral-500 );
+  --field-hover-shadow: var( --surface-neutral-500 );
 
   /* component colors focus */
   --field-focus-content: var( --content-primary-300 );
   --field-focus-background: var( --surface-neutral-300 );
   --field-focus-outline: var( --surface-primary-400 );
-  --field-focus-shadow: var( --surface-primary-100 );
+  --field-focus-shadow: var( --surface-primary-400 );
 
   /* component default sizes */
   --field-height: 30px;
-  --field-border-radius: 5px;
+  --field-border-radius: 4px;
+  --field-shadow-shape: 0px 1px 2px 0px;
 
   /* scrollbar colors */
-  --scrollbar-color: var( --surface-primary-300 );
+  --scrollbar-primary: var( --surface-primary-300 );
+  --scrollbar-secondary: var( --surface-secondary-300 );
+  --scrollbar-neutral: var( --background-neutral-400 );
+
+  --scrollbar-color: var( --scrollbar-primary );
   --scrollbar-background: transparent;
 }
 
@@ -122,19 +127,23 @@
   --field-normal-content: var( --content-primary-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
-  --field-normal-shadow: var(  --surface-neutral-100 );
+  --field-normal-shadow: var(  --surface-neutral-400 );
 
   --field-hover-content: var( --content-primary-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-400 );
-  --field-hover-shadow: var( --surface-neutral-100 );
+  --field-hover-shadow: var( --surface-neutral-400 );
 
   --field-focus-content: var( --content-primary-300 );
   --field-focus-background: var( --surface-neutral-300 );
-  --field-focus-outline: var( --surface-primary-400 );
+  --field-focus-outline: var( --surface-primary-300 );
   --field-focus-shadow: var( --surface-primary-300 );
 
-  --scrollbar-color: var( --surface-primary-300 );
+  --scrollbar-primary: var( --surface-primary-300 );
+  --scrollbar-secondary: var( --surface-secondary-300 );
+  --scrollbar-neutral: var( --background-neutral-200 );
+
+  --scrollbar-color: var( --scrollbar-primary );
   --scrollbar-background: transparent;
 }
 

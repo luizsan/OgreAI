@@ -2,17 +2,18 @@ input[type="range"].component {
   --slider-color-primary: var(--surface-primary-400 );
   --slider-color-secondary: var(--surface-primary-100 );
   --slider-color-tertiary: var(--surface-primary-200);
+
   --slider-track-height: 3px;
-  --slider-thumb-size: 12px;
+  --slider-progress-height: 7px;
+  --slider-thumb-size: 11px;
   --slider-thumb-border: 3px;
   --slider-height: 30px;
-  --slider-border-radius: 16px;
+  --slider-border-radius: 30px;
 
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   appearance: none;
 
-  width: 100%;
   height: var( --slider-height );
   border-radius: var( --slider-border-radius );
   background: none;
@@ -22,7 +23,7 @@ input[type="range"].component {
 }
 
 :root .light input[type="range"]{
-  --slider-color-primary: var(--surface-primary-300 );
+  --slider-color-primary: var(--surface-primary-100 );
   --slider-color-secondary: var(--surface-primary-400 );
   --slider-color-tertiary: var(--surface-primary-200);
 }
@@ -35,6 +36,14 @@ input[type="range"].component:active{
   --slider-color-secondary: var( --surface-primary-300 );
 }
 
+:root .light input[type="range"].component:focus,
+:root .light input[type="range"].component:active{
+  outline: none;
+  background: none;
+  --slider-color-primary: var( --surface-primary-300 );
+  --slider-color-secondary: var( --surface-primary-500 );
+}
+
 /* Track */
 input[type="range"].component::-moz-range-track {
   height: var(--slider-track-height);
@@ -42,19 +51,36 @@ input[type="range"].component::-moz-range-track {
   background: var(--slider-color-tertiary);
 }
 
+input[type="range"]::-moz-range-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;   /* tail length */
+  height: 100%;
+  background: red;
+  border-radius: inherit;
+}
+
 /* Progress fill (WebKit) */
 input[type="range"].component::-webkit-slider-runnable-track {
   height: var(--slider-track-height);
   border-radius: var( --slider-border-radius );
-  background: linear-gradient(to right, var(--slider-color-secondary), var(--slider-color-primary));
+  background: var(--surface-primary-300 );
   box-sizing: border-box;
+}
+
+:root .light input[type="range"].component::-webkit-slider-runnable-track {
+  background: var(--slider-color-primary);
 }
 
 /* Progress fill (Firefox) */
 input[type="range"].component::-moz-range-progress {
-  height: var(--slider-track-height);
+  box-sizing: border-box;
+  height: var(--slider-progress-height );
   background: var(--slider-color-primary);
-  border-radius: var( --slider-border-radius );
+  border-radius: var( --slider-border-radius ) 0px 0px var( --slider-border-radius );
+  overflow: hidden;
 }
 
 /* Thumb */
@@ -62,21 +88,25 @@ input[type="range"].component::-moz-range-progress {
 input[type="range"].component::-webkit-slider-thumb{
   -webkit-appearance: none;
   appearance: none;
+  box-sizing: border-box;
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-size);
-  border: var(--slider-thumb-border) solid var(--slider-color-primary);
+  border: none;
+  outline: var(--slider-thumb-border) solid var(--slider-color-primary);
   border-radius: 50%;
   background: var(--slider-color-secondary);
-  transform: translateY(calc((var(--slider-track-height) - var(--slider-thumb-size)) / 2));
+  transform: translateY(calc((var(--slider-track-height) - var(--slider-thumb-size)) * 0.5));
 }
 
 /* keep your firefox rules too */
 input[type="range"].component::-moz-range-thumb {
   -webkit-appearance: none;
   appearance: none;
+  box-sizing: border-box;;
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-size);
-  border: var(--slider-thumb-border) solid var(--slider-color-primary);
+  border: none;
+  outline: var(--slider-thumb-border) solid var(--slider-color-primary);
   border-radius: 50%;
   background: var(--slider-color-secondary);
 

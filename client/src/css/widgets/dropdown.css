@@ -50,7 +50,7 @@ select.component.editable:has(
 ){
   background: var( --field-hover-background );
   outline: 1px solid var(--field-hover-outline );
-  box-shadow: 0px 2px 2px 2px var( --field-hover-shadow );
+  box-shadow: var(--field-shadow-shape) var( --field-hover-shadow );
 }
 
 /* change dropdown when focusing cover */
@@ -61,6 +61,6 @@ select.component.editable:has(
 ){
   background: var( --field-focus-background );
   outline: 1px solid var(--field-focus-outline );
-  box-shadow: 0px 2px 2px 2px var( --field-focus-shadow );
+  box-shadow: var(--field-shadow-shape) var( --field-focus-shadow );
 }
 

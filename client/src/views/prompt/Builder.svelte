@@ -187,9 +187,9 @@
         <!-- toggle -->
         <div class="center toggle" class:disabled={!ref.toggleable}>
             {#if ref.toggleable}
-                <input type="checkbox" class="component" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
+                <input type="checkbox" class="component small" title="Toggle" bind:checked={item.enabled} on:change={after} on:mousedown|preventDefault>
             {:else}
-                <input type="checkbox" class="component" disabled checked={true}>
+                <input type="checkbox" class="component small" disabled checked={true}>
             {/if}
         </div>
 
@@ -368,6 +368,7 @@
         padding: 10px 12px;
         border-radius: 4px;
         min-height: 36px;
+        --scrollbar-background: var( --surface-neutral-300);
     }
 
     .section.horizontal.center{
