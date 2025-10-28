@@ -4,12 +4,12 @@
     "": {
       "name": "ogreai-server",
       "dependencies": {
-        "chalk": "^5.4.1",
+        "chalk": "^5.6.2",
         "cors": "^2.8.5",
         "express": "^5.1.0",
         "gpt-tokenizer": "^2.9.0",
         "marked": "^4.3.0",
-        "mime": "^4.0.7",
+        "mime": "^4.1.0",
         "mistral-tokenizer-ts": "^1.2.0",
         "multer": "^1.4.5-lts.2",
         "open": "^9.1.0",
