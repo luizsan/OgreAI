@@ -1,12 +1,9 @@
-import fs from "fs";
-import path from "path";
 import chalk from "chalk";
-import { Database, Statement } from "bun:sqlite";
+import { Database } from "bun:sqlite";
+import { SCHEMA } from "../sql/schema.ts"
 import { path_dir } from "./config.ts"
 
 export const db = CreateDatabase();
-export const op = LoadOperations();
-
 
 export interface IDatabaseChat{
     id: number;
@@ -73,9 +70,7 @@ export interface IDatabaseSettings{
 function CreateDatabase(): Database{
     try{
         const database = new Database(path_dir.database, { create: true });
-        const file = path.join(".", "sql", "database_init.sql");
-        const schema = fs.readFileSync(file, "utf-8");
-        database.exec(schema);
+        database.exec(SCHEMA)
         console.log(chalk.green("⚙️  Database initialized"));
         return database
     }catch(error){
@@ -84,26 +79,4 @@ function CreateDatabase(): Database{
     return null;
 }
 
-function LoadOperations(): Record<string, Statement>{
-    if( !db ){
-        throw new Error("Database must be initialized before loading operations");
-    }
-    const operations = {};
-    const dir = path.join(".", "sql");
-    const files = fs.readdirSync(dir);
-    for(const file of files){
-        try{
-            if(!file.endsWith(".sql"))
-                continue;
-            let filepath = path.join(dir, file);
-            let content = fs.readFileSync(filepath, "utf-8");
-            let filename = path.parse(file).name;
-            operations[filename] = db.prepare(content);
-        }catch(error){
-            console.error(chalk.red(`❌ Failed to load database operation ${file}:\n${error}`));
-        }
-    }
-    return operations;
-}
-
-export default { db, op }
+export default { db }

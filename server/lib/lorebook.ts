@@ -15,17 +15,19 @@ import {
 
 import {
     IDatabaseLorebook,
-    db, op
+    db
 } from "../core/database.js"
 
 import API from "../core/api.ts";
 import { path_dir } from "../core/config.ts"
 
+import * as LorebookSQL from "../sql/lorebook.ts"
+
 const EXT_LORE = [".json"]
 
 
 export function List(){
-    const entries = op["lorebook_list"].all() as IDatabaseLorebook[]
+    const entries = LorebookSQL.LIST.all() as IDatabaseLorebook[]
     return entries.map((entry: IDatabaseLorebook) => {
         let book: ILorebook = JSON.parse(entry.content)
         book.temp = {
@@ -38,7 +40,7 @@ export function List(){
 export function Save( book: ILorebook, metadata: any = {}, overwrite = true ): boolean{
     const transaction = db.transaction(() => {
         if( !overwrite ){
-            const exists = op["lorebook_get"].get(book.name)
+            const exists = LorebookSQL.GET.get(book.name)
             if( !!exists ){
                 console.warn(chalk.yellow(`Failed to save lorebook [${book.name}]: already exists in the database.`));
                 return false
@@ -46,7 +48,7 @@ export function Save( book: ILorebook, metadata: any = {}, overwrite = true ): b
         }
         const raw: string = JSON.stringify(book)
         const meta: string = JSON.stringify(metadata)
-        const result = op["lorebook_save"].run(book.name, raw, meta)
+        const result = LorebookSQL.SAVE.run(book.name, raw, meta)
         if(result.changes === 0){
             console.warn(chalk.yellow(`Failed to save lorebook [${book.name}]`));
             return false
@@ -58,14 +60,14 @@ export function Save( book: ILorebook, metadata: any = {}, overwrite = true ): b
 }
 
 export function Toggle( book: ILorebook, state: boolean ): boolean{
-    const result = op["lorebook_toggle"].run(state ? 1 : 0, book.name)
+    const result = LorebookSQL.TOGGLE.run(state ? 1 : 0, book.name)
     if(result.changes > 0)
         console.log(`Toggled lorebook [${book.name}]: ${state ? "✅" : "❌"}`);
     return result.changes > 0
 }
 
 export function Delete( book: ILorebook ): boolean{
-    const result = op["lorebook_delete"].run(book.name)
+    const result = LorebookSQL.DELETE.run(book.name)
     if(result.changes === 0)
         throw new Error(`Could not delete lorebook [${book.name}]: not found`)
     return result.changes > 0
@@ -176,7 +178,7 @@ export function squashEntries(entries: Array<ILorebookEntry>): string {
 export function Import(contents: ILorebook, metadata: any = {}){
     const transaction = db.transaction(() => {
         const raw: string = JSON.stringify(contents)
-        const result = op["lorebook_save"].get(
+        const result = LorebookSQL.SAVE.get(
             contents.name, raw, JSON.stringify(metadata)
         ) as number | undefined
         if(!result)
