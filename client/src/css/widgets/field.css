@@ -33,7 +33,7 @@ button.component{
 
   --scrollbar-background: var( --field-normal-background );
   box-shadow: var(--field-shadow-shape) var( --field-normal-shadow );
-  transition-duration: .125s;
+  transition: border-color .125s, outline-color .125s, box-shadow .125s;
 }
 
 select.component:hover,
