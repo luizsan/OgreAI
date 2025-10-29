@@ -25,6 +25,11 @@ try{
         console.log(`Copying ${chalk.blue("whitelist.txt")}`);
         fs.copyFileSync("./whitelist.txt", `${OUTPUT_DIR}/whitelist.txt`);
     }
+
+    if(fs.existsSync("./config.json")){
+        console.log(`Copying ${chalk.blue("config.json")}`);
+        fs.copyFileSync("./config.json", `${OUTPUT_DIR}/config.json`);
+    }
 }catch(error){
     console.error(chalk.red(`❌ Build post-processing failed:\n${error}`));
 }
