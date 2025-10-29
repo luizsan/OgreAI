@@ -54,8 +54,14 @@
         outline-color: var(--surface-primary-400);
     }
 
+    :global(body.light) label:has(input[type="radio"]:checked).component{
+        color: var( --surface-primary-200 );
+        background: var(--surface-primary-400);
+        outline-color: var(--surface-primary-100);
+    }
+
     label:has(input[type="radio"]:checked){
-        z-index: 1;
+        z-index: 2;
     }
 
     label:hover{
