@@ -76,6 +76,7 @@
         background: var( --surface-neutral-200 );
         overflow-x: hidden;
         overflow-y: hidden;
+        font-size: var( --system-font-size );
         font-family: var( --system-font-face );
         box-shadow: 0px 8px 24px 0px #00000080;
         border: 1px solid #00000030;
@@ -87,8 +88,15 @@
     }
 
     input[type="text"]{
+        font-size: var( --system-font-size );
         font-family: var( --default-font-face );
-        font-size: 14px;
+    }
+
+    button{
+        font-size: var( --system-font-size );
+        font-family: var( --default-font-face );
+        box-sizing: border-box;
+        max-height: 20px;
     }
 
     .header{
@@ -98,7 +106,6 @@
         width: 100%;
         height: 20px;
         padding: 4px 16px;
-        font-size: 12px;
         background: white;
         color: black;
         z-index: calc(var( --layer-base ) + 1);
@@ -108,7 +115,6 @@
         padding: 40px 24px 20px 24px;
         position: relative;
         display: flex;
-        font-size: 12px;
         white-space: wrap;
         line-height: 1.3em;
         background: hsl(0, 0%, 85%);
@@ -116,12 +122,8 @@
     }
 
     .choice{
-        font-family: var( --system-font-face );
-        font-size: var( --system-font-size );
-        padding: 0px 16px;
+        padding: 0px 12px;
         min-width: 80px;
-        min-height: 24px;
-        box-shadow: none;
     }
 
     .section{

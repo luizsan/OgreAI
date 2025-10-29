@@ -1,4 +1,5 @@
 import './css/core/const.css'
+import './css/core/fonts.css'
 import './css/core/main.css'
 
 import './css/widgets/box.css'
