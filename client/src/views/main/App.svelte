@@ -62,7 +62,7 @@
         }
     });
 
-
+    const loadingMessage = 'Reading server data...';
     const confirmationMessage = 'Are you sure you want to leave this page?';
 
     function confirmExit(e : BeforeUnloadEvent){
@@ -96,10 +96,11 @@
         </div>
         <Header/>
         {#if $fetching}
-            <div class="fullscreen center loading" transition:fade={{duration:100}}>
+            <div class="fullscreen center loading" transition:fade={{duration:120}}>
                 <Screen/>
-                <div class="spinner">
+                <div class="center loading">
                     <Loading width={48} height={48}/>
+                    {loadingMessage}
                 </div>
             </div>
         {/if}
@@ -109,12 +110,12 @@
     </div>
 
 {:else}
-    <div class="fullscreen center loading" transition:fade={{duration:125}}>
+    <div class="fullscreen center loading" transition:fade={{duration:120}}>
         {#if $connected === null }
             <Loading width={48} height={48}/>
-            Retrieving data from server...
+            {loadingMessage}
         {:else}
-            Cannot connect to server.
+            Could not connect to the server.
             <button class="component" on:click={ ()=> Server.initializeData() }>Retry</button>
         {/if}
     </div>

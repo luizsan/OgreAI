@@ -31,6 +31,7 @@ button.component{
   align-items: center;
   padding: 4px 10px;
 
+  --scrollbar-background: var( --field-normal-background );
   box-shadow: var(--field-shadow-shape) var( --field-normal-shadow );
   transition-duration: .125s;
 }
@@ -60,6 +61,7 @@ button.component:focus{
   background: var( --field-focus-background );
   outline: 1px solid var(--field-focus-outline);
   box-shadow: var(--field-shadow-shape) var( --field-focus-shadow );
+  --scrollbar-background: var( --field-focus-background );
 }
 
 .anchor:has(.icon) select,
