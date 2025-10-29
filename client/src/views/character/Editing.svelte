@@ -210,6 +210,7 @@
             avatar = `${localServer + "/user/characters/" + $editing.temp.filepath}?${$editing.metadata.modified}`
             avatar = avatar.replaceAll("\\", "/")
         }
+        $editing = $editing
     }
 
     async function Close(){

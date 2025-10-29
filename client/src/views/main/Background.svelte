@@ -2,8 +2,11 @@
     import {
         localServer,
         currentCharacter,
-        currentPreferences
+        currentPreferences,
+        editing,
+        fetching
     } from "@/State";
+    import { onMount } from "svelte";
 
     $: enabled = !!($currentPreferences["chat_background"]);
     $: vertical = $currentPreferences["chat_background"] === "vertical";
@@ -16,12 +19,23 @@
     $: rotation = vertical ? "0.5turn" : "0.25turn";
     $: fade = vertical ? "top" : "left";
 
-    $: uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
-    $: backgroundPath = $currentCharacter ? localServer + "/user/characters/" + uri.replace("../", "") : ""
-    // hack to un-cache the URL
-    $: timestamp = $currentCharacter ? new Date().getTime() : 0;
+    let uri = "";
+    let backgroundPath = ""
+    let timestamp = 0;
 
-    const opacity_ratio : number = 1.0
+    $: if( !($fetching || $editing) ){
+        refreshImage();
+    }
+
+    onMount(() => {
+        refreshImage();
+    })
+
+    function refreshImage(){
+        uri = $currentCharacter ? encodeURI($currentCharacter.temp.filepath) : "";
+        backgroundPath = $currentCharacter ? localServer + "/user/characters/" + uri.replace("../", "") : ""
+        timestamp = $currentCharacter ? new Date().getTime() : 0; // hack to un-cache the URL
+    }
 </script>
 
 {#if enabled}
@@ -32,7 +46,7 @@
     --height: ${height};
     --position: ${position};
     --rotation: ${rotation};
-    --opacity: ${opacity * opacity_ratio};
+    --opacity: ${opacity};
     --fade: ${fade};
     `}
 ></div>
