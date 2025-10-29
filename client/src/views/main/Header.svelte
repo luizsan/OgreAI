@@ -9,8 +9,6 @@
         $sectionCharacters = !$sectionCharacters
         if( isPortrait && $sectionCharacters && $sectionSettings ){
             $sectionSettings = false
-        }else{
-            $editing = null
         }
     }
 
@@ -24,7 +22,6 @@
             if( isPortrait ){
                 $sectionCharacters = false
             }
-            $editing = null;
         }
     }
 
@@ -55,7 +52,7 @@
         position: fixed;
         top: 0px;
         width: 100%;
-        z-index: 100;
+        z-index: var( --layer-header );
     }
 
     button{

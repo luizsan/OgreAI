@@ -70,7 +70,7 @@
         padding: 0px;
         border: none;
         border-radius: 8px;
-        z-index: 1000;
+        z-index: var( --layer-system );
         min-width: 360px;
         max-width: var( --chat-width );
         background: var( --surface-neutral-200 );
@@ -100,7 +100,8 @@
         padding: 4px 16px;
         font-size: 12px;
         background: white;
-        z-index: 1;
+        color: black;
+        z-index: calc(var( --layer-base ) + 1);
     }
 
     .body {

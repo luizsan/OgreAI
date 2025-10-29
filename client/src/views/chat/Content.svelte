@@ -97,7 +97,7 @@
         word-break: keep-all;
         min-width: 0px;
         padding: 6px 12px;
-        border: 2px solid var( --background-neutral-400 );
+        border: 2px solid var( --background-neutral-500 );
     }
 
     .text :global(table){

@@ -11,12 +11,10 @@
         opacity: 1,
         x: side == "left" ? "-100%" : "100%"
     }
-
-    $: sortOrder = 25 + sort;
 </script>
 
 {#if enabled}
-<div class="container small {side}" style="--self-width: {width}px; z-index:{sortOrder}" transition:fly={transition_schema}>
+<div class="container small {side}" style="--self-width: {width}px; z-index: calc(var(--layer-sidebar) + {sort})" transition:fly={transition_schema}>
     <div class="main">
         <slot></slot>
     </div>

@@ -281,7 +281,7 @@
     }
 
     .main{
-        background: var( --background-neutral-300 );
+        background: var( --background-neutral-400 );
         bottom: 0px;
         box-shadow: 3px 0px transparent;
         inset: 0px;
@@ -290,7 +290,7 @@
         position: relative;
         max-width: 100%;
 
-        border-right: 1px solid var( --background-neutral-400 );
+        border-right: 1px solid var( --background-neutral-500 );
     }
 
     .container{
@@ -329,7 +329,7 @@
         display: flex;
         flex-direction: row;
         gap: 8px;
-        box-shadow: 0px 5px 30px 30px var( --background-neutral-300 );
+        box-shadow: 0px 5px 30px 30px var( --background-neutral-400 );
     }
 
     .back:after{

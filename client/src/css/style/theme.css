@@ -3,8 +3,9 @@
 
   --background-neutral-100: hsl(213, 18%, 10%); /* header */
   --background-neutral-200: hsl(192, 6%, 14%); /* main background */
-  --background-neutral-300: hsl(192, 4%, 16%); /* side menus */
-  --background-neutral-400: hsl(192, 5%, 20%); /* side menus outline */
+  --background-neutral-300: hsl(192, 5%, 15%); /* main background */
+  --background-neutral-400: hsl(192, 4%, 16%); /* side menus */
+  --background-neutral-500: hsl(192, 5%, 20%); /* side menus outline */
 
   --surface-primary-100: rgb(35, 51, 51); /* slider thumb, checkbox unchecked, checkmark, UI component focus shadow */
   --surface-primary-200: rgb(34, 75, 71); /* slider track */
@@ -91,8 +92,9 @@
 :root .light{
   --background-neutral-100: hsl(213, 18%, 10%);
   --background-neutral-200: hsl(48, 2%, 90%);
-  --background-neutral-300: hsl(48, 4%, 85%);
-  --background-neutral-400: hsl(48, 0%, 75%);
+  --background-neutral-300: hsl(48, 2%, 90%);
+  --background-neutral-400: hsl(48, 4%, 85%);
+  --background-neutral-500: hsl(48, 0%, 75%);
   /* --- */
   --surface-primary-100: rgb(46, 51, 51);
   --surface-primary-200: rgb(63, 92, 89);

@@ -1,29 +1,35 @@
 <script lang="ts">
     export let order = 0
-
-    $: sortOrder = 50 + order
 </script>
 
-<div class="container full" style="z-index: {sortOrder}">
-    <div class="main">
+<div class="background"/>
+<div class="container full" style="z-index: calc( var( --layer-menu ) + {order})">
+    <div class="anchor main">
         <slot></slot>
     </div>
 </div>
 
 
 <style>
-    .container{
-        background: var( --background-neutral-200 );
+    .background{
+        background: var( --background-neutral-300 );
+        position: fixed;
+        left: -50%;
+        right: -50%;
+        top: 0px;
         bottom: 0px;
+        padding: 0px 50%;
+    }
+
+    .container{
+        top: 0px;
+        bottom: 0px;
+        position: absolute;
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        left: 0px;
-        position: absolute;
-        overflow-x: hidden;
-        right: 0px;
-        top: 0px;
-        width: 100%;
-        overflow-y: scroll;
+        overflow: hidden;
     }
 
     .container .main{

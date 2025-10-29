@@ -88,7 +88,7 @@
         position: fixed;
         width: 100%;
         height: 100%;
-        z-index: 40;
+        z-index: var( --layer-popup );
         cursor: default;
         display: flex;
         align-items: center;
@@ -107,7 +107,6 @@
         padding: 4px;
         border-radius: 8px;
         border: 1px solid hsla(0, 0%, 50%, 0.2);
-        z-index: 40;
         pointer-events: all;
         box-shadow: 0px 8px 16px 0px #00000040;
     }

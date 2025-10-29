@@ -98,8 +98,8 @@
         {#if $fetching}
             <div class="fullscreen center loading" transition:fade={{duration:100}}>
                 <Screen/>
-                <div style="z-index: 2000">
-                <Loading width={48} height={48}/>
+                <div class="spinner">
+                    <Loading width={48} height={48}/>
                 </div>
             </div>
         {/if}
@@ -124,7 +124,7 @@
     .loading{
         gap: 8px;
         flex-direction: column;
-        z-index: 1000;
+        z-index: var( --layer-loading );
     }
 
     .main{

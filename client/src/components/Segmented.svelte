@@ -61,11 +61,11 @@
     }
 
     label:has(input[type="radio"]:checked){
-        z-index: 2;
+        z-index: calc(var( --layer-base ) + 2);
     }
 
     label:hover{
-        z-index: 1;
+        z-index: calc(var( --layer-base ) + 1);
     }
 
     label:first-child{

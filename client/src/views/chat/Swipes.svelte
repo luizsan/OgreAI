@@ -25,6 +25,7 @@
     let messageIndex : number = -1
 
     $: lockinput = $busy || $generating
+
     $: if( $swipes ){
         initialize()
     }
@@ -38,6 +39,21 @@
             (searchBar as HTMLInputElement).focus()
         }
         currentSwipe?.scrollIntoView({ behavior: "instant", block: "start" })
+    }
+
+    function scrollToFirst(){
+        const list = document.querySelector("#swipe_viewer .middle")
+        if( list ){
+            list.scrollTop = 0
+        }
+    }
+
+    function scrollToLast(){
+        const list = document.querySelector("#swipe_viewer .middle")
+        if( list ){
+            const last = list.lastElementChild
+            last?.scrollIntoView({ behavior: "instant", block: "end" })
+        }
     }
 
     function searchCondition(candidate : any, search : string){
@@ -120,8 +136,11 @@
 
         {/each}
     </div>
-    <div class="bottom center">
+    <div class="bottom center wide">
         <button class="component" on:click={closeSwipeView}>Back</button>
+        <div style="flex-grow: 1"></div>
+        <button class="component" on:click={scrollToFirst}>{@html SVG.arrow}First</button>
+        <button class="component" on:click={scrollToLast}>Last{@html SVG.arrow}</button>
     </div>
 </div>
 {/if}
@@ -140,11 +159,11 @@
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        border: 1px solid var( --background-neutral-400 );
+        border: 1px solid var( --background-neutral-500 );
         box-shadow: 2px 4px 20px 0px #00000040;
         width: calc( 100% - 64px );
         max-width: calc( var( --chat-width) - 64px);
-        z-index: 5;
+        z-index: var( --layer-popup );
     }
 
     .main[inert]{
@@ -158,7 +177,7 @@
         flex-direction: column;
         gap: 8px;
         padding-bottom: 12px;
-        border-bottom: 1px solid var( --background-neutral-400 );
+        border-bottom: 1px solid var( --background-neutral-500 );
     }
 
     .results{
@@ -172,7 +191,7 @@
         flex-grow: 1;
         overflow-x: hidden;
         overflow-y: scroll;
-        background: var( --background-neutral-300 );
+        background: var( --background-neutral-400 );
         gap: 16px;
         display: flex;
         flex-direction: column;
@@ -195,8 +214,10 @@
 
     .bottom{
         padding: 20px;
-        width: 100%;
-        border-top: 1px solid var( --background-neutral-400 );
+        gap: 8px;
+        max-width: 100%;;
+        box-sizing: border-box;
+        border-top: 1px solid var( --background-neutral-500 );
     }
 
     .header .index{
@@ -209,5 +230,18 @@
     button.large{
         padding: 6px 12px;
         width: 128px;
+    }
+
+    .bottom button{
+        min-width: 80px;
+    }
+
+    .bottom button:first-child :global(svg){
+        translate: 0 1px;
+    }
+
+    .bottom button:last-child :global(svg){
+        transform: scaleX(-1);
+        translate: 0 1px;
     }
 </style>

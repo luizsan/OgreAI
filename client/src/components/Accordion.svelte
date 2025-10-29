@@ -85,8 +85,9 @@
         flex-direction: column;
         gap: 24px;
         padding: 24px;
-        background-color: hsla(0, 0%, 0%, 0.075);
+        background-color: hsla(0, 0%, 50%, 0.025);
         border-radius: 0px 0px 6px 6px;
+        border: 2px dotted hsla(0, 0%, 50%, 0.15);
     }
 
 

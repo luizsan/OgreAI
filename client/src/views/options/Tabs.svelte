@@ -171,8 +171,8 @@
     }
 
     .tab.active{
-        background: var( --background-neutral-300);
-        border: 1px solid var( --background-neutral-400 );
+        background: var( --background-neutral-400);
+        border: 1px solid var( --background-neutral-500 );
         border-right: none;
         width: 57px;
     }
@@ -190,7 +190,7 @@
         height: 100%;
         position: absolute;
         pointer-events: none;
-        z-index: 1;
+        z-index: calc(var( --layer-base ) + 1);
 
     }
 
@@ -204,7 +204,7 @@
         overflow-x: hidden;
         overflow-y: scroll;
         --scrollbar-color: var( --scrollbar-primary );
-        --scrollbar-background: var( --background-neutral-300 );
+        --scrollbar-background: var( --background-neutral-400 );
     }
 
     .inner{
@@ -214,9 +214,9 @@
         gap: 24px;
         padding: 24px 24px 0px 24px;
         margin-left: 56px;
-        background: var( --background-neutral-300 );
+        background: var( --background-neutral-400 );
         background-repeat: repeat;
-        border-left: 1px solid var( --background-neutral-400 );
+        border-left: 1px solid var( --background-neutral-500 );
     }
 
     .bottom{

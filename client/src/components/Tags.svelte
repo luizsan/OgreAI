@@ -182,7 +182,7 @@
     .dropdown {
         display: none;
         position: absolute;
-        z-index: 500;
+        z-index: var( --layer-system );
         top: calc( 100% + 4px );
         border: none;
         left: 0;

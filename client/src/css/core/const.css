@@ -10,4 +10,13 @@
 
   --system-font-size: 12px;
   --system-font-face: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* z-indices */
+  --layer-base: 0;
+  --layer-popup: 250;
+  --layer-menu: 500;
+  --layer-sidebar: 750;
+  --layer-header: 1000;
+  --layer-loading: 2000;
+  --layer-system: 5000;
 }

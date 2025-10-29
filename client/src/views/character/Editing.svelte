@@ -28,37 +28,40 @@
 
     $: {
         if( $editing ){
-            if( $editing.temp.tokens ){
-                tokens = $editing.temp.tokens
-
-                permanent = 0;
-                total = 0;
-                percent = {};
-                breakdown = [];
-                distribution = "";
-
-                if( $editing && $editing.temp.tokens ){
-                    Object.keys(tokens).forEach( key =>{
-                        total += tokens[key];
-                        if( key !== "greeting" && key !== "system" ){
-                            permanent += tokens[key]
-                        }
-                    });
-
-                    breakdown.push( `${total} Total tokens\n` )
-                    Object.keys(tokens).forEach( key => {
-                        let k = key.charAt(0).toUpperCase() + key.slice(1)
-                        percent[key] = tokens[key] / total * 100
-                        breakdown.push( `${tokens[key]} ${k} (${percent[key].toFixed(2)}%)` )
-                        if( isNaN(percent[key]) ){
-                            distribution += `0px `
-                        }else{
-                            distribution += `${percent[key]}% `
-                        }
-                    })
-                }
+            if( $editing?.temp?.tokens ){
+                updateCharacterTokens();
             }
             refreshAvatar();
+        }
+    }
+
+    function updateCharacterTokens(){
+        tokens = $editing.temp.tokens
+        permanent = 0;
+        total = 0;
+        percent = {};
+        breakdown = [];
+        distribution = "";
+
+        if( $editing && $editing.temp.tokens ){
+            Object.keys(tokens).forEach( key =>{
+                total += tokens[key];
+                if( key !== "greeting" && key !== "system" ){
+                    permanent += tokens[key]
+                }
+            });
+
+            breakdown.push( `${total} Total tokens\n` )
+            Object.keys(tokens).forEach( key => {
+                let k = key.charAt(0).toUpperCase() + key.slice(1)
+                percent[key] = tokens[key] / total * 100
+                breakdown.push( `${tokens[key]} ${k} (${percent[key].toFixed(2)}%)` )
+                if( isNaN(percent[key]) ){
+                    distribution += `0px `
+                }else{
+                    distribution += `${percent[key]}% `
+                }
+            })
         }
     }
 
@@ -290,41 +293,41 @@
 
 
 {#if $editing }
-    <Screen>
-        <div class="top" on:change={SaveCharacter} >
-            <div class="section header">
-                <div class="avatar">
-                    <img src={avatar} alt=""/>
-                    <button class="upload" on:click={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
-                    <form action="/save_character_image" enctype="multipart/form-data" method="post">
-                        <input name="file" type="file" bind:this={uploadInput} bind:value={$editing.temp.avatar} on:change={SetUploadImage}>
-                    </form>
-                </div>
+    <div class="top" on:change={SaveCharacter} >
+        <div class="section header">
+            <div class="avatar">
+                <img src={avatar} alt=""/>
+                <button class="upload" on:click={() => uploadInput.click()}>{("Change Avatar").toUpperCase()}</button>
+                <form action="/save_character_image" enctype="multipart/form-data" method="post">
+                    <input name="file" type="file" bind:this={uploadInput} bind:value={$editing.temp.avatar} on:change={SetUploadImage}>
+                </form>
+            </div>
 
-                <div>
-                    <p class="explanation">Currently editing</p>
-                    <h1 class="title" style="font-size: 120%">{$editing.data.name}</h1>
+            <div>
+                <p class="explanation">Currently editing</p>
+                <h1 class="title" style="font-size: 120%">{$editing.data.name}</h1>
 
-                    <div class="tokens" title={breakdown.join("\n")}>
-                        {#if countingTokens}
-                            <div class="label">Counting tokens...</div>
-                        {:else}
-                            <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
-                        {/if}
+                <div class="tokens" title={breakdown.join("\n")}>
+                    {#if countingTokens}
+                        <div class="label">Counting tokens...</div>
+                    {:else}
+                        <div class="label"><strong>{permanent}</strong> Permanent Tokens</div>
+                    {/if}
 
-                        <div class="meter" style="grid-template-columns:{distribution}">
-                            {#each Object.keys(tokens) as type}
-                                <div class={type}></div>
-                            {/each}
-                        </div>
+                    <div class="meter" style="grid-template-columns:{distribution}">
+                        {#each Object.keys(tokens) as type}
+                            <div class={type}></div>
+                        {/each}
                     </div>
                 </div>
             </div>
-
-            <button class="close normal" title="Close window" on:click={Close}>{@html SVG.close}</button>
-            <button class="open normal" title="Open image in new tab" on:click={OpenImage}>{@html SVG.open}</button>
         </div>
 
+        <button class="close normal" title="Close window" on:click={Close}>{@html SVG.close}</button>
+        <button class="open normal" title="Open image in new tab" on:click={OpenImage}>{@html SVG.open}</button>
+    </div>
+
+    <Screen>
         <div class="bottom" on:input={refreshTokens} on:change={SaveCharacter}>
             <div class="section wide">
                 <Heading title="Name" description="The name of the character displayed in chat."/>
@@ -438,9 +441,9 @@
                     <button class="component danger" on:click={DeleteCharacter}>Delete Character</button>
                 {/if}
             </div>
+            <Footer/>
         </div>
 
-        <Footer/>
     </Screen>
 {/if}
 
@@ -512,22 +515,22 @@
     }
 
     .top{
-        background: var( --background-neutral-200 );
+        background: var( --background-neutral-300 );
         border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
         display: flex;
         flex-direction: column;
         justify-content: start;
         gap: 16px;
         box-shadow: 0px 20px 20px -20px #00000060;
-        position: fixed;
+        position: absolute;
         padding: 0px;
-        top: var(--header-height);
-        left: auto;
-        right: auto;
+        top: 0px;
+        left: 50%;
+        translate: -50% 0px;
         width: 100%;
         min-width: 360px;
         max-width: var( --chat-width );
-        z-index: 1;
+        z-index: calc( var( --layer-menu ) + 5);
     }
 
     .top .section.header{
@@ -546,8 +549,10 @@
         height: fit-content;
         flex-direction: column;
         gap: 32px;
-        padding: 128px 20px 24px 20px;
-        --scrollbar-color: var( --scrollbar-neutral );
+        overflow-x: hidden;
+        overflow-y: scroll;
+        margin-top: 114px;
+        padding: 24px 20px;
         scrollbar-width: thin;
     }
 

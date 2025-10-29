@@ -436,6 +436,6 @@
         translate: 0px -50%;
         background: cyan;
         visibility: hidden;
-        z-index: 1;
+        z-index: calc(var( --layer-base ) + 1);
     }
 </style>
