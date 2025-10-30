@@ -35,19 +35,19 @@
   --content-secondary-200: hsl(180, 22%, 55%); /* chat narrative text */
   --content-secondary-300: hsl(199, 68%, 88%); /* thinking block text */
 
-  --content-danger-100: rgba(192, 64, 64, 0.5); /* (tbi) danger style text */
+  --content-danger-100: rgba(192, 64, 64); /* (tbi) danger style text */
   --content-danger-200: rgb(255, 64, 64); /* danger style normal */
   --content-danger-300: rgb(255, 128, 128); /* danger style hover */
 
-  --content-info-100: rgba(48, 128, 192, 0.5); /* (tbi) info style text */
+  --content-info-100: rgba(48, 128, 192); /* (tbi) info style text */
   --content-info-200: rgb(64, 128, 255); /* info style normal */
   --content-info-300: rgb(128, 192, 255); /* info style hover */
 
-  --content-confirm-100: rgba(48, 128, 96, 0.5); /* (tbi) confirm style text */
+  --content-confirm-100: rgb(0, 124, 75); /* (tbi) confirm style text */
   --content-confirm-200: rgb(54, 221, 151); /* confirm style normal */
   --content-confirm-300: rgb(144, 255, 220); /* confirm style hover */
 
-  --content-special-100: rgba(128, 120, 48, 0.5); /* (tbi) special style text */
+  --content-special-100: rgba(128, 120, 48); /* (tbi) special style text */
   --content-special-200: rgb(255, 220, 64); /* special style normal */
   --content-special-300: rgb(255, 246, 164); /* special style hover */
 

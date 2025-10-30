@@ -506,7 +506,7 @@
             {@const placeholder = $generating ? placeholder_wait : placeholder_idle}
             <div class="input" class:disabled={lockinput} inert={lockinput}>
                 <div use:clickOutside on:clickout={() => { if(Dialog.isOpen()) return; showMenu = false; }}>
-                    <button class="normal side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
+                    <button class="normal clear side options" on:click={ToggleChatOptions}>{@html SVG.menu}</button>
 
                     {#if showMenu}
                     <div class="chatmenu deselect" role="menu" tabindex={0} on:click={closeMenu} on:keypress={closeMenu} transition:fly={{duration:150, y: 10}}>
@@ -531,7 +531,7 @@
                 {#if $generating}
                     <Loading/>
                 {:else}
-                    <button class="normal side send" on:click={SendMessage}>{@html SVG.send}</button>
+                    <button class="normal clear side send" on:click={SendMessage}>{@html SVG.send}</button>
                 {/if}
             </div>
 

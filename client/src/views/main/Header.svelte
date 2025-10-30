@@ -33,9 +33,9 @@
 
 
 <header id="header">
-    <button class={$sectionCharacters ? "primary" : "normal"} title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
+    <button class="clear {$sectionCharacters ? "primary" : "normal"}" title="Characters" on:click|stopPropagation={ToggleSidebar}>{@html menu}</button>
     <button class="clear" on:click|stopPropagation={CloseChat}><div class="title deselect">OGRE</div></button>
-    <button class={$sectionSettings ? "primary" : "normal"} title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
+    <button class="clear {$sectionSettings ? "primary" : "normal"}" title="Settings" on:click|stopPropagation={ToggleSettings}>{@html settings}</button>
 </header>
 
 

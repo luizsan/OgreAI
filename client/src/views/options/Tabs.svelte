@@ -73,6 +73,7 @@
                         class="tab"
                         class:active={selected}
                         class:normal={selected}
+                        class:clear={!selected}
                         class:inactive={!selected}
                         class:secondary={!selected}
                         inert={selected}

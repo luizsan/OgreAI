@@ -501,7 +501,7 @@
     .close{
         height: 32px;
         position: absolute;
-        right: 8px;
+        right: 12px;
         top: 16px;
         width: 32px;
     }
@@ -509,7 +509,7 @@
     .open{
         height: 32px;
         position: absolute;
-        right: 8px;
+        right: 12px;
         bottom: 12px;
         width: 32px;
     }

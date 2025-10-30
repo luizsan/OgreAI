@@ -207,7 +207,7 @@
 
             <!-- button -->
             <button
-                class="normal wide editable"
+                class="normal wide editable clear"
                 class:open={item.open}
                 class:hidden={!ref.editable}
                 class:deselect={!ref.editable}

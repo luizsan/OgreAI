@@ -144,7 +144,7 @@
                 </div>
             </div>
         {/if}
-        <button class="favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
+        <button class="clear favorite special" class:checked={favorited} title={favorited ? "Remove from favorites" : "Add to favorites"} on:click|stopPropagation={() => FavoriteCharacter(filepath)}>{@html SVG.star}</button>
     </button>
 </div>
 
