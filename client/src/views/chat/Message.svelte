@@ -441,7 +441,7 @@
         resize: none;
         border: none;
         outline: none;
-        color: var( --code-color-text );
+        color: var( --code-color-block );
         font-size: 80%;
         overflow-y: hidden;
         background: var( --code-color-background );

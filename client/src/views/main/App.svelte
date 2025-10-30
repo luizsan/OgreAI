@@ -1,5 +1,6 @@
 <script lang="ts">
     import { marked } from 'marked';
+    import hljs from 'highlight.js';
 
     // svelte
     import { onMount } from 'svelte';
@@ -48,6 +49,16 @@
         marked.setOptions({
             breaks: true,
             renderer: marked_renderer,
+            highlight: function(code: string, lang: string) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (err) {
+                        console.error('Highlight.js error:', err);
+                    }
+                }
+                return hljs.highlightAuto(code).value;
+            }
         })
     }
 

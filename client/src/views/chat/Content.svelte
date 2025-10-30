@@ -1,5 +1,6 @@
 <script lang="ts">
     import DOMPurify from 'dompurify';
+    import 'highlight.js/styles/github-dark-dimmed.css';
 
     import { marked } from 'marked';
     import { addToggleableBlocks } from "@/utils/ToggleableBlock";
@@ -20,18 +21,18 @@
 
     $: {
         if( reasoning ){
-            displayReasoning = DOMPurify.sanitize( displayReasoning )
-            displayReasoning = marked.parse(reasoning)
+            let html = marked.parse(reasoning)
+            displayReasoning = DOMPurify.sanitize( html )
             displayReasoning = `<thinking>${displayReasoning}</thinking>`
         }else{
             displayReasoning = ""
         }
 
         if( content ){
-            displayText = DOMPurify.sanitize( displayText )
-            displayText = marked.parse(content)
-            displayText = Format.parseMacros( displayText, chat )
-            displayText = Format.parseNames( displayText, user, bot )
+            let html = marked.parse(content)
+            html = Format.parseMacros( html, chat )
+            html = Format.parseNames( html, user, bot )
+            displayText = DOMPurify.sanitize( html )
         }else{
             displayText = ""
         }
@@ -49,8 +50,8 @@
         display: flex;
         flex-direction: column;
         white-space: normal;
-        color: var( --content-primary-300 );
         gap: 1em;
+        color: var( --content-primary-300 );
     }
 
     .text :global(h1), .text :global(h2), .text :global(h3), .text :global(h4), .text :global(h5), .text :global(h6){
@@ -67,18 +68,31 @@
     }
 
     .text :global(code){
-        color: var( --code-color-text );
         font-size: 0.8em;
         background: var( --code-color-background );
     }
 
+    .text :global(p){
+        display: inline;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
     .text :global(pre){
-        background: hsl(285, 5%, 12%);
         white-space: pre-wrap;
+        color: var( --code-color-block );
         background: var( --code-color-background );
         border-radius: 6px;
         padding: 8px 12px;
         line-height: 1.2em;
+    }
+
+    .text :global(p code), .text :global(li code), .text :global(td code){
+        white-space: pre-wrap;
+        border-radius: 5px;
+        padding: 2px 4px;
+        line-height: 1.2em;
+        color: var( --code-color-inline );
     }
 
     .text :global(th){

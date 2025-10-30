@@ -1,7 +1,9 @@
 :root{
   --selection-color: hsl(220, 100%, 50% );
 
-  --background-neutral-100: hsl(213, 18%, 10%); /* header */
+  --header-color: hsl(213, 18%, 10%);
+
+  --background-neutral-100: hsl(210, 7%, 12%); /* chat history item */
   --background-neutral-200: hsl(192, 6%, 14%); /* main background */
   --background-neutral-300: hsl(192, 5%, 15%); /* main background */
   --background-neutral-400: hsl(192, 4%, 16%); /* side menus */
@@ -53,8 +55,9 @@
   --chat-input-border: 1px solid hsla(0, 0%, 50%, 0.5); /* chat textbox border */
   --chat-input-outline: 1px solid hsla(0, 0%, 10%, 0.5); /* chat textbox outline */
 
-  --code-color-text: orange; /* code block text */
-  --code-color-background: hsl(285, 5%, 8%); /* code block background */
+  --code-color-inline: #ffa657; /* inline code text */
+  --code-color-block: #c9d1d9; /* code blocks text color */
+  --code-color-background: #0d1117; /* code block background */
 
   /* component colors normal */
   --field-normal-content: var( --content-primary-200 );
@@ -90,7 +93,7 @@
 
 
 :root .light{
-  --background-neutral-100: hsl(213, 18%, 10%);
+  --background-neutral-100: hsl(0, 0%, 93%);
   --background-neutral-200: hsl(48, 2%, 90%);
   --background-neutral-300: hsl(48, 2%, 90%);
   --background-neutral-400: hsl(48, 4%, 85%);
@@ -118,9 +121,9 @@
   --content-primary-200: hsl(60, 10%, 32%);
   --content-primary-300: hsl(47, 21%, 13%);
 
-  --content-secondary-100: hsl(176, 61%, 24%);
-  --content-secondary-200: hsl(173, 34%, 45%);
-  --content-secondary-300: hsl(170, 33%, 57%);
+  --content-secondary-100: hsl(176, 66%, 14%);
+  --content-secondary-200: hsl(173, 35%, 29%);
+  --content-secondary-300: hsl(172, 17%, 35%);
 
   --chat-input-background: hsl(0, 0%, 90%);
   --chat-input-border: 1px solid hsla(0, 0%, 25%, 0.75);

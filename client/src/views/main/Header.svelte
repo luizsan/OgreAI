@@ -42,7 +42,7 @@
 <style>
     header{
         align-items: center;
-        background: var( --background-neutral-100 );
+        background: var( --header-color);
         color: hsl(0, 0%, 75%);
         display: grid;
         grid-template-columns: 56px auto 56px;

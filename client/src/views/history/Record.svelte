@@ -102,11 +102,11 @@
         </div>
 
         {#if displayLevel() >= 2}
-            <div class="sub explanation disabled">ID {chat.id}</div>
+            <div class="sub id explanation disabled">ID {chat.id}</div>
         {/if}
 
         {#if displayLevel() >= 1}
-            <div class="sub normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
+            <div class="sub date normal disabled">{`Created ${getFormattedDate(created)} (${Format.relativeTime(created, true).toLowerCase()})`}</div>
             <div class="sub info disabled"><strong>{chat.length}</strong> Messages</div>
         {/if}
     </div>
@@ -145,7 +145,7 @@
 
 <style>
     .content{
-        background: color-mix(in srgb, #111 50%, transparent );
+        background: var( --background-neutral-100 );
         border-radius: 8px;
         padding: 20px;
         display: flex;
@@ -153,10 +153,6 @@
         gap: 12px;
         text-align: left;
         border-left: 3px solid var( --surface-primary-300 );
-    }
-
-    :global(body.light) .content{
-        background: color-mix(in srgb, #fff 50%, transparent );
     }
 
     .content.list{
@@ -201,21 +197,6 @@
         height: 16px;
     }
 
-    .edit{
-        position: relative;
-        width: 100%;
-        height: 100%;
-        min-height: 24px;
-        top: 0px;
-        bottom: 0px;
-        color: var( --code-color-text );
-        font-size: 80%;
-        background: #000000C0;
-        border-radius: 4px;
-        padding: 0px 6px;
-        font-family: monospace;
-    }
-
     .author{
         display: flex;
         flex-direction: row;
@@ -231,8 +212,16 @@
         font-size: 0.8em;
     }
 
+    .id{
+        color: var( --content-primary-100 );
+    }
+
+    .date{
+        color: var( --content-primary-100 );
+    }
+
     .timestamp{
-        color: gray;
+        color: var( --content-primary-100 );
         font-size: 85%;
     }
 
