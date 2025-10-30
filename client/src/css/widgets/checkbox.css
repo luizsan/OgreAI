@@ -24,10 +24,10 @@ input[type="checkbox"].component {
 }
 
 :root .light input[type="checkbox"].component {
-  --checkbox-color-primary: var(--surface-neutral-200);
-  --checkbox-color-secondary: var(--surface-neutral-400);
+  --checkbox-color-primary: var(--surface-primary-400);
+  --checkbox-color-secondary: var(--surface-neutral-500);
   --checkbox-color-tertiary: var(--surface-neutral-500);
-  box-shadow: var( --field-shadow-shape ) var(--surface-neutral-500);
+  box-shadow: var( --field-shadow-shape ) var(--surface-neutral-400);
 }
 
 input[type="checkbox"].component.small {

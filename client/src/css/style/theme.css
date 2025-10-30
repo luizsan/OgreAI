@@ -35,21 +35,33 @@
   --content-secondary-200: hsl(180, 22%, 55%); /* chat narrative text */
   --content-secondary-300: hsl(199, 68%, 88%); /* thinking block text */
 
-  --content-danger-100: rgba(192, 64, 64); /* (tbi) danger style text */
-  --content-danger-200: rgb(255, 64, 64); /* danger style normal */
-  --content-danger-300: rgb(255, 128, 128); /* danger style hover */
+  --content-neutral-100: hsl(40, 8%, 44%); /* style text */
+  --content-neutral-200: hsl(60, 10%, 70%); /* style normal */
+  --content-neutral-300: hsl(48, 15%, 85%); /* style hover */
 
-  --content-info-100: rgba(48, 128, 192); /* (tbi) info style text */
-  --content-info-200: rgb(64, 128, 255); /* info style normal */
-  --content-info-300: rgb(128, 192, 255); /* info style hover */
+  --content-danger-100: rgb(71, 34, 34);
+  --content-danger-200: rgb(139, 42, 42);
+  --content-danger-300: rgb(255, 64, 64);
+  --content-danger-400: rgb(255, 98, 98);
+  --content-danger-500: rgb(255, 136, 136);
 
-  --content-confirm-100: rgb(0, 124, 75); /* (tbi) confirm style text */
-  --content-confirm-200: rgb(54, 221, 151); /* confirm style normal */
-  --content-confirm-300: rgb(144, 255, 220); /* confirm style hover */
+  --content-info-100: rgb(39, 56, 70);
+  --content-info-200: rgb(51, 84, 102);
+  --content-info-300: rgb(64, 128, 255);
+  --content-info-400: rgb(89, 170, 255);
+  --content-info-500: rgb(128, 192, 255);
 
-  --content-special-100: rgba(128, 120, 48); /* (tbi) special style text */
-  --content-special-200: rgb(255, 220, 64); /* special style normal */
-  --content-special-300: rgb(255, 246, 164); /* special style hover */
+  --content-confirm-100: rgb(43, 70, 59);
+  --content-confirm-200: rgb(61, 119, 92);
+  --content-confirm-300: rgb(54, 221, 151);
+  --content-confirm-400: rgb(103, 242, 181);
+  --content-confirm-500: rgb(144, 255, 220);
+
+  --content-special-100: rgb(65, 62, 42);
+  --content-special-200: rgb(104, 95, 57);
+  --content-special-300: rgb(255, 220, 64);
+  --content-special-400: rgb(255, 236, 84);
+  --content-special-500: rgb(255, 246, 164);
 
   --chat-input-background: hsl(0, 0%, 30%); /* chat textbox background */
   --chat-input-border: 1px solid hsla(0, 0%, 50%, 0.5); /* chat textbox border */
@@ -60,22 +72,22 @@
   --code-color-background: #0d1117; /* code block background */
 
   /* component colors normal */
-  --field-normal-content: var( --content-primary-200 );
+  --field-normal-content: var( --content-neutral-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
   --field-normal-shadow: var(  --surface-neutral-400 );
 
   /* component colors hover */
-  --field-hover-content: var( --content-primary-300 );
+  --field-hover-content: var( --content-neutral-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-500 );
-  --field-hover-shadow: var( --surface-neutral-500 );
+  --field-hover-shadow: var( --surface-neutral-400 );
 
   /* component colors focus */
-  --field-focus-content: var( --content-primary-300 );
+  --field-focus-content: var( --content-neutral-300 );
   --field-focus-background: var( --surface-neutral-300 );
   --field-focus-outline: var( --surface-primary-400 );
-  --field-focus-shadow: var( --surface-primary-400 );
+  --field-focus-shadow: var( --surface-neutral-500 );
 
   /* component default sizes */
   --field-height: 30px;
@@ -125,24 +137,28 @@
   --content-secondary-200: hsl(173, 35%, 29%);
   --content-secondary-300: hsl(172, 17%, 35%);
 
-  --chat-input-background: hsl(0, 0%, 90%);
-  --chat-input-border: 1px solid hsla(0, 0%, 25%, 0.75);
-  --chat-input-outline: 1px solid hsla(0, 0%, 20%, 0.25);
+  --content-neutral-100: hsl(36, 8%, 47%);
+  --content-neutral-200: hsl(60, 10%, 32%);
+  --content-neutral-300: hsl(47, 21%, 13%);
 
-  --field-normal-content: var( --content-primary-200 );
+  --chat-input-background: hsl(0, 0%, 95%);
+  --chat-input-border: 1px solid hsla(48, 5%, 25%, 0.5);
+  --chat-input-outline: 1px solid hsla(48, 5%, 20%, 0.125);
+
+  --field-normal-content: var( --content-neutral-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
   --field-normal-shadow: var(  --surface-neutral-400 );
 
-  --field-hover-content: var( --content-primary-300 );
+  --field-hover-content: var( --content-neutral-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-400 );
   --field-hover-shadow: var( --surface-neutral-400 );
 
-  --field-focus-content: var( --content-primary-300 );
+  --field-focus-content: var( --content-neutral-300 );
   --field-focus-background: var( --surface-neutral-300 );
   --field-focus-outline: var( --surface-primary-300 );
-  --field-focus-shadow: var( --surface-primary-300 );
+  --field-focus-shadow: var( --surface-neutral-400 );
 
   --scrollbar-primary: var( --surface-primary-300 );
   --scrollbar-secondary: var( --surface-secondary-300 );
@@ -152,7 +168,6 @@
   --scrollbar-background: transparent;
 }
 
-
 .primary{
   --field-normal-content: var( --surface-primary-300 );
   --field-hover-content: var( --surface-primary-400 );
@@ -160,9 +175,9 @@
 }
 
 .secondary{
-  --field-normal-content: var( --surface-secondary-300 );
-  --field-hover-content: var( --surface-secondary-400 );
-  --field-focus-content: var( --surface-secondary-400 );
+  --field-normal-content: var( --surface-secondary-400 );
+  --field-hover-content: var( --surface-secondary-500 );
+  --field-focus-content: var( --surface-secondary-500 );
 }
 
 .normal{
@@ -172,39 +187,60 @@
 }
 
 .danger{
-  --field-normal-content: var( --content-danger-200 );
-  --field-hover-content: var( --content-danger-300 );
-  --field-focus-content: var( --content-danger-300 );
+  --field-normal-content: var( --content-danger-300 );
+  --field-hover-content: var( --content-danger-400 );
+  --field-focus-content: var( --content-danger-400 );
 }
 
 .info{
-  --field-normal-content: var( --content-info-200 );
-  --field-hover-content: var( --content-info-300 );
-  --field-focus-content: var( --content-info-300 );
+  --field-normal-content: var( --content-info-300 );
+  --field-hover-content: var( --content-info-400 );
+  --field-focus-content: var( --content-info-400 );
 }
 
 .confirm{
-  --field-normal-content: var( --content-confirm-200 );
-  --field-hover-content: var( --content-confirm-300 );
-  --field-focus-content: var( --content-confirm-300 );
+  --field-normal-content: var( --content-confirm-300 );
+  --field-hover-content: var( --content-confirm-400 );
+  --field-focus-content: var( --content-confirm-400 );
+}
+
+body.light .confirm:not(.clear){
+  --field-normal-content: var( --content-neutral-300 );
+  --field-hover-content: var( --content-neutral-200 );
+  --field-focus-content: var( --content-neutral-200 );
+
+  --field-normal-background: var( --content-confirm-300 );
+  --field-hover-background: var( --content-confirm-400 );
+  --field-focus-background: var( --content-confirm-400 );
 }
 
 .special{
-  --field-normal-content: var( --content-special-200 );
-  --field-hover-content: var( --content-special-300 );
-  --field-focus-content: var( --content-special-300 );
+  --field-normal-content: var( --content-special-300 );
+  --field-hover-content: var( --content-special-400 );
+  --field-focus-content: var( --content-special-400 );
 }
 
+body.light .special{
+  --field-normal-content: var( --content-special-100 );
+  --field-hover-content: var( --content-special-200 );
+  --field-focus-content: var( --content-special-200 );
+}
 
-:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent){
+body.light .special:not(.clear){
+  --field-normal-background: var( --content-special-200 );
+  --field-hover-background: var( --content-special-300 );
+  --field-focus-background: var( --content-special-300 );
+}
+
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special){
   color: var( --field-normal-content );
 }
 
-:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):hover{
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special):hover{
   color: var( --field-hover-content );
 }
 
-:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):active,
-:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special, .accent):hover{
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special):active,
+:is(.primary, .secondary, .normal, .danger, .info, .confirm, .special):hover{
   color: var( --field-focus-content );
 }

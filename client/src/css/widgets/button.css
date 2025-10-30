@@ -22,7 +22,6 @@ input[type="button"].component:focus{
   outline: 1px solid var(--field-focus-outline );
 }
 
-
 button.component.compact{
   padding: 8px;
 }

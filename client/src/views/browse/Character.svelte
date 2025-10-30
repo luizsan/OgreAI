@@ -234,20 +234,19 @@
         position: absolute;
         top: 0px;
         right: 0px;
-        width: 24px;
+        width: 32px;
         height: 100%;
-        opacity: 0.15;
-        filter: grayscale(0.666666);
+        opacity: 0.25;
+        filter: grayscale(0.5) brightness(0.5);
     }
 
     .checked{
         opacity: 1;
-        filter:grayscale(0);
+        filter:grayscale(0) brightness(1);
     }
 
     .favorite :global(svg){
-        margin-top: 2px;
+        translate: 0px 2px;
     }
-
 
 </style>
