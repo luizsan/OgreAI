@@ -12,6 +12,7 @@ div.container.component{
   padding: 4px 4px;
   min-height: 30px;
   background: var( --field-color-primary );
+  box-shadow: var( --field-shadow-shape ) var( --field-normal-shadow );
   --scrollbar-background: var( --field-color-primary );
 }
 

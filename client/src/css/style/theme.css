@@ -53,7 +53,7 @@
 
   --content-confirm-100: rgb(43, 70, 59);
   --content-confirm-200: rgb(61, 119, 92);
-  --content-confirm-300: rgb(54, 221, 151);
+  --content-confirm-300: rgb(0, 224, 131);
   --content-confirm-400: rgb(103, 242, 181);
   --content-confirm-500: rgb(144, 255, 220);
 
@@ -75,24 +75,24 @@
   --field-normal-content: var( --content-neutral-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
-  --field-normal-shadow: var(  --surface-neutral-400 );
+  --field-normal-shadow: var(  --surface-neutral-100 );
 
   /* component colors hover */
   --field-hover-content: var( --content-neutral-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-500 );
-  --field-hover-shadow: var( --surface-neutral-400 );
+  --field-hover-shadow: var( --surface-neutral-100 );
 
   /* component colors focus */
   --field-focus-content: var( --content-neutral-300 );
   --field-focus-background: var( --surface-neutral-300 );
   --field-focus-outline: var( --surface-primary-400 );
-  --field-focus-shadow: var( --surface-neutral-500 );
+  --field-focus-shadow: var( --surface-primary-200 );
 
   /* component default sizes */
   --field-height: 30px;
   --field-border-radius: 4px;
-  --field-shadow-shape: 0px 1px 2px 0px;
+  --field-shadow-shape: 0px 2px 2px 0px;
 
   /* scrollbar colors */
   --scrollbar-primary: var( --surface-primary-300 );
