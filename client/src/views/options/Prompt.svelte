@@ -1,12 +1,26 @@
 <script lang="ts">
-    import Reorderable from "@/views/prompt/Builder.svelte";
+    import {
+        defaultPrompt,
+        currentSettingsMain,
+        currentPrompt
+    } from "@/State";
+
     import * as Data from "@/modules/Data.ts";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
-    import { defaultPrompt, currentPresets, currentSettingsMain, currentSettingsAPI, currentPrompt } from "@/State";
+
+    import Reorderable from "@/components/Reorderable.svelte";
+    import Row from "@/views/prompt/Row.svelte";
+    import type { IPromptConfig } from "@shared/types";
 
     const presets_categories = ["base_prompt", "sub_prompt", "prefill_prompt"]
 
+    let groupedItems: Array<any> = buildRows()
+    $: if( $currentPrompt || groupedItems ){
+        groupedItems = buildRows()
+    }
+
+    console.log(groupedItems)
 
     function addItem(){
         const custom_prompts: number = $currentPrompt.filter(p => p.key === "custom").length
@@ -43,6 +57,33 @@
             await Server.savePrompt()
         })
     }
+
+    function buildRows(): Array<any>{
+        let items: Array<Array<IPromptConfig>> = []
+        $currentPrompt.forEach(entry => {
+            let ref: IPromptConfig = $defaultPrompt[entry.key]
+            if( !ref.locked ){
+                items.push([entry])
+            }else{
+                // find the item array matching key
+                let index = items.findIndex((row) => row.some((e) => e.key === ref.locked))
+                if(index > -1){
+                    let insertion = items[index].find((e) => e.key === ref.locked)
+                    items[index].splice(items[index].indexOf(insertion) + 1, 0, entry)
+                }
+            }
+        })
+        return items
+    }
+
+    function flattenRows(items: Array<any>){
+        $currentPrompt = items.flat()
+    }
+
+    function updateReorderable(items: Array<any>){
+        flattenRows(items)
+        // Server.savePrompt()
+    }
 </script>
 
 <div class="content wide">
@@ -62,11 +103,10 @@
         </div>
 
         <Reorderable
-            bind:list={$currentPrompt}
-            defaults={$defaultPrompt}
-            presets={presets_categories}
+            bind:list={groupedItems}
+            template={Row}
+            after={updateReorderable}
         />
-
         <div class="buttons">
             <button class="component confirm" on:click={addItem}>{@html SVG.add} Add Item</button>
         </div>

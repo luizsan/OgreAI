@@ -198,14 +198,20 @@ export interface IPromptEntry{
 
 export interface IPromptConfig{
     key: string;
+    //
+    content?: string;
     enabled: boolean;
     role?: string;
-    allow_override?: boolean;
-    content?: string;
     open?: boolean;
+    allow_override?: boolean;
+    // defauls
     editable?: boolean;
+    toggleable?: boolean;
+    overridable?: boolean;
     label?: string;
     description?: string;
+    row_size?: number;
+    locked?: string;
 }
 
 export interface IReplaceEntry{
