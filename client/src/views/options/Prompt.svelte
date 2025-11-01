@@ -82,7 +82,7 @@
 
     function updateReorderable(items: Array<any>){
         flattenRows(items)
-        // Server.savePrompt()
+        Server.savePrompt()
     }
 </script>
 
