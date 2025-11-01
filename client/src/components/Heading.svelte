@@ -22,8 +22,4 @@
     .reverse{
         flex-flow: column-reverse;
     }
-
-    .explanation{
-        color: var( --content-primary-100 );
-    }
 </style>

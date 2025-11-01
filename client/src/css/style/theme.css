@@ -180,6 +180,10 @@
   --field-focus-content: var( --surface-secondary-500 );
 }
 
+.sub, .explanation{
+  color: var( --content-primary-100 );
+}
+
 .normal{
   --field-normal-content: var( --content-primary-200 );
   --field-hover-content: var( --content-primary-300 );

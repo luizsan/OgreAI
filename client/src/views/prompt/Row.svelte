@@ -99,13 +99,13 @@
           bind:content={ entry.content }
           key={ entry.key }
           resizable={true}
-          borderless={true}
+          borderless={false}
           highlighted={true}
           rows={$defaultPrompt[entry.key]?.row_size || 4}
         />
       {:else}
         <textarea
-          class="component borderless wide"
+          class="component wide"
           rows={$defaultPrompt[entry.key]?.row_size || 4}
           bind:value={ entry.content }
         />
@@ -142,7 +142,6 @@
     width: 100%;
     height: 100%;
     gap: 0px;
-    padding: 2px;
   }
 
   .container{
@@ -151,13 +150,10 @@
     width: 100%;
     height: 100%;
     margin: 2px 0px;
-    border: 1px solid transparent;
   }
 
   .container.open, .container:hover{
     border-radius: 6px;
-    /* border: 1px solid var( --surface-neutral-400 ); */
-    background: var( --background-neutral-100 );
   }
 
   .main{
@@ -168,7 +164,6 @@
     width: 100%;
     height: 100%;
     min-height: 32px;
-    box-sizing: border-box;
   }
 
   .toggle{
@@ -207,6 +202,7 @@
   .icon{
     align-self: center;
     scale: -1 1;
+    transition: all 0.1s ease-in-out;
   }
 
   .open .icon{
@@ -217,14 +213,12 @@
   .inner{
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 8px;
-    padding-top: 4px;
+    gap: 12px;
+    padding: 4px 16px 16px 8px;
     box-sizing: border-box;
   }
 
   .explanation{
-    color: var( --content-primary-100 );
     font-size: 80%;
     line-height: 1.2em;
   }

@@ -39,28 +39,28 @@ export const default_order = {
     },
 
     description: {
-        toggleable: true, editable: true, row_size: 3,
+        toggleable: true, editable: true, row_size: 4,
         label: "Character description",
         description: "How to insert the character's description in the prompt. Use {{original}} to apply the character's description field.",
         default: "{{char}}'s description:\n{{original}}"
     },
 
     personality: {
-        toggleable: true, editable: true, row_size: 3,
+        toggleable: true, editable: true, row_size: 4,
         label: "Character personality",
         description: "How to insert the character's personality in the prompt. Use {{original}} to apply the character's personality field.",
         default: "{{char}}'s personality:\n{{original}}"
     },
 
     scenario: {
-        toggleable: true, editable: true, row_size: 3,
+        toggleable: true, editable: true, row_size: 4,
         label: "Character scenario",
         description: "How to insert the character's scenario in the prompt. Use {{original}} to apply the character's scenario field.",
         default: "{{char}}'s scenario:\n{{original}}"
     },
 
     mes_example: {
-        toggleable: true, editable: true, row_size: 3,
+        toggleable: true, editable: true, row_size: 4,
         label: "Example messages",
         description: "How to insert the character's example messages in the prompt. Use {{original}} to apply the character's example messages field.",
         default: "Example messages:\n{{original}}"

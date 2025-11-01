@@ -139,19 +139,16 @@
 
     <div class="list" bind:this={container}>
         {#each list as item, i}
-            <div
-                class="reorderable-item"
-                id={ i .toString() }
-
-            >
-
+            <div class="reorderable-item" id={ i .toString() }>
                 <div
                     class="handle center"
                     role="listitem"
                     draggable={true}
                     on:dragstart|stopPropagation={(e) => pickItem(e, false, i)}
                     on:touchstart|stopPropagation={(e) => pickItem(e, true, i)}
-                >{ @html SVG.reorder }</div>
+                >
+                { @html SVG.reorder }
+                </div>
 
                 <div class="template">
                     {#if template}
@@ -190,11 +187,10 @@
         grid-template-columns: 36px auto;
         user-select: none;
         width: 100%;
-        min-height: 32px;
         border-radius: 2px;
     }
 
-    .reorderable-item:has(.handle:hover){
+    .reorderable-item:has(:hover){
         background: var( --surface-neutral-300);
     }
 
@@ -205,6 +201,7 @@
         color: gray;
         cursor: grab;
         user-select: none;
+        align-self: center;
     }
 
     .handle:hover{

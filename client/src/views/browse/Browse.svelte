@@ -309,10 +309,6 @@
         font-size: 0.75em;
     }
 
-    .explanation{
-        color: var( --content-primary-100 );
-    }
-
     .unavailable{
         font-size: 90%;
         color: gray;
