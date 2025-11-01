@@ -20,8 +20,6 @@
         groupedItems = buildRows()
     }
 
-    console.log(groupedItems)
-
     function addItem(){
         const custom_prompts: number = $currentPrompt.filter(p => p.key === "custom").length
         $currentPrompt.push({
