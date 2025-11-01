@@ -13,8 +13,6 @@
     import Row from "@/views/prompt/Row.svelte";
     import type { IPromptConfig } from "@shared/types";
 
-    const presets_categories = ["base_prompt", "sub_prompt", "prefill_prompt"]
-
     let groupedItems: Array<any> = buildRows()
     $: if( $currentPrompt || groupedItems ){
         groupedItems = buildRows()
