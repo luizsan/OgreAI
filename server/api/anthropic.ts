@@ -77,7 +77,7 @@ export default class Anthropic extends API {
         caching_enabled: {
             title: "Enable Prompt Caching",
             description: "Whether to cache the prompt from the beginning of the conversation, saving token cost for repeated generations. This feature can affect the quality of the response.",
-            type: "checkbox", default: true,
+            type: "checkbox", default: false,
         },
 
         caching_size: {
