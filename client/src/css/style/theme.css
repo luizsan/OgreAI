@@ -5,7 +5,7 @@
 
   --background-neutral-100: hsl(210, 7%, 12%); /* chat history item */
   --background-neutral-200: hsl(192, 6%, 14%); /* main background */
-  --background-neutral-300: hsl(192, 5%, 15%); /* main background */
+  --background-neutral-300: hsl(192, 5%, 15%); /* subscreen background */
   --background-neutral-400: hsl(192, 4%, 16%); /* side menus */
   --background-neutral-500: hsl(192, 5%, 20%); /* side menus outline */
 
@@ -21,7 +21,7 @@
   --surface-secondary-400: rgb(241, 232, 183); /* settings tabs hover */
   --surface-secondary-500: rgb(255, 251, 220); /* (unused) */
 
-  --surface-neutral-100: hsl(0, 0%, 5%); /*UI component shadow */
+  --surface-neutral-100: hsl(247, 2%, 12%); /*UI component underlay */
   --surface-neutral-200: hsl(247, 4%, 14%); /* UI component background */
   --surface-neutral-300: hsl(247, 10%, 18%); /* UI component background hover */
   --surface-neutral-400: hsl(0, 0%, 33%); /* UI component outline */
@@ -75,13 +75,13 @@
   --field-normal-content: var( --content-neutral-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
-  --field-normal-shadow: var(  --surface-neutral-100 );
+  --field-normal-shadow: var(  --field-shadow-color );
 
   /* component colors hover */
   --field-hover-content: var( --content-neutral-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-500 );
-  --field-hover-shadow: var( --surface-neutral-100 );
+  --field-hover-shadow: var( --field-shadow-color );
 
   /* component colors focus */
   --field-focus-content: var( --content-neutral-300 );
@@ -93,6 +93,7 @@
   --field-height: 30px;
   --field-border-radius: 4px;
   --field-shadow-shape: 0px 2px 2px 0px;
+  --field-shadow-color: hsl(0, 0%, 5%);
 
   /* scrollbar colors */
   --scrollbar-primary: var( --surface-primary-300 );
@@ -123,7 +124,7 @@
   --surface-secondary-400: rgb(255, 196, 143);
   --surface-secondary-500: rgb(255, 174, 101);
 
-  --surface-neutral-100: hsl(0, 0%, 72%);
+  --surface-neutral-100: hsl(48, 2%, 72%);
   --surface-neutral-200: hsl(48, 5%, 95%);
   --surface-neutral-300: hsl(48, 100%, 100%);
   --surface-neutral-400: hsl(0, 0%, 50%);
@@ -148,17 +149,19 @@
   --field-normal-content: var( --content-neutral-200 );
   --field-normal-background: var( --surface-neutral-200 );
   --field-normal-outline: var( --surface-neutral-400 );
-  --field-normal-shadow: var(  --surface-neutral-400 );
+  --field-normal-shadow: var(  --field-shadow-color );
 
   --field-hover-content: var( --content-neutral-300 );
   --field-hover-background: var( --surface-neutral-300 );
   --field-hover-outline: var( --surface-neutral-400 );
-  --field-hover-shadow: var( --surface-neutral-400 );
+  --field-hover-shadow: var( --field-shadow-color );
 
   --field-focus-content: var( --content-neutral-300 );
   --field-focus-background: var( --surface-neutral-300 );
   --field-focus-outline: var( --surface-primary-300 );
-  --field-focus-shadow: var( --surface-neutral-400 );
+  --field-focus-shadow: var( --surface-primary-200 );
+
+  --field-shadow-color: hsl(0, 0%, 72%);
 
   --scrollbar-primary: var( --surface-primary-300 );
   --scrollbar-secondary: var( --surface-secondary-300 );
