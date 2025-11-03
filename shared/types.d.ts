@@ -155,7 +155,7 @@ export interface ISettings{
 export interface IAPISettings{
     title: string;
     description: string;
-    disabled?: boolean;
+    depends_on?: string;
     /**
      * The type of setting. Accepted strings are:
      * - "select": A dropdown selection from predefined choices.

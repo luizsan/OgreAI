@@ -123,10 +123,13 @@
         </div>
 
         {#each Object.entries($defaultSettingsAPI) as [key, entry]}
+        {@const exists = $currentSettingsAPI[key] !== undefined}
+        {@const dependency = exists && $defaultSettingsAPI[key].depends_on}
+        {@const disabled = exists && dependency && !$currentSettingsAPI[dependency]}
 
         <div class="section" on:change={Server.saveSettings}>
-            <div class="setting vertical">
-                {#if $currentSettingsAPI[key] !== undefined && !$defaultSettingsAPI[key].disabled }
+            <div class="setting vertical" class:blocked={disabled}>
+                {#if exists}
 
                     {#if entry.type == "text"}
                         <div class="section">

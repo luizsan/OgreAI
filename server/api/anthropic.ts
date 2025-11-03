@@ -68,16 +68,22 @@ export default class Anthropic extends API {
             type: "range", default: 5, min: 0, max: 100, step: 1,
         },
 
-        caching_size: {
-            title: "Prompt Caching Size",
-            description: "Adjust the size of the prompt caching. 0 means no caching, and a higher value will cache more messages of the prompt from the beginning of the conversation, starting from the system prompts. This feature can affect the quality of the response.",
-            type: "range", default: 0, min: 0, max: 200, step: 1,
-        },
-
         stream: {
             title: "Stream",
             description: "Whether to incrementally stream the response using server-sent events.",
             type: "checkbox", default: true,
+        },
+
+        caching_enabled: {
+            title: "Enable Prompt Caching",
+            description: "Whether to cache the prompt from the beginning of the conversation, saving token cost for repeated generations. This feature can affect the quality of the response.",
+            type: "checkbox", default: true,
+        },
+
+        caching_size: {
+            title: "Prompt Caching Offset",
+            description: "Adjust the size of the prompt caching. A value of zero means all messages will be cached. A value greater than zero means this many of the most recent messages will not be cached.",
+            type: "range", default: 0, min: 0, max: 100, step: 1, depends_on: "caching_enabled",
         },
 
         stop_sequences: {
@@ -149,11 +155,15 @@ export default class Anthropic extends API {
         this.sanitizeExclusiveParameters(settings, outgoing_data)
 
         // caching rules
-        if( settings.caching && settings.caching_size && settings.caching_size > 0){
-            let sys = output.slice(0, settings.caching_size)
-            let last = output.slice(settings.caching_size)
-            // required to have at least one message
-            if(sys.length > 0 && last.length < 1){
+        // if( settings.caching && settings.caching_size && settings.caching_size > 0){
+        if( settings.caching_enabled ){
+            console.log("Prompt caching enabled")
+            console.log("Prompt caching size:", settings.caching_size)
+
+            let sys = settings.caching_size > 0 ? output.slice(0, -settings.caching_size) : output
+            let last = settings.caching_size > 0 ? output.slice(-settings.caching_size) : []
+            // required to have at least one message in the output
+            if(sys.length > 0 && !(last.length > 0)){
                 last.push(sys.pop())
             }
             // map system messages
@@ -164,6 +174,9 @@ export default class Anthropic extends API {
             if (outgoing_data.system.length > 0)
                 outgoing_data.system.at(-1).cache_control = { type: "ephemeral" }
             outgoing_data.messages = last
+
+            console.log(`${outgoing_data.system.length} cached messages`)
+            console.log(`${outgoing_data.messages.length} non-cached messages`)
         }else{
             outgoing_data.messages = output
         }
