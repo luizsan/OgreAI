@@ -707,11 +707,17 @@
         border-radius: 3px;
         text-align: left;
         padding: 8px 12px;
-        display: flex;
+        display: grid;
+        grid-template-columns: 16px auto auto;
         gap: 12px;
         flex-direction: row;
         align-items: center;
         width: 100%;
+    }
+
+    .chatmenu .item :global(svg){
+        min-height: 100%;
+        object-fit: contain;
     }
 
     .chatmenu .item:hover{
