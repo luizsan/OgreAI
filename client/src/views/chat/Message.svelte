@@ -51,7 +51,7 @@
     $: authorType = is_bot ? "bot" : "user"
 
     // swipe
-    $: index = msg ? clamp(msg.index, 0, msg.candidates?.length || 0) : 0;
+    $: index = msg ? clamp(msg.index, 0, msg.candidates?.length-1 || 0) : 0;
     $: candidates = msg && msg.candidates ? msg.candidates : []
     $: current = candidates && candidates.length > 0 ? candidates[index] : null;
     $: displayReasoning = current ? current.reasoning : ""
