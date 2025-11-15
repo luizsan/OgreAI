@@ -18,6 +18,7 @@
         connected,
         currentTheme,
         currentPreferences,
+        currentCharacter,
         currentChat,
         fetching,
         history,
@@ -75,6 +76,16 @@
 
     const loadingMessage = 'Reading server data...';
     const confirmationMessage = 'Are you sure you want to leave this page?';
+
+    $: if( $currentCharacter && $currentChat){
+        if( $currentChat.id ){
+            window.document.title = `${$currentCharacter.data.name}: ${$currentChat.title} - OgreAI`
+        }else{
+            window.document.title = `${$currentCharacter.data.name} - OgreAI`
+        }
+    }else{
+        window.document.title = "OgreAI"
+    }
 
     function confirmExit(e : BeforeUnloadEvent){
         if(!$currentChat) return;
