@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {
         ICandidate,
+        IError,
         IMessage,
         IReply,
     } from "@shared/types";
@@ -157,6 +158,7 @@
 
         $generating = true;
         // console.debug( "Request:\n%o", body)
+        let model = $currentSettingsAPI.model
         let streaming = $currentSettingsAPI.stream;
         requestTime = new Date().getTime()
         await tick()
@@ -185,6 +187,7 @@
                     if( data.error ){
                         console.error("Received error: %o", data.error)
                         await Dialog.alert(data.error.type, data.error.message)
+                        await receiveError(data, model ,requestTime, swipe)
                     }else{
                         await receiveMessage( data )
                     }
@@ -204,6 +207,27 @@
             }
         })
         $generating = false;
+    }
+
+    async function receiveError(incoming: IError, model: string, time: number, swipe: boolean = false){
+        const candidate = {
+            text: `<div class="error"><p class="type">${incoming.error.type}</p><p class="message">${incoming.error.message}</p>`,
+            reasoning: "",
+            model: model,
+            timestamp: Date.now(),
+            timer: Date.now() - time,
+        }
+        if( swipe ){
+            await addCandidate(candidate)
+        }else{
+            const message: IMessage = {
+                participant: 0,
+                timestamp: Date.now(),
+                index: 0,
+                candidates: [candidate],
+            }
+            await addMessage(message)
+        }
     }
 
     async function receiveMessage(incoming : IReply){
@@ -339,7 +363,7 @@
                 const obj = JSON.parse(line)
                 if( obj.error ){
                     candidate.timer = new Date().getTime() - requestTime;
-                    candidate.text += "\n\n" + obj.error?.message || obj.error
+                    candidate.text += `\n\n<p class="error">${obj.error?.message || obj.error}</p>`
                     candidate.text = candidate.text.trim()
                     await Dialog.alert(obj.error?.type || "Error", obj.error?.message)
                 }

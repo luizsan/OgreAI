@@ -39,8 +39,8 @@
   --content-neutral-200: hsl(60, 10%, 70%); /* style normal */
   --content-neutral-300: hsl(48, 15%, 85%); /* style hover */
 
-  --content-danger-100: rgb(71, 34, 34);
-  --content-danger-200: rgb(139, 42, 42);
+  --content-danger-100: rgb(44, 24, 24);
+  --content-danger-200: rgb(102, 39, 39);
   --content-danger-300: rgb(255, 64, 64);
   --content-danger-400: rgb(255, 98, 98);
   --content-danger-500: rgb(255, 136, 136);

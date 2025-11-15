@@ -129,6 +129,65 @@
         padding-left: 1em;
     }
 
+    .text :global(div.error){
+        display: flex;
+        flex-direction: column;
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 16px 16px;
+        margin: 4px 0px;
+        overflow: hidden;
+        position: relative;
+
+        color: var( --content-danger-300 );
+        border-color: var( --content-danger-300 );
+        background-color: var( --content-danger-100 );
+
+        --stripe-width: 4px;
+        --stripe-height: 6px;
+        --stripe-cycle: calc( var(--stripe-width) * 2 );
+        --stripe-distance: calc( var(--stripe-width) * sqrt(2) * -2);
+    }
+
+    .text :global(div.error .type){
+        font-weight: bold;
+        font-size: 85%;
+    }
+
+    .text :global(div.error::before),
+    .text :global(div.error::after){
+        background: repeating-linear-gradient(
+            -45deg,
+            var( --content-danger-200) 0px,
+            var( --content-danger-200) var(--stripe-width),
+            transparent var(--stripe-width),
+            transparent var(--stripe-cycle)
+        );
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 200%;
+        height: var(--stripe-height);
+        animation: scroll 1s linear infinite;
+    }
+
+    .text :global(div.error::before){
+        top: 0px;
+    }
+
+    .text :global(div.error::after){
+        bottom: 0px;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(-50%);
+      }
+      100% {
+        transform: translateX(calc(-50% - var(--stripe-distance)));
+      }
+    }
+
     .text :global(.quote){
         font-style: italic;
     }
