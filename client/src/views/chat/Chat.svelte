@@ -211,7 +211,7 @@
 
     async function receiveError(incoming: IError, model: string, time: number, swipe: boolean = false){
         const candidate = {
-            text: `<div class="error"><p class="type">${incoming.error.type}</p><p class="message">${incoming.error.message}</p>`,
+            text: `<div class="error"><p class="type">${incoming.error.type}</p><p class="message">${incoming.error.message}</p></div>`,
             reasoning: "",
             model: model,
             timestamp: Date.now(),
@@ -363,7 +363,7 @@
                 const obj = JSON.parse(line)
                 if( obj.error ){
                     candidate.timer = new Date().getTime() - requestTime;
-                    candidate.text += `\n\n<p class="error">${obj.error?.message || obj.error}</p>`
+                    candidate.text += `\n\n<div class="error"><p class="type">${obj.error?.type}</p><p class="message">${obj.error?.message || obj.error}</p></div>`
                     candidate.text = candidate.text.trim()
                     await Dialog.alert(obj.error?.type || "Error", obj.error?.message)
                 }

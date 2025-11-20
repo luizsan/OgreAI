@@ -132,7 +132,7 @@
     .text :global(div.error){
         display: flex;
         flex-direction: column;
-        border: 1px solid;
+        border: 2px solid;
         border-radius: 8px;
         padding: 16px 16px;
         margin: 4px 0px;
@@ -141,25 +141,27 @@
 
         color: var( --content-danger-300 );
         border-color: var( --content-danger-300 );
-        background-color: var( --content-danger-100 );
+        background-color: color-mix(in srgb, var(--content-danger-100) 85%, transparent 15%);
 
         --stripe-width: 4px;
         --stripe-height: 6px;
         --stripe-cycle: calc( var(--stripe-width) * 2 );
         --stripe-distance: calc( var(--stripe-width) * sqrt(2) * -2);
+        --stripe-color: color-mix(in srgb, var(--content-danger-300) 25%, transparent 75%);
     }
 
     .text :global(div.error .type){
         font-weight: bold;
         font-size: 85%;
+        color: var( --content-danger-400 );
     }
 
     .text :global(div.error::before),
     .text :global(div.error::after){
         background: repeating-linear-gradient(
             -45deg,
-            var( --content-danger-200) 0px,
-            var( --content-danger-200) var(--stripe-width),
+            var(--stripe-color) 0px,
+            var(--stripe-color) var(--stripe-width),
             transparent var(--stripe-width),
             transparent var(--stripe-cycle)
         );
