@@ -169,13 +169,12 @@
         await cacheMessageTokens()
         // target candidate only if streaming
         // moved up due to scope issues when aborting
-        let candidate: ICandidate = null
+        let candidate: ICandidate = streaming ? startStream(swipe) : null
         await fetch( localServer + "/generate", options ).then(async response => {
             if( streaming ){
                 const stream = response.body.pipeThrough(new TextDecoderStream());
                 const reader = stream.getReader()
                 console.debug( "Awaiting stream..." )
-                candidate = startStream(swipe)
                 async function processText({ done, value: input }){
                     if(done || (input && input.done)){
                         await finishStream(candidate, swipe)
