@@ -1,4 +1,7 @@
 <script lang="ts">
+    import DOMPurify from 'dompurify';
+    import { marked } from 'marked';
+
     import type {
         ICandidate,
         IError,
@@ -209,9 +212,19 @@
         $generating = false;
     }
 
+    function parseError(type: string, message: string){
+        let content = `<div class="error">`
+        message = marked.parse(message)
+        message = DOMPurify.sanitize( message )
+        content += `<p class="type">${type || "Error"}</p>`
+        content += `<p class="message">${message || "An unknown error occurred"}</p>`
+        content += `</div>`
+        return content;
+    }
+
     async function receiveError(incoming: IError, model: string, time: number, swipe: boolean = false){
         const candidate = {
-            text: `<div class="error"><p class="type">${incoming.error.type}</p><p class="message">${incoming.error.message}</p></div>`,
+            text: parseError(incoming?.error?.type, incoming?.error?.message),
             reasoning: "",
             model: model,
             timestamp: Date.now(),
@@ -363,7 +376,7 @@
                 const obj = JSON.parse(line)
                 if( obj.error ){
                     candidate.timer = new Date().getTime() - requestTime;
-                    candidate.text += `\n\n<div class="error"><p class="type">${obj.error?.type}</p><p class="message">${obj.error?.message || obj.error}</p></div>`
+                    candidate.text += "\n\n" + parseError(obj?.error?.type, obj?.error?.message)
                     candidate.text = candidate.text.trim()
                     await Dialog.alert(obj.error?.type || "Error", obj.error?.message)
                 }
