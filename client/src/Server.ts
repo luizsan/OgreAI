@@ -387,10 +387,12 @@ export async function deleteMessages(message_indices: Array<number>): Promise<bo
     const ok = await Dialog.confirm("OgreAI", `Are you sure you want to delete ${message_indices.length} message(s)?`)
     if( !ok )
         return false
+    State.busy.set(true)
     const currentChat: IChat = get( State.currentChat )
     const success: boolean = await request("/delete_messages", {
         ids: message_indices.map(id => currentChat.messages[id].id)
     })
+    State.busy.set(false)
     if( success ){
         currentChat.messages = currentChat.messages.filter((_msg: IMessage, index: number) => {
             return index == 0 || !deleteList.includes(index)
@@ -439,11 +441,10 @@ export async function deleteCandidate(msg_index: number, candidate_index: number
     const ok = await Dialog.confirm("OgreAI", "Are you sure you want to delete this message?")
     if( !ok )
         return
-    State.fetching.set(true)
+    State.busy.set(true)
     const currentChat: IChat = get( State.currentChat )
     const candidate: ICandidate = currentChat.messages[msg_index].candidates[candidate_index]
     const success: boolean = await request("/delete_candidate", { id: candidate.id })
-    State.fetching.set(false)
     if( success ){
         currentChat.messages[msg_index].candidates.splice(candidate_index, 1)
         let num_candidates = currentChat.messages[msg_index].candidates.length;
@@ -462,6 +463,7 @@ export async function deleteCandidate(msg_index: number, candidate_index: number
             document.dispatchEvent(new CustomEvent("autoscroll"))
         }
     }
+    State.busy.set(false)
     return success
 }
 
