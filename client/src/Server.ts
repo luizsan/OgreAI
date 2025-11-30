@@ -351,7 +351,13 @@ export async function sendMessage(content: string): Promise<boolean>{
             timestamp: Date.now(),
         }]
     }
-    currentChat.messages.push(new_message)
+
+    // immediate feedback even if the sent message fails
+    // only add non-empty messages
+    if( content?.trim().length > 0 ){
+        currentChat.messages.push(new_message)
+    }
+
     State.currentChat.set( currentChat )
     let success: boolean = false
     if(!currentChat.id){
@@ -364,6 +370,7 @@ export async function sendMessage(content: string): Promise<boolean>{
             success = true;
         }
     }else{
+        // overrides the message added by the client with the one from the server
         let added: IMessage = await request("/add_message", {
             chat: currentChat,
             message: new_message

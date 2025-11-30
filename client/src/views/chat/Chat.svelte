@@ -90,16 +90,17 @@
 
     async function SendMessage(){
         $generating = true;
-        if( userMessage.trim().length > 0 ){
-            let content: string = userMessage;
-            const success = await Server.sendMessage(content);
-            if( success ){
-                await tick()
-            }
-        }
+        let content: string = userMessage;
+        // resets the message box
         userMessage = "";
-        await tick();
-        resize( messageBox );
+        await tick()
+        resize( messageBox )
+        // sends the message
+        const success = await Server.sendMessage(content);
+        if( !success ){
+            return
+        }
+        await tick()
         await generateMessage()
         $generating = false;
     }
