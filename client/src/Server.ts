@@ -351,16 +351,16 @@ export async function sendMessage(content: string): Promise<boolean>{
             timestamp: Date.now(),
         }]
     }
-
     // immediate feedback even if the sent message fails
     // only add non-empty messages
-    if( content?.trim().length > 0 ){
+    const has_content = content?.trim().length > 0
+    if( has_content ){
         currentChat.messages.push(new_message)
     }
-
     State.currentChat.set( currentChat )
     let success: boolean = false
     if(!currentChat.id){
+        // no ID = no chat in the server, create a new chat and apply it before generating a response
         let created: IChat = await request("/create_chat", {
             character: currentCharacter,
             chat: currentChat
@@ -369,7 +369,7 @@ export async function sendMessage(content: string): Promise<boolean>{
             State.currentChat.set( created )
             success = true;
         }
-    }else{
+    }else if(has_content){
         // overrides the message added by the client with the one from the server
         let added: IMessage = await request("/add_message", {
             chat: currentChat,
@@ -381,6 +381,9 @@ export async function sendMessage(content: string): Promise<boolean>{
             State.currentChat.set( currentChat )
             success = true;
         }
+    }else{
+        // no message to be added, consider a success
+        success = true
     }
     return success
 }

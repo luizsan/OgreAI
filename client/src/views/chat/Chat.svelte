@@ -91,12 +91,10 @@
     async function SendMessage(){
         $generating = true;
         let content: string = userMessage;
-        // resets the message box
+        const success = await Server.sendMessage(content);
         userMessage = "";
         await tick()
         resize( messageBox )
-        // sends the message
-        const success = await Server.sendMessage(content);
         if( !success ){
             return
         }
