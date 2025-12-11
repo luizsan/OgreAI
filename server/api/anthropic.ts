@@ -113,7 +113,7 @@ export default class Anthropic extends API {
 
     makePrompt( data: IGenerationData, offset: number = 0 ){
         let list = buildPrompt( this, data, offset )
-        list = squashPrompt(list)
+        // list = squashPrompt(list)
         list = list.map((item) => {
             return {
                 role: item.role.replaceAll("system", "user"),
