@@ -29,6 +29,8 @@ export default class OpenAI extends API {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
             type: "select", default: "gpt-3.5-turbo", choices: [
+                "gpt-5.1",
+                "gpt-5.1-mini",
                 "gpt-5-chat-latest",
                 "gpt-5",
                 "gpt-5-mini",
@@ -169,6 +171,11 @@ export default class OpenAI extends API {
                 outgoing_data.stop = undefined
                 outgoing_data.logit_bias = undefined
             }
+        }
+
+        if(outgoing_data.model.startsWith("gpt-5.1")){
+            outgoing_data.presence_penalty = undefined
+            outgoing_data.frequency_penalty = undefined
         }
 
         let options = {
