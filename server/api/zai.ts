@@ -82,8 +82,8 @@ export default class ZAI extends API {
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
-        let list: Array<IPromptEntry> = squashPrompt(buildPrompt( this, data, offset ))
-        list = squashPrompt(list)
+        let list: Array<IPromptEntry> = buildPrompt( this, data, offset )
+        // list = squashPrompt(list)
         return list
     }
 

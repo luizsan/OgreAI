@@ -82,7 +82,7 @@ export default class Mistral extends API{
 
     makePrompt(data: IGenerationData, offset?: number) {
         let list: Array<IPromptEntry> = buildPrompt(this, data, offset)
-        list = squashPrompt(list)
+        // list = squashPrompt(list)
         return list
     }
 

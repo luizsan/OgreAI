@@ -100,7 +100,7 @@ export default class Google extends API{
 
     makePrompt(data: IGenerationData, offset?: number): any {
         let list: Array<any> = buildPrompt( this, data, offset )
-        list = squashPrompt(list, "\n\n")
+        // list = squashPrompt(list, "\n\n")
         list = list.map((message) => {
             return {
                 "role": message.role.

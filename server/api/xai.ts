@@ -111,7 +111,7 @@ export default class xAI extends API {
 
     makePrompt(data: IGenerationData, offset?: number ): any {
         let list: Array<IPromptEntry> = squashPrompt(buildPrompt( this, data, offset ))
-        list = squashPrompt(list)
+        // list = squashPrompt(list)
         return list
     }
 
@@ -140,6 +140,11 @@ export default class xAI extends API {
             }else{
                 outgoing_data["reasoning_effort"] = undefined
             }
+        }
+
+        if( settings.model.startsWith("grok-4-1")){
+            outgoing_data.presence_penalty = undefined
+            outgoing_data.frequency_penalty = undefined
         }
 
         let options = {

@@ -115,7 +115,7 @@ export default class OpenAI extends API {
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
-        let list: Array<IPromptEntry> = squashPrompt(buildPrompt( this, data, offset ))
+        let list: Array<IPromptEntry> = buildPrompt( this, data, offset )
         list = squashPrompt(list)
         list = list.map((item) => {
             return {
