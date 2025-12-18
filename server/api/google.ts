@@ -22,6 +22,7 @@ export default class Google extends API{
             description: "ID of the model to use.",
             type: "select", default: "gemini-1.5-flash", choices: [
                 "gemini-3.0-pro-preview",
+                "gemini-3.0-flash-preview",
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
                 "gemini-2.5-flash-lite",
@@ -81,6 +82,12 @@ export default class Google extends API{
             type: "checkbox", default: true,
         },
 
+        beta: {
+            title: "Beta",
+            description: "If set, the API will use beta features. Beta features are not stable and may change in the future.",
+            type: "checkbox", default: false,
+        },
+
         stop_sequences: {
             title: "Stop Sequences",
             description: "The set of character sequences (up to 5) that will stop output generation. If specified, the API will stop at the first appearance of a stop_sequence. The stop sequence will not be included as part of the response.",
@@ -91,7 +98,7 @@ export default class Google extends API{
     async getStatus(settings: { api_auth: string, api_url?: string; }): Promise<boolean> {
         const options = { method: "GET", headers:{ "ContentType":"application/json" }}
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
-        return await fetch( `${url}/v1beta/models?key=${settings.api_auth}`, options ).then((response) => response.ok)
+        return await fetch( `${url}/v1/models?key=${settings.api_auth}`, options ).then((response) => response.ok)
     }
 
     getTokenCount(text: string, model: string): number {
@@ -137,7 +144,7 @@ export default class Google extends API{
 
         const url = settings.api_url ? settings.api_url : this.API_ADDRESS
         const mode = settings.stream ? "streamGenerateContent?alt=sse&key=" : "generateContent?key="
-        const target: string = `${url}/v1beta/models/${settings.model}:${mode}`
+        const target: string = `${url}/${settings.beta ? "v1beta" : "v1"}/models/${settings.model}:${mode}`
         const hidden = settings.api_url ? url : settings.api_auth.slice(-4).padStart(settings.api_auth.length, '*')
         console.debug(`Sending prompt\n > ${target}${hidden}\n\n%o`, util.inspect(outgoing_data, { depth: 4, colors: true }))
         return await fetch(target + settings.api_auth, options)
