@@ -30,6 +30,9 @@ export function List(){
     const entries = LorebookSQL.LIST.all() as IDatabaseLorebook[]
     return entries.map((entry: IDatabaseLorebook) => {
         let book: ILorebook = JSON.parse(entry.content)
+        if(book?.entries && typeof book?.entries === "object") {
+            book.entries = Object.values(book.entries) as ILorebookEntry[]
+        }
         book.temp = {
             toggled: entry.toggled
         }
@@ -127,8 +130,14 @@ export function getEntriesFromBook(api: API, book: ILorebook, data: IGenerationD
     }
 
     const messages_scanned = book.scan_depth > 0 ? messages.slice(-book.scan_depth) : []
+    let entries_list: Array<ILorebookEntry> = []
+    if (Array.isArray(book.entries)) {
+        entries_list = book.entries
+    } else if (typeof book.entries === "object") {
+        entries_list = Object.values(book.entries) as ILorebookEntry[]
+    }
 
-    book.entries.forEach((entry) => {
+    entries_list.forEach((entry) => {
         if( !entry.content ){
             return
         }
