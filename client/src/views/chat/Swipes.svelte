@@ -109,15 +109,21 @@
             <div class="candidate" id="swipe_{index}">
                 <div class="content">
                     <div class="header section horizontal">
-                        <span class="index"># {index + 1}</span>
+                        <div class="index">
+                            <span class="number"># {index + 1}</span>
+                            <span class="model">{candidate.model || "Unknown model"}</span>
+                        </div>
+
                         <div style="margin-left: auto"></div>
-                        <button class="component danger compact" title="Delete swipe"on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
-                        <button class="component normal compact" title="Branch from swipe" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
-                        {#if selected}
-                            <button class="component confirm large" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
-                        {:else}
-                            <button class="component normal large" on:click={async () => await selectSwipe(index)}>Select Swipe<div style="transform: scaleX(-1) translateY(2px);">{@html SVG.arrow}</div></button>
-                        {/if}
+                        <div class="buttons">
+                            <button class="component danger compact" title="Delete swipe"on:click={async () => await deleteSwipe(index)}>{@html SVG.trashcan}</button>
+                            <button class="component normal compact" title="Branch from swipe" on:click={async () => await branchSwipe(index)}>{@html SVG.split}</button>
+                            {#if selected}
+                                <button class="component confirm large" on:click={closeSwipeView}>Selected<div style="transform: translateY(2px);">{@html SVG.confirm}</div></button>
+                            {:else}
+                                <button class="component normal large" on:click={async () => await selectSwipe(index)}>Select Swipe<div style="transform: scaleX(-1) translateY(2px);">{@html SVG.arrow}</div></button>
+                            {/if}
+                        </div>
                     </div>
 
                     <Content
@@ -222,10 +228,29 @@
     }
 
     .header .index{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .header .index .number{
         font-size: 2em;
         font-weight: 900;
         text-wrap: nowrap;
-        align-self: center;
+    }
+
+    .header .index .model{
+        font-size: 0.8em;
+        font-weight: normal;
+        color: var( --content-neutral-100 );
+    }
+
+    .buttons{
+        display: flex;
+        gap: 8px;
+        align-self: flex-start;
+
     }
 
     button.large{
