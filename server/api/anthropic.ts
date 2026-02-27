@@ -29,6 +29,7 @@ export default class Anthropic extends API {
                 "claude-opus-4-5",
                 "claude-opus-4-1",
                 "claude-opus-4-0",
+                "claude-sonnet-4-6",
                 "claude-sonnet-4-5",
                 "claude-sonnet-4-0",
                 "claude-3-7-sonnet-latest",
@@ -126,7 +127,7 @@ export default class Anthropic extends API {
 
     sanitizeExclusiveParameters( settings: ISettings, outgoing_data: Record<string, any> ): void {
         // temperature and top_p cannot both be specified for these models
-        const models = [ "opus-4-1", "opus-4-5", "opus-4-6", "sonnet-4-5" ]
+        const models = [ "opus-4-1", "opus-4-5", "opus-4-6", "sonnet-4-5", "sonnet-4-6" ]
         models.forEach((model) => {
             if( !settings.model.includes(model))
                 return;

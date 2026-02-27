@@ -21,8 +21,8 @@ export default class Google extends API{
             title: "Model",
             description: "ID of the model to use.",
             type: "select", default: "gemini-1.5-flash", choices: [
-                "gemini-3.0-pro-preview",
-                "gemini-3.0-flash-preview",
+                "gemini-3-pro-preview",
+                "gemini-3-flash-preview",
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
                 "gemini-2.5-flash-lite",
