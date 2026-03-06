@@ -331,9 +331,13 @@ export async function branchChat(msg_index: number, candidate_index?: number): P
     if (!new_id){
         await Dialog.alert("OgreAI", "Failed to branch chat!")
     }else{
-        await listChats( get(State.currentCharacter), true )
-        updateChats();
-        await Dialog.alert("OgreAI", "Successfully branched chat!")
+        await listChats( get(State.currentCharacter), false )
+        updateChats()
+        const load_last: boolean = await Dialog.confirm("OgreAI", "Successfully branched chat!\nDo you want to load the new chat?")
+        if(load_last){
+            const last_chat: IChat = get( State.chatList ).at(0)
+            await loadChat(last_chat)
+        }
     }
     State.fetching.set(false)
 }
