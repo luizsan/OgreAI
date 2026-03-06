@@ -24,6 +24,8 @@ export default class ZAI extends API {
             title: "Model",
             description: "The model code to be called.",
             type: "select", default: "glm-4.6", choices: [
+                "glm-5",
+                "glm-4.7",
                 "glm-4.6",
                 "glm-4.5",
                 "glm-4.5-x",
