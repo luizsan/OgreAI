@@ -67,6 +67,14 @@
         color: var( --content-secondary-200 );
     }
 
+    .text :global(a){
+        text-decoration: none;
+    }
+
+    .text :global(details summary){
+        cursor: pointer;
+    }
+
     .text :global(code){
         font-size: 0.8em;
         background: var( --code-color-background );
