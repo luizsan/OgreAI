@@ -38,7 +38,7 @@
     import Swipes from "./Swipes.svelte";
     import Loading from '@/components/Loading.svelte';
 
-    import { data } from "@/modules/Actions";
+    import { data, message } from "@/modules/Actions";
     import * as Dialog from "@/modules/Dialog.ts";
     import * as Format from "@shared/format.ts";
     import * as Server from "@/Server";
@@ -50,8 +50,12 @@
 
     $: lockinput = !$currentChat || $fetching || $busy || $generating || !!$swipes || Dialog.isOpen() || !!$data
 
+    const boxDefault : number = 20;
+    const boxMargin : number = 48;
+
     let userMessage : string = ""
     let messageBox : HTMLTextAreaElement;
+    let boxHeight : number = boxDefault;
     let showMenu : boolean = false;
     let requestTime : number = 0;
 
@@ -60,6 +64,11 @@
 
     let abortController : AbortController = new AbortController()
     let abortSignal = abortController.signal;
+
+
+    function refreshMessageBox(){
+        boxHeight = messageBox?.clientHeight || boxDefault
+    }
 
     function ToggleChatOptions(){
         showMenu = !showMenu;
@@ -93,6 +102,7 @@
         let content: string = userMessage;
         const success = await Server.sendMessage(content);
         userMessage = "";
+        boxHeight = boxDefault;
         await tick()
         resize( messageBox )
         if( !success ){
@@ -520,7 +530,7 @@
     <Background/>
 
     <div class="main" class:wait={$generating || $busy} class:unfocus={!!$swipes}>
-        <div class="messages" class:disabled={lockinput} class:deselect={lockinput} use:AutoScroll inert={lockinput}>
+        <div class="messages" style="--box-height: {boxHeight + boxMargin}px" class:disabled={lockinput} class:deselect={lockinput} use:AutoScroll inert={lockinput}>
             {#if $currentChat != null}
                 {#each $currentChat.messages as _, i}
                     <Message
@@ -562,7 +572,7 @@
 
                 </div>
 
-                <textarea placeholder={placeholder} bind:this={messageBox} bind:value={userMessage} use:AutoResize></textarea>
+                <textarea placeholder={placeholder} bind:this={messageBox} bind:value={userMessage} use:AutoResize on:change={refreshMessageBox} on:input={refreshMessageBox}></textarea>
                 {#if $generating}
                     <Loading/>
                 {:else}
@@ -638,8 +648,8 @@
         width: 100%;
         margin: 0px var(--chat-padding);
         overflow-y: scroll;
-        margin-bottom: 75px;
-        padding: 8px 0px 4px 0px;
+        margin-bottom: var(--box-height);
+        padding: 8px 0px;
         --scrollbar-color: var( --scrollbar-neutral )
     }
 
