@@ -18,6 +18,7 @@ import Anthropic from "./api/anthropic.ts"
 import DeepSeek from "./api/deepseek.ts"
 import Google from "./api/google.ts"
 import Mistral from "./api/mistral.ts"
+import NovelAI from "./api/novelai.ts"
 import OpenAI from "./api/openai.ts"
 import xAI from "./api/xai.ts"
 import ZAI from "./api/zai.ts"
@@ -52,6 +53,7 @@ var API_MODES: Record<string, API> = {
     "deepseek": new DeepSeek(),
     "google": new Google(),
     "mistral": new Mistral(),
+    "novelai": new NovelAI(),
     "openai": new OpenAI(),
     "xai": new xAI(),
     "zai": new ZAI(),
