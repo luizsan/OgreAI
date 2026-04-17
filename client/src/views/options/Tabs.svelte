@@ -77,6 +77,7 @@
                         class:inactive={!selected}
                         class:secondary={!selected}
                         inert={selected}
+                        title={tab_items[key].title}
                         on:click={() => setTab(key)}>{@html tab_items[key].icon}
                     </button>
                 {/if}
