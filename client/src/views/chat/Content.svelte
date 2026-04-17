@@ -3,7 +3,7 @@
     import 'highlight.js/styles/github-dark-dimmed.css';
 
     import { marked } from 'marked';
-    import { addToggleableBlocks } from "@/utils/ToggleableBlock";
+    import { tags, addToggleableBlocks } from "@/utils/ToggleableBlock";
 
     import type { IChat } from "@shared/types";
     import * as Format from "@shared/format.ts";
@@ -32,7 +32,7 @@
             let html = marked.parse(content)
             html = Format.parseMacros( html, chat )
             html = Format.parseNames( html, user, bot )
-            displayText = DOMPurify.sanitize( html )
+            displayText = DOMPurify.sanitize( html, { ADD_TAGS: tags })
         }else{
             displayText = ""
         }

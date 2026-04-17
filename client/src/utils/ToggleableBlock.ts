@@ -1,13 +1,13 @@
 import { marked } from 'marked';
 import * as SVG from "../svg/Common.svelte"
 
-const keys = ["thinking", "think"]
+export const tags = ["thinking", "think"]
 const pattern = /<(thinking)>([\s\S]*?)<\/(\1)>\n*/gi
 
 export function addToggleableBlocks(node: Element, args: { name: string, content: string, type?: string }) {
     function parseBlocks(){
         node.innerHTML = node.innerHTML.replace(pattern, (_match, tag, content) => {
-            if ( keys.includes(tag) ){
+            if ( tags.includes(tag) ){
                return `<p><button class="thinking ${args.type || ""}">
                     <div class="heading">${SVG.chat} ${args.name}</div>
                     <div class="content">${marked.parse(content)}</div>
