@@ -147,6 +147,7 @@ export default class NovelAI extends API {
                 repetition_penalty: parseFloat(settings.repetition_penalty),
                 tail_free_sampling: parseFloat(settings.tail_free_sampling),
                 temperature: parseFloat(settings.temperature),
+                generate_until_sentence: true,
             },
         }
 
