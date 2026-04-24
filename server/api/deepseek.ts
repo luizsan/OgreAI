@@ -24,8 +24,10 @@ export default class DeepSeek extends API {
             title: "Model",
             description: "The OpenAI API is powered by a diverse set of models with different capabilities and price points.",
             type: "select", default: "deepseek-chat", choices: [
-                "deepseek-chat",
+                "deepseek-v4-pro",
+                "deepseek-v4-flash",
                 "deepseek-reasoner",
+                "deepseek-chat",
             ]
         },
 
@@ -71,6 +73,12 @@ export default class DeepSeek extends API {
             type: "checkbox", default: true,
         },
 
+        reasoning_effort: {
+            title: "Reasoning Effort",
+            description: "Before outputting the final answer, the model will first output a chain-of-thought reasoning to improve the accuracy of the final response.",
+            type: "select", default: "high", choices: [ "disabled", "high", "max" ], capitalize: true,
+        },
+
         beta: {
             title: "Beta",
             description: "If set, the API will use beta features. Beta features are not stable and may change in the future.",
@@ -81,7 +89,8 @@ export default class DeepSeek extends API {
             title: "Stop Sequences",
             description: "Up to 16 sequences where the API will stop generating further tokens.",
             type: "list", limit: 16, default: [],
-        }
+        },
+
     }
 
     async getStatus(settings: { api_auth: string, api_url?: string; }): Promise<boolean> {
@@ -137,6 +146,17 @@ export default class DeepSeek extends API {
             top_p: parseFloat(settings.top_p),
             stream: settings.stream,
         };
+
+        if( settings.reasoning_effort ){
+            if( this.API_SETTINGS.reasoning_effort.choices.includes(settings.reasoning_effort)){
+                if( settings.reasoning_effort === "disabled" ){
+                    outgoing_data["thinking"] = { type: "disabled" }
+                }else{
+                    outgoing_data["thinking"] = { type: "enabled" }
+                    outgoing_data["reasoning_effort"] = settings.reasoning_effort
+                }
+            }
+        }
 
         let options = {
             method: "POST",
