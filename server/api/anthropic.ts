@@ -145,7 +145,7 @@ export default class Anthropic extends API {
                 break;
             case "claude-opus-4-7":
                 outgoing_data.top_p = undefined
-                outgoing_data.temperature = undefined
+                outgoing_data.top_k = undefined
                 break;
             default:
                 break
