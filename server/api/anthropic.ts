@@ -125,18 +125,31 @@ export default class Anthropic extends API {
         return list
     }
 
+    mutuallyExclusiveParameters(data: Record<string, any>, parameterA: string, parameterB: string): void {
+        if( data[parameterB] < 1.0 ){
+            data[parameterA] = undefined
+        }else{
+            data[parameterB] = undefined
+        }
+    }
+
     sanitizeExclusiveParameters( settings: ISettings, outgoing_data: Record<string, any> ): void {
         // temperature and top_p cannot both be specified for these models
-        const models = [ "opus-4-1", "opus-4-5", "opus-4-6", "sonnet-4-5", "sonnet-4-6" ]
-        models.forEach((model) => {
-            if( !settings.model.includes(model))
-                return;
-            if( outgoing_data.top_p < 1.0 ){
-                outgoing_data.temperature = undefined
-            }else{
+        switch(settings.model){
+            case "claude-sonnet-4-5":
+            case "claude-sonnet-4-6":
+            case "claude-opus-4-1":
+            case "claude-opus-4-5":
+            case "claude-opus-4-6":
+                this.mutuallyExclusiveParameters(outgoing_data, "temperature", "top_p")
+                break;
+            case "claude-opus-4-7":
                 outgoing_data.top_p = undefined
-            }
-        })
+                outgoing_data.temperature = undefined
+                break;
+            default:
+                break
+        }
     }
 
     async generate( data: IGenerationData ): Promise<any> {
