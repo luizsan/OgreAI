@@ -16,7 +16,7 @@ export function getTokenizer(api: string, model: string): Tokenizer {
     if (api.startsWith("openai") || model.startsWith("gpt") || model.startsWith("o1") || model.startsWith("o3") || model.startsWith("o4"))
         return new Tokenizer(o200k_base);
     // Generic fallback
-    console.warn(`Unknown model "${model}", falling back to o200k_base encoding`);
+    // console.warn(`Unknown model "${model}", falling back to o200k_base encoding`);
     return new Tokenizer(o200k_base);
 }
 
