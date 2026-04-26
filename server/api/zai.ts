@@ -9,14 +9,14 @@ import type {
 
 import {
     buildPrompt,
-    squashPrompt
 } from "../lib/prompt.ts";
 
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class ZAI extends API {
     API_NAME = "Z.AI";
+    API_ID = "zai";
     API_VERSION = "1.0.0";
     API_ADDRESS = "https://api.z.ai";
     API_SETTINGS = {
@@ -80,7 +80,7 @@ export default class ZAI extends API {
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {

@@ -1,8 +1,17 @@
 import util from "util"
 import API from "../core/api.ts"
-import * as Tokenizer from "../tokenizer/gpt.ts"
-import { IError, IGenerationData, IReply, ISettings } from "../../shared/types.js"
-import { buildPrompt, squashPrompt } from "../lib/prompt.ts"
+import {
+    IError,
+    IGenerationData,
+    IReply,
+    ISettings
+} from "../../shared/types.js"
+
+import {
+    buildPrompt
+} from "../lib/prompt.ts"
+
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 const SAFETY_SETTINGS = [
     { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "OFF" },
@@ -14,6 +23,7 @@ const SAFETY_SETTINGS = [
 
 export default class Google extends API{
     API_NAME = "Google"
+    API_ID = "google"
     API_VERSION = "1.0"
     API_ADDRESS = "https://generativelanguage.googleapis.com"
     API_SETTINGS = {
@@ -102,7 +112,7 @@ export default class Google extends API{
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number): any {
@@ -184,7 +194,6 @@ export default class Google extends API{
         if( raw.startsWith("data: ") ){
             raw = raw.replace("data: ", "")
         }
-
         // handles errors and proxy queues
         try{
             var pre: any = JSON.parse(raw)
@@ -194,7 +203,6 @@ export default class Google extends API{
         }catch(error: any){
             console.warn(raw)
         }
-
         const lines: string[] = this.cleanIncomingStream(raw)
         for (let line of lines) {
             if (line.startsWith(":")) continue;
@@ -224,5 +232,6 @@ export default class Google extends API{
             }
             return reply
         }
+        return reply
     }
 }

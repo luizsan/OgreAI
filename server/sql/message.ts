@@ -1,5 +1,5 @@
 import { Statement } from "bun:sqlite";
-import { db } from "../core/database.ts"
+import { db, IDatabaseMessage } from "../core/database.ts"
 
 export const CREATE: Statement = db.prepare(`
     INSERT INTO messages (chat_id, create_date, participant, candidate, metadata)
@@ -23,7 +23,7 @@ export const LAST: Statement = db.prepare(`
     LIMIT 1
 `);
 
-export const LIST: Statement = db.prepare(`
+export const LIST: Statement<IDatabaseMessage> = db.prepare(`
     SELECT * FROM messages
     WHERE chat_id = ?
     ORDER BY create_date ASC

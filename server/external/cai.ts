@@ -1,5 +1,10 @@
-export function parseChat( json: any ): Array<Object>{
-    let chats = []
+import type {
+    IChat,
+    IMessage
+} from "../../shared/types.js"
+
+export function parseChat( json: any ): Array<IChat>{
+    let chats: Array<IChat> = []
 
     if( !json ){ return chats; }
     if( !json.info || !json.info.character ){ return chats; }
@@ -8,9 +13,9 @@ export function parseChat( json: any ): Array<Object>{
     for( let c = 0; c < json.histories.histories.length; c++ ){
         try{
             let cai_chat = json.histories.histories[c];
-            let new_chat = {
+            let new_chat: IChat = {
                 title: cai_chat.external_id,
-                created: Date.parse(cai_chat.created),
+                create_date: Date.parse(cai_chat.created),
                 last_interaction: Date.parse(cai_chat.last_interaction),
                 participants: [ json.info.character.data.name ],
                 messages: []
@@ -18,13 +23,15 @@ export function parseChat( json: any ): Array<Object>{
 
             for( let m = 0; m < cai_chat.msgs.length; m++ ){
                 let cai_msg = cai_chat.msgs[m]
-                let new_msg = {
+                let timestamp: number = Date.parse(cai_msg.created)
+                let new_msg: IMessage = {
                     participant: cai_msg.src.is_human ? -1 : 0,
                     index: 0,
+                    timestamp: timestamp,
                     candidates: [
                         {
                             text: cai_msg.text.trim(),
-                            timestamp: Date.parse(cai_msg.created),
+                            timestamp: timestamp,
                         }
                     ]
                 }

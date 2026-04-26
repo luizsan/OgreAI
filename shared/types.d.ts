@@ -44,7 +44,7 @@ export interface ICharacterBaseV2{
     post_history_instructions : string
     alternate_greetings : Array<string>
     tags : Array<string>
-    character_book : ILorebook;
+    character_book : ILorebook | undefined;
     extensions : Record<string, any>;
 }
 
@@ -150,6 +150,7 @@ export interface ISettings{
     model : string;
     formatting?: Record<string, any>;
     prompt: Array<IPromptConfig>;
+    [key: string]: any;
 }
 
 export interface IAPISettings{
@@ -199,7 +200,7 @@ export interface IPromptEntry{
 export interface IPromptConfig{
     key: string;
     //
-    content?: string;
+    content: string;
     enabled: boolean;
     role?: string;
     open?: boolean;

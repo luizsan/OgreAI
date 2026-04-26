@@ -1,5 +1,5 @@
 import { Statement } from "bun:sqlite";
-import { db } from "../core/database.ts";
+import { db, IDatabaseCandidate } from "../core/database.ts";
 
 export const CREATE: Statement = db.prepare(`
     INSERT INTO candidates (message_id, text_content, text_reasoning, create_date, model, timer, tokens, metadata)
@@ -12,13 +12,13 @@ export const DELETE: Statement = db.prepare(`
     WHERE id = ?
 `);
 
-export const GET: Statement = db.prepare(`
+export const GET: Statement<IDatabaseCandidate> = db.prepare(`
     SELECT *
     FROM candidates
     WHERE id = ?
 `);
 
-export const LIST: Statement = db.prepare(`
+export const LIST: Statement<IDatabaseCandidate> = db.prepare(`
     SELECT *
     FROM candidates
     WHERE message_id = ?

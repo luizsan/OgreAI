@@ -249,7 +249,7 @@ app.post("/get_character_tokens", parser, function(request: express.Request, res
 
 app.post("/get_message_tokens", parser, function(request: express.Request, response: express.Response){
     let api = API_MODES[ request.body.api_mode ]
-    let tokens = request.body.messages.map(message => {
+    let tokens = request.body.messages.map((message: IMessage) => {
         return api.getTokenCount(
             message.candidates[message.index].text,
             request.body.settings.model
@@ -290,7 +290,7 @@ app.post("/duplicate_chat", parser, function(request: express.Request, response:
     response.send(chat_id)
 })
 
-app.post("/add_message", parser, function(request: express.Request, response: express.Responseddd){
+app.post("/add_message", parser, function(request: express.Request, response: express.Response){
     const msg: IMessage = Chat.AddMessage(request.body.chat.id, request.body.message)
     response.send(msg)
 })
@@ -301,7 +301,7 @@ app.post("/add_candidate", parser, function(request: express.Request, response: 
 })
 
 app.post("/load_message", parser, function(request: express.Request, response: express.Response){
-    const message: IMessage = Chat.GetMessage(request.body.id)
+    const message: IMessage | undefined = Chat.GetMessage(request.body.id)
     response.send(message)
 })
 
@@ -546,8 +546,8 @@ app.post("/generate", parser, async function(request: express.Request, response:
                     console.error( chalk.red("Error in message stream:\n" + error))
                 }
             }else{
-                result.text().then(raw => {
-                    let received: IReply | IError = api.receiveData( raw, data.swipe )
+                result.text().then((raw: string) => {
+                    let received: IReply | IError = api.receiveData( raw, !!data.swipe )
                     console.debug(chalk.blue("Received message"))
                     response.send(received);
                 })

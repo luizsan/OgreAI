@@ -8,7 +8,8 @@ import type {
     IPromptConfig,
     IPromptEntry,
     ICandidate,
-    ILorebookEntry
+    ILorebookEntry,
+    ICharacterBaseV2
 } from "../../shared/types.d.ts";
 
 import {
@@ -24,7 +25,7 @@ import * as Tavern from "../external/tavern.ts";
 
 export const prompt_types: Array<string> = ["base_prompt", "sub_prompt", "prefill_prompt", "custom"]
 export const prompt_roles: Array<string> = ["system", "user", "assistant"]
-export const default_order = {
+export const default_order: Record<string, any> = {
     base_prompt: {
         toggleable: true, editable: true, overridable: true, row_size: 12,
         label: "Main prompt",
@@ -138,7 +139,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
 
             case "persona":
                 const content_persona = user?.persona?.trim()
-                added_item = content_persona && content_persona.length > 0
+                added_item = (content_persona.length > 0 && content_persona.length > 0)
                 if ( added_item ){
                     let persona_entry: IPromptEntry = { role: "system", content: user.persona }
                     persona_entry.content = parseMacros(persona_entry.content, data.chat)
@@ -194,7 +195,7 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
             case "custom":
                 const custom_content: string = item.content || item.label || ""
                 const custom_entry: IPromptEntry = { role: "system", content: custom_content }
-                if(prompt_roles.includes(item.role))
+                if(item.role !== undefined && prompt_roles.includes(item.role))
                     custom_entry.role = item.role
                 custom_entry.content = parseMacros(custom_entry.content, data.chat )
                 custom_entry.content = parseNames(custom_entry.content, data.user.name, data.character.data.name )
@@ -220,11 +221,12 @@ export function buildPrompt( api: API, data: IGenerationData, offset = 0 ){
 // Retrieves a character property
 export function getCharacterProperty(config: IPromptConfig, data: IGenerationData): IPromptEntry{
     let entry: IPromptEntry = { role: "system", content: "" }
+    let original: string = data.character.data[config.key as keyof ICharacterBaseV2] as string
     entry.content = config.content
-    if ( config.content.includes("{{original}}") && data.character.data[config.key] ){
-        entry.content = entry.content.replaceAll( /{{original}}/gmi, data.character.data[config.key] )
+    if ( config.content.includes("{{original}}") && original !== undefined ){
+        entry.content = entry.content.replaceAll( /{{original}}/gmi, original as string )
     }else{
-        entry.content += "\n\n" + data.character.data[config.key]
+        entry.content += "\n\n" + original
     }
     entry.content = parseMacros(entry.content, data.chat )
     entry.content = parseNames(entry.content, data.user.name, data.character.data.name )
@@ -313,14 +315,15 @@ function getMessages(api: API, data: IGenerationData, offset = 0) : Array<IPromp
         entries = entries.slice(cutoff_index)
     }
 
-    const config_continue: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "continue_prompt")
-    const config_jailbreak: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "sub_prompt")
-    const config_prefill: IPromptConfig = data.prompt.find((item: IPromptConfig) => item.key === "prefill_prompt")
+    const config_continue: IPromptConfig | undefined = data.prompt.find((item: IPromptConfig) => item.key === "continue_prompt")
+    const config_jailbreak: IPromptConfig | undefined = data.prompt.find((item: IPromptConfig) => item.key === "sub_prompt")
+    const config_prefill: IPromptConfig | undefined = data.prompt.find((item: IPromptConfig) => item.key === "prefill_prompt")
 
     if( config_continue && config_continue.enabled ){
         var entry_continue: IPromptEntry = getContinuePrompt(config_continue, data)
         if( entry_continue.content.length > 0 ){
-            if( entries.at(-1).role !== "user" ){
+            let last_entry: IPromptEntry | undefined = entries.at(-1)
+            if( last_entry !== undefined && last_entry.role !== "user" ){
                 entries.push(entry_continue)
             }
         }

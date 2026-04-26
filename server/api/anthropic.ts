@@ -10,14 +10,14 @@ import {
 
 import {
     buildPrompt,
-    squashPrompt
 } from "../lib/prompt.ts"
 
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class Anthropic extends API {
     API_NAME = "Anthropic"
+    API_ID = "anthropic"
     API_VERSION = "2023-06-01"
     API_ADDRESS = "https://api.anthropic.com"
     API_SETTINGS = {
@@ -110,7 +110,7 @@ export default class Anthropic extends API {
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt( data: IGenerationData, offset: number = 0 ){
@@ -183,7 +183,7 @@ export default class Anthropic extends API {
                 last.push(sys.pop())
             }
             // map system messages
-            outgoing_data.system = sys.map((item) => {
+            outgoing_data.system = sys.map((item: any) => {
                 return { "type": "text", "text": item.content }
             })
             // sets cache flag at the last system message

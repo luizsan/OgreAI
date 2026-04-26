@@ -101,11 +101,15 @@ export function matchMessage(entry: ILorebookEntry, message: IMessage){
     }
     const has_primary_key = findKeysInMessage(entry.keys, message, entry.case_sensitive);
     if( has_primary_key ){
-        if( entry.selective && entry.secondary_keys?.length > 0 ){
-            const has_secondary_key = this.findKeysInMessage(entry.secondary_keys, message, entry.case_sensitive);
-            return has_secondary_key;
+        if( entry.selective ){
+            if( entry.secondary_keys && entry.secondary_keys?.length > 0 ){
+                const has_secondary_key = findKeysInMessage(entry.secondary_keys, message, entry.case_sensitive);
+                return has_secondary_key;
+            }else{
+                return false
+            }
         }
-        return true;
+        return true
     }
     return false;
 }
@@ -124,12 +128,12 @@ export function getEntriesFromBook(api: API, book: ILorebook, data: IGenerationD
     const user = data.user;
     const messages = data.chat.messages;
     const settings = data.settings;
-    const entries_triggered = [];
+    const entries_triggered: Array<ILorebookEntry> = [];
     if( !book ){
         return entries_triggered
     }
 
-    const messages_scanned = book.scan_depth > 0 ? messages.slice(-book.scan_depth) : []
+    const messages_scanned = book.scan_depth &&book.scan_depth > 0 ? messages.slice(-book.scan_depth) : []
     let entries_list: Array<ILorebookEntry> = []
     if (Array.isArray(book.entries)) {
         entries_list = book.entries
@@ -159,11 +163,13 @@ export function getEntriesFromBook(api: API, book: ILorebook, data: IGenerationD
     // trim entries to fit book.token_budget
     // entries with lower priority are discarded first
     let tokens_used = 0;
-    entries_triggered.sort((a,b) => b.priority - a.priority);
+    entries_triggered.sort((a: ILorebookEntry, b: ILorebookEntry) => {
+        return (b.priority && a.priority) ? b.priority - a.priority : 0
+    });
     for(let i = 0; i < entries_triggered.length; i++){
         const entry = entries_triggered[i];
         const tokens = api.getTokenCount(entry.content, settings.model);
-        if(tokens_used + tokens <= book.token_budget){
+        if(tokens_used + tokens <= (book.token_budget ?? 0)){
             tokens_used += tokens;
         }else{
             entries_triggered.splice(i);
@@ -214,7 +220,7 @@ export function ImportLorebooks(){
             const content: ILorebook = JSON.parse(raw)
             Import(content, {})
             imported += 1
-        }catch(error){
+        }catch(error: any){
             console.warn(chalk.yellow(`Error trying to import lorebook from ${filepath}:\n`) + error.message)
 
         }

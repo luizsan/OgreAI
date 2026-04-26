@@ -75,8 +75,8 @@ function CreateDatabase(): Database{
         return database
     }catch(error){
         console.error(chalk.red(`❌ Database initialization failed: ${error}`))
+        throw error // re-throw to avoid undefined type checks
     }
-    return null;
 }
 
 export default { db }

@@ -73,7 +73,7 @@ export function Validate( chat: IChat, source: any ): void{
 export function Create(character_id: string, chat: IChat, insert_messages: boolean = false): IChat{
     const transaction = db.transaction(() => {
         // create chat
-        const result: IDatabaseChat = ChatSQL.CREATE.get(
+        const result: IDatabaseChat | undefined = ChatSQL.CREATE.get(
             character_id,
             chat.title || Date.now().toString(),
             chat.create_date ?? Date.now(),
@@ -104,14 +104,15 @@ export function Create(character_id: string, chat: IChat, insert_messages: boole
 export function ListChatsForCharacter(character_id: string): Array<IChat>{
     const chat_entries = ChatSQL.LIST.all(character_id) as Array<IDatabaseChat>
     const list: Array<IChat> = chat_entries.map((entry: IDatabaseChat) => {
+        let last_message: IMessage | undefined = GetLastMessage(entry.id)
         let chat: IChat = {
             id: entry.id,
-            title: entry.title,
+            title: entry.title ?? entry.create_date.toString(),
             create_date: entry.create_date,
             participants: [ entry.character_id ],
             last_interaction: entry.last_interaction,
             length: MessageSQL.LIST.all(entry.id).length,
-            messages: [ GetLastMessage(entry.id) ]
+            messages: last_message ? [ last_message ] : []
         }
         return chat
     })
@@ -120,12 +121,12 @@ export function ListChatsForCharacter(character_id: string): Array<IChat>{
 }
 
 export function Load(chat_id: number): IChat{
-    const chat_entry: IDatabaseChat = ChatSQL.GET.get(chat_id) as IDatabaseChat | undefined
+    const chat_entry: IDatabaseChat | undefined = ChatSQL.GET.get(chat_id) as IDatabaseChat | undefined
     if(!chat_entry)
         throw new Error(`Chat with id ${chat_id} not found`)
     const chat: IChat = {
         id: chat_id,
-        title: chat_entry.title,
+        title: chat_entry.title ?? chat_entry.create_date.toString(),
         participants: [ chat_entry.character_id ],
         create_date: chat_entry.create_date,
         last_interaction: chat_entry.last_interaction,
@@ -136,7 +137,7 @@ export function Load(chat_id: number): IChat{
 
 export function Update(chat: IChat): boolean{
     const transaction = db.transaction(() => {
-        const chat_entry: IDatabaseChat = ChatSQL.GET.get(chat.id) as IDatabaseChat | undefined
+        const chat_entry: IDatabaseChat | undefined = ChatSQL.GET.get(chat.id) as IDatabaseChat | undefined
         if(!chat_entry)
             throw new Error(`Could not update chat with id ${chat.id}: not found`)
         ChatSQL.UPDATE.run( chat.title, chat.last_interaction, "{}", chat.id )
@@ -154,22 +155,24 @@ export function Find(character_id: string, title: string): number | undefined{
     return chat_id
 }
 
-export function Duplicate(chat: IChat, new_title: string, branch: ICandidate = null): number{
+export function Duplicate(chat: IChat, new_title: string, branch: ICandidate | undefined = undefined): number{
+    if(!chat.id){
+        throw new Error("Cannot duplicate chat with no id")
+    }
     const timestamp = Date.now()
     const transaction = db.transaction(() => {
-        const new_chat: IDatabaseChat = ChatSQL.CREATE.get(
+        const new_chat: IDatabaseChat | undefined = ChatSQL.CREATE.get(
             chat.participants[0],
             new_title || timestamp.toString(),
             timestamp,
             timestamp,
             "{}"
         ) as IDatabaseChat | undefined
-
         if(!new_chat)
             throw new Error(`Failed to duplicate chat with id ${chat.id}`)
 
         const new_chat_id: number = new_chat.id
-        const messages = ListMessages(chat.id)
+        const messages = ListMessages(chat.id as number)
         console.log("Attempting branch chat with branch %o", branch)
         for(let i = 0; i < messages.length; i++){
             // add new messages until it finds a candidate that matches the branch
@@ -221,8 +224,8 @@ export function ListMessages(chat_id: number): Array<IMessage>{
                 model: candidate.model,
                 reasoning: candidate.text_reasoning,
                 timer: candidate.timer,
-                tokens: JSON.parse(candidate.tokens)
-            }
+                tokens: JSON.parse(candidate.tokens ?? "{}"),
+            } as ICandidate
         })
         return {
             id: message.id,
@@ -230,7 +233,7 @@ export function ListMessages(chat_id: number): Array<IMessage>{
             index: message.candidate,
             timestamp: message.create_date,
             candidates: candidates
-        }
+        } as IMessage
     })
     return messages
 }
@@ -258,9 +261,9 @@ export function GetLastMessage(chat_id: number): IMessage | undefined{
                 model: current.model,
                 reasoning: current.text_reasoning,
                 timer: current.timer,
-                tokens: JSON.parse(current.tokens)
+                tokens: JSON.parse(current.tokens ?? "{}")
             }]
-        }
+        } as IMessage
     })
     return transaction()
 }
@@ -277,14 +280,14 @@ export function AddMessage(chat_id: number, message: IMessage, timestamp: number
         // create message
         // const last = OP_MESSAGE.LAST.get(chat_id) as IDatabaseMessage;
         // const parent : number = last ? last.id : null;
-        const new_message = MessageSQL.CREATE.get(
+        const new_message: { id: number } | undefined = MessageSQL.CREATE.get(
             chat_id,
             message.timestamp ?? timestamp,
             message.participant,
             message.index,
             "{}"
         ) as { id: number } | undefined
-        if (!new_message.id) {
+        if (!new_message?.id) {
             throw new Error(`Could not create message in chat ${chat_id}`);
         }
         message.id = new_message.id
@@ -327,11 +330,11 @@ export function GetMessage(id: any): IMessage | undefined{
         if (!message) {
             throw new Error(`Could not get message: ${id} not found`);
         }
-        const result = {
+        const result: IMessage = {
             id: message.id,
             participant: message.participant,
             index: message.candidate,
-            timestamp: message.create_date,
+            timestamp: message.create_date ?? Date.now(),
             candidates: CandidateSQL.LIST.all(message.id).map((candidate: IDatabaseCandidate) => {
                 return {
                     id: candidate.id,
@@ -340,9 +343,9 @@ export function GetMessage(id: any): IMessage | undefined{
                     model: candidate.model,
                     reasoning: candidate.text_reasoning,
                     timer: candidate.timer,
-                    tokens: JSON.parse(candidate.tokens),
-                    metadata: JSON.parse(candidate.metadata)
-                }
+                    tokens: JSON.parse(candidate.tokens ?? "{}"),
+                    metadata: JSON.parse(candidate.metadata ?? "{}")
+                } as ICandidate
             })
         }
         return result
@@ -450,9 +453,10 @@ export function DeleteCandidate(candidate_id: number): boolean{
     return !!transaction()
 }
 
-export function Import(dir: string, content: IChat, overwrite: boolean = false){
+export function Import(dir: string, content: IChat | undefined, overwrite: boolean = false){
+    if (!content) return false
     const transaction = db.transaction(() => {
-        const exists: number = Find(dir, content.title)
+        const exists: number | undefined = Find(dir, content.title)
         if(!!exists){
             if(overwrite){
                 Delete(exists)
@@ -500,7 +504,7 @@ export function ImportChats(){
                 }
                 if(success)
                     imported += 1
-            }catch(error){
+            }catch(error: any){
                 console.warn(chalk.yellow(`Error trying to import chat from ${filepath}}:\n`) + error.message)
             }
         }

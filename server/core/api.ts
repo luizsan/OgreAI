@@ -1,6 +1,7 @@
 import type {
     IAPISettings,
     ICharacter,
+    ICharacterBaseV2,
     IError,
     IReply,
     ISettings,
@@ -14,6 +15,7 @@ export default abstract class API {
     prototype: any
 
     abstract API_NAME: string
+    abstract API_ID: string
     abstract API_VERSION: string
     abstract API_ADDRESS: string
     abstract API_SETTINGS: Record<string, IAPISettings>
@@ -54,7 +56,7 @@ export default abstract class API {
         let count_system: number = 0
         const data_system = ["system_prompt", "post_history_instructions"]
         data_system.forEach(key => {
-            count_system += this.getTokenCount( character.data[key], settings.model )
+            count_system += this.getTokenCount( character.data[key as keyof ICharacterBaseV2] as string, settings.model )
         })
 
         return {

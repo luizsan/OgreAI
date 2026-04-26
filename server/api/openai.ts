@@ -17,11 +17,12 @@ import {
 } from "../lib/prompt.ts";
 
 // imports the tokenizer for token counts
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class OpenAI extends API {
     API_NAME = "OpenAI";
+    API_ID = "openai";
     API_VERSION = "2024-02-01";
     API_ADDRESS = "https://api.openai.com";
     API_SETTINGS = {
@@ -111,7 +112,7 @@ export default class OpenAI extends API {
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
@@ -126,20 +127,18 @@ export default class OpenAI extends API {
         return list
     }
 
-    buildLogitBias(bias: any, model?: string): Map<number, number> {
+    buildLogitBias(bias: any, model: string): Map<number, number> {
         const logit_bias = new Map<number, number>()
         if( !Array.isArray(bias) )
-            return null
+            return new Map<number,number>()
         bias.forEach((pair) => {
             const k: string | number = pair.key
             let value: number = parseInt(pair.value)
             value = Math.max(-100, Math.min(100, value))
-
             if( typeof k === "number" && !isNaN(k) ){
                 logit_bias.set(k, value)
-
             }else if( typeof k === "string" ){
-                const parsed_keys = Tokenizer.getTokens(k, model)
+                const parsed_keys = Tokenizer.getTokens(k, this.API_ID, model)
                 parsed_keys.forEach(id => {
                     logit_bias.set(id, value)
                 })
@@ -152,7 +151,7 @@ export default class OpenAI extends API {
         const settings: ISettings & Record<string, any> = data.settings;
         const output: any = data.output;
 
-        let outgoing_data = {
+        let outgoing_data: Record<string,any> = {
             model: settings.model,
             messages: output,
             stop: this.sanitizeStopSequences(settings.stop_sequences, data.user, data.character),

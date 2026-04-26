@@ -12,11 +12,12 @@ import {
     squashPrompt
 } from "../lib/prompt.ts";
 
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class xAI extends API {
     API_NAME = "xAI";
+    API_ID = "xai";
     API_VERSION = "1.0.0";
     API_ADDRESS = "https://api.x.ai";
     API_SETTINGS = {
@@ -106,7 +107,7 @@ export default class xAI extends API {
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
@@ -119,7 +120,7 @@ export default class xAI extends API {
         const settings: ISettings & Record<string, any> = data.settings;
         const output: any = data.output;
 
-        let outgoing_data = {
+        let outgoing_data: Record<string,any> = {
             model: settings.model,
             messages: output,
             stop: this.sanitizeStopSequences(settings.stop_sequences, data.user, data.character),

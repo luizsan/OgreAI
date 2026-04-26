@@ -10,14 +10,14 @@ import {
 
 import {
     buildPrompt,
-    squashPrompt
 } from "../lib/prompt.ts"
 
-import * as Tokenizer from "../tokenizer/mistral.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class Mistral extends API{
     API_NAME = "Mistral"
+    API_ID = "mistral"
     API_VERSION = "1.0"
     API_ADDRESS = "https://api.mistral.ai/"
     API_SETTINGS = {
@@ -77,7 +77,7 @@ export default class Mistral extends API{
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number) {

@@ -12,11 +12,12 @@ import {
     buildPrompt
 } from "../lib/prompt.ts";
 
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class DeepSeek extends API {
     API_NAME = "DeepSeek";
+    API_ID = "deepseek";
     API_VERSION = "1.0";
     API_ADDRESS = "https://api.deepseek.com";
     API_SETTINGS = {
@@ -100,7 +101,7 @@ export default class DeepSeek extends API {
     }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {
@@ -119,7 +120,7 @@ export default class DeepSeek extends API {
 
             // The last message of deepseek-reasoner must be a user message, or an assistant message with prefix mode on
             let last = list.at(-1)
-            if( last.role === "assistant" ){
+            if( last && last.role === "assistant" ){
                 if( data.settings?.["beta"] ){
                     last.prefix = true
                 }else{
@@ -135,7 +136,7 @@ export default class DeepSeek extends API {
         const settings: ISettings & Record<string, any> = data.settings;
         const output: any = data.output;
 
-        let outgoing_data = {
+        let outgoing_data: Record<string,any> = {
             model: settings.model,
             messages: output,
             stop: this.sanitizeStopSequences(settings.stop_sequences, data.user, data.character),

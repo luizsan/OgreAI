@@ -47,7 +47,7 @@ function whitelist(req: Request, res: Response, next: NextFunction): void {
     if (!match) {
         const message = `Forbidden connection attempt from '${origin} // ${agent}'. Please add your IP address in whitelist.txt`;
         console.log(chalk.red(message));
-        return res.status(403).send({ error: message });
+        res.status(403).send({ error: message });
     } else {
         next();
     }

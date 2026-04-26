@@ -34,7 +34,7 @@ export function Create() : ICharacter {
             created: Date.now(),
             modified: Date.now(),
             version: 1,
-            source: null,
+            source: undefined,
             tool: {
                 name: "OgreAI",
                 version: "2.0.0",
@@ -76,8 +76,8 @@ export function sanitizeTimestamp(character: ICharacter): void {
         const size = timestamp.toString().length;
         return size < 13 ? timestamp * Math.pow(10, 13 - size) : timestamp;
     };
-    character.metadata.created = adjustSize(character.metadata.created);
-    character.metadata.modified = adjustSize(character.metadata.modified);
+    character.metadata.created = adjustSize(character.metadata.created ?? Date.now());
+    character.metadata.modified = adjustSize(character.metadata.modified ?? Date.now());
 }
 
 export function LoadFromDirectory(dir: string): ICharacter[] {
@@ -95,7 +95,7 @@ export function LoadFromDirectory(dir: string): ICharacter[] {
             if (stats.isDirectory()) {
                 exploreDirectory(fullPath);
             } else if (stats.isFile() && fullPath.toLowerCase().endsWith('.png')) {
-                const char: ICharacter = ReadFromFile(fullPath);
+                const char: ICharacter | undefined = ReadFromFile(fullPath);
                 if (char) {
                     const relative_path = path.relative(dir, fullPath).replaceAll("\\", "/");
                     char.temp.filepath = relative_path
@@ -111,7 +111,7 @@ export function LoadFromDirectory(dir: string): ICharacter[] {
     return list;
 }
 
-export function ReadFromFile(filepath: string): ICharacter | null {
+export function ReadFromFile(filepath: string): ICharacter | undefined {
     filepath = filepath.replace(/\\/g, "/");
     try {
         const stats = fs.statSync(filepath);
@@ -147,7 +147,7 @@ export function ReadFromFile(filepath: string): ICharacter | null {
         console.warn(chalk.yellow(`${filepath} is not valid JSON!`));
         console.error(chalk.red(error));
     }
-    return null;
+    return undefined;
 }
 
 export async function WriteToFile(character: ICharacter, filepath: string, buffer: Buffer | null): Promise<boolean> {

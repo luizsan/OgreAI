@@ -13,11 +13,12 @@ import {
     stringifyPrompt
 } from "../lib/prompt.ts";
 
-import * as Tokenizer from "../tokenizer/gpt.ts"
+import * as Tokenizer from "../lib/tokenizer.ts"
 
 
 export default class NovelAI extends API {
     API_NAME = "NovelAI";
+    API_ID = "novelai";
     API_VERSION = "1.0.0";
     API_ADDRESS = "https://text.novelai.net/";
     API_SETTINGS = {
@@ -118,7 +119,7 @@ export default class NovelAI extends API {
         return await fetch(`${url}`, options).then (async (response) => response.ok)    }
 
     getTokenCount(text: string, model: string): number {
-        return Tokenizer.getTokenCount(text, model)
+        return Tokenizer.getTokenCount(text, this.API_ID, model)
     }
 
     makePrompt(data: IGenerationData, offset?: number ): any {

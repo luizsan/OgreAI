@@ -1,6 +1,10 @@
-import type { IChat } from "../../shared/types.js"
+import type {
+    IChat,
+    IMessage,
+    IPromptConfig
+} from "../../shared/types.js"
 
-const KEY_MAP = {
+const KEY_MAP: Record<string, string> = {
     "main": "base_prompt",
     "worldInfoBefore": "world_info",
     "worldInfoAfter": "character_book",
@@ -14,19 +18,22 @@ const KEY_MAP = {
     "dialogueExamples": "mes_example"
 }
 
-export function decodeTimestamp(str): number{
-    // to whoever made me do this, I sincerely
-    // hope you solve your skill issues someday
-    const [y, m, d, h, min, s, ms] = str.match(/\d+/g);
-    const date = new Date(y, m - 1, d, h || 0, min || 0, s || 0, ms || 0);
-    return date.getTime()
+// Grabs every contiguous sequence of digits from the string, ignoring whatever separators are between them.
+// To whoever made me do this, I sincerely hope you solve your skill issues someday
+export function decodeTimestamp(str: string): number{
+    const parts = str.match(/\d+/g);
+    if (!parts || parts.length < 3) {
+        throw new Error(`decodeTimestamp: could not parse "${str}"`);
+    }
+    const [y, m, d, h, min, s, ms] = parts.map(Number)
+    return Date.UTC(y, m - 1, d, h ?? 0, min ?? 0, s ?? 0, ms ?? 0);
 }
 
 // parses a .jsonl Tavern chat file
-export function parseChat( jsonl: string ): IChat{
+export function parseChat( jsonl: string ): IChat | undefined{
     let lines = jsonl.split("\n")
     if( lines.length < 2 ){
-        return null;
+        return undefined;
     }
     let info = JSON.parse( lines[0] )
     if( typeof(info.create_date) === "string" ){
@@ -36,7 +43,7 @@ export function parseChat( jsonl: string ): IChat{
             info.create_date = new Date(info.create_date).getTime()
         }
     }
-    let chat = {
+    let chat: IChat = {
         title: info.create_date.toString(),
         participants: [ info.character_name ],
         create_date: info.create_date,
@@ -45,9 +52,10 @@ export function parseChat( jsonl: string ): IChat{
     }
     for( let line = 1; line < lines.length; line++){
         let ref = JSON.parse( lines[line] )
-        let msg = {
+        let msg: IMessage = {
             participant: ref.is_user ? -1 : 0,
             index: 0,
+            timestamp: 0,
             candidates: []
         }
         let timestamp = ref.send_date
@@ -58,12 +66,10 @@ export function parseChat( jsonl: string ): IChat{
                 timestamp = new Date(timestamp).getTime()
             }
         }
-
         if( ref.swipes ){
             if( ref.swipe_id ){
                 msg.index = ref.swipe_id
             }
-
             for( let s = 0; s < ref.swipes.length; s++){
                 msg.candidates.push({
                     text: ref.swipes[s],
@@ -84,12 +90,12 @@ export function parseChat( jsonl: string ): IChat{
     return chat;
 }
 
-export function convertPrompt(obj: any): Array<any>{
-    let list = []
-    obj.prompt_order[0]?.order.forEach((item) => {
+export function convertPrompt(obj: any): Array<IPromptConfig>{
+    let list: Array<IPromptConfig> = []
+    obj.prompt_order[0]?.order.forEach((item: any) => {
         let id: string = item.identifier
         let enabled: boolean = item.enabled
-        let target: any = obj.prompts.find((e) => e.identifier == id)
+        let target: any = obj.prompts.find((e: any) => e.identifier == id)
         let source: any = {
             key: "",
             enabled: enabled,

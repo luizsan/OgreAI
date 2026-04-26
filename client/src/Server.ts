@@ -176,8 +176,8 @@ export async function listChats(character : ICharacter, set_latest = false){
 export function updateChats(timestamp : number = Date.now()){
     const currentCharacter: ICharacter = get( State.currentCharacter )
     const currentChat: IChat = get( State.currentChat )
-    const characterList = get( State.characterList )
-    const chatList = get( State.chatList )
+    const characterList: Array<ICharacter> = get( State.characterList )
+    const chatList: Array<IChat> = get( State.chatList )
 
     currentCharacter.temp.chat_latest = timestamp
     currentChat.last_interaction = timestamp
