@@ -68,12 +68,26 @@ export default class ZAI extends API {
             type: "checkbox", default: true,
         },
 
+        do_sample: {
+            title: "Sample Output",
+            description: "Whether to sample the output to increase diversity.",
+            type: "checkbox", default: true,
+        },
+
+        thinking: {
+            title: "Thinking",
+            description: "Whether to enable thinking.",
+            type: "checkbox", default: false,
+        },
+
         stop_sequences: {
             title: "Stop",
             description: "Stop word list. Generation stops when the model encounters any specified string.",
             type: "list", limit: 1, default: [],
         }
     }
+
+    THINKING_MODELS = this.API_SETTINGS.model.choices.slice(0, this.API_SETTINGS.model.choices.indexOf("glm-4.5") + 1)
 
     async getStatus(settings: { api_auth: string, api_url?: string; }): Promise<boolean> {
         const options = { method: "GET", headers:{ "Authorization": `Bearer ${settings.api_auth}` }}
@@ -103,7 +117,12 @@ export default class ZAI extends API {
             temperature: parseFloat(settings.temperature),
             top_p: parseFloat(settings.top_p),
             stream: settings.stream,
+            do_sample: settings.do_sample,
             thinking: { type: "disabled" }
+        }
+
+        if( !!settings.thinking && this.THINKING_MODELS.includes(settings.model)){
+            outgoing_data["thinking"] = { type: "enabled" }
         }
 
         let options = {
