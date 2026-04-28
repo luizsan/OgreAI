@@ -52,19 +52,19 @@ export default class ZAI extends API {
 
         temperature: {
             title: "Temperature",
-            description: "Sampling temperature, controls the randomness of the output.",
+            description: "Controls the randomness of output, higher values are more random.",
             type: "range", default: 0.6, min: 0, max: 1, step: 0.01,
         },
 
         top_p: {
             title: "top_p",
-            description: "Another method of temperature sampling.",
+            description: "Controls diversity through nucleus sampling, recommended to use either this or temperature.",
             type: "range", default: 0.95, min: 0, max: 1, step: 0.01,
         },
 
         stream: {
             title: "Stream",
-            description: "This parameter should be set to false or omitted when using synchronous call.",
+            description: "Whether to return responses in streaming mode.",
             type: "checkbox", default: true,
         },
 
@@ -76,7 +76,7 @@ export default class ZAI extends API {
 
         thinking: {
             title: "Thinking",
-            description: "Whether to enable thinking.",
+            description: "Whether to enable chain-of-thought deep thinking, only supported by GLM-4.5 and above.",
             type: "checkbox", default: false,
         },
 
