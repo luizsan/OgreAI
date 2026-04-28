@@ -18,7 +18,7 @@
     import Content from "@/views/chat/Content.svelte";
     import * as Server from "@/Server";
     import * as SVG from "@/svg/Common.svelte";
-    import { scale } from "svelte/transition";
+    import { scale, fade } from "svelte/transition";
 
     let searchTerm : string = ""
     let searchResults : Array<ICandidate> = $swipes?.candidates || []
@@ -88,6 +88,7 @@
 </script>
 
 {#if !!$swipes}
+<button class="background" transition:fade={{duration:250}} on:click={closeSwipeView}></button>
 <div id="swipe_viewer" class="main" inert={lockinput} transition:scale={{duration:250, start: 0.9, opacity: 0}}>
     <div class="top">
         <Search
@@ -152,6 +153,15 @@
 {/if}
 
 <style>
+    .background{
+        position: fixed;
+        width: 100%;
+        inset: 0px;
+        background: #00000080;
+        cursor: default;
+        z-index: var( --layer-popup );
+    }
+
     .main{
         top: 24px;
         bottom: 48px;
@@ -212,7 +222,7 @@
     }
 
     .content{
-        padding: 20px 32px;
+        padding: 32px;
         display: flex;
         flex-direction: column;
         gap: 16px;
