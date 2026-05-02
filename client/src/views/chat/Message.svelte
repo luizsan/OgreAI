@@ -64,7 +64,7 @@
 
     // deletion
     $: selected = $deleteList.indexOf(id) > -1;
-    $: lockinput = !$currentChat || $fetching || $busy || $generating || Dialog.isOpen() || Actions.isOpen()
+    $: lockinput = !$currentChat || $fetching || $busy || $generating || $swipes || Dialog.isOpen() || Actions.isOpen()
 
     // prefs
     $: prefs_show_datetime = $currentPreferences["show_datetime"] ?? false
