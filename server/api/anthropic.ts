@@ -25,6 +25,7 @@ export default class Anthropic extends API {
             title: "Model",
             description: "The model that will complete your prompt. This parameter controls which version of Claude answers your request.",
             type: "select", default: "claude-v1.2", choices: [
+                "claude-opus-4-8",
                 "claude-opus-4-7",
                 "claude-opus-4-6",
                 "claude-opus-4-5",
@@ -139,6 +140,7 @@ export default class Anthropic extends API {
                 this.mutuallyExclusiveParameters(outgoing_data, "temperature", "top_p")
                 break;
             case "claude-opus-4-7":
+            case "claude-opus-4-8":
                 outgoing_data.top_p = undefined
                 outgoing_data.top_k = undefined
                 break;
