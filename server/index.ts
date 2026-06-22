@@ -19,6 +19,7 @@ import DeepSeek from "./api/deepseek.ts"
 import Google from "./api/google.ts"
 import Mistral from "./api/mistral.ts"
 import NovelAI from "./api/novelai.ts"
+import Ollama from "./api/ollama.ts"
 import OpenAI from "./api/openai.ts"
 import xAI from "./api/xai.ts"
 import ZAI from "./api/zai.ts"
@@ -54,6 +55,7 @@ var API_MODES: Record<string, API> = {
     "google": new Google(),
     "mistral": new Mistral(),
     "novelai": new NovelAI(),
+    "ollama": new Ollama(),
     "openai": new OpenAI(),
     "xai": new xAI(),
     "zai": new ZAI(),
